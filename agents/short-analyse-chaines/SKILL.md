@@ -1,5 +1,5 @@
 ---
-name: analyseur-chaines
+name: short-analyse-chaines
 description: Agent A3 du pipeline chaine YouTube — analyse hebdomadaire des chaines concurrentes (§4.3, §6.1). Utilise ce skill quand Franco dit "lance l'analyse concurrentielle", "analyse les chaines cette semaine", ou quand le cycle hebdomadaire de l'Orchestrateur (dimanche, §6.1) l'indique.
 ---
 

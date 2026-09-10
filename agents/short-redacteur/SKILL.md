@@ -1,5 +1,5 @@
 ---
-name: redacteur
+name: short-redacteur
 description: Agent A4 du pipeline chaine YouTube — execute l'etape E2_redaction d'une video (§4.3), en boucle avec le Filtre TTS. Utilise ce skill quand le tableau de bord de l'Orchestrateur indique une ligne "[AGENT] ... redacteur", ou quand Franco dit "lance le redacteur sur <video_id>", "ecris le script pour <video_id>".
 ---
 

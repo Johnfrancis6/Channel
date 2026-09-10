@@ -1,5 +1,5 @@
 """
-Teste agents/amelioration_continue/scripts/rassembler_inputs.py (§4.3, H1) :
+Teste agents/short-amelioration/scripts/rassembler_inputs.py (§4.3, H1) :
 il doit lister les fichiers pertinents recents sans faire d'analyse.
 """
 
@@ -11,7 +11,7 @@ import time
 import unittest
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(REPO_ROOT, "agents", "amelioration_continue", "scripts"))
+sys.path.insert(0, os.path.join(REPO_ROOT, "agents", "short-amelioration", "scripts"))
 import rassembler_inputs  # noqa: E402
 
 

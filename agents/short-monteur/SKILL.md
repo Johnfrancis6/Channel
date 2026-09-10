@@ -1,5 +1,5 @@
 ---
-name: monteur
+name: short-monteur
 description: Agent A7 du pipeline chaine YouTube — execute l'etape E6_montage d'une video (§4.3, §8), une fois l'audio et le storyboard termines. Utilise ce skill quand le tableau de bord de l'Orchestrateur indique une ligne "[AGENT] ... monteur", ou quand Franco dit "monte la video <video_id>", "rends la video pour <video_id>".
 ---
 

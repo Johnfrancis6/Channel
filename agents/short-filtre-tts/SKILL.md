@@ -1,5 +1,5 @@
 ---
-name: filtre-tts
+name: short-filtre-tts
 description: Agent A5 du pipeline chaine YouTube — execute l'etape E3_filtre d'une video (§4.3, §7.3), juste avant le CP2. Utilise ce skill quand le tableau de bord de l'Orchestrateur indique une ligne "[AGENT] ... filtre_tts", ou quand Franco dit "lance le filtre TTS sur <video_id>", "prepare le script pour la voix off de <video_id>".
 ---
 

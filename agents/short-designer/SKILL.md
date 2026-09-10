@@ -1,5 +1,5 @@
 ---
-name: designer-storyboard
+name: short-designer
 description: Agent A6 du pipeline chaine YouTube — execute l'etape E5_storyboard d'une video (§4.3, §8), en parallele de l'audio, apres le CP2. Utilise ce skill quand le tableau de bord de l'Orchestrateur indique une ligne "[AGENT] ... designer", ou quand Franco dit "fais le storyboard de <video_id>". Ne pas confondre avec la charte visuelle (session ponctuelle, deja ebauchee dans 00_Profil/charte_visuelle/).
 ---
 

@@ -15,9 +15,9 @@ import unittest
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NEW_SHORT = os.path.join(REPO_ROOT, "skills", "new-short", "scripts", "new_short.py")
 ETAPE = {
-    "chercheur": os.path.join(REPO_ROOT, "agents", "chercheur", "scripts", "etape.py"),
-    "redacteur": os.path.join(REPO_ROOT, "agents", "redacteur", "scripts", "etape.py"),
-    "filtre_tts": os.path.join(REPO_ROOT, "agents", "filtre_tts", "scripts", "etape.py"),
+    "chercheur": os.path.join(REPO_ROOT, "agents", "short-chercheur", "scripts", "etape.py"),
+    "redacteur": os.path.join(REPO_ROOT, "agents", "short-redacteur", "scripts", "etape.py"),
+    "filtre_tts": os.path.join(REPO_ROOT, "agents", "short-filtre-tts", "scripts", "etape.py"),
 }
 
 from orchestrateur.checkpoints import chemin_rapport

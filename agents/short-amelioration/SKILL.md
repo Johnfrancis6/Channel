@@ -1,5 +1,5 @@
 ---
-name: amelioration-continue
+name: short-amelioration
 description: Agent H1 du pipeline chaine YouTube — rapport hebdomadaire d'amelioration continue (§4.3, §6.1). Utilise ce skill quand Franco dit "lance l'amelioration continue", "fais le bilan de la semaine", ou quand le cycle hebdomadaire de l'Orchestrateur (dimanche) l'indique.
 ---
 

@@ -1,5 +1,5 @@
 """
-Teste les fonctions pures de agents/analyseur_chaines/scripts (§4.3, A3),
+Teste les fonctions pures de agents/short-analyse-chaines/scripts (§4.3, A3),
 sans appel reseau : parsing des reponses API YouTube Data et generation
 du rapport hebdomadaire.
 """
@@ -12,7 +12,7 @@ import tempfile
 import unittest
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SCRIPTS_DIR = os.path.join(REPO_ROOT, "agents", "analyseur_chaines", "scripts")
+SCRIPTS_DIR = os.path.join(REPO_ROOT, "agents", "short-analyse-chaines", "scripts")
 sys.path.insert(0, SCRIPTS_DIR)
 import stats_youtube  # noqa: E402
 import generer_rapport  # noqa: E402

@@ -17,7 +17,7 @@ import unittest
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 COMPOSANTS = os.path.join(REPO_ROOT, "composants")
-CONSTRUIRE_PROPS = os.path.join(REPO_ROOT, "agents", "monteur", "scripts", "construire_props.py")
+CONSTRUIRE_PROPS = os.path.join(REPO_ROOT, "agents", "short-monteur", "scripts", "construire_props.py")
 
 
 def _trouver_chromium():

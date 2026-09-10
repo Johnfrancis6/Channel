@@ -1,5 +1,5 @@
 """
-Teste agents/monteur/scripts/construire_props.py : assemblage des props
+Teste agents/short-monteur/scripts/construire_props.py : assemblage des props
 Remotion et normalisation de 04_timestamps.json quel que soit son format
 (§13 etape 5).
 """
@@ -12,8 +12,8 @@ import tempfile
 import unittest
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SCRIPT = os.path.join(REPO_ROOT, "agents", "monteur", "scripts", "construire_props.py")
-sys.path.insert(0, os.path.join(REPO_ROOT, "agents", "monteur", "scripts"))
+SCRIPT = os.path.join(REPO_ROOT, "agents", "short-monteur", "scripts", "construire_props.py")
+sys.path.insert(0, os.path.join(REPO_ROOT, "agents", "short-monteur", "scripts"))
 import construire_props  # noqa: E402
 
 

@@ -1,5 +1,5 @@
 ---
-name: chercheur
+name: short-chercheur
 description: Agent A2 du pipeline chaine YouTube — execute l'etape E1_recherche d'une video (§4.3). Utilise ce skill quand Franco ou le tableau de bord de l'Orchestrateur (ligne "[AGENT] ... chercheur") indique qu'une recherche est prete a etre lancee, ou quand Franco dit "lance le chercheur sur <video_id>", "fais la recherche pour <video_id>".
 ---
 
