@@ -12,6 +12,13 @@ import os
 import sys
 
 from .config import DEFAUTS as CONFIG_DEFAUTS
+from .profil_defaults import (
+    CHARTE_JSON,
+    CHARTE_MD,
+    CONVENTIONS_MD,
+    LEXIQUE_PRONONCIATION_MD,
+    PROFIL_CHAINE_MD,
+)
 
 DOSSIERS = [
     "00_Profil",
@@ -62,6 +69,20 @@ def initialiser(root):
         resultat["fichiers_crees"].append("01_Orchestrateur/log_erreurs.md")
     else:
         resultat["deja_present"].append("01_Orchestrateur/log_erreurs.md")
+
+    profil = {
+        "00_Profil/profil_chaine.md": PROFIL_CHAINE_MD,
+        "00_Profil/conventions.md": CONVENTIONS_MD,
+        "00_Profil/lexique_prononciation.md": LEXIQUE_PRONONCIATION_MD,
+        "00_Profil/charte_visuelle/charte.md": CHARTE_MD,
+        "00_Profil/charte_visuelle/charte.json": json.dumps(CHARTE_JSON, ensure_ascii=False, indent=2),
+    }
+    for relatif, contenu in profil.items():
+        chemin = os.path.join(root, *relatif.split("/"))
+        if _ecrire_si_absent(chemin, contenu):
+            resultat["fichiers_crees"].append(relatif)
+        else:
+            resultat["deja_present"].append(relatif)
 
     return resultat
 
