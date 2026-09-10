@@ -14,6 +14,12 @@ DEFAUTS = {
     "seuil_blocage_heures": 2,
     "seuil_orchestrateur_heures": 6,
     "max_tentatives": MAX_TENTATIVES_DEFAUT,
+    # "factice" (defaut lib, utilise par les tests) : l'Orchestrateur execute
+    # lui-meme les agents factices de agents/factices/.
+    # "reel" : les agents sont des skills Claude Code lances a la main ou en
+    # headless ; l'Orchestrateur se contente de signaler au tableau de bord
+    # quelle etape est prete, et gere l'escalade en alerte / la boucle A4<->A5.
+    "mode_agents": "factice",
 }
 
 

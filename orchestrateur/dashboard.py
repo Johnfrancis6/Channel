@@ -1,6 +1,7 @@
 import json
 import os
 
+from .engine import etapes_agent_actionnables
 from .state_store import list_video_dirs, load_state, now_iso
 
 
@@ -39,6 +40,11 @@ def _lignes_a_faire(root):
                 lignes.append(f"- [{etape_id}] {video_id} — valider le rapport de checkpoint")
             elif statut == "attente_franco":
                 lignes.append(f"- [ACTION] {video_id} — {etape_id} : action manuelle requise")
+        for a in etapes_agent_actionnables(state):
+            verbe = "Relancer" if a["statut"] == "echec" else "Lancer"
+            lignes.append(
+                f"- [AGENT] {video_id} — {verbe} l'agent {a['agent']} ({a['etape']}, tentative {a['tentatives'] + 1})"
+            )
     return lignes
 
 

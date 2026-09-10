@@ -4,6 +4,8 @@ d'une etape a la suivante, en respectant §4.2 (contrat agent) et §6.2
 (sequencement).
 """
 
+import os
+
 from .agents_registry import obtenir_agent
 from .checkpoints import generer_rapport_si_absent, lire_decision
 from .constants import PIPELINE_PAR_ID
@@ -83,11 +85,47 @@ def _executer_etape_agent(video_dir, state, etape_def, max_tentatives):
         ajouter_historique(state, agent_id, "echec", resultat["message"])
 
 
+def _lire_extrait(video_dir, nom_fichier, max_chars=3000):
+    chemin = os.path.join(video_dir, nom_fichier)
+    if not os.path.isfile(chemin):
+        return None
+    with open(chemin, "r", encoding="utf-8") as f:
+        contenu = f.read()
+    if len(contenu) > max_chars:
+        contenu = contenu[:max_chars] + "\n\n[...]"
+    return contenu
+
+
+RESUME_SOURCES = {
+    "CP1": [("01_recherche.md", "Recherche")],
+    "CP2": [("03_script_final.md", "Script final"), ("03_rapport_metriques.md", "Rapport metriques (nouveaux termes de lexique)")],
+    "CP3": [("05_storyboard.md", "Storyboard")],
+}
+
+
+def _construire_resume_checkpoint(video_dir, state, checkpoint_id):
+    morceaux = []
+    if checkpoint_id == "CP1":
+        morceaux.append(f"Sujet : {state.get('sujet') or state.get('titre_travail') or '(a determiner)'}")
+        if state.get("angle"):
+            morceaux.append(f"Angle propose : {state['angle']}")
+    for nom_fichier, titre in RESUME_SOURCES.get(checkpoint_id, []):
+        extrait = _lire_extrait(video_dir, nom_fichier)
+        if extrait:
+            morceaux.append(f"## {titre} (`{nom_fichier}`)\n\n{extrait}")
+    if checkpoint_id == "CP3":
+        morceaux.append("Champs SEO a remplir dans le bloc de decision : titre, description, tags (§11).")
+    if not morceaux:
+        return f"Resume a completer pour {checkpoint_id} (aucune sortie trouvee)."
+    return "\n\n".join(morceaux)
+
+
 def _ouvrir_checkpoint_si_pret(video_dir, state, etape_id):
     etape = state["etapes"][etape_id]
     if etape["statut"] == "a_venir" and _pret(state, etape_id):
         etape["statut"] = "attente_validation"
-        generer_rapport_si_absent(video_dir, etape_id, resume=f"Resume a completer pour {etape_id}.")
+        resume = _construire_resume_checkpoint(video_dir, state, etape_id)
+        generer_rapport_si_absent(video_dir, etape_id, resume=resume)
 
 
 def _reagir_au_refus(state, checkpoint_id):
@@ -138,9 +176,49 @@ def _mettre_a_jour_etape_actuelle(state):
     state["etape_actuelle"] = "termine"
 
 
+def _traiter_echec_agent_reel(state, etape_id, max_tentatives):
+    """
+    Mode reel : l'Orchestrateur ne relance pas lui-meme l'agent (c'est un
+    skill Claude Code lance a la main ou en headless). Il gere seulement ce
+    qui lui revient : la boucle A4<->A5 et l'escalade en alerte a 3 echecs.
+    """
+    etape = state["etapes"][etape_id]
+    if etape_id == "E3_filtre" and etape.get("action") == "revision_redaction":
+        _gerer_boucle_redaction_filtre(state)
+        return
+    tentatives = etape.get("tentatives", 0)
+    if tentatives >= max_tentatives:
+        etape["statut"] = "alerte"
+        ajouter_historique(state, etape.get("agent", etape_id), "alerte",
+                            f"{etape_id} : {tentatives} echecs, intervention de Franco requise.")
+    # sinon on laisse "echec" : l'agent reel devra etre relance manuellement
+    # (l'action apparait au tableau de bord via etapes_agent_actionnables).
+
+
+def etapes_agent_actionnables(state):
+    """Etapes 'agent' (a_venir ou echec) pretes a etre lancees par un agent reel."""
+    resultat = []
+    for etape_def in PIPELINE_PAR_ID.values():
+        if etape_def["kind"] != "agent":
+            continue
+        etape_id = etape_def["id"]
+        etape = state["etapes"].get(etape_id)
+        if etape is None or etape["statut"] not in ("a_venir", "echec"):
+            continue
+        if _pret(state, etape_id):
+            resultat.append({
+                "etape": etape_id,
+                "agent": etape_def["agent"],
+                "statut": etape["statut"],
+                "tentatives": etape.get("tentatives", 0),
+            })
+    return resultat
+
+
 def traiter_video(video_dir, state, config):
     """Fait avancer une video d'un pas d'execution de l'Orchestrateur. Mute `state`."""
     max_tentatives = config["max_tentatives"]
+    mode_agents = config.get("mode_agents", "factice")
 
     _transcrire_decisions_franco(video_dir, state)
 
@@ -151,10 +229,13 @@ def traiter_video(video_dir, state, config):
             continue
 
         if etape_def["kind"] == "agent":
-            if etape["statut"] in ("a_venir",) and _pret(state, etape_id):
-                _executer_etape_agent(video_dir, state, etape_def, max_tentatives)
-            elif etape["statut"] == "echec":
-                _executer_etape_agent(video_dir, state, etape_def, max_tentatives)
+            if mode_agents == "factice":
+                if etape["statut"] in ("a_venir", "echec") and _pret(state, etape_id):
+                    _executer_etape_agent(video_dir, state, etape_def, max_tentatives)
+            else:
+                if etape["statut"] == "echec":
+                    _traiter_echec_agent_reel(state, etape_id, max_tentatives)
+                # "a_venir" et pret : rien a faire ici, voir etapes_agent_actionnables
 
         elif etape_def["kind"] == "checkpoint":
             _ouvrir_checkpoint_si_pret(video_dir, state, etape_id)

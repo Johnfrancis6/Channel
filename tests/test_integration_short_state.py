@@ -44,6 +44,15 @@ class TestIntegrationShortState(unittest.TestCase):
     def setUp(self):
         self.root = tempfile.mkdtemp(prefix="chaine_yt_integration_")
         initialiser(self.root)
+        # Ces tests exercent les agents factices (§13 etape 1), pas les
+        # skills reels : on force le mode "factice" malgre le config.json
+        # "reel" ecrit par defaut par initialiser() pour la production.
+        config_path = os.path.join(self.root, "01_Orchestrateur", "config.json")
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = json.load(f)
+        config["mode_agents"] = "factice"
+        with open(config_path, "w", encoding="utf-8") as f:
+            json.dump(config, f, ensure_ascii=False, indent=2)
 
     def tearDown(self):
         shutil.rmtree(self.root, ignore_errors=True)

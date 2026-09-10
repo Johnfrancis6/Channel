@@ -53,7 +53,8 @@ def initialiser(root):
             resultat["dossiers_crees"].append(relatif)
 
     config_path = os.path.join(root, "01_Orchestrateur", "config.json")
-    if _ecrire_si_absent(config_path, json.dumps(CONFIG_DEFAUTS, ensure_ascii=False, indent=2)):
+    config_reel = {**CONFIG_DEFAUTS, "mode_agents": "reel"}
+    if _ecrire_si_absent(config_path, json.dumps(config_reel, ensure_ascii=False, indent=2)):
         resultat["fichiers_crees"].append("01_Orchestrateur/config.json")
     else:
         resultat["deja_present"].append("01_Orchestrateur/config.json")

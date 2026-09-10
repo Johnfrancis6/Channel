@@ -6,7 +6,7 @@ suivantes du §13 remplaceront ces entrees par les vrais agents (A2, A4...)
 sans toucher au reste de l'Orchestrateur.
 """
 
-from agents.factices import chercheur, designer, filtre_tts, monteur, redacteur
+from .agents_factices import chercheur, designer, filtre_tts, monteur, redacteur
 
 REGISTRE = {
     "chercheur": chercheur,
