@@ -19,6 +19,23 @@ distincts des skills generiques du marketplace (`design`, `docx`, etc.).
 | `short-analyse-chaines/` | `short-analyse-chaines` | A3 (hebdo) |
 | `short-amelioration/` | `short-amelioration` | H1 (hebdo) |
 
+## Installation locale (`.claude/skills/`)
+
+`agents/short-*/` reste la source de verite versionnee (§9.2). Pour que
+Claude Code detecte ces skills quand ce depot est ouvert localement, une
+copie est synchronisee dans `.claude/skills/` a la racine du depot.
+
+**Ne jamais editer `.claude/skills/` directement.** Modifie `agents/short-*/`,
+puis relance :
+
+```bash
+python3 agents/_synchroniser_vers_claude_skills.py
+```
+
+`new-short` et `short-state` (dans `skills/`) suivent un chemin
+d'installation different : ils sont arrives via un plugin du marketplace
+Claude Code, rattache au compte de Franco (§14).
+
 `_etape_template.py` est la source commune de `scripts/etape.py`, duplique
 dans chaque agent (les skills sont installes independamment, voir §14) :
 il applique le contrat `state.json` du §4.2 (demarrage/succes/echec) sans
