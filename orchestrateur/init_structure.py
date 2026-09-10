@@ -13,6 +13,7 @@ import sys
 
 from .config import DEFAUTS as CONFIG_DEFAUTS
 from .profil_defaults import (
+    CHAINES_CONCURRENTES_JSON,
     CHARTE_JSON,
     CHARTE_MD,
     CONVENTIONS_MD,
@@ -77,6 +78,7 @@ def initialiser(root):
         "00_Profil/lexique_prononciation.md": LEXIQUE_PRONONCIATION_MD,
         "00_Profil/charte_visuelle/charte.md": CHARTE_MD,
         "00_Profil/charte_visuelle/charte.json": json.dumps(CHARTE_JSON, ensure_ascii=False, indent=2),
+        "00_Profil/chaines_concurrentes.json": json.dumps(CHAINES_CONCURRENTES_JSON, ensure_ascii=False, indent=2),
     }
     for relatif, contenu in profil.items():
         chemin = os.path.join(root, *relatif.split("/"))

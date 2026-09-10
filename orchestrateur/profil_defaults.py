@@ -72,6 +72,10 @@ CHARTE_MD = """# Charte visuelle
 Pas de miniature pour l'instant (§4.3).
 """
 
+CHAINES_CONCURRENTES_JSON = []
+# Liste a remplir par Franco : [{"channel_id": "UCxxxx", "nom": "..."}]
+# Utilisee par le Chercheur (A2, veille) et l'Analyseur de chaines (A3, §4.3).
+
 CHARTE_JSON = {
     "version": 1,
     "statut": "brouillon",

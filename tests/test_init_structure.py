@@ -21,6 +21,7 @@ class TestInitStructure(unittest.TestCase):
                          "00_Profil/lexique_prononciation.md",
                          "00_Profil/charte_visuelle/charte.md",
                          "00_Profil/charte_visuelle/charte.json",
+                         "00_Profil/chaines_concurrentes.json",
                          "01_Orchestrateur/config.json",
                          "02_Veille_hebdo/backlog_sujets.json"):
             self.assertTrue(os.path.isfile(os.path.join(self.root, *relatif.split("/"))), relatif)
