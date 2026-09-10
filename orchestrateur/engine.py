@@ -140,7 +140,7 @@ def _mettre_a_jour_etape_actuelle(state):
 
 def traiter_video(video_dir, state, config):
     """Fait avancer une video d'un pas d'execution de l'Orchestrateur. Mute `state`."""
-    max_tentatives = config["seuils"]["max_tentatives"]
+    max_tentatives = config["max_tentatives"]
 
     _transcrire_decisions_franco(video_dir, state)
 
