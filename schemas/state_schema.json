@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "state.json",
+  "description": "Etat detaille d'une video du pipeline. Reference : docs/architecture_chaine_v1.2.md §5.",
+  "type": "object",
+  "required": ["video_id", "titre_travail", "pilier", "voie", "statut_global", "etape_actuelle", "etapes", "publication", "historique"],
+  "properties": {
+    "video_id": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}_v[0-9]{2}$" },
+    "titre_travail": { "type": "string" },
+    "pilier": {
+      "type": "string",
+      "enum": ["actu_ia", "avis_outils", "vulgarisation", "projets_perso", "tutos"]
+    },
+    "voie": { "type": "string", "enum": ["tampon", "rapide"] },
+    "statut_global": {
+      "type": "string",
+      "enum": ["idee", "sujet_valide", "en_production", "prete", "programmee", "publiee", "abandonnee", "attente_franco"]
+    },
+    "etape_actuelle": { "type": "string" },
+    "etapes": {
+      "type": "object",
+      "properties": {
+        "E1_recherche": { "$ref": "#/definitions/etape_agent" },
+        "CP1": { "$ref": "#/definitions/checkpoint" },
+        "E2_redaction": { "$ref": "#/definitions/etape_agent" },
+        "E3_filtre": { "$ref": "#/definitions/etape_agent" },
+        "CP2": { "$ref": "#/definitions/checkpoint" },
+        "E4_audio": { "$ref": "#/definitions/etape_agent" },
+        "E5_storyboard": { "$ref": "#/definitions/etape_agent" },
+        "E6_montage": { "$ref": "#/definitions/etape_agent" },
+        "CP3": { "$ref": "#/definitions/checkpoint" },
+        "E7_publication": { "$ref": "#/definitions/etape_agent" }
+      },
+      "additionalProperties": false
+    },
+    "publication": {
+      "type": "object",
+      "properties": {
+        "date_prevue": { "type": ["string", "null"] },
+        "date_effective": { "type": ["string", "null"] },
+        "url": { "type": ["string", "null"] }
+      },
+      "required": ["date_prevue", "date_effective", "url"]
+    },
+    "historique": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["horodatage", "agent", "evenement", "message"],
+        "properties": {
+          "horodatage": { "type": "string" },
+          "agent": { "type": "string" },
+          "evenement": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "etape_agent": {
+      "type": "object",
+      "required": ["statut"],
+      "properties": {
+        "agent": { "type": "string" },
+        "statut": {
+          "type": "string",
+          "enum": ["a_venir", "en_cours", "termine", "echec", "alerte", "attente_franco"]
+        },
+        "tentatives": { "type": "integer", "minimum": 0 },
+        "debut": { "type": ["string", "null"] },
+        "fin": { "type": ["string", "null"] },
+        "sorties": { "type": "array", "items": { "type": "string" } },
+        "message": { "type": ["string", "null"] }
+      }
+    },
+    "checkpoint": {
+      "type": "object",
+      "required": ["statut"],
+      "properties": {
+        "statut": {
+          "type": "string",
+          "enum": ["a_venir", "attente_validation", "valide", "refuse"]
+        },
+        "commentaire": { "type": ["string", "null"] },
+        "date": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
