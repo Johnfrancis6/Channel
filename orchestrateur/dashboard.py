@@ -2,6 +2,7 @@ import json
 import os
 
 from .engine import etapes_agent_actionnables
+from .hebdo import taches_hebdo_manquantes
 from .state_store import list_video_dirs, load_state, now_iso
 
 
@@ -45,6 +46,11 @@ def _lignes_a_faire(root):
             lignes.append(
                 f"- [AGENT] {video_id} — {verbe} l'agent {a['agent']} ({a['etape']}, tentative {a['tentatives'] + 1})"
             )
+
+    semaine, manquantes = taches_hebdo_manquantes(root)
+    for m in manquantes:
+        lignes.append(f"- [HEBDO] {semaine} — {m['tache']} : `{m['fichier_attendu']}` manquant")
+
     return lignes
 
 
