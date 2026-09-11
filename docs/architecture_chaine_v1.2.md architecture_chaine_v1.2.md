@@ -297,6 +297,10 @@ Statut : EN_ATTENTE        <!-- remplacer par VALIDE ou REFUSE -->
 Commentaire :
 ```
 
+**Au CP3, le rapport décrit la vidéo, pas le plan.** Il donne le fichier à regarder et son poids, la durée du rendu **face à celle de la voix off** (un écart signale que le recalage sur `04_phrases.json` n'a pas eu lieu), les scènes que le Designer n'aurait pas tranchées, les nouveaux composants — qui ne sont revus nulle part ailleurs (§8) — puis les champs SEO. Le storyboard n'apparaît qu'en rappel, borné à 1200 caractères.
+
+Avant, le rapport ne contenait *que* le storyboard : pour valider le rendu final, Franco lisait le plan de tournage, le fichier vidéo n'était pas même nommé, et l'écart de 16,4 s de `2026-09-11_v01` n'apparaissait nulle part.
+
 **Ce qui porte la décision survit à la coupe.** Le résumé est un extrait borné ; l'extraction suit les sections Markdown et garde en priorité celles qui portent la décision — « Points à trancher », « Angle proposé », « Nouveaux termes », « Nouveaux composants ». Une troncature naïve par le début coupait le rapport de CP1 en plein milieu d'une phrase et jetait précisément les questions posées à Franco, ne laissant que les sources : le fichier fait pour décider depuis un téléphone faisait écran au lieu de servir.
 
 À l'exécution suivante, l'Orchestrateur lit ce bloc et le retranscrit dans `state.json`. En cas de refus, l'agent précédent est relancé avec le commentaire en input. Au CP2, le bloc contient aussi les nouveaux termes du lexique, à valider ou corriger. Au CP3, il contient les champs SEO (§11).

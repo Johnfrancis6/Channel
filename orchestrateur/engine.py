@@ -4,6 +4,7 @@ d'une etape a la suivante, en respectant §4.2 (contrat agent) et §6.2
 (sequencement).
 """
 
+import json
 import os
 import re
 import unicodedata
@@ -183,9 +184,90 @@ RESUME_SOURCES = {
     "CP2": [("03_script_final.md", "Script final", ()),
             ("03_rapport_metriques.md", "Rapport metriques (nouveaux termes de lexique)",
              ("Nouveaux termes", "Lexique", "A corriger", "Hors cible"))],
-    "CP3": [("05_storyboard.md", "Storyboard",
+    "CP3": [("05_storyboard.md", "Storyboard (rappel du plan)",
              ("Nouveaux composants", "Duree totale"))],
 }
+
+
+def _octets_lisibles(n):
+    for unite in ("o", "Ko", "Mo", "Go"):
+        if n < 1024 or unite == "Go":
+            return f"{n:.0f} {unite}" if unite == "o" else f"{n:.1f} {unite}"
+        n /= 1024
+    return f"{n:.1f} Go"
+
+
+def _lire_json(video_dir, nom_fichier):
+    chemin = os.path.join(video_dir, nom_fichier)
+    if not os.path.isfile(chemin):
+        return None
+    try:
+        with open(chemin, "r", encoding="utf-8-sig") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def _resume_video_finale(video_dir, state):
+    """
+    Ce qu'il faut pour decider au CP3 : le fichier a regarder, sa duree face
+    a celle de l'audio, et ce que le Monteur signale.
+
+    Le rapport ne montrait que le storyboard — le plan de tournage, pas le
+    resultat. Sur 2026-09-11_v01, le fichier video n'etait meme pas nomme,
+    et l'ecart de 16,4 s entre le rendu (98,9 s) et la voix off (82,5 s)
+    n'apparaissait nulle part. Franco validait le rendu final sans qu'aucun
+    chiffre du rendu ne lui soit presente.
+    """
+    montage = state.get("etapes", {}).get("E6_montage", {}) or {}
+    lignes = ["## La video a valider", ""]
+
+    sorties = [s for s in (montage.get("sorties") or []) if s.endswith(".mp4")]
+    nom_mp4 = sorties[0] if sorties else "06_video_finale.mp4"
+    chemin_mp4 = os.path.join(video_dir, nom_mp4)
+    if os.path.isfile(chemin_mp4):
+        lignes.append(f"- **Fichier** : `{nom_mp4}` ({_octets_lisibles(os.path.getsize(chemin_mp4))})")
+    else:
+        lignes.append(f"- **Fichier** : `{nom_mp4}` — *introuvable dans le dossier de la video*")
+
+    storyboard = _lire_json(video_dir, "05_storyboard.json") or {}
+    scenes = storyboard.get("scenes") or []
+    duree_rendu = round(sum(float(sc.get("duree_s") or 0) for sc in scenes), 1) if scenes else None
+
+    phrases = _lire_json(video_dir, "04_phrases.json") or {}
+    duree_audio = phrases.get("duree_totale_s")
+
+    if duree_rendu:
+        lignes.append(f"- **Duree du rendu** : {duree_rendu} s, sur {len(scenes)} scenes")
+    if duree_audio:
+        lignes.append(f"- **Duree de la voix off** : {duree_audio} s")
+    if duree_rendu and duree_audio:
+        ecart = round(duree_rendu - duree_audio, 1)
+        if abs(ecart) > 1:
+            sens = "depasse la voix off" if ecart > 0 else "s'arrete avant la fin de la voix off"
+            lignes.append(f"- ⚠️ **Ecart de {abs(ecart)} s** : le visuel {sens}. "
+                           f"Le recalage sur `04_phrases.json` n'a pas eu lieu.")
+
+    a_completer = [sc.get("id") for sc in scenes if sc.get("a_completer")]
+    if a_completer:
+        lignes.append(f"- ⚠️ **Scenes non tranchees par le Designer** : {', '.join(map(str, a_completer))} "
+                       f"— le storyboard a ete livre a l'etat de squelette.")
+
+    nouveaux = storyboard.get("nouveaux_composants_necessaires") or []
+    if nouveaux:
+        lignes.append(f"- **Nouveaux composants** : {', '.join(nouveaux)} — "
+                       f"ils n'ont jamais ete revus ailleurs qu'ici (§8).")
+
+    if montage.get("message"):
+        lignes.append(f"- **Monteur** : {montage['message']}")
+
+    lignes += [
+        "",
+        "**Regarde la video avant de valider.** Ce qui suit est le plan de "
+        "tournage, pas le resultat : il ne dit pas ce qui est reellement a "
+        "l'ecran.",
+    ]
+    return "\n".join(lignes)
 
 
 def _construire_resume_checkpoint(video_dir, state, checkpoint_id):
@@ -201,8 +283,18 @@ def _construire_resume_checkpoint(video_dir, state, checkpoint_id):
         morceaux.append(f"Sujet : {state.get('sujet') or state.get('titre_travail') or '(a determiner)'}")
         if state.get("angle"):
             morceaux.append(f"Angle propose : {state['angle']}")
+    if checkpoint_id == "CP3":
+        # Le fichier a valider passe avant le plan de tournage.
+        morceaux.append(_resume_video_finale(video_dir, state))
+
+    # Au CP3, le storyboard n'est plus qu'un rappel : c'est la video qui
+    # porte la decision, et un plan de tournage de 3000 caracteres la
+    # noierait comme il le faisait avant.
+    budget = 1200 if checkpoint_id == "CP3" else 3000
+
     for nom_fichier, titre, prioritaires in RESUME_SOURCES.get(checkpoint_id, []):
-        extrait = _lire_extrait(video_dir, nom_fichier, sections_prioritaires=prioritaires)
+        extrait = _lire_extrait(video_dir, nom_fichier, max_chars=budget,
+                                sections_prioritaires=prioritaires)
         if extrait:
             morceaux.append(f"## {titre} (`{nom_fichier}`)\n\n{extrait}")
     if checkpoint_id == "CP3":

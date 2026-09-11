@@ -147,5 +147,95 @@ class TestResumeCP1(unittest.TestCase):
         self.assertIn("Angle trop large, resserrer", resume)
 
 
+class TestResumeCP3(unittest.TestCase):
+    """Le CP3 autorise la publication. Le rapport ne montrait que le
+    storyboard — le plan de tournage — et pas un chiffre du rendu : sur
+    2026-09-11_v01, le fichier video n'etait meme pas nomme, et l'ecart de
+    16,4 s entre le rendu et la voix off n'apparaissait nulle part."""
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp(prefix="chaine_yt_cp3_")
+        os.makedirs(os.path.join(self.dir, "checkpoints"), exist_ok=True)
+        self.ecrire_storyboard([("s1", 10.0), ("s2", 10.0)])
+        self.ecrire_phrases(20.0)
+        with open(os.path.join(self.dir, "05_storyboard.md"), "w", encoding="utf-8") as f:
+            f.write("# Storyboard\n\n## Duree totale indicative\n\n20 s\n")
+        with open(os.path.join(self.dir, "06_video_finale.mp4"), "wb") as f:
+            f.write(b"\0" * 2048)
+        self.state = {"etapes": {
+            "CP3": {"statut": "a_venir", "commentaire": None},
+            "E6_montage": {"statut": "termine", "sorties": ["06_video_finale.mp4"],
+                           "message": "2 scenes rendues."},
+        }}
+
+    def tearDown(self):
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def ecrire_storyboard(self, scenes, nouveaux=None, a_completer=()):
+        import json as j
+        data = {"scenes": [{"id": i, "composant": "TitleCard", "duree_s": d, "params": {},
+                            **({"a_completer": True} if i in a_completer else {})}
+                           for i, d in scenes],
+                "nouveaux_composants_necessaires": nouveaux or []}
+        with open(os.path.join(self.dir, "05_storyboard.json"), "w", encoding="utf-8") as f:
+            j.dump(data, f)
+
+    def ecrire_phrases(self, duree):
+        import json as j
+        with open(os.path.join(self.dir, "04_phrases.json"), "w", encoding="utf-8") as f:
+            j.dump({"phrases": [], "duree_totale_s": duree}, f)
+
+    def resume(self):
+        return _construire_resume_checkpoint(self.dir, self.state, "CP3")
+
+    def test_le_fichier_est_nomme_et_pese(self):
+        r = self.resume()
+        self.assertIn("06_video_finale.mp4", r)
+        self.assertIn("Ko", r)
+
+    def test_les_deux_durees_sont_donnees(self):
+        r = self.resume()
+        self.assertIn("Duree du rendu", r)
+        self.assertIn("Duree de la voix off", r)
+
+    def test_pas_d_alerte_quand_les_durees_collent(self):
+        self.assertNotIn("Ecart de", self.resume())
+
+    def test_l_ecart_est_signale(self):
+        # Le cas reel : rendu 98,8 s, voix off 82,5 s.
+        self.ecrire_storyboard([("s1", 50.0), ("s2", 48.8)])
+        self.ecrire_phrases(82.5)
+        r = self.resume()
+        self.assertIn("Ecart de 16.3 s", r)
+        self.assertIn("depasse la voix off", r)
+
+    def test_un_rendu_trop_court_est_signale_aussi(self):
+        self.ecrire_storyboard([("s1", 10.0)])
+        self.ecrire_phrases(30.0)
+        self.assertIn("s'arrete avant la fin", self.resume())
+
+    def test_mp4_manquant_est_dit(self):
+        os.remove(os.path.join(self.dir, "06_video_finale.mp4"))
+        self.assertIn("introuvable", self.resume())
+
+    def test_scenes_non_tranchees_alertent(self):
+        self.ecrire_storyboard([("s1", 10.0), ("s2", 10.0)], a_completer={"s2"})
+        self.assertIn("non tranchees par le Designer", self.resume())
+
+    def test_nouveaux_composants_signales(self):
+        self.ecrire_storyboard([("s1", 20.0)], nouveaux=["StickmanTalk"])
+        self.assertIn("StickmanTalk", self.resume())
+
+    def test_la_video_passe_avant_le_plan(self):
+        r = self.resume()
+        self.assertLess(r.index("La video a valider"), r.index("Storyboard"))
+
+    def test_le_rappel_de_regarder_est_present(self):
+        self.assertIn("Regarde la video avant de valider", self.resume())
+
+    def test_les_champs_seo_restent(self):
+        self.assertIn("SEO", self.resume())
+
+
 if __name__ == "__main__":
     unittest.main()
