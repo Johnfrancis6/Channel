@@ -313,6 +313,36 @@ inopérante tant qu'il ne tourne pas. Le §12 laisse le déclenchement non
 tranché — cron local, Claude Code headless, ou lancement manuel. À trancher,
 sinon d'autres règles connaîtront le même sort.
 
+## E2 + E3 — Rédaction et Filtre TTS
+
+**Le budget en idées n'était appliqué nulle part.** Il est écrit à la
+création (`--idees`), lu par le Chercheur et par le Designer — mais A4, qui
+écrit les mots, ne le connaissait pas, et A5, qui les mesure, ne le
+vérifiait pas. Zéro occurrence de `idees_max` dans les deux prompts.
+
+C'est le maillon qui compte : relancer une vidéo dans cet état aurait
+reproduit les 82 secondes à l'identique.
+
+Corrigé à trois endroits :
+
+- **`metriques.py`** mesure désormais le total, la durée estimée et le
+  budget (`--idees`). C'est la bonne place — « ce script ne fait que
+  compter », le jugement reste à A5.
+- **A5** passe le budget et tranche : `ok`, `limite` (≤ +20 %, se resserre
+  au calibrage) ou `depasse` (> +20 %, renvoi à A4). Un dépassement franc
+  ne se coupe pas en mots, c'est une idée de trop.
+- **A4** écrit sous budget : `idees_max` idées porteuses, ~45 mots chacune.
+  Si la recherche donne six faits, il en garde trois.
+
+**Vérifié sur le script réel de `2026-09-11_v01`** : 24 phrases, médiane
+11 mots — les chiffres exacts du `state.json` — 258 mots, ratio **1,91**,
+123 mots de trop. Le contrôle aurait crié à E3.
+
+Et la durée estimée tombe à **80,6 s** contre 82,5 s réellement enregistrées :
+**2,3 % d'écart**. Le débit de 3,2 mots/s est validé sur le terrain, et la
+constante de `generer_storyboard.py` passe de 2,5 à 3,2 — c'était
+l'arithmétique derrière les 16,4 s de décalage son/image.
+
 ## File d'attente
 
 | # | Chantier | État |
@@ -325,13 +355,13 @@ sinon d'autres règles connaîtront le même sort.
 | 4 | `outils/` + corpus + segmentation rétroactive de la vidéo 1 | ⬜ |
 | 5 | E4 : plafond de tentatives dans le notebook, diagnostic WER gradué, agent cohérent | ✅ fait |
 | 6 | Réajustement complet d'A2 (branche `sujet_impose`, gabarit 7 sections) | ⬜ |
-| 7 | Constante 2,5 → 3,2 mots/s dans `generer_storyboard.py` | ⬜ |
+| 6b | Budget en idées appliqué par A4 et mesuré par A5 | ✅ fait |
+| 7 | Constante 2,5 → 3,2 mots/s dans `generer_storyboard.py` | ✅ fait |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer
 
-E2 et E3 (où les 24 phrases se sont accumulées), CP2 et CP3 sur fichiers
-réels, H1 et A3 (jamais tournés), E6 et E7.
+CP2 et CP3 sur fichiers réels, H1 et A3 (jamais tournés), E6 et E7.
 
 Et une question transverse qui remonte d'E4 : **le déclenchement de
 l'Orchestrateur**, non tranché depuis le §12. Tant qu'il ne tourne pas, tout

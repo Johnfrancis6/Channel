@@ -146,10 +146,12 @@ Chaque agent respecte les mêmes règles vis-à-vis de `state.json` :
 **A4 — Rédacteur de script**
 - Inputs : recherche, dernière analyse concurrentielle, profil de chaîne, commentaire de CP1.
 - Il rédige le script (hook, promesse spectateur, marqueurs de voix, style oral) en incarnant l'angle "ingénieur ML". Son prompt est à calibrer finement.
+- **Il écrit sous budget** : `consignes.idees_max` idées porteuses, ~45 mots chacune. Si la recherche donne six faits, il en garde trois — les autres sont pour une autre vidéo.
 - Il reçoit le retour de A5 et révise son script. La boucle A4 ↔ A5 compte au maximum 3 tours.
 
 **A5 — Filtre TTS**
-Il intervient avant le CP2 et fait trois choses :
+Il intervient avant le CP2 et fait quatre choses :
+0. **Budget** : le script tient-il dans `consignes.idees_max` idées ? C'est le seul point du pipeline où la longueur est mesurée avant l'enregistrement (§7.3).
 1. **Style** : il mesure les zombie nouns, les triades et la longueur des phrases (seuils à calibrer). En cas d'échec, il renvoie le script à A4 avec un retour précis.
 2. **Calibrage des phrases pour la synthèse** : il applique les règles du §7.3 (phrases ni trop longues, ni trop courtes).
 3. **Normalisation phonétique** : il applique le lexique (sigles, noms de modèles, numéros de version, chiffres en toutes lettres).
@@ -373,7 +375,21 @@ Les quatre premiers runs de `2026-09-11_v01` étaient à 93-98 % (fuite de réf�
 
 **Écart assumé avec la v1.1** : le contrôle qualité est **global** et non par phrase, et la régénération est relancée par Franco (`MODE = 'resume_after_fail'`) plutôt qu'automatiquement, 3 fois. C'est plus simple, mais ça a un coût : une seule phrase mal prononcée fait échouer tout le run, et le rapport ne signale plus *quelle* phrase a raté. Or le §4.3 donne « les phrases signalées par le contrôle qualité » comme input de H1 : cet input n'existe plus. À reprendre quand les runs réels diront si le cas est fréquent (§12).
 
-### 7.3 Calibrage des phrases (appliqué par A5)
+### 7.3 Budget et calibrage des phrases (appliqués par A5)
+
+**Le budget du Short, d'abord.** La durée n'est pas fixée en secondes : c'est le **nombre d'idées** qui est plafonné (`consignes.idees_max`, 3 par défaut), et le coût en mots d'une idée dépend du format (§8). A5 mesure le total avec `metriques.py --idees N` et tranche :
+
+| Verdict | Écart | Action |
+|---|---|---|
+| `ok` | dans le budget | rien |
+| `limite` | ≤ +20 % | se resserre au calibrage — c'est du gras |
+| `depasse` | > +20 % | **renvoi à A4** : c'est une idée de trop, ça se règle en réécrivant |
+
+Vérifié sur `2026-09-11_v01` : 258 mots pour un budget de 135, ratio **1,91**, 123 mots de trop, 80,6 s estimées contre 42 s de budget. Le contrôle aurait crié à E3 ; en son absence, le dépassement n'a été vu qu'à E5, l'audio déjà enregistré, et repoussé au CP3.
+
+Le débit de référence est **3,2 mots/seconde**, mesuré sur cette même vidéo (258 mots, 82,5 s de voix off pauses comprises) — l'estimation tombe à 2,3 % près.
+
+
 
 Ce sont des valeurs de départ, à ajuster à partir des rapports audio de la semaine de test.
 

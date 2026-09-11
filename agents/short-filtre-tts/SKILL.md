@@ -13,7 +13,9 @@ a `E2_redaction` directement : s'il renvoie le script en revision, c'est
 l'Orchestrateur qui remet `E2_redaction` a `a_venir` (§4.2, point 4) a
 partir de l'`--action-suivi` que cet agent declare sur sa propre etape.
 
-Trois taches (§4.3, A5) :
+Quatre taches :
+0. **Budget** : le script tient-il dans le nombre d'idees demande ? C'est
+   ici qu'on le verifie, pas au montage.
 1. **Style** : zombie nouns, triades, longueur des phrases.
 2. **Calibrage pour la synthese** (§7.3) : 8 a 18 mots par phrase cible,
    decoupage au-dessus de 22, fusion en dessous de 4 (sauf hooks courts
@@ -36,8 +38,39 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
 ## Etape 3 — Mesurer objectivement
 
 ```bash
-python3 <chemin-du-skill>/scripts/metriques.py --fichier videos/<video_id>/02_script_brut.md
+python3 <chemin-du-skill>/scripts/metriques.py --fichier videos/<video_id>/02_script_brut.md \
+  --idees <consignes.idees_max>
 ```
+
+**Passe toujours `--idees`**, lu dans `state.json > consignes.idees_max`
+(3 par defaut). Sans lui, le script ne mesure pas le budget — et personne
+d'autre ne le mesure avant le montage.
+
+### Le budget, avant tout le reste
+
+La duree d'un Short n'est pas fixee en secondes : c'est le **nombre
+d'idees** qui est plafonne, et le cout en mots d'une idee depend du format
+(§8). Le script te rend un bloc `budget` :
+
+| `verdict` | Ce que tu fais |
+|---|---|
+| `ok` | rien, passe a la suite |
+| `limite` (≤ +20 %) | resserre au calibrage : c'est du gras, pas une idee de trop |
+| `depasse` (> +20 %) | **renvoie a A4** avec `--action-suivi revision_redaction` |
+
+Un depassement franc ne se rattrape pas en coupant des mots : c'est une
+idee de trop, et ca se regle en reecrivant. Dis a A4 **combien de mots
+enlever** et **quelle idee semble en trop**, pas seulement que c'est long.
+
+Si le format demande visiblement plus de mots par idee qu'un autre — une
+interview fictive doit incarner et relancer — signale-le a Franco au CP2
+plutot que de mutiler le script : c'est le cout du format qui est mal
+calibre, pas le script qui est mauvais. Tu peux alors remesurer avec
+`--mots-par-idee` pour montrer ce que ca donnerait.
+
+Le contre-exemple est dans le depot : sur `2026-09-11_v01`, le script
+faisait **264 mots** — 82,5 s de voix off — et personne ne l'a mesure. Le
+depassement n'a ete vu qu'a E5, quand tout etait deja ecrit et enregistre.
 
 Ce script ne fait que compter ; le jugement sur le style et les zombie nouns
 reste le tien. Lis aussi `00_Profil/conventions.md` et
@@ -106,7 +139,8 @@ relancer la boucle vers la redaction).
 
 ## Fichiers
 
-- Lus : `videos/{video_id}/state.json`, `02_script_brut.md`,
+- Lus : `videos/{video_id}/state.json` (dont `consignes.idees_max` et
+  `consignes.format`), `02_script_brut.md`,
   `00_Profil/conventions.md`, `00_Profil/lexique_prononciation.md`
 - Ecrits : `videos/{video_id}/03_script_final.md`, `03_script_tts.txt`,
   `03_rapport_metriques.md`, `videos/{video_id}/state.json` (uniquement

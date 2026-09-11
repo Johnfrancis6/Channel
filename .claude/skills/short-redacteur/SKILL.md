@@ -34,6 +34,14 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
 - `videos/{video_id}/01_recherche.md` (recherche, angle propose)
 - `state.json` : `sujet`, `angle`, `pilier`, `voie`, `etapes.CP1.commentaire`
   (retour de Franco au CP1 — a respecter en priorite)
+- **`state.json` > `consignes`** — ton cadre d'ecriture :
+  - `idees_max` (3 par defaut) : **le budget du Short**. Tu ecris ce nombre
+    d'idees porteuses, pas une de plus. Compte environ **45 mots par idee**,
+    soit ~135 mots pour trois — hook et cloture compris ;
+  - `format` : le format narratif vise. Un dialogue coute plus de mots par
+    idee qu'une explication : c'est legitime, mais dis-le dans ton message
+    de cloture pour que le Filtre TTS ne le prenne pas pour du gras ;
+  - `note_franco` et `reference` : contraintes de Franco, pas suggestions
 - `00_Profil/profil_chaine.md`, `00_Profil/conventions.md`
 - le dernier `02_Veille_hebdo/*_analyse_concurrentielle.md`, s'il existe
 - en cas de revision : `etapes.E3_filtre.message`
@@ -44,6 +52,17 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
   refuses precedents sont archives dans `checkpoints/refuses/`.
 
 ## Etape 4 — Ecrire le script
+
+**Le budget d'abord.** `idees_max` idees porteuses, environ 45 mots
+chacune. Une idee de plus, et c'est tout l'aval qui derape : sur
+`2026-09-11_v01`, le script faisait 264 mots pour un budget de 135 — 82,5 s
+de voix off au lieu de ~42 s, et le probleme n'a ete vu qu'au montage,
+quand l'audio etait deja enregistre.
+
+Concretement : si la recherche te donne six faits, tu en gardes **trois**.
+Les autres ne sont pas mauvais, ils sont pour une autre video. Un Short qui
+essaie de tout dire ne dit rien.
+
 
 La chaine est en anglais (§14, new-short). Structure attendue dans
 `videos/{video_id}/02_script_brut.md` :

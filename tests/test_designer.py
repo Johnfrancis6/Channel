@@ -18,6 +18,20 @@ from orchestrateur.state_store import load_state, save_state
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPT = os.path.join(REPO_ROOT, "agents", "short-designer", "scripts", "generer_storyboard.py")
 
+sys.path.insert(0, os.path.dirname(SCRIPT))
+import generer_storyboard  # noqa: E402
+
+
+def _duree_attendue(nb_mots):
+    """Meme calcul que le script, depuis ses constantes.
+
+    Le debit se recalibre sur les runs reels (2,5 -> 3,2 apres la premiere
+    video) : un test qui code la valeur en dur casserait a chaque
+    ajustement et pousserait a figer une constante fausse.
+    """
+    return round(max(nb_mots / generer_storyboard.MOTS_PAR_SECONDE,
+                     generer_storyboard.DUREE_MIN_S), 1)
+
 
 def _executer(root, video_id):
     cmd = [
@@ -79,7 +93,6 @@ class TestGenererStoryboard(unittest.TestCase):
 
     def test_duree_calculee_correctement(self):
         video_id = "2026-09-11_v02"
-        # 10 mots -> 10/2.5 = 4.0s ; 5 mots -> 5/2.5 = 2.0s
         _creer_script_tts(self.root, video_id, [
             "un deux trois quatre cinq six sept huit neuf dix",
             "un deux trois quatre cinq",
@@ -91,8 +104,11 @@ class TestGenererStoryboard(unittest.TestCase):
         chemin_json = os.path.join(self.root, "videos", video_id, "05_storyboard.json")
         with open(chemin_json, encoding="utf-8") as f:
             storyboard = json.load(f)
-        self.assertEqual(storyboard["scenes"][0]["duree_s"], 4.0)
-        self.assertEqual(storyboard["scenes"][1]["duree_s"], 2.0)
+        self.assertEqual(storyboard["scenes"][0]["duree_s"], _duree_attendue(10))
+        self.assertEqual(storyboard["scenes"][1]["duree_s"], _duree_attendue(5))
+        # La duree doit suivre le nombre de mots, pas etre constante.
+        self.assertGreater(storyboard["scenes"][0]["duree_s"],
+                           storyboard["scenes"][1]["duree_s"])
 
     def test_script_absent_exit_2(self):
         video_id = "2026-09-11_v03"
