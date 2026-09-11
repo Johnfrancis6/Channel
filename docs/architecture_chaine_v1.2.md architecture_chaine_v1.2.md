@@ -6,6 +6,17 @@
 
 ## 0. Changements
 
+### Revue d'architecture du 11/09/2026
+
+Relecture de fond du workflow, doc contre code. Le détail et le raisonnement sont dans [revue_architecture_2026-09-11.md](revue_architecture_2026-09-11.md) ; ce document intègre les décisions.
+
+- **Direction artistique** : décidée par A6 par scène (`da` dans le storyboard) + principes récurrents dans `charte.json > animation`. Pas d'agent Art Director dédié (§8, §12).
+- **Durées de scènes recalées sur l'audio réel** : le notebook écrit `04_phrases.json`, `construire_props.py --phrases` recale borne à borne, et la composition ne dure jamais moins que la voix off (§7.2, §8). Le §4.3 promettait ce recalage depuis la v1.1 ; il n'était fait nulle part.
+- **Le cycle de vie d'une vidéo peut se fermer** : skill `short-publier` (§11, §14). Rien n'écrivait `publiee` ni `date_effective`, que le tableau de bord et `short-state` lisent pourtant tous les deux.
+- **Vérification visuelle avant le CP3** : A7 rend des images fixes et les regarde (§8).
+- **Règle des sigles** : écriture normale (`LLM`), pas d'épellation (`L L M`) — l'épellation casse le contrôle qualité WER (§7.4).
+- **Sections remises à jour sur le code réel** : §4.3 (A6/A7), §5.4 (`state.json`), §7.2 (notebook Qwen3-TTS et ses modes), §9.1 et §9.2 (arborescences), §12.
+
 ### v1.2 (création des skills)
 
 - **Le registre n'est plus écrit par plusieurs acteurs.** `state.json` est la seule source de vérité. `registre_videos.json` devient une vue reconstruite par l'Orchestrateur, et `short-state` le recalcule en direct. Aucun fichier partagé n'est écrit par deux acteurs.
@@ -142,14 +153,20 @@ Il produit :
 **A6 — Designer**
 - **Charte visuelle** (ponctuelle, validée en lot) : palette, typographie des sous-titres, rythme des transitions, frame d'accroche, style d'illustration. Elle est livrée en deux formats : `charte.md` pour l'humain et `charte.json` pour le code (design tokens).
 - **Storyboard** (par vidéo, après le CP2, en parallèle de l'audio) :
-  - découpage du script en scènes ;
+  - découpage du script en scènes — **une scène par phrase de `03_script_tts.txt`** (le recalage des durées sur l'audio en dépend, §8) ;
   - pour chaque scène, le composant de la bibliothèque à utiliser et ses paramètres ;
+  - pour chaque scène, sa **direction artistique** : `mouvement`, `rythme`, `technique`, `accent` (vocabulaire fermé, §8) ;
   - la liste des **nouveaux composants nécessaires** s'il en manque.
+- Il produit **deux fichiers** : `05_storyboard.md` (lecture humaine, revue au CP3) et `05_storyboard.json` (lu par le Monteur).
+- Le script `generer_storyboard.py` ne produit qu'un **squelette** (une scène par phrase, durées estimées, DA par défaut de la charte), marqué `a_completer`. Le choix du composant, des paramètres et de la direction artistique reste le travail de l'agent.
 
 **A7 — Monteur vidéo**
-- Inputs : storyboard, `04_voixoff.wav`, `04_timestamps.json`, charte.
+- Inputs : storyboard, `04_voixoff.wav`, `04_timestamps.json`, `04_phrases.json`, charte.
 - Il réutilise d'abord les composants existants. Sinon, il en crée de nouveaux avec Claude Code et les ajoute à la bibliothèque (§8).
-- Il cale les scènes et les sous-titres sur les timestamps mot par mot, puis rend `06_video_finale.mp4` avec l'audio déjà synchronisé.
+- **Il n'invente pas le style** : la direction artistique vient du storyboard (A6) et de `charte.json > animation`. Il l'implémente, il ne la rejuge pas.
+- Il cale les **sous-titres** sur les timestamps mot par mot et les **durées de scènes** sur les bornes de phrases de `04_phrases.json`, puis rend `06_video_finale.mp4` avec l'audio déjà synchronisé.
+- Avant de clore l'étape, il rend quelques **images fixes** (`remotion still`) et les regarde : rien ne part au CP3 sans avoir été vu.
+- Le rendu passe par `rendre_video.py`, qui vérifie les prérequis avant et le MP4 produit après.
 
 **H1 — Amélioration continue (hebdo)**
 - Inputs :
@@ -196,37 +213,52 @@ Le dossier d'une vidéo **ne bouge jamais**. Seul son statut change dans le regi
 
 ### 5.4 Exemple de `state.json`
 
+La forme qui fait foi est `skills/new-short/assets/state_template.json`, validée par `schemas/state_schema.json`. Extrait :
+
 ```json
 {
+  "version_schema": 1,
   "video_id": "2026-09-10_v01",
+  "cree_le": "2026-09-10T06:55:00Z",
+  "cree_par": "new_short",
   "titre_travail": "What the new model actually changes",
+  "sujet": "...", "angle": "...", "sujet_id": null,
   "pilier": "actu_ia",
   "voie": "rapide",
+  "consignes": { "mode_recherche": null, "note_franco": null },
   "statut_global": "en_production",
   "etape_actuelle": "CP2",
+  "boucle_A4_A5": 1,
   "etapes": {
     "E1_recherche": { "agent": "chercheur", "statut": "termine", "tentatives": 1,
-                      "debut": "2026-09-10T07:00Z", "fin": "2026-09-10T07:06Z",
+                      "debut": "2026-09-10T07:00:00Z", "fin": "2026-09-10T07:06:00Z",
                       "sorties": ["01_recherche.md"] },
-    "CP1":          { "statut": "valide", "commentaire": "Angle OK, insister sur le test", "date": "2026-09-10T08:15Z" },
+    "CP1":          { "statut": "valide", "commentaire": "Angle OK, insister sur le test", "date": "2026-09-10T08:15:00Z" },
     "E2_redaction": { "agent": "redacteur", "statut": "termine", "tentatives": 2, "sorties": ["02_script_brut.md"] },
     "E3_filtre":    { "agent": "filtre_tts", "statut": "termine", "tentatives": 2,
                       "sorties": ["03_script_final.md", "03_script_tts.txt", "03_rapport_metriques.md"] },
     "CP2":          { "statut": "attente_validation", "commentaire": null, "date": null },
-    "E4_audio":     { "statut": "a_venir" },
-    "E5_storyboard":{ "statut": "a_venir" },
-    "E6_montage":   { "statut": "a_venir" },
-    "CP3":          { "statut": "a_venir" },
-    "E7_publication":{ "statut": "a_venir" }
+    "E4_audio":     { "agent": "colab_voix", "statut": "a_venir", "tentatives": 0, "debut": null, "fin": null, "sorties": [] },
+    "E5_storyboard":{ "agent": "designer",   "statut": "a_venir", "tentatives": 0, "debut": null, "fin": null, "sorties": [] },
+    "E6_montage":   { "agent": "monteur",    "statut": "a_venir", "tentatives": 0, "debut": null, "fin": null, "sorties": [] },
+    "CP3":          { "statut": "a_venir", "commentaire": null, "date": null,
+                      "seo": { "titre": null, "description": null, "tags": [] } },
+    "E7_publication":{ "agent": "publication", "statut": "a_venir", "tentatives": 0, "debut": null, "fin": null, "sorties": [] }
   },
   "publication": { "date_prevue": null, "date_effective": null, "url": null },
   "historique": [
-    { "horodatage": "2026-09-10T09:02Z", "agent": "filtre_tts", "evenement": "echec",
+    { "horodatage": "2026-09-10T09:02:00Z", "agent": "filtre_tts", "evenement": "echec",
       "message": "Tentative 1 : 3 phrases > 22 mots, 2 triades" },
-    { "horodatage": "2026-09-10T09:10Z", "agent": "filtre_tts", "evenement": "termine", "message": "Tentative 2 OK" }
+    { "horodatage": "2026-09-10T09:10:00Z", "agent": "filtre_tts", "evenement": "termine", "message": "Tentative 2 OK" }
   ]
 }
 ```
+
+Quelques champs méritent un mot :
+
+- **`boucle_A4_A5`** : compteur de tours de révision rédaction ⇄ filtre, écrit par l'Orchestrateur. Au 3ᵉ tour, `E3_filtre` passe en `alerte` (§4.3, A5). Un refus au CP2 le remet à zéro : un refus n'est pas un échec technique.
+- **`etapes.CP3.seo`** : les champs SEO remplis par Franco au CP3 (§11).
+- **Toutes les étapes portent `agent`**, y compris `E4_audio` (`colab_voix`, le notebook) et `E7_publication` (`publication`, le skill `short-publier`) : les scripts d'étape s'en servent pour savoir à qui attribuer l'écriture.
 
 ### 5.5 Protocole de validation
 
@@ -292,19 +324,23 @@ E7 Publication                             ← manuelle (phase test) puis automa
 
 ### 7.2 Structure du notebook
 
+Le notebook est **modulaire** : Franco ne modifie que la Cell 1, où `MODE` décide des cellules actives — `full` (run complet), `resume_after_fail` (re-synthèse après échec, sans re-uploader la voix), `quality_check` (WER seul sur un audio existant), `voice_only` (échantillon de voix seul).
+
 | Cellule | Rôle |
 |---|---|
-| 0. Config | `video_id`, modèle (`f5tts` / `qwen_tts`), nom de la voix, graine fixe |
-| 1. Drive | Montage de Drive, vérification que le dossier de la vidéo existe |
-| 2. Voix | **Upload toujours présent.** Premier usage ou nouvel upload : réduction de bruit, découpe d'un extrait de référence court et propre, transcription de la référence (nécessaire à F5-TTS), sauvegarde versionnée dans `00_Profil/voix/{nom}/vN/`. Sessions suivantes : chargement de la voix stockée par défaut |
-| 3. Script | Lecture de `03_script_tts.txt` (une phrase par ligne) |
-| 4. Synthèse | Génération phrase par phrase |
-| 5. Contrôle qualité | Transcription de chaque phrase générée (Whisper), comparaison avec le texte attendu. Si l'écart dépasse le seuil, régénération (3 tentatives max), puis signalement dans le rapport |
-| 6. Assemblage | Concaténation avec pauses calibrées, normalisation du volume |
-| 7. Timestamps | faster-whisper avec `word_timestamps=True` sur l'audio final → `04_timestamps.json` |
-| 8. Sorties | `04_voixoff.wav`, `04_timestamps.json`, `04_rapport_audio.md`, mise à jour de `state.json` |
+| 0. Setup & Auth | Dépendances, montage de Drive, chemins |
+| 1. Config + MODE | **Seule cellule modifiée par Franco.** `VIDEO_ID` (détecté tout seul s'il est vide), `MODE`, nom de la voix, graine, seuils (`SEUIL_WER`, `PAUSE_MS`, `CIBLE_LUFS`, `DENOISE`) |
+| 2. Voix | Premier usage ou nouvel upload : découpe d'un extrait de référence court, transcription de la référence, sauvegarde versionnée dans `00_Profil/voix/{nom}/vN/`. Sessions suivantes : chargement de la voix stockée. Accepte `.wav`, `.mp3`, `.m4a` (converti via ffmpeg). Débruitage `noisereduce` **désactivé par défaut** (`DENOISE = False`) |
+| 3. Modèles | Chargement de Qwen3-TTS et de faster-whisper (mis en cache) |
+| 4. Synthèse | Lecture de `03_script_tts.txt`, génération phrase par phrase, reprise sur OOM GPU |
+| 5. Assemblage + Timestamps | Concaténation avec pauses calibrées, normalisation LUFS, puis faster-whisper `word_timestamps=True` → `04_timestamps.json`. Écrit aussi **`04_phrases.json`** : les bornes début/fin de chaque phrase dans l'audio assemblé |
+| 6. Contrôle qualité | **WER global** sur l'audio assemblé (transcription vs `03_script_tts.txt`), ponctuation et casse normalisées. Sous le seuil : l'étape passe `termine`. Au-dessus : `echec`, avec le diagnostic dans le rapport |
+| 7. Rapport + State | `04_rapport_audio.md` et mise à jour de `state.json` (§4.2) |
+| 8. Bilan | Résumé console et prochaines actions |
 
-Le contrôle qualité de la cellule 5 détecte automatiquement les défauts de prononciation. Ses signalements alimentent le lexique et le calibrage des phrases.
+**`04_phrases.json` est ce qui relie la voix au montage.** C'est la seule étape du pipeline qui connaisse exactement où commence et finit chaque phrase : après coup, on ne peut que le deviner en réalignant les mots transcrits sur le script, ce que le WER non nul rend fragile. A6 faisant une scène par phrase, ces bornes permettent à A7 de caler les durées de scènes sur la voix off (§8).
+
+**Écart assumé avec la v1.1** : le contrôle qualité est **global** et non par phrase, et la régénération est relancée par Franco (`MODE = 'resume_after_fail'`) plutôt qu'automatiquement, 3 fois. C'est plus simple, mais ça a un coût : une seule phrase mal prononcée fait échouer tout le run, et le rapport ne signale plus *quelle* phrase a raté. Or le §4.3 donne « les phrases signalées par le contrôle qualité » comme input de H1 : cet input n'existe plus. À reprendre quand les runs réels diront si le cas est fréquent (§12).
 
 ### 7.3 Calibrage des phrases (appliqué par A5)
 
@@ -325,10 +361,10 @@ Ce sont des valeurs de départ, à ajuster à partir des rapports audio de la se
 
 | Terme | Forme écrite pour le TTS | Statut |
 |---|---|---|
-| LLM | L L M | validé |
-| GPT-5 | G P T five | validé |
-| vLLM | v L L M | validé |
+| GPT-5 | GPT five | validé |
 | RAG | rag | validé |
+
+**Règle des sigles (révisée le 11/09/2026).** Un sigle courant s'écrit **normalement** (`LLM`, `MCP`, `VS`), pas épelé lettre par lettre (`L L M`). L'épellation a deux défauts : la synthèse la rend souvent moins bien que le sigle brut, et surtout elle casse le contrôle qualité, puisque Whisper retranscrit `LLM` et non `L L M` — le WER compte alors des erreurs qui n'en sont pas. N'entrent au lexique que les termes que la synthèse prononce réellement mal, vérifiés sur un run.
 
 Le lexique s'enrichit de trois façons : les propositions de A5 validées au CP2, les signalements du contrôle qualité audio, et les notes de Franco.
 
@@ -350,8 +386,36 @@ Le dossier `/ChaineYouTube/` doit être partagé avec chaque compte Colab, et ch
   Un nouveau composant est de fait revu au CP3, puisque Franco le voit dans la vidéo.
 - **Évolution** : un composant modifié prend une nouvelle version. Les anciennes vidéos ne sont jamais re-rendues, et H1 peut recommander de refondre un composant.
 - **Format** : 1080×1920, 30 fps, sous-titres dynamiques calés sur `04_timestamps.json`.
-- **Outil** : à trancher en Session 2 (Manim, Motion Canvas, ou Remotion, qui correspond à ton profil React/TypeScript et à la logique de composants).
+- **Outil** : **Remotion** (React + TypeScript). Tranché en Session 2.
 - **Le code vit dans Git, pas dans Drive** (voir §9.2).
+
+### Direction artistique
+
+Deux niveaux, et aucun des deux n'est décidé au moment de coder :
+
+1. **Les principes récurrents** vivent dans `charte.json > animation`, validés une fois avec la charte : easing par défaut, durée d'entrée, technique par défaut, **règle du wobble** (oscillation légère sur les tracés à la main, jamais sur le texte), un mouvement dominant par scène, hook sobre.
+2. **La direction artistique de chaque scène** est décidée par A6 et écrite dans `05_storyboard.json`, champ `da`, avec un vocabulaire fermé :
+
+| Champ | Valeurs | Ce que ça décide |
+|---|---|---|
+| `mouvement` | `entree_par_le_bas`, `fondu`, `zoom_lent`, `glissement_lateral`, `apparition_sequencee`, `aucun` | comment la scène entre et vit |
+| `rythme` | `pose`, `standard`, `punch` | l'énergie de la scène |
+| `technique` | `spring`, `interpolate`, `lottie`, `statique` | comment A7 l'implémente |
+| `accent` | texte libre court | ce que la scène met en avant |
+
+A7 l'implémente fidèlement et ne la rejuge pas. Le vocabulaire est fermé volontairement : un champ libre redeviendrait de l'improvisation au montage. C'est l'**option (a)** de la revue du 11/09/2026 — enrichir A6 plutôt que créer un agent Art Director, qui aurait ajouté une étape à §6.2 pour une décision qui tient dans un champ.
+
+### Durées de scènes
+
+Les durées du storyboard sont des **estimations** (~2,5 mots/s). Elles sont recalées au montage sur `04_phrases.json`, borne à borne, par `construire_props.py --phrases`. Trois conséquences :
+
+- le recalage **suppose une scène par phrase** ; si A6 fusionne ou coupe des scènes, le compte ne correspond plus, le recalage est abandonné (avec avertissement) et l'estimation est conservée ;
+- les scènes se suivent sans trou : une scène va de la fin de la phrase précédente à la fin de la sienne, ce qui absorbe la pause inter-phrases ;
+- la composition ne dure **jamais moins que l'audio** : `duree_audio_s` est passé aux props, la dernière scène absorbe le reliquat. Sans ça, une voix off plus longue que la somme des scènes était coupée net.
+
+### Vérification visuelle
+
+Avant de clore E6, A7 rend quelques images fixes (`remotion still` sur le hook, un milieu, une fin) et les regarde. Rien n'arrive au CP3 sans avoir été vu : corriger sur une image coûte bien moins qu'un rendu complet.
 
 ---
 
@@ -367,9 +431,10 @@ Le dossier `/ChaineYouTube/` doit être partagé avec chaque compte Colab, et ch
 │   ├── profil_chaine.md
 │   ├── conventions.md
 │   ├── lexique_prononciation.md
+│   ├── chaines_concurrentes.json   # liste pour A2 (veille) et A3 (analyse)
 │   ├── charte_visuelle/
 │   │   ├── charte.md
-│   │   └── charte.json             # design tokens lus par les composants
+│   │   └── charte.json             # design tokens + principes d'animation (§8)
 │   └── voix/
 │       └── {nom_voix}/v1/          # ref.wav (débruitée), ref.txt, meta.json
 ├── 01_Orchestrateur/
@@ -395,14 +460,17 @@ Le dossier `/ChaineYouTube/` doit être partagé avec chaque compte Colab, et ch
         ├── 03_script_tts.txt
         ├── 03_rapport_metriques.md
         ├── 04_voixoff.wav
-        ├── 04_timestamps.json
+        ├── 04_timestamps.json       # mot par mot, pour les sous-titres
+        ├── 04_phrases.json          # bornes par phrase, pour les durées de scènes (§8)
         ├── 04_rapport_audio.md
-        ├── 05_storyboard.md
+        ├── 05_storyboard.md         # lecture humaine, revu au CP3
+        ├── 05_storyboard.json       # lu par le Monteur
         ├── 06_video_finale.mp4
         └── checkpoints/
             ├── rapport_CP1.md
             ├── rapport_CP2.md
-            └── rapport_CP3.md
+            ├── rapport_CP3.md
+            └── refuses/             # rapports archivés après un refus (§5.5)
 ```
 
 **Convention d'identifiant** : `{date de création}_v{nn}`. La date de publication est suivie dans le registre et dans `state.json`, pas dans le nom du dossier.
@@ -412,12 +480,16 @@ Le dossier `/ChaineYouTube/` doit être partagé avec chaque compte Colab, et ch
 ```
 chaine-youtube/
 ├── orchestrateur/        # machine d'états, lecture/écriture des state.json, tableau de bord
-├── agents/               # prompts versionnés de A2 à A7 et H1
-├── composants/           # bibliothèque d'animation + REGISTRE.md
-├── notebooks/            # notebook voix off (F5-TTS / Qwen TTS)
+├── agents/               # prompts versionnés de A2 à A7 et H1 (+ scripts d'étape)
+├── composants/           # bibliothèque Remotion + REGISTRE.md
+├── notebooks/            # notebook voix off (Qwen3-TTS)
 ├── schemas/              # schéma JSON de state.json
-└── skills/               # new-short, short-state (source des fichiers .skill)
+├── skills/               # new-short, short-state, short-publier
+├── tests/                # suite unittest (orchestrateur, agents, skills)
+└── .claude/skills/       # MIROIR GÉNÉRÉ — ne jamais éditer à la main
 ```
+
+**`.claude/skills/` est entièrement généré** par `agents/_synchroniser_vers_claude_skills.py`, à partir de deux sources : `agents/short-*/` et `skills/*/`. On modifie la source, puis on relance le script ; `--verifier` signale la dérive sans rien écrire, et `tests/test_sync_skills.py` fait échouer la suite si le miroir a divergé. Le garde-fou existe parce que la dérive s'est déjà produite en silence : des scripts ajoutés dans `agents/` n'avaient jamais été déployés, et les skills réellement chargés par Claude Code tournaient sans eux.
 
 Les prompts sont versionnés : quand H1 recommande un ajustement validé par Franco, on garde la trace de ce qui a changé et on peut comparer avant et après.
 
@@ -474,11 +546,12 @@ Publiées : 4 — Abandonnées : 1 — Prochain cycle hebdo : dimanche
   - système d'exploitation de la machine qui fera tourner l'Orchestrateur ;
   - chemin local de `/ChaineYouTube` (Google Drive pour ordinateur ou rclone) ;
   - cron ou lancement manuel pour les premiers tests.
-- **Multi-chaînes** : faut-il le faire avant ou après l'Orchestrateur ? Si oui :
-  - un dossier racine par chaîne ;
-  - un `profil_chaine.json` lisible par la machine (piliers, langue, format, voie rapide activée ou non) ;
-  - les piliers sortis de `new_short.py` ;
-  - un argument `--chaine` pour les skills.
+- **Multi-chaînes** : **après**, et pas avant la semaine de test. Analyse d'impact faite le 11/09/2026 — le coût est réel mais modéré, et il ne baissera pas en attendant :
+  - **la racine est déjà paramétrable** partout (`--root`, `CHAINE_YT_ROOT`, puis les emplacements Drive habituels). C'est le point qui aurait pu coûter cher, et il est déjà réglé. Ce qui reste en dur, c'est le *nom* `ChaineYouTube` dans la détection automatique : une seconde chaîne devra passer `--root` explicitement, ou on remplace la liste de candidats par un fichier de chaînes connues ;
+  - **les piliers sont figés à trois endroits** : `new_short.py` (`PILIERS`), `schemas/state_schema.json` (enum `pilier`) et le profil par défaut. C'est le vrai chantier : il faut les sortir dans un `profil_chaine.json` lisible par la machine, et assouplir l'enum du schéma ;
+  - **les scripts d'agent trouvent le dépôt par `REPO_ROOT = parents[3]`** (`generer_storyboard.py`, `rendre_video.py`), donc `composants/` est commun à toutes les chaînes. C'est probablement ce qu'on veut — une bibliothèque partagée — mais alors la charte doit rester par chaîne, et `REGISTRE.md` gagner une colonne « chaîne » ;
+  - **un argument `--chaine`** pour les skills, qui résout vers la bonne racine ;
+  - ordre recommandé : faire tourner une chaîne une semaine, puis sortir les piliers, puis `--chaine`. Préparer le terrain avant d'avoir publié une seule vidéo, c'est généraliser sur un seul exemple.
 
 - **Déclenchement de l'Orchestrateur** : cron local + Claude Code en mode headless, ou lancement manuel. Accès à Drive depuis la machine locale : Google Drive pour ordinateur ou rclone.
 - **Outil d'animation** : ~~Manim, Motion Canvas ou Remotion~~ → **tranché : Remotion** (React + spring animations).
@@ -489,7 +562,11 @@ Publiées : 4 — Abandonnées : 1 — Prochain cycle hebdo : dimanche
 - **Audit API YouTube** : à lancer pendant la phase test.
 - **Qualité des animations (A7 Monteur)** : à intégrer dans `agents/short-monteur/` — pas encore fait.
   - **Lottie** (`@remotion/lottie`) pour les composants où une vraie qualité d'animation compte (ex. le stickman) : Claude Code intègre un fichier Lottie fourni par Franco (export After Effects, ou pioché sur LottieFiles) plutôt que de dessiner l'animation en SVG procédural à la main.
-  - **Boucle de vérification visuelle** : avant de clore E6_montage, l'agent rend quelques frames clés (`npx remotion render` sur une image) et les regarde, pour itérer sur le visuel plutôt que de livrer un rendu jamais vu directement au CP3.
+  - ~~**Boucle de vérification visuelle**~~ → **faite le 11/09/2026** : étape 5 du skill `short-monteur` (`remotion still` sur le hook, un milieu, une fin), documentée en §8.
+  - Pistes évoquées, non actées : **Rive** (`@remotion/rive`), **d3-ease** pour des courbes de mouvement plus naturelles, **rough.js** pour un rendu « tracé à la main » si Franco veut cette esthétique, **`@remotion/noise`** pour le wobble (la règle du wobble est posée en charte, son implémentation reste au choix de A7).
+- **Contrôle qualité audio par phrase** : le notebook fait un WER **global** ; une seule phrase ratée fait échouer tout le run, et le rapport ne dit pas laquelle. Le §4.3 donne pourtant « les phrases signalées par le contrôle qualité » comme input de H1 : cet input n'existe pas. À reprendre si les runs réels montrent que le cas est fréquent (§7.2).
+- **Statut `attente_franco` au niveau global** : `statut_global` ne prend jamais cette valeur, alors que §5.3 la prévoit. En pratique le blocage est visible étape par étape, donc ce n'est pas urgent — mais soit on l'écrit, soit on le retire du §5.3.
+- **Seuil de blocage et runs longs** : le tableau de bord signale `[BLOQUE]` une étape `en_cours` depuis plus de `seuil_blocage_heures` (2 h par défaut). Un run Colab long déclencherait une fausse alerte. À ajuster après la semaine de test.
 
 ---
 
@@ -534,6 +611,14 @@ Il est en lecture seule et recalcule tout à partir des `state.json`. Il a trois
 - **`--registre`** : toutes les vidéos conçues et publiées.
 
 Il détecte aussi une décision déjà saisie par Franco mais pas encore transcrite par l'Orchestrateur.
+
+### `short-publier` — fermer le cycle de vie d'une vidéo
+
+Il enregistre une publication faite par Franco (phase test, §11) : date, URL, passage du registre à `publiee` ou `programmee`, clôture de `E7_publication`. Il ne parle pas à l'API YouTube et refuse d'agir si le CP3 n'est pas validé (§2).
+
+Codes de retour : 0 enregistré · 2 racine introuvable · 4 date invalide ou URL manquante · 6 vidéo inconnue · 7 CP3 non validé · 8 déjà enregistrée (relancer avec `--force` pour corriger).
+
+Une vidéo `programmee` garde `E7_publication` en `attente_franco` : elle reste visible au tableau de bord jusqu'à la mise en ligne réelle.
 
 ### Emplacement de la racine
 

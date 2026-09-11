@@ -19,10 +19,23 @@ const PROPS_PAR_DEFAUT: VideoProps = {
     },
     typographie: {sous_titres: {famille: 'Arial, sans-serif', taille_px: 64, graisse: 'bold'}},
     rythme: {duree_transition_s: 0.3, easing: 'ease-in-out'},
+    animation: {
+      easing_entree: 'ease-out',
+      easing_transition: 'ease-in-out',
+      duree_entree_s: 0.3,
+      technique_defaut: 'spring',
+      wobble: {actif: true, amplitude_px: 6, periode_s: 1.2, cible: 'trace_main'},
+    },
     format: {largeur_px: 1080, hauteur_px: 1920, fps: FPS},
   },
   scenes: [
-    {id: 's1', composant: 'TitleCard', duree_s: 3, params: {texte: 'What changed this week', sousTitre: 'AI news, decoded'}},
+    {
+      id: 's1',
+      composant: 'TitleCard',
+      duree_s: 3,
+      params: {texte: 'What changed this week', sousTitre: 'AI news, decoded'},
+      da: {mouvement: 'entree_par_le_bas', rythme: 'punch', technique: 'spring', accent: 'le titre'},
+    },
   ],
   mots: [
     {mot: 'What', debut_s: 0.2, fin_s: 0.4},
@@ -43,7 +56,7 @@ export const RemotionRoot: React.FC = () => {
       durationInFrames={dureeTotaleFrames(PROPS_PAR_DEFAUT.scenes, FPS)}
       defaultProps={PROPS_PAR_DEFAUT}
       calculateMetadata={async ({props}) => ({
-        durationInFrames: dureeTotaleFrames(props.scenes, FPS),
+        durationInFrames: dureeTotaleFrames(props.scenes, FPS, props.duree_audio_s),
       })}
     />
   );

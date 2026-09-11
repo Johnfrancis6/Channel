@@ -9,6 +9,14 @@ s'il n'existe pas encore, il est quand meme nomme dans le storyboard et
 signale dans "nouveaux_composants_necessaires" pour le Monteur (A7, §8) —
 ce script ne cree jamais de composant.
 
+**Ce script produit un squelette, pas un storyboard fini.** Il pose la
+structure (une scene par phrase, les durees, la direction artistique par
+defaut de la charte) et marque chaque scene `a_completer`. C'est A6 qui
+tranche ensuite, scene par scene, le composant, ses parametres et la
+direction artistique — c'est le coeur de son travail (§8), pas quelque
+chose qu'un script peut deviner. Une scene laissee `a_completer` est
+signalee au Monteur (A7), qui ne doit pas monter a l'aveugle.
+
 Usage :
   python3 generer_storyboard.py --video ID --root R \
       --sortie-md videos/ID/05_storyboard.md --sortie-json videos/ID/05_storyboard.json
@@ -26,6 +34,11 @@ REGISTRY_TS = REPO_ROOT / "composants" / "src" / "components" / "registry.ts"
 
 MOTS_PAR_SECONDE = 2.5
 DUREE_MIN_S = 1.5
+
+# Direction artistique par defaut, en attendant celle que A6 decide par
+# scene (§8). Les valeurs viennent de charte.json > animation, validee une
+# fois avec la charte plutot que redecidee a chaque video.
+DA_DEFAUT = {"mouvement": "fondu", "rythme": "standard", "technique": "spring"}
 
 
 def sortir(code, **data):
@@ -73,18 +86,30 @@ def parser_registre(chemin):
     return noms
 
 
+def da_par_defaut(charte):
+    """DA de repli, derivee des principes de la charte (§8)."""
+    animation = (charte or {}).get("animation") or {}
+    da = dict(DA_DEFAUT)
+    technique = animation.get("technique_defaut")
+    if technique:
+        da["technique"] = technique
+    return da
+
+
 def duree_pour(phrase):
     nb_mots = len(phrase.split())
     return round(max(nb_mots / MOTS_PAR_SECONDE, DUREE_MIN_S), 1)
 
 
 def composant_ideal(index):
-    # V1 (§8) : un seul composant existe, utilise pour le hook et le corps.
-    # Point d'extension pour de futures scenes (ex. citation, comparaison).
+    # Point de depart neutre, pas un choix editorial : le registre contient
+    # desormais plusieurs composants (StickmanTalk, ConceptCutaway...) et
+    # c'est A6 qui choisit lequel sert quelle phrase. Le squelette met le
+    # plus generique et laisse `a_completer` a true.
     return "TitleCard"
 
 
-def construire_scenes(phrases, composants_disponibles):
+def construire_scenes(phrases, composants_disponibles, da_defaut):
     scenes = []
     nouveaux = []
     for i, phrase in enumerate(phrases):
@@ -93,9 +118,16 @@ def construire_scenes(phrases, composants_disponibles):
             nouveaux.append(nom)
         scenes.append({
             "id": f"s{i + 1}",
+            # La phrase prononcee, pour que le storyboard reste lisible et
+            # que A7 sache a quoi correspond la scene. Ce n'est pas un
+            # parametre de composant : afficher la phrase a l'ecran ferait
+            # doublon avec les sous-titres, qui la portent deja.
+            "phrase": phrase,
             "composant": nom,
             "duree_s": duree_pour(phrase),
-            "params": {"texte": phrase},
+            "params": {},
+            "da": dict(da_defaut),
+            "a_completer": True,
         })
     return scenes, nouveaux
 
@@ -109,11 +141,26 @@ def rendre_markdown(video_id, scenes, avertissements):
     lignes.append(f"Duree totale estimee : {sum(s['duree_s'] for s in scenes):.1f}s "
                    f"({len(scenes)} scenes)")
     lignes.append("")
+    lignes.append("Les durees sont des estimations (~2.5 mots/s). Elles sont recalees "
+                   "sur l'audio reel au montage, a partir de `04_phrases.json` (§7.2).")
+    lignes.append("")
     for s in scenes:
-        lignes.append(f"## {s['id']} — {s['composant']} ({s['duree_s']}s)")
+        marque = " — **A COMPLETER**" if s.get("a_completer") else ""
+        lignes.append(f"## {s['id']} — {s['composant']} ({s['duree_s']}s){marque}")
         lignes.append("")
-        lignes.append(s["params"].get("texte", ""))
+        lignes.append(s.get("phrase") or s["params"].get("texte", ""))
         lignes.append("")
+        da = s.get("da") or {}
+        if da:
+            lignes.append(f"- Mouvement : {da.get('mouvement', '?')}")
+            lignes.append(f"- Rythme : {da.get('rythme', '?')}")
+            lignes.append(f"- Technique : {da.get('technique', '?')}")
+            if da.get("accent"):
+                lignes.append(f"- Accent : {da['accent']}")
+            lignes.append("")
+        if s["params"]:
+            lignes.append(f"- Parametres : {s['params']}")
+            lignes.append("")
     return "\n".join(lignes)
 
 
@@ -150,10 +197,22 @@ def main():
             "reutilisable detecte. Verifie la declaration `export const REGISTRE = {...}`."
         )
 
-    scenes, nouveaux = construire_scenes(phrases, composants_disponibles)
+    scenes, nouveaux = construire_scenes(phrases, composants_disponibles, da_par_defaut(charte))
+    a_completer = sum(1 for s in scenes if s.get("a_completer"))
+    if a_completer:
+        avertissements.append(
+            f"{a_completer} scene(s) marquee(s) `a_completer` : squelette genere, "
+            "composant / parametres / direction artistique restent a trancher par A6 (§8)."
+        )
     duree_totale = round(sum(s["duree_s"] for s in scenes), 1)
 
-    sortie = {"scenes": scenes, "nouveaux_composants_necessaires": nouveaux}
+    sortie = {
+        "scenes": scenes,
+        "nouveaux_composants_necessaires": nouveaux,
+        # Rappel machine des principes valides une fois avec la charte, pour
+        # que A7 n'ait pas a relire charte.json pour les appliquer.
+        "da_defaut": da_par_defaut(charte),
+    }
 
     chemin_md = Path(a.sortie_md)
     if not chemin_md.is_absolute():
@@ -168,7 +227,8 @@ def main():
     chemin_md.write_text(rendre_markdown(a.video, scenes, avertissements), encoding="utf-8")
 
     sortir(0, nb_scenes=len(scenes), nouveaux_composants=nouveaux,
-           duree_totale_s=duree_totale, avertissements=avertissements)
+           duree_totale_s=duree_totale, scenes_a_completer=a_completer,
+           avertissements=avertissements)
 
 
 if __name__ == "__main__":

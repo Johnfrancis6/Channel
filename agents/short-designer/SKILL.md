@@ -7,11 +7,19 @@ description: Agent A6 du pipeline chaine YouTube — execute l'etape E5_storyboa
 
 ## Ce que fait cet agent, et ce qu'il ne fait pas
 
-Il decoupe le script final en scenes et choisit, pour chacune, un
-composant de la bibliotheque `composants/` (Remotion) et ses parametres.
+Il decoupe le script final en scenes et decide, pour chacune, **trois
+choses** : le composant de la bibliotheque `composants/` (Remotion), ses
+parametres, et sa **direction artistique** — comment la scene bouge.
+
 Il ne rend jamais la video (c'est le Monteur, A7) et ne cree pas de
 nouveau composant lui-meme : s'il n'y a pas de composant adapte, il le
 signale, le Monteur decidera d'en creer un (§8, regle du Monteur).
+
+La direction artistique est de son ressort, pas de celui du Monteur.
+Avant, A6 choisissait les composants et A7 improvisait le style au moment
+de coder : deux videos d'affilee pouvaient ne pas avoir le meme langage
+visuel sans que personne ne l'ait decide. Desormais A6 l'ecrit dans le
+storyboard, et A7 l'applique.
 
 ## Etape 1 — Verifier que c'est bien son tour
 
@@ -28,18 +36,60 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
 
 - `videos/{video_id}/03_script_final.md` et `03_script_tts.txt` (une
   phrase par ligne : bon decoupage naturel des scenes)
-- `00_Profil/charte_visuelle/charte.json` (tokens : couleurs, typographie,
-  rythme) et `charte.md` (intention visuelle)
+- `00_Profil/charte_visuelle/charte.json` — en particulier le bloc
+  `animation` : easing par defaut, regle du wobble, regles de style. Ces
+  principes sont **valides une fois avec la charte, pas redecides par
+  video** (§8). Ta direction artistique les decline, elle ne les
+  contredit pas.
+- `charte.md` (intention visuelle)
 - `composants/REGISTRE.md` (composants existants, humain) et
   `composants/src/components/registry.ts` (source de verite : les noms
   exacts a utiliser dans `composant`)
 
-## Etape 4 — Decouper en scenes
+## Etape 4 — Generer le squelette, puis le trancher
 
-Pour chaque scene, decide : le composant (par son nom exact du registre),
-ses parametres, une duree indicative en secondes (base-toi sur le nombre
-de mots de la phrase / ~2.5 mots par seconde ; le Monteur recalera les
-durees exactes sur `04_timestamps.json` une fois l'audio disponible).
+```bash
+python3 <chemin-du-skill>/scripts/generer_storyboard.py --video <video_id> --root <racine> \
+  --sortie-md videos/<video_id>/05_storyboard.md \
+  --sortie-json videos/<video_id>/05_storyboard.json
+```
+
+Ce script pose la structure : une scene par phrase, les ids, les durees
+estimees, la DA par defaut de la charte. Il marque chaque scene
+`"a_completer": true`.
+
+**Le vrai travail commence ici.** Reprends le `.json` scene par scene et
+tranche :
+
+1. **le composant** — nom exact du registre ; reutilise avant de demander
+   du neuf (§8) ;
+2. **les parametres** du composant. N'y remets jamais la phrase prononcee
+   comme texte a l'ecran : les sous-titres la portent deja, l'afficher
+   ferait doublon. Le champ `phrase` sert de repere, pas de parametre ;
+3. **la direction artistique** (`da`), avec ce vocabulaire ferme :
+
+| Champ | Valeurs | Ce que ca decide |
+|---|---|---|
+| `mouvement` | `entree_par_le_bas`, `fondu`, `zoom_lent`, `glissement_lateral`, `apparition_sequencee`, `aucun` | comment la scene entre et vit |
+| `rythme` | `pose` (on laisse respirer), `standard`, `punch` (accent, coupe seche) | l'energie de la scene |
+| `technique` | `spring`, `interpolate`, `lottie`, `statique` | comment A7 l'implemente |
+| `accent` | texte libre court, optionnel | ce que la scene doit mettre en avant |
+
+Puis retire `"a_completer"` de la scene. **Aucune scene ne doit rester
+`a_completer` a la cloture** : le Monteur s'en sert pour savoir si le
+storyboard a vraiment ete travaille, et le signalera au CP3 sinon.
+
+Quelques reperes de bon sens, en plus des regles de la charte : varier le
+`mouvement` entre scenes voisines, reserver `punch` aux deux ou trois
+moments qui portent le propos, et garder le hook sobre (rien ne bouge
+au-dela de l'entree).
+
+**Durees** : celles du squelette sont des estimations (~2.5 mots/s).
+Elles sont recalees automatiquement sur l'audio reel au montage, a partir
+de `04_phrases.json` (§7.2). Ce recalage **suppose une scene par phrase** :
+si tu fusionnes ou coupes des scenes, le compte ne correspond plus, le
+recalage est abandonne et le visuel derive de la voix. Ne t'en ecarte que
+si c'est vraiment necessaire, et dis-le dans le `.md`.
 
 Ecris **deux fichiers**, toujours coherents entre eux :
 
@@ -48,10 +98,15 @@ Ecris **deux fichiers**, toujours coherents entre eux :
 ```markdown
 # Storyboard — {titre de travail}
 
-## Scene s1 — {phrase ou beat concerne}
-- Composant : TitleCard
-- Parametres : texte="...", sousTitre="..."
-- Duree indicative : 3s
+## s1 — TitleCard (3.2s)
+
+{phrase prononcee, pour situer la scene}
+
+- Mouvement : entree_par_le_bas
+- Rythme : punch
+- Technique : spring
+- Accent : le titre
+- Parametres : titre="...", sousTitre="..."
 
 ## Nouveaux composants necessaires
 - ... (ou "aucun")
@@ -62,9 +117,13 @@ Ecris **deux fichiers**, toujours coherents entre eux :
 ```json
 {
   "scenes": [
-    {"id": "s1", "composant": "TitleCard", "duree_s": 3, "params": {"texte": "...", "sousTitre": "..."}}
+    {"id": "s1", "phrase": "...", "composant": "TitleCard", "duree_s": 3.2,
+     "params": {"texte": "...", "sousTitre": "..."},
+     "da": {"mouvement": "entree_par_le_bas", "rythme": "punch",
+            "technique": "spring", "accent": "le titre"}}
   ],
-  "nouveaux_composants_necessaires": []
+  "nouveaux_composants_necessaires": [],
+  "da_defaut": {"mouvement": "fondu", "rythme": "standard", "technique": "spring"}
 }
 ```
 
@@ -98,8 +157,8 @@ tant que Franco n'a pas lance le run Colab.
 ## Fichiers
 
 - Lus : `videos/{video_id}/state.json`, `03_script_final.md`,
-  `03_script_tts.txt`, `00_Profil/charte_visuelle/charte.json` (et
-  `charte.md`), `composants/REGISTRE.md`,
+  `03_script_tts.txt`, `00_Profil/charte_visuelle/charte.json` (bloc
+  `animation` compris) et `charte.md`, `composants/REGISTRE.md`,
   `composants/src/components/registry.ts`
 - Ecrits : `videos/{video_id}/05_storyboard.md`, `05_storyboard.json`,
   `videos/{video_id}/state.json` (uniquement `etapes.E5_storyboard`)

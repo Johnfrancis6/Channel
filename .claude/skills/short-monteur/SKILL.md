@@ -12,6 +12,13 @@ l'audio et de la charte. Il peut creer de nouveaux composants dans
 `composants/` s'il en manque (§8, regle du Monteur), mais ne touche jamais
 au storyboard lui-meme (c'est le Designer, A6) ni au CP3.
 
+**Il n'invente pas le style.** La direction artistique de chaque scene est
+decidee par A6 et vit dans le champ `da` du storyboard ; les principes
+recurrents (easing, regle du wobble) vivent dans `charte.json > animation`.
+Le role de A7 est de les implementer fidelement, pas de les rejuger. Si une
+DA est impossible a rendre telle quelle, il la signale dans son message de
+cloture plutot que de la remplacer en silence.
+
 ## Etape 1 — Verifier que c'est bien son tour
 
 `etapes.E6_montage.statut` doit etre `a_venir` ou `echec`, et
@@ -32,7 +39,15 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
 
 ## Etape 3 — Composants : reutiliser, etendre, ou creer
 
-Lis `videos/{video_id}/05_storyboard.json`. Pour chaque scene :
+Lis `videos/{video_id}/05_storyboard.json`.
+
+**Avant tout** : si des scenes portent encore `"a_completer": true`, c'est
+que A6 a livre le squelette sans le trancher. Ne monte pas a l'aveugle —
+echoue l'etape avec la liste des scenes concernees, pour que le storyboard
+soit repris. Une video montee sur un squelette arrive au CP3 sans avoir
+jamais ete concue.
+
+Pour chaque scene :
 
 1. Si `composant` existe deja dans `composants/src/components/registry.ts`
    avec les bons parametres : rien a faire.
@@ -45,6 +60,32 @@ Lis `videos/{video_id}/05_storyboard.json`. Pour chaque scene :
    `composants/REGISTRE.md` avec le statut `nouveau` (revu de fait au
    CP3, §8).
 
+**Appliquer la DA.** Chaque composant recoit `da` en prop, en plus de
+`charte`. Traduis-la ainsi, en te servant de `charte.json > animation` pour
+les valeurs par defaut :
+
+| `da.mouvement` | Implementation attendue |
+|---|---|
+| `entree_par_le_bas` | translation Y depuis ~24px + opacite 0→1 sur `duree_entree_s` |
+| `fondu` | opacite seule |
+| `zoom_lent` | `scale` qui derive lentement sur toute la scene |
+| `glissement_lateral` | translation X, sens alterne d'une scene a l'autre |
+| `apparition_sequencee` | les elements entrent l'un apres l'autre, ~80ms d'ecart |
+| `aucun` | pas d'animation d'entree |
+
+| `da.technique` | Implementation attendue |
+|---|---|
+| `spring` | `spring()` de Remotion |
+| `interpolate` | `interpolate()` + easing de `charte.animation.easing_entree` |
+| `lottie` | `@remotion/lottie` sur un fichier fourni par Franco (§12) |
+| `statique` | aucune interpolation |
+
+`da.rythme` module la duree d'entree : `pose` l'allonge (~1.5x),
+`standard` la laisse, `punch` la raccourcit (~0.5x) et coupe sec.
+
+La **regle du wobble** (`charte.animation.wobble`) s'applique aux elements
+dessines a la main (stickman, traits), jamais au texte.
+
 Verifie que ca compile : `cd composants && npm run typecheck`.
 
 ## Etape 4 — Construire les props de rendu
@@ -55,27 +96,68 @@ python3 <chemin-du-skill>/scripts/construire_props.py \
   --charte <racine>/00_Profil/charte_visuelle/charte.json \
   --storyboard <racine>/videos/<video_id>/05_storyboard.json \
   --timestamps <racine>/videos/<video_id>/04_timestamps.json \
+  --phrases <racine>/videos/<video_id>/04_phrases.json \
   --audio <racine>/videos/<video_id>/04_voixoff.wav \
   --sortie /tmp/<video_id>_props.json
 ```
 
-Ce script normalise `04_timestamps.json` quel que soit son format exact
-(cles `word`/`start`/`end` ou `mot`/`debut_s`/`fin_s`).
+Ce script fait deux choses :
 
-## Etape 5 — Rendre
+- il normalise `04_timestamps.json` quel que soit son format exact (cles
+  `word`/`start`/`end` ou `mot`/`debut_s`/`fin_s`) ;
+- avec `--phrases`, il **recale les durees de scenes sur l'audio reel**.
+  Sans ce recalage, les scenes gardent l'estimation a ~2.5 mots/s du
+  storyboard : le visuel derive de la voix, et la video se termine avant ou
+  apres l'audio.
+
+**Lis le champ `avertissements` de sa sortie JSON.** S'il signale un
+desaccord entre le nombre de phrases et le nombre de scenes, le recalage
+n'a pas eu lieu : dis-le dans ton message de cloture, c'est un defaut
+visible au CP3. Si `04_phrases.json` est absent (run audio anterieur a la
+revue du 11/09/2026), relancer le notebook en `MODE='full'` le produit.
+
+## Etape 5 — Verification visuelle avant de rendre
+
+Ne livre pas un rendu que tu n'as jamais regarde (§12). Sors quelques
+images fixes et regarde-les :
 
 ```bash
 cd composants
-npx remotion render src/index.ts Video <racine>/videos/<video_id>/06_video_finale.mp4 \
-  --props=/tmp/<video_id>_props.json
+npx remotion still src/index.ts Video /tmp/<video_id>_f0.png \
+  --props=/tmp/<video_id>_props.json --frame=0
+npx remotion still src/index.ts Video /tmp/<video_id>_mid.png \
+  --props=/tmp/<video_id>_props.json --frame=<moitie de la duree en frames>
 ```
 
-Si l'environnement n'a pas de navigateur telechargeable (sandbox de dev),
-utilise un Chromium deja installe : `REMOTION_BROWSER_EXECUTABLE=<chemin>`
-avant la commande (voir `composants/remotion.config.ts`). Sur le poste de
-Franco, ce n'est normalement pas necessaire.
+Prends au moins la premiere frame du hook, une frame de milieu de video et
+une frame de fin. Verifie : le texte tient dans le cadre en 1080x1920, les
+sous-titres ne recouvrent pas l'element principal, les couleurs viennent
+bien de la charte, et la scene correspond a la DA demandee. Si quelque
+chose ne va pas, corrige le composant et refais des images fixes — c'est
+beaucoup moins cher qu'un rendu complet.
 
-## Etape 6 — Cloturer
+## Etape 6 — Rendre
+
+```bash
+python3 <chemin-du-skill>/scripts/rendre_video.py \
+  --video <video_id> --root <racine> \
+  --props /tmp/<video_id>_props.json \
+  --sortie videos/<video_id>/06_video_finale.mp4 [--browser <chemin-chromium>]
+```
+
+Ce script verifie les prerequis avant de lancer `remotion render`
+(node_modules present, props lisibles, registre accessible) et verifie que
+le MP4 produit n'est ni absent ni vide. Codes : `0` ok, `2` props
+absentes/invalides, `4` `node_modules` absent (`npm install` dans
+`composants/`), `5` registre inaccessible, `6` echec du rendu, `7` MP4
+absent ou vide. `--dry-run` verifie les prerequis sans rendre.
+
+Si l'environnement n'a pas de navigateur telechargeable (sandbox de dev),
+passe un Chromium deja installe via `--browser` (voir
+`composants/remotion.config.ts`). Sur le poste de Franco, ce n'est
+normalement pas necessaire.
+
+## Etape 7 — Cloturer
 
 Succes :
 
@@ -91,15 +173,15 @@ python3 <chemin-du-skill>/scripts/etape.py echouer --video <video_id> --etape E6
   --message "Raison precise"
 ```
 
-## Etape 7 — Relancer l'Orchestrateur
+## Etape 8 — Relancer l'Orchestrateur
 
 Si `orchestrateur_cmd` est renseigne, execute-le pour ouvrir le CP3.
 
 ## Fichiers
 
 - Lus : `videos/{video_id}/state.json`, `05_storyboard.json`,
-  `04_voixoff.wav`, `04_timestamps.json`,
-  `00_Profil/charte_visuelle/charte.json`,
+  `04_voixoff.wav`, `04_timestamps.json`, `04_phrases.json`,
+  `00_Profil/charte_visuelle/charte.json` (bloc `animation` compris),
   `composants/src/components/registry.ts`
 - Ecrits : `videos/{video_id}/06_video_finale.mp4`,
   `videos/{video_id}/state.json` (uniquement `etapes.E6_montage`),

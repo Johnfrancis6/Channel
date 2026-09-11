@@ -51,11 +51,20 @@ LEXIQUE_PRONONCIATION_MD = """# Lexique de prononciation
 
 *Amorce reprise de docs/architecture_chaine_v1.2.md §7.4. S'enrichit via les propositions de A5 validees au CP2, les signalements du controle qualite audio, et les notes de Franco.*
 
+## Regle des sigles
+
+Un sigle courant s'ecrit **normalement** (`LLM`, `MCP`, `VS`), pas epele
+lettre par lettre (`L L M`). L'epellation a deux defauts : la synthese la
+rend souvent moins bien que le sigle brut, et surtout elle casse le
+controle qualite, puisque Whisper retranscrit `LLM` et non `L L M` — le
+WER compte alors des erreurs qui n'en sont pas.
+
+N'entrent au lexique que les termes que la synthese prononce reellement
+mal, verifies sur un run. Un sigle qui passe bien n'a pas d'entree.
+
 | Terme | Forme ecrite pour le TTS | Statut |
 |---|---|---|
-| LLM | L L M | valide |
-| GPT-5 | G P T five | valide |
-| vLLM | v L L M | valide |
+| GPT-5 | GPT five | valide |
 | RAG | rag | valide |
 """
 
@@ -68,6 +77,26 @@ CHARTE_MD = """# Charte visuelle
 - **Rythme des transitions** : a definir
 - **Frame d'accroche** : a definir
 - **Style d'illustration** : a definir
+
+## Principes d'animation (valides une fois, pas redecides par video)
+
+Ces principes vivent dans `charte.json` sous la cle `animation` : les
+composants Remotion les lisent, le Designer (A6) s'y refere dans la
+direction artistique de chaque scene, et le Monteur (A7) les applique sans
+avoir a les reinventer (§8).
+
+- **Easing par defaut** : `ease-out` pour les entrees (le mouvement arrive
+  vite puis se pose), `ease-in-out` pour les transitions entre scenes.
+- **Entrees en ressort** : `spring` pour tout ce qui doit avoir du
+  caractere (personnage, chiffre cle) ; `interpolate` pour ce qui doit
+  rester discret (texte de fond, cartouche).
+- **Regle du wobble** : une oscillation permanente et legere sur les
+  elements dessines a la main (stickman, traits), jamais sur le texte —
+  ca rend le trait vivant sans fatiguer la lecture.
+- **Un mouvement dominant par scene** : si l'element principal bouge, le
+  fond est fixe, et inversement.
+- **Rien ne bouge pendant le hook** au-dela de l'entree : les trois
+  premieres secondes se jouent sur le texte et la voix.
 
 Pas de miniature pour l'instant (§4.3).
 """
@@ -91,6 +120,26 @@ CHARTE_JSON = {
     "rythme": {
         "duree_transition_s": 0.3,
         "easing": "ease-in-out"
+    },
+    # Principes de style recurrents (§8), valides une fois avec la charte
+    # plutot que redecides a chaque video. A6 s'y refere dans le bloc
+    # `da` de chaque scene, A7 les applique.
+    "animation": {
+        "easing_entree": "ease-out",
+        "easing_transition": "ease-in-out",
+        "duree_entree_s": 0.3,
+        "technique_defaut": "spring",
+        "wobble": {
+            "actif": True,
+            "amplitude_px": 6,
+            "periode_s": 1.2,
+            "cible": "trace_main"
+        },
+        "regles": [
+            "Un seul mouvement dominant par scene.",
+            "Pas de wobble sur le texte.",
+            "Pendant le hook, rien ne bouge au-dela de l'entree."
+        ]
     },
     "format": {"largeur_px": 1080, "hauteur_px": 1920, "fps": 30}
 }
