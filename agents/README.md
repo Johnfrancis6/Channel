@@ -26,7 +26,7 @@ Il y a deux sources de verite versionnees (§9.2), et une seule cible :
 | Source | Contenu | Cible |
 |---|---|---|
 | `agents/short-*/` | les 7 agents du pipeline | `.claude/skills/<nom>/` |
-| `skills/*/` | `new-short`, `short-state` | `.claude/skills/<nom>/` |
+| `skills/*/` | `new-short`, `short-state`, `short-publier` | `.claude/skills/<nom>/` |
 
 `.claude/skills/` est **entierement genere**. Ne jamais l'editer
 directement : modifie la source, puis relance

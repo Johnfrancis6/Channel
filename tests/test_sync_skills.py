@@ -24,7 +24,7 @@ CLAUDE_SKILLS = RACINE_DEPOT / ".claude" / "skills"
 
 AGENTS = {"short-chercheur", "short-redacteur", "short-filtre-tts", "short-designer",
           "short-monteur", "short-analyse-chaines", "short-amelioration"}
-UTILITAIRES = {"new-short", "short-state"}
+UTILITAIRES = {"new-short", "short-state", "short-publier"}
 
 
 def _module():
