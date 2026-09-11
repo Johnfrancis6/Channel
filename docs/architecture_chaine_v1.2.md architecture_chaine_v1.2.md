@@ -353,11 +353,23 @@ Le notebook est **modulaire** : Franco ne modifie que la Cell 1, où `MODE` déc
 | 3. Modèles | Chargement de Qwen3-TTS et de faster-whisper (mis en cache) |
 | 4. Synthèse | Lecture de `03_script_tts.txt`, génération phrase par phrase, reprise sur OOM GPU |
 | 5. Assemblage + Timestamps | Concaténation avec pauses calibrées, normalisation LUFS, puis faster-whisper `word_timestamps=True` → `04_timestamps.json`. Écrit aussi **`04_phrases.json`** : les bornes début/fin de chaque phrase dans l'audio assemblé |
-| 6. Contrôle qualité | **WER global** sur l'audio assemblé (transcription vs `03_script_tts.txt`), ponctuation et casse normalisées. Sous le seuil : l'étape passe `termine`. Au-dessus : `echec`, avec le diagnostic dans le rapport |
+| 6. Contrôle qualité | **WER global** sur l'audio assemblé (transcription vs `03_script_tts.txt`), ponctuation et casse normalisées. Sous le seuil : l'étape passe `termine`. Au-dessus : `echec`, avec un **diagnostic gradué** — voir ci-dessous |
 | 7. Rapport + State | `04_rapport_audio.md` et mise à jour de `state.json` (§4.2) |
 | 8. Bilan | Résumé console et prochaines actions |
 
 **`04_phrases.json` est ce qui relie la voix au montage.** C'est la seule étape du pipeline qui connaisse exactement où commence et finit chaque phrase : après coup, on ne peut que le deviner en réalignant les mots transcrits sur le script, ce que le WER non nul rend fragile. A6 faisant une scène par phrase, ces bornes permettent à A7 de caler les durées de scènes sur la voix off (§8).
+
+**Le plafond de tentatives vit dans le notebook, pas dans l'Orchestrateur.** Le §2 fixe 3 essais par étape, puis alerte. Cette règle était appliquée par l'Orchestrateur seul — or entre deux runs audio, c'est le **notebook** qu'on relance, pas lui : en mode `reel`, rien ne déclenche l'Orchestrateur automatiquement (§12, déclenchement non tranché). Sur `2026-09-11_v01`, le compteur est monté à **8** sans qu'aucune alerte ne parte. `etape_commencer` refuse donc désormais de démarrer au-delà de `MAX_TENTATIVES`, avec `FORCER_RELANCE = True` comme porte de sortie explicite.
+
+**Diagnostic WER gradué.** Un seuil unique donnait les mêmes conseils à 96 % qu'à 9 %. Deux bandes :
+
+| WER | Nature | Ce que dit le notebook |
+|---|---|---|
+| ≤ `SEUIL_WER` (3 %) | validé | l'étape passe `termine` |
+| entre 3 % et `SEUIL_WER_GRAVE` (30 %) | **marginal** | re-synthèse avec une autre graine a de bonnes chances de passer |
+| > 30 % | **structurel** | **ne pas relancer à l'identique** — moteur, échantillon de référence ou `ref.txt` en cause |
+
+Les quatre premiers runs de `2026-09-11_v01` étaient à 93-98 % (fuite de référence F5-TTS) et le notebook a répondu quatre fois « re-synthèse avec une autre graine ». Ce conseil suivi quatre fois a coûté 2 h 20.
 
 **Écart assumé avec la v1.1** : le contrôle qualité est **global** et non par phrase, et la régénération est relancée par Franco (`MODE = 'resume_after_fail'`) plutôt qu'automatiquement, 3 fois. C'est plus simple, mais ça a un coût : une seule phrase mal prononcée fait échouer tout le run, et le rapport ne signale plus *quelle* phrase a raté. Or le §4.3 donne « les phrases signalées par le contrôle qualité » comme input de H1 : cet input n'existe plus. À reprendre quand les runs réels diront si le cas est fréquent (§12).
 

@@ -276,6 +276,48 @@ sur ce que le dépôt teste et ce qu'il ne teste pas.
 
 ---
 
+## E4 — Audio (notebook Colab)
+
+**Verdict : la règle des 3 tentatives était écrite au mauvais endroit.**
+
+Le code de l'Orchestrateur est correct — `_traiter_echec_etape_manuelle`
+passe bien en `alerte` dès `tentatives >= max_tentatives`. Il n'a simplement
+**jamais tourné** entre les échecs : entre deux runs audio, c'est le notebook
+qu'on relance, pas lui, et en mode `reel` rien ne le déclenche
+automatiquement (§12, déclenchement non tranché).
+
+Résultat sur `2026-09-11_v01` : **8 tentatives** pour un plafond de 3, sept
+échecs entre 13 h 27 et 15 h 49, **2 h 20 perdues**.
+
+### Quatre défauts, tous corrigés
+
+| # | Défaut | Correction |
+|---|---|---|
+| 1 | La règle du §2 vivait dans un composant qui ne tourne pas au moment utile | `etape_commencer` refuse au-delà de `MAX_TENTATIVES`, avec `FORCER_RELANCE` comme porte de sortie explicite |
+| 2 | `MAX_TENTATIVES` était **défini et jamais lu** — garde-fou décoratif | il est désormais consulté, et un test le vérifie |
+| 3 | Diagnostic WER identique à 96 % et à 9 % | deux bandes : marginal (< 30 %) et **structurel** (> 30 %), aux conseils opposés |
+| 4 | L'agent de l'historique était écrit en dur | il vient de `state.json` ; le moteur va dans le message |
+
+Le n° 3 est celui qui a coûté le temps. Les quatre premiers runs étaient à
+93-98 % de WER — la fuite de référence de F5-TTS, un défaut structurel
+évident — et le notebook a répondu quatre fois « re-synthèse avec une autre
+graine ». Un WER de 96 % ne dit pas « réessaie », il dit « quelque chose est
+fondamentalement cassé ». Les seuils sont calés sur les runs réels :
+marginaux à 8-18 %, structurels à 93-98 %, frontière posée à 30 %.
+
+Le n° 4 a un effet discret mais durable : l'historique réel contient
+`colab_voix_f5tts` **et** `colab_voix_qwen_tts` pour la même étape, alors que
+`state.etapes.E4_audio.agent` vaut `colab_voix`. Trois noms pour un agent,
+ce qui casse tout regroupement en aval — H1, corpus.
+
+### Ce qui reste ouvert, et qui dépasse E4
+
+**Rien ne déclenche l'Orchestrateur.** C'est la cause racine, et sa portée
+va bien au-delà de l'audio : *toute* règle qui vit dans l'Orchestrateur est
+inopérante tant qu'il ne tourne pas. Le §12 laisse le déclenchement non
+tranché — cron local, Claude Code headless, ou lancement manuel. À trancher,
+sinon d'autres règles connaîtront le même sort.
+
 ## File d'attente
 
 | # | Chantier | État |
@@ -286,7 +328,7 @@ sur ce que le dépôt teste et ce qu'il ne teste pas.
 | 3b | Cadrage d'A6 : `05_cadrage.md`, décrire l'image et non la clé, doublon texte/sous-titres supprimé | ✅ fait |
 | 3c | Reprendre les composants d'après les aperçus : remplir le cadre, `intro`≠`outro`, schémas non génériques | ⬜ |
 | 4 | `outils/` + corpus + segmentation rétroactive de la vidéo 1 | ⬜ |
-| 5 | E4 : 8 tentatives, `max_tentatives`=3, aucune alerte — 2 h 20 perdues | ⬜ |
+| 5 | E4 : plafond de tentatives dans le notebook, diagnostic WER gradué, agent cohérent | ✅ fait |
 | 6 | Réajustement complet d'A2 (branche `sujet_impose`, gabarit 7 sections) | ⬜ |
 | 7 | Constante 2,5 → 3,2 mots/s dans `generer_storyboard.py` | ⬜ |
 | — | *En attente de Franco* : les 4 fichiers du jeu de base Lottie | ⬜ |
@@ -296,6 +338,10 @@ sur ce que le dépôt teste et ce qu'il ne teste pas.
 
 E2 et E3 (où les 24 phrases se sont accumulées), CP2 et CP3 sur fichiers
 réels, H1 et A3 (jamais tournés), E6 et E7.
+
+Et une question transverse qui remonte d'E4 : **le déclenchement de
+l'Orchestrateur**, non tranché depuis le §12. Tant qu'il ne tourne pas, tout
+ce qu'on lui confie est décoratif.
 
 ## En attente de Franco
 
