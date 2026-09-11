@@ -4,9 +4,11 @@ import re
 DECISION_RE = re.compile(
     r"##\s*D[ÉE]CISION\s*\n"
     r"Statut\s*:\s*(?P<statut>\S+)\s*(?:<!--.*?-->)?\s*\n"
-    r"Commentaire\s*:\s*(?P<commentaire>.*)",
+    r"Commentaire\s*:\s*(?P<commentaire>[^\n]*)",
     re.IGNORECASE | re.DOTALL,
 )
+# [^\n]* et non .* pour "commentaire" : avec re.DOTALL, ".*" capturait tout
+# le reste du fichier (footer, instructions...) au lieu de la seule ligne.
 
 
 def chemin_rapport(video_dir, checkpoint_id):
