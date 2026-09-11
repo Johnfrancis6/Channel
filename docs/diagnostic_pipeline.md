@@ -430,8 +430,8 @@ sinon, en le signalant au CP1.
 
 | Maillon | Etat |
 |---|---|
-| `00_Profil/chaines_concurrentes.json` | **vide** — genere vide, jamais rempli |
-| `YOUTUBE_API_KEY` | non configuree |
+| `00_Profil/chaines_concurrentes.json` | **vide** — seul maillon manquant |
+| `YOUTUBE_API_KEY` | ✅ configurée chez Franco |
 | A3 analyseur de chaines | **jamais tourne** |
 | `02_Veille_hebdo/*_analyse_concurrentielle.md` | **n'existe pas** |
 | Corpus de structures | pas encore construit |

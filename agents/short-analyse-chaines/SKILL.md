@@ -22,7 +22,19 @@ Deux parties, de fiabilite tres differente (§4.3) :
 
 `00_Profil/chaines_concurrentes.json` : `[{"channel_id": "UCxxxx", "nom": "..."}]`.
 Si le fichier est vide, dis-le a Franco et arrete-toi : ce n'est pas a cet
-agent de choisir des concurrents.
+agent de choisir des concurrents (§4.3).
+
+**Si Franco te donne des URLs ou des `@handles`** plutot que des
+identifiants, resous-les d'abord — la sortie est directement collable dans
+`chaines_concurrentes.json` :
+
+```bash
+python3 <chemin-du-skill>/scripts/stats_youtube.py \
+  --chaines "https://youtube.com/@unechaine" "@uneautre" --resoudre
+```
+
+Une URL YouTube moderne n'expose plus l'identifiant `UC` : le script
+accepte donc les trois formes (identifiant, handle, URL).
 
 ## Etape 2 — Statistiques (voie stable)
 
@@ -33,8 +45,10 @@ audite, §11 et §12).
 python3 <chemin-du-skill>/scripts/stats_youtube.py --chaines UCxxxx UCyyyy > /tmp/stats.json
 ```
 
-Si une chaine echoue (id invalide, quota API), elle apparait avec un champ
-`erreur` dans la sortie : continue avec les autres, ne t'arrete pas.
+Si une chaine echoue (reference invalide, quota API, erreur reseau), elle
+apparait avec un champ `erreur` dans la sortie : continue avec les autres,
+ne t'arrete pas. Le script attrape les erreurs HTTP et reseau par chaine
+precisement pour ca.
 
 ## Etape 3 — Transcriptions (partie fragile, best-effort)
 
