@@ -144,6 +144,9 @@ Chaque agent respecte les mêmes règles vis-à-vis de `state.json` :
 - Ses inputs sont la liste de chaînes et mots-clés fournie par Franco et `profil_chaine.md`.
 
 **A3 — Analyseur de chaînes (hebdo)**
+- Il **segmente chaque vidéo** avec `outils/analyser_transcription.py` : le LLM attribue un rôle à chaque phrase (vocabulaire fermé — `hook`, `promesse`, `contexte`, `idee`, `exemple`, `transition`, `cta`, `sponsoring`), le script mesure et valide. Les mesures s'accumulent dans `02_Veille_hebdo/corpus_structures.jsonl`, **append-only**.
+- Avant, il produisait une note en prose **indexée par chaîne** : ni mesurable, ni comparable, ni cumulable — et le hook, le CTA et le rythme sont des propriétés d'**une** vidéo, pas d'une chaîne. Le rapport hebdomadaire étant un fichier neuf chaque semaine, rien ne s'accumulait dans tout le système.
+- Il accepte les chaînes sous trois formes : identifiant `UCxxxx`, `@handle`, ou URL (`--resoudre` les convertit).
 - Il récupère les statistiques des concurrents via l'API YouTube Data, qui est la voie stable.
 - Il analyse les transcriptions quand elles sont disponibles (hooks, CTA, structure). C'est la partie fragile : un échec de transcription ne bloque pas l'analyse des statistiques.
 - Il produit `02_Veille_hebdo/{AAAA-Sxx}_analyse_concurrentielle.md`, lu par A2 et A4.
@@ -392,7 +395,9 @@ Les quatre premiers runs de `2026-09-11_v01` étaient à 93-98 % (fuite de réf�
 
 Vérifié sur `2026-09-11_v01` : 258 mots pour un budget de 135, ratio **1,91**, 123 mots de trop, 80,6 s estimées contre 42 s de budget. Le contrôle aurait crié à E3 ; en son absence, le dépassement n'a été vu qu'à E5, l'audio déjà enregistré, et repoussé au CP3.
 
-Le débit de référence est **3,2 mots/seconde**, mesuré sur cette même vidéo (258 mots, 82,5 s de voix off pauses comprises) — l'estimation tombe à 2,3 % près.
+Le débit de référence est **2,8 mots/seconde**, mesuré sur cette même vidéo : **231 mots réellement prononcés** pour 82,5 s de voix off, pauses comprises. Une première estimation à 3,2 partait du script brut, marqueurs de mise en scène compris (`[intro — stickman face camera]`) — 27 mots jamais dits, soit 14 % d'erreur. `metriques.py` les retire désormais.
+
+Le budget compte **45 mots par idée, tout compris** : l'idée plus sa part de hook, de promesse, d'exemple et de CTA. Ce n'est pas un détail — sur `2026-09-11_v01`, les trois idées ne pèsent que 115 mots sur 231, l'autre moitié étant l'enveloppe narrative. Un budget qui ne compterait que les idées serait faux de moitié. Le corpus le recalibre via `cout_total_par_idee`.
 
 
 

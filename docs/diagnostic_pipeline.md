@@ -403,7 +403,7 @@ existe pour rendre visible.
 | 3a | Catalogue d'aperçus de composants (`outils/generer_apercus.py`) | ✅ fait |
 | 3b | Cadrage d'A6 : `05_cadrage.md`, décrire l'image et non la clé, doublon texte/sous-titres supprimé | ✅ fait |
 | 3c | Composants repris : `animation.ts`, cadre rempli, `intro`≠`outro`, schémas parlants, transitions | ✅ fait |
-| 4 | `outils/` + corpus + segmentation rétroactive de la vidéo 1 | ⬜ |
+| 4 | `outils/` + analyseur de structure + corpus + segmentation de la vidéo 1 | ✅ fait |
 | 5 | E4 : plafond de tentatives dans le notebook, diagnostic WER gradué, agent cohérent | ✅ fait |
 | 6 | Réajustement complet d'A2 (branche `sujet_impose`, gabarit 7 sections) | ✅ fait |
 | 6b | Budget en idées appliqué par A4 et mesuré par A5 | ✅ fait |
@@ -417,6 +417,54 @@ CP2 et CP3 sur fichiers réels, H1 et A3 (jamais tournés), E6 et E7.
 Et une question transverse qui remonte d'E4 : **le déclenchement de
 l'Orchestrateur**, non tranché depuis le §12. Tant qu'il ne tourne pas, tout
 ce qu'on lui confie est décoratif.
+
+## A3 — L'analyse de structure, et ce que la mesure reelle a corrige
+
+`outils/analyser_transcription.py` remplace les notes en prose. Le LLM
+segmente (reconnaître un hook demande de comprendre le propos), le script
+compte et valide — même séparation que `metriques.py` pour A5. Le
+vocabulaire des rôles est **fermé** : `hook`, `promesse`, `contexte`,
+`idee`, `exemple`, `transition`, `cta`, `sponsoring`. Le corpus
+`02_Veille_hebdo/corpus_structures.jsonl` est **append-only**.
+
+La première ligne du corpus est `2026-09-11_v01`, segmentée à la main. Elle
+a immédiatement invalidé trois choses que j'avais posées :
+
+### 1. La règle « un seul hook » était fausse
+
+Le hook réel tient en **deux phrases** — *« Everyone calls their product an
+AI agent now. / Most of them are not agents at all. »* — figure classique,
+pas une erreur. La règle est devenue : un rôle de ce type doit être
+**contigu**, pas unique. Un hook dispersé dans la vidéo reste suspect.
+
+### 2. Le débit de référence était faux de 14 %
+
+J'avais mesuré 3,2 mots/s à partir du script **brut**, marqueurs de mise en
+scène compris — `[intro — stickman face camera]`, 27 mots jamais prononcés.
+Le script réellement dit fait **231 mots**, pas 258, soit **2,8 mots/s**.
+
+`metriques.py` retire désormais ces marqueurs, et les deux constantes de
+débit sont corrigées. Elles avaient été fausses dans les deux sens : 2,5
+puis 3,2.
+
+### 3. « Idée » n'avait pas la même granularité des deux côtés
+
+Compter les segments donnait **12 idées** pour un budget de 3 : les trois
+idées du script — LLM, workflow, agent — occupent douze phrases. On compte
+donc les **blocs** (groupes explicites, sinon suites contiguës).
+
+Et la mesure a révélé un écart dans le modèle de budget : les trois idées
+ne pèsent que **115 mots sur 231**. Le hook, la promesse, l'exemple et le
+CTA consomment l'autre moitié. Le budget de A5 se compare donc à
+`cout_total_par_idee` — 45 mots **tout compris** — et non au coût des
+seules idées, qui serait faux de moitié.
+
+### Ce que ça dit de la méthode
+
+Trois règles écrites de bonne foi, invalidées par la première donnée réelle.
+Aucun test synthétique ne pouvait les attraper : ils validaient mes
+hypothèses, pas le terrain. C'est l'argument le plus concret pour le corpus
+— et pour segmenter les vidéos **avant** d'en produire six.
 
 ## Priorite revisee : le contenu qui marche avant le vecu
 

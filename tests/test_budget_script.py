@@ -48,12 +48,26 @@ class TestEvaluerBudget(unittest.TestCase):
         self.assertGreater(b["depassement_mots"], 0)
 
     def test_le_cas_reel_aurait_crie(self):
-        # 2026-09-11_v01 : 264 mots pour 3 idees.
-        b = metriques.evaluer_budget(264, idees=3)
+        # 2026-09-11_v01 : 231 mots reellement prononces, pour 3 idees.
+        b = metriques.evaluer_budget(231, idees=3)
         self.assertEqual(b["verdict"], "depasse")
         self.assertGreater(b["ratio"], 1.5)
-        # Et la duree annoncee doit coller a l'audio reellement produit (82,5 s).
+        # Et la duree annoncee doit coller a l'audio reellement produit.
         self.assertAlmostEqual(b["duree_estimee_s"], 82.5, delta=3.0)
+
+    def test_les_marqueurs_de_mise_en_scene_ne_comptent_pas(self):
+        # A4 pose "[intro — stickman face camera]" dans le script brut. Ces
+        # marqueurs ne sont jamais prononces ; comptes comme du texte, ils
+        # gonflaient le total de 27 mots sur la premiere video, soit 14 %
+        # d'erreur sur le debit de reference.
+        script = ("# Script brut\n\n## Corps\n\n"
+                  "[intro — stickman face camera]\n"
+                  "There are three levels here.\n")
+        phrases = [metriques.analyser(p, sec)
+                   for sec, p in metriques.decouper_phrases(script)]
+        texte = " ".join(p["phrase"] for p in phrases)
+        self.assertNotIn("stickman", texte)
+        self.assertIn("three levels", texte)
 
     def test_un_format_plus_couteux_change_le_verdict(self):
         # Une interview fictive incarne et relance : plus de mots par idee,

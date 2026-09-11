@@ -49,6 +49,8 @@ CIBLE_DIR = RACINE_DEPOT / ".claude" / "skills"
 OUTILS_PAR_SKILL = {
     "short-designer": ["generer_apercus.py"],
     "short-monteur": ["generer_apercus.py"],
+    "short-analyse-chaines": ["analyser_transcription.py"],
+    "short-amelioration": ["analyser_transcription.py"],
 }
 
 # Extensions traitees comme du texte : contenu normalise en LF a la copie et

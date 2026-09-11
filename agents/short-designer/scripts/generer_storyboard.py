@@ -32,14 +32,16 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 REGISTRY_TS = REPO_ROOT / "composants" / "src" / "components" / "registry.ts"
 
-# Debit mesure sur 2026-09-11_v01 : 264 mots pour 82,5 s de voix off, pauses
-# comprises. La valeur precedente (2,5) sous-estimait le debit reel de 28 %,
-# donc surestimait chaque duree de scene : c'est l'arithmetique derriere les
-# 16,4 s d'ecart entre l'audio et la video rendue. Le recalage sur
+# Debit mesure sur 2026-09-11_v01 : 231 mots reellement prononces pour
+# 82,5 s de voix off, pauses comprises. La valeur d'origine (2,5)
+# sous-estimait le debit et surestimait chaque duree de scene — c'est
+# l'arithmetique derriere les 16,4 s d'ecart entre l'audio et la video
+# rendue. Une premiere correction a 3,2 partait du script brut, marqueurs
+# de mise en scene compris : 27 mots jamais prononces. Le recalage sur
 # 04_phrases.json rend l'erreur inoffensive au montage, mais l'estimation
 # affichee au Designer doit rester juste — c'est sur elle qu'il juge si la
 # video est trop longue.
-MOTS_PAR_SECONDE = 3.2
+MOTS_PAR_SECONDE = 2.8
 DUREE_MIN_S = 1.5
 
 # Direction artistique par defaut, en attendant celle que A6 decide par

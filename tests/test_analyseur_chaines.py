@@ -63,10 +63,35 @@ class TestGenererRapport(unittest.TestCase):
         self.assertIn("chaine introuvable", contenu)
         self.assertIn("V1 — 50 vues", contenu)
 
-    def test_rendre_sans_notes_indique_indisponible(self):
+    def test_rendre_sans_analyse_le_dit(self):
         contenu = generer_rapport.rendre([{"channel_id": "UC1", "titre": "X", "abonnes": 1,
                                             "vues_totales": 1, "nb_videos": 1}], "2026-S37", None)
-        self.assertIn("Transcriptions indisponibles", contenu)
+        self.assertIn("Aucune video analysee", contenu)
+
+    def test_les_analyses_apparaissent_par_chaine(self):
+        # Indexees par video, pas par chaine : ecraser cinq videos dans une
+        # phrase detruisait l'information avant de l'ecrire.
+        analyses = [{"chaine": "UC1", "titre": "Une video",
+                     "metriques": {"duree_s": 47, "nb_idees": 3, "hook_duree_s": 3.2,
+                                   "mots_par_seconde": 3.4, "cta_present": True,
+                                   "sponsoring_present": False}}]
+        contenu = generer_rapport.rendre([{"channel_id": "UC1", "titre": "X", "abonnes": 1,
+                                            "vues_totales": 1, "nb_videos": 1}],
+                                          "2026-S37", None, analyses)
+        self.assertIn("Une video", contenu)
+        self.assertIn("3 idee(s)", contenu)
+        self.assertIn("CTA", contenu)
+        self.assertNotIn("Aucune video analysee", contenu)
+
+    def test_la_synthese_rappelle_qu_une_semaine_ne_dit_rien(self):
+        analyses = [{"chaine": "UC1", "metriques": {"duree_s": 47, "mots_par_seconde": 3.4,
+                                                     "hook_duree_s": 3.0, "nb_idees": 3,
+                                                     "mots_par_idee_moyen": 40,
+                                                     "cta_present": True,
+                                                     "sponsoring_present": False}}]
+        contenu = generer_rapport.rendre([], "2026-S37", None, analyses)
+        self.assertIn("Mediane", contenu)
+        self.assertIn("accumulation", contenu)
 
 
 class TestGenererRapportCLI(unittest.TestCase):

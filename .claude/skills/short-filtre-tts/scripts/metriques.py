@@ -29,18 +29,34 @@ import re
 CIBLE_MIN, CIBLE_MAX = 8, 18
 SEUIL_DECOUPE, SEUIL_FUSION = 22, 4
 
-# Debit mesure sur 2026-09-11_v01 : 264 mots pour 82,5 s de voix off, pauses
-# inter-phrases comprises. A recalibrer quand le corpus aura plusieurs voix.
-MOTS_PAR_SECONDE = 3.2
+# Debit mesure sur 2026-09-11_v01 : 231 mots reellement prononces
+# (03_script_tts.txt) pour 82,5 s de voix off, pauses inter-phrases
+# comprises. La premiere estimation (3,2) partait du script BRUT, marqueurs
+# de mise en scene compris — 27 mots jamais dits, soit 14 % d'erreur.
+# A recalibrer quand le corpus aura plusieurs voix.
+MOTS_PAR_SECONDE = 2.8
 
-# Cout en mots d'une idee. Valeur de depart : les formats se decouvrent au
-# fil des premieres videos, et chacun a son propre cout — un dialogue en
-# consomme bien plus qu'une explication. A surcharger avec --mots-par-idee.
+# Cout en mots d'une idee, **tout compris** : l'idee elle-meme plus sa part
+# de hook, de promesse, d'exemple et de CTA. Ce n'est pas un detail — mesure
+# sur 2026-09-11_v01, les trois idees ne pesent que 115 mots sur 231, le
+# reste etant l'enveloppe narrative. Un budget qui ne compterait que les
+# idees serait faux de moitie.
+#
+# 45 mots x 3 idees = 135 mots, soit ~48 s a 2,8 mots/s. Valeur de depart :
+# les formats se decouvrent au fil des premieres videos, et chacun a son
+# cout — un dialogue en consomme bien plus qu'une explication. A surcharger
+# avec --mots-par-idee, et a recalibrer sur `cout_total_par_idee` du corpus.
 MOTS_PAR_IDEE_DEFAUT = 45
 
 # Au-dela de quel depassement on parle. Sous +20 %, un script se resserre au
 # calibrage ; au-dela, c'est une idee de trop, et ca se regle en reecrivant.
 TOLERANCE_BUDGET = 0.20
+
+# Marqueur de mise en scene en debut de ligne : "[intro — stickman face
+# camera]". A4 en pose dans le script brut ; ils ne sont jamais prononces.
+# Comptes comme du texte, ils gonflaient le total de 27 mots sur
+# 2026-09-11_v01 — assez pour fausser le debit de reference de 14 %.
+RE_MARQUEUR = re.compile(r"^\s*\[[^\]]*\]\s*")
 
 RE_TITRE = re.compile(r"^#{1,6}\s+(.*)$")
 RE_FILET = re.compile(r"^(-{3,}|\*{3,}|_{3,})$")
@@ -94,7 +110,7 @@ def blocs_parles(texte):
             vider()
             blocs.append((section, item.group(1)))
             continue
-        courant.append(re.sub(r"^>\s*", "", nue))
+        courant.append(RE_MARQUEUR.sub("", re.sub(r"^>\s*", "", nue)))
     vider()
 
     return [(sec, _nettoyer_inline(b)) for sec, b in blocs if _nettoyer_inline(b)]

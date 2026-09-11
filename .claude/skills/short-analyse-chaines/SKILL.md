@@ -50,29 +50,65 @@ apparait avec un champ `erreur` dans la sortie : continue avec les autres,
 ne t'arrete pas. Le script attrape les erreurs HTTP et reseau par chaine
 precisement pour ca.
 
-## Etape 3 — Transcriptions (partie fragile, best-effort)
+## Etape 3 — Transcriptions et segmentation (partie fragile, best-effort)
 
-Pour chaque video recente listee dans `/tmp/stats.json`, essaie de
-recuperer et lire la transcription (outils de recherche/lecture web ou
-sous-titres YouTube s'ils sont accessibles). Note pour chaque chaine :
-hook d'ouverture, structure du script, type de CTA. Si ca echoue pour une
-chaine, ecris simplement "transcriptions indisponibles" pour elle et
-continue — **n'interromps jamais** l'etape 2 a cause de l'etape 3.
+Pour chaque video recente de `/tmp/stats.json`, essaie de recuperer la
+transcription (outils web, ou sous-titres YouTube s'ils sont accessibles).
+Si ca echoue pour une chaine, passe a la suivante — **n'interromps jamais**
+l'etape 2 a cause de l'etape 3.
 
-Rassemble ces notes dans un objet `{channel_id: "note texte"}` et
-sauvegarde-le en JSON (ex. `/tmp/notes.json`).
+### Segmenter, une video a la fois
+
+**Ne resume pas en prose.** Une note en texte libre indexee par chaine —
+ce que faisait cet agent avant — ne se mesure pas, ne se compare pas et ne
+s'accumule pas. Et ecraser cinq videos dans une phrase detruit
+l'information avant meme de l'ecrire : le hook, le CTA et le rythme sont
+des proprietes d'**une** video.
+
+Pour chaque video, en trois temps :
+
+```bash
+# 1. Le squelette, phrases numerotees
+python3 <chemin-du-skill>/outils/analyser_transcription.py --gabarit \
+  --transcription /tmp/transcription.txt --duree 47 > /tmp/segmentation.json
+```
+
+2. **Remplis le `role` de chaque segment.** C'est ton travail de jugement :
+   reconnaitre un hook ou un CTA demande de comprendre le propos, un script
+   ne peut pas le faire. Vocabulaire **ferme** — `hook`, `promesse`,
+   `contexte`, `idee`, `exemple`, `transition`, `cta`, `sponsoring`. N'en
+   invente pas : un role hors liste rend la ligne incomparable aux autres et
+   on retombe sur de la prose. Renseigne aussi `chaine` (le `channel_id`),
+   `titre`, `vues` et `duree_s`.
+
+```bash
+# 3. Mesurer et ajouter au corpus
+python3 <chemin-du-skill>/outils/analyser_transcription.py --mesurer \
+  --segmentation /tmp/segmentation.json \
+  --corpus <racine>/02_Veille_hebdo/corpus_structures.jsonl
+```
+
+Le script refuse une segmentation incomplete (code 3) et te dit quoi
+corriger. Le corpus est **append-only** : c'est le seul actif du systeme
+qui prend de la valeur avec le temps, on n'y reecrit jamais une ligne.
 
 ## Etape 4 — Generer le rapport
 
 ```bash
 python3 <chemin-du-skill>/scripts/generer_rapport.py --stats /tmp/stats.json \
-  --semaine 2026-S37 --notes /tmp/notes.json \
+  --semaine 2026-S37 \
+  --analyses <racine>/02_Veille_hebdo/corpus_structures.jsonl \
   --sortie <racine>/02_Veille_hebdo/2026-S37_analyse_concurrentielle.md
 ```
 
-`--notes` est optionnel : sans lui, le rapport indique "transcriptions
-indisponibles" pour toutes les chaines, ce qui reste un rapport valide
-(§4.3 : l'echec de transcription ne bloque pas l'analyse des stats).
+`--analyses` et `--notes` sont optionnels : sans eux le rapport ne porte
+que les statistiques, ce qui reste un rapport valide (§4.3). `--notes`
+garde sa place pour ce qui ne se mesure pas — un ton, un parti pris
+editorial.
+
+**Une semaine de mesures ne dit rien.** Les medianes du rapport ne
+deviennent fiables qu'en s'accumulant, et c'est le corpus qui porte cette
+accumulation, pas le rapport hebdomadaire.
 
 ## Etape 5 — Relancer l'Orchestrateur
 
@@ -82,5 +118,6 @@ Si `orchestrateur_cmd` est renseigne, execute-le pour que le Chercheur
 ## Fichiers
 
 - Lus : `00_Profil/chaines_concurrentes.json`
-- Ecrits : `02_Veille_hebdo/{AAAA-Sxx}_analyse_concurrentielle.md`
-  uniquement (aucun `state.json`)
+- Ecrits : `02_Veille_hebdo/{AAAA-Sxx}_analyse_concurrentielle.md` et
+  `02_Veille_hebdo/corpus_structures.jsonl` (en ajout seul) — aucun
+  `state.json`
