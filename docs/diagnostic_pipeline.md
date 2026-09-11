@@ -32,7 +32,7 @@ Prises en séance le 11/09/2026, elles dépassent une seule étape.
 ```
 idées_max = 3                          ← règle de chaîne (exceptions possibles)
 mots_par_idée = propriété du FORMAT    ← c'est là que vit le dépassement
-durée = idées × mots_par_idée ÷ 3,2 mots/s   ← déduite, jamais imposée
+durée = idées × mots_par_idée ÷ 2,8 mots/s   ← déduite, jamais imposée
 ```
 
 Une interview fictive n'a pas plus d'idées qu'une explication : chaque idée
@@ -40,9 +40,16 @@ y coûte plus de mots, parce que le dialogue doit incarner et relancer. Elle
 dépasse donc 60 s **sans déroger à la règle**. Le dépassement devient de
 l'arithmétique prévisible en amont, au lieu d'être découvert au montage.
 
-Le débit de 3,2 mots/s est mesuré sur `2026-09-11_v01` (264 mots, 82,5 s de
-voix off pauses comprises). `generer_storyboard.py` utilise encore 2,5 — à
-corriger (voir file d'attente).
+Le débit de référence est **2,8 mots/s**, mesuré sur `2026-09-11_v01` :
+231 mots réellement prononcés pour 82,5 s de voix off, pauses comprises.
+La constante a été fausse deux fois avant de se fixer — 2,5 à l'origine,
+puis 3,2 quand je l'avais mesurée sur le script *brut*, marqueurs de mise
+en scène compris.
+
+Et `mots_par_idée` s'entend **tout compris** : l'idée plus sa part de hook,
+de promesse, d'exemple et de CTA. Sur la vidéo réelle, les trois idées ne
+pèsent que 115 mots sur 231 — un budget qui ne compterait que les idées
+serait faux de moitié.
 
 ### Les formats se découvrent sur les 6 premières vidéos
 
@@ -53,8 +60,8 @@ clairs, on continue à en essayer.
 
 - **Le corpus doit exister avant la vidéo 2.** Si les six vidéos ne sont pas
   mesurées de la même façon dès la première, l'étude sera impossible : six
-  vidéos, aucune donnée comparable. La vidéo 1 est mesurable rétroactivement
-  (`03_script_tts.txt` + `04_timestamps.json` existent).
+  vidéos, aucune donnée comparable. **Fait** : la vidéo 1 est la première
+  ligne du corpus, segmentée rétroactivement depuis `03_script_tts.txt`.
 - **Six formats = n=1 par format.** L'étude de la 6e vidéo répondra à *quel
   format retient le mieux*, pas à *combien de mots coûte une idée dans tel
   format*. Les budgets par format demanderont de répéter les formats retenus.
@@ -68,8 +75,9 @@ pas la beauté, c'est la **constance** — pour que la seule variable qui bouge
 soit le format.
 
 D'où la séparation : **catalogue d'aperçus et cadrage du Designer
-maintenant** ; **outils du Monteur (Lottie, Rive, d3-ease, rough.js) après
-l'étude**, quand on saura quel style on vise.
+maintenant** ; les outils qui rendraient Remotion plus organique (d3-ease,
+`@remotion/noise`, rough.js) **après l'étude**, quand on saura quel style
+on vise. Lottie, lui, a été écarté — voir plus bas.
 
 ### Analyse de structure : le vocabulaire est fermé, la narration est libre
 
@@ -113,24 +121,23 @@ désormais le seul chemin vers la qualité visuelle.
 
 ### Chaque vidéo a un dossier `assets/`
 
-Franco y dépose ses images d'inspiration et ses fichiers Lottie. Lu par A6
-(référence visuelle la plus directe) et A7 (rendu). Créé par `new_short.py`
-à côté de `checkpoints/`.
+Franco y dépose ses images d'inspiration. Lu par A6 (référence visuelle la
+plus directe) et A7. Créé par `new_short.py` à côté de `checkpoints/`.
 
 C'est aussi ce qui manquait pour que le dialogue de cadrage ait un support :
 une référence visuelle n'a plus à repartir dans une note en texte libre.
 
 ### Le corpus est le seul actif qui prend de la valeur
 
-Aujourd'hui **rien ne s'accumule** dans tout le système : le rapport
-hebdomadaire est un fichier neuf chaque semaine, et les notes qualitatives
-d'A3 sont de la prose indexée par chaîne, pas par vidéo. Un système qui
-n'accumule rien ne peut rien apprendre.
+Avant, **rien ne s'accumulait** dans tout le système : le rapport
+hebdomadaire était un fichier neuf chaque semaine, et les notes d'A3 de la
+prose indexée par chaîne, pas par vidéo. Un système qui n'accumule rien ne
+peut rien apprendre.
 
 `02_Veille_hebdo/corpus_structures.jsonl`, append-only, une ligne par vidéo
-analysée. Démarrage sur **nos propres vidéos** — timestamps mot à mot, donc
-qualité supérieure à tout ce qu'on obtiendra des concurrents — avant de
-brancher l'API YouTube.
+analysée. Démarré sur **nos propres vidéos** — on y a le texte exact et les
+timings, donc une qualité supérieure à tout ce qu'on obtiendra des
+concurrents.
 
 ### Paliers vers l'autonomie
 
