@@ -26,6 +26,32 @@ Deux règles de la chaîne s'appliquent ici. Garde-les en tête, car elles prot�
 | « new short sur X, angle Y » | `--sujet "X" --angle "Y"` |
 | « new short avec le sujet 2026-S37-02 » | `--sujet-id 2026-S37-02` |
 | une consigne pour le Chercheur (« focus benchmark local ») | `--note "…"` |
+| « en interview fictive », « format démo » | `--format interview_fictive` |
+| « comme cette vidéo : <lien> », « même format que… » | `--reference "<lien>"` |
+| « deux idées seulement », « garde ça court » | `--idees 2` |
+| un titre court pour le tableau de bord | `--titre "…"` |
+
+### Les consignes structurées
+
+Trois champs valent mieux qu'une note libre, et il faut les utiliser dès que
+Franco donne l'information :
+
+- **`--format`** : le format narratif. **Champ libre** — les formats se
+  découvrent au fil des premières vidéos, n'impose jamais une liste fermée
+  et n'invente pas un nom si Franco n'en donne pas.
+- **`--reference`** : une vidéo dont Franco veut le format ou la mise en
+  scène. Elle est relayée jusqu'au Designer.
+- **`--idees`** : le budget du Short — **un nombre d'idées, pas une durée**
+  (défaut 3). Le coût en mots d'une idée dépend du format : une interview
+  fictive dépasse légitimement les 60 s sans déroger à la règle des 3 idées.
+
+`--note` reste pour tout le reste. Avant ces champs, c'était la seule porte
+d'entrée : une direction de mise en scène complète s'y retrouvait entassée,
+et n'atteignait le Designer que par ricochet.
+
+**`--titre`** : le titre de travail sert d'étiquette (tableau de bord,
+registre, en-tête du storyboard). Sans lui, il est dérivé du sujet et coupé
+à 80 caractères — un sujet d'une phrase entière ne fait pas un titre.
 
 Piliers possibles : `actu_ia`, `avis_outil`, `concept`, `projet_perso`, `tuto`. Ne devine pas si ce n'est pas clair : laisse le script mettre `a_determiner`, le Chercheur tranchera et Franco validera au CP1.
 
@@ -44,7 +70,7 @@ La sortie est toujours un JSON avec `code` :
 | Code | Signification | Que faire |
 |---|---|---|
 | 0 | Vidéo créée | Passer à l'étape 3 |
-| 2 | Racine introuvable ou erreur d'écriture | Demander le chemin du dossier à Franco et suggérer de définir `CHAINE_YT_ROOT` |
+| 2 | Racine introuvable, erreur d'écriture, ou argument invalide (`--idees` < 1) | Demander le chemin du dossier à Franco et suggérer de définir `CHAINE_YT_ROOT` |
 | 3 | Aucun sujet validé disponible | Proposer deux options : un short en voie rapide (`--voie rapide`), ou un sujet donné par Franco. Si `sujets_non_valides` est non vide, dis-le : ces sujets attendent le CP1 groupé |
 | 4 | Doublon probable (`doublon_de`) | Montrer la vidéo existante et demander s'il veut quand même créer (`--force`) |
 | 5 | `sujet_id` inconnu, ou présent au backlog mais pas encore validé | Montrer la liste `disponibles` renvoyée |

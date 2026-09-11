@@ -26,7 +26,10 @@
       "type": "object",
       "properties": {
         "mode_recherche": { "type": ["string", "null"] },
-        "note_franco": { "type": ["string", "null"] }
+        "note_franco": { "type": ["string", "null"] },
+        "format": { "type": ["string", "null"] },
+        "reference": { "type": ["string", "null"] },
+        "idees_max": { "type": ["integer", "null"], "minimum": 1 }
       }
     },
     "statut_global": {

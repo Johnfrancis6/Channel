@@ -34,6 +34,21 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
 
 ## Etape 3 — Lire les inputs
 
+- **`state.json` > `consignes`** — a lire en premier, c'est la que Franco
+  s'adresse a toi :
+  - `note_franco` : consigne de mise en scene. Une **contrainte**, pas une
+    suggestion. Si elle decrit un dispositif (ex. « un stickman parle en
+    intro, puis s'ecarte et raconte en fond pendant un cutaway »), ton
+    decoupage doit le suivre scene par scene ;
+  - `reference` : video de reference. Tu t'en inspires pour le **gabarit
+    narratif** (ordre, rythme, mise en scene), pas pour copier son contenu ;
+  - `format` et `idees_max` : le format vise et le nombre d'idees. Une
+    scene par phrase reste la regle, mais le decoupage doit laisser lire
+    les `idees_max` idees comme des blocs distincts.
+
+  Avant, rien de tout ca ne t'etait adresse : `note_franco` ne figurait pas
+  dans tes inputs, et l'intention de Franco ne t'arrivait que si le
+  Chercheur l'avait recopiee dans sa recherche.
 - `videos/{video_id}/03_script_final.md` et `03_script_tts.txt` (une
   phrase par ligne : bon decoupage naturel des scenes)
 - `00_Profil/charte_visuelle/charte.json` — en particulier le bloc
@@ -156,7 +171,8 @@ tant que Franco n'a pas lance le run Colab.
 
 ## Fichiers
 
-- Lus : `videos/{video_id}/state.json`, `03_script_final.md`,
+- Lus : `videos/{video_id}/state.json` (dont **`consignes`** :
+  `note_franco`, `reference`, `format`, `idees_max`), `03_script_final.md`,
   `03_script_tts.txt`, `00_Profil/charte_visuelle/charte.json` (bloc
   `animation` compris) et `charte.md`, `composants/REGISTRE.md`,
   `composants/src/components/registry.ts`

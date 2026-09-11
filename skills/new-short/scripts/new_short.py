@@ -10,8 +10,14 @@ Il écrit UNIQUEMENT :
 Il ne lance aucun agent et ne modifie aucun fichier partagé. Le registre des
 vidéos est une vue reconstruite à partir des state.json.
 
+Les consignes de Franco sont structurees plutot que deversees dans une note
+libre : `--format` (le format narratif, qui porte le budget en mots par
+idee), `--reference` (video de reference pour la mise en scene) et `--idees`
+(le budget du Short : un nombre d'idees, pas une duree). `--note` reste pour
+le reste.
+
 Sortie : un objet JSON sur stdout (toujours), avec "ok" et "code".
-Codes : 0 ok | 2 racine/config | 3 backlog vide | 4 doublon | 5 sujet_id invalide
+Codes : 0 ok | 2 racine/config/argument | 3 backlog vide | 4 doublon | 5 sujet_id invalide
 """
 import argparse
 import json
@@ -24,6 +30,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 PILIERS = ["actu_ia", "avis_outil", "concept", "projet_perso", "tuto", "a_determiner"]
+
+# Le titre de travail sert d'etiquette : tableau de bord, registre, en-tete du
+# storyboard. Le sujet, lui, peut faire plusieurs lignes. Les recopier l'un
+# dans l'autre sans limite a produit un "titre" de 180 caracteres sur la
+# premiere video, repris tel quel partout en aval.
+TITRE_MAX = 80
+
+# Nombre d'idees par defaut dans un Short. La duree n'est pas fixee en
+# secondes : c'est le nombre d'idees qui est plafonne, et le cout en mots
+# d'une idee depend du format (un dialogue coute plus qu'une explication).
+# Un format peut donc depasser 60 s sans deroger a la regle.
+IDEES_MAX_DEFAUT = 3
 STATUTS_INACTIFS = {"abandonnee"}
 TEMPLATE = Path(__file__).resolve().parent.parent / "assets" / "state_template.json"
 
@@ -87,6 +105,17 @@ def normaliser(texte):
         return ""
     t = unicodedata.normalize("NFKD", texte).encode("ascii", "ignore").decode().lower()
     return re.sub(r"[^a-z0-9]+", " ", t).strip()
+
+
+def raccourcir_titre(texte, maxi=TITRE_MAX):
+    """Etiquette courte derivee du sujet, coupee sur un mot entier."""
+    if not texte:
+        return texte
+    titre = " ".join(texte.split())
+    if len(titre) <= maxi:
+        return titre
+    coupe = titre[:maxi].rsplit(" ", 1)[0].rstrip(" ,;:-—")
+    return (coupe or titre[:maxi].rstrip()) + "…"
 
 
 def videos_existantes(racine):
@@ -162,6 +191,14 @@ def main():
     ap.add_argument("--pilier", choices=PILIERS)
     ap.add_argument("--sujet-id", help="Identifiant d'un sujet validé du backlog")
     ap.add_argument("--note", help="Consigne libre de Franco pour le Chercheur")
+    ap.add_argument("--titre", help=f"Titre de travail court (defaut : derive du sujet, {TITRE_MAX} car. max)")
+    ap.add_argument("--format", dest="format_video",
+                    help="Nom du format narratif (ex. interview_fictive, explication_progressive). "
+                         "Champ libre : les formats se decouvrent au fil des premieres videos.")
+    ap.add_argument("--reference", help="URL ou chemin d'une video de reference pour le format / la mise en scene")
+    ap.add_argument("--idees", type=int, default=IDEES_MAX_DEFAUT,
+                    help=f"Nombre d'idees cible (defaut {IDEES_MAX_DEFAUT}). C'est le budget du Short, "
+                         "pas sa duree : le cout en mots d'une idee depend du format.")
     ap.add_argument("--date", help="Date de création AAAA-MM-JJ (défaut : aujourd'hui, heure locale)")
     ap.add_argument("--force", action="store_true", help="Créer même si un doublon est détecté")
     ap.add_argument("--dry-run", action="store_true", help="Tout calculer sans rien écrire")
@@ -171,6 +208,9 @@ def main():
     if racine is None:
         sortir(2, "Dossier ChaineYouTube introuvable. Passe --root ou définis CHAINE_YT_ROOT.",
                root_teste=a.root or os.environ.get("CHAINE_YT_ROOT"))
+
+    if a.idees < 1:
+        sortir(2, f"--idees doit valoir au moins 1 (recu : {a.idees})")
 
     date_str = a.date or datetime.now().strftime("%Y-%m-%d")
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date_str):
@@ -248,7 +288,7 @@ def main():
     st.update({
         "video_id": video_id,
         "cree_le": now,
-        "titre_travail": sujet or "Veille actu IA — sujet à proposer",
+        "titre_travail": a.titre or raccourcir_titre(sujet) or "Veille actu IA — sujet à proposer",
         "sujet": sujet,
         "angle": angle,
         "sujet_id": sujet_id,
@@ -257,7 +297,19 @@ def main():
         "statut_global": "sujet_valide" if cp1_lot else "idee",
         "etape_actuelle": "E1_recherche",
     })
-    st["consignes"] = {"mode_recherche": mode, "note_franco": a.note}
+    st["consignes"] = {
+        "mode_recherche": mode,
+        "note_franco": a.note,
+        # Le format porte le budget en mots par idee (§8) et sert de cle au
+        # corpus : c'est lui qu'on compare d'une video a l'autre, pas la duree.
+        "format": a.format_video,
+        # Reference de mise en scene fournie par Franco. Lue par le Chercheur
+        # (A2) et le Designer (A6) : avant, une consigne de mise en scene
+        # n'avait que `note_franco` comme porte d'entree, et n'atteignait le
+        # Designer que par ricochet, recopiee dans la recherche puis le script.
+        "reference": a.reference,
+        "idees_max": a.idees,
+    }
     if cp1_lot:
         st["etapes"]["CP1"].update({
             "statut": "valide",
@@ -287,6 +339,8 @@ def main():
            chemin=str(dossier),
            fichiers_crees=[] if a.dry_run else [f"videos/{video_id}/state.json", f"videos/{video_id}/checkpoints/"],
            voie=voie, mode_recherche=mode, pilier=pilier,
+           titre_travail=st["titre_travail"],
+           format=a.format_video, reference=a.reference, idees_max=a.idees,
            sujet=sujet, angle=angle, sujet_id=sujet_id,
            cp1=st["etapes"]["CP1"]["statut"],
            prochaine_etape=prochaine,

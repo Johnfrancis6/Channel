@@ -21,6 +21,22 @@ Lis `videos/{video_id}/state.json`. `etapes.E1_recherche.statut` doit etre
 `a_venir` ou `echec`. Si non, arrete-toi et dis-le : ce n'est pas a cet
 agent de jouer.
 
+### Les consignes de Franco (`consignes`)
+
+Lis **tout le bloc `consignes`**, pas seulement le mode :
+
+| Champ | Ce que tu en fais |
+|---|---|
+| `mode_recherche` | voir le tableau ci-dessous |
+| `idees_max` | **le budget du Short** : tu livres ce nombre d'idees porteuses, pas davantage. Le reste part en "bonus, ecartable" |
+| `format` | le format narratif vise (ex. `interview_fictive`). Il conditionne la forme de la matiere que tu ramenes : un dialogue a besoin de repliques et d'objections, une explication a besoin d'etapes |
+| `reference` | video de reference pour la mise en scene. **Relaie-la telle quelle** vers le Designer dans ta sortie, ne la reinterprete pas |
+| `note_franco` | consigne libre. C'est une **contrainte**, pas une suggestion |
+
+Ces champs ont ete ajoutes parce qu'ils n'existaient pas : une consigne de
+mise en scene n'avait que `note_franco` comme porte d'entree, et n'atteignait
+le Designer que par ricochet, recopiee dans la recherche puis dans le script.
+
 Regarde `consignes.mode_recherche` :
 
 | Valeur | Situation |
@@ -104,7 +120,8 @@ Sinon, dis a Franco que ce sera pris en compte au prochain passage.
 
 ## Fichiers
 
-- Lus : `videos/{video_id}/state.json`, `00_Profil/profil_chaine.md`,
+- Lus : `videos/{video_id}/state.json` (dont **tout le bloc `consignes`**),
+  `00_Profil/profil_chaine.md`,
   `02_Veille_hebdo/*_analyse_concurrentielle.md`
 - Ecrits : `videos/{video_id}/01_recherche.md`,
   `videos/{video_id}/state.json` (uniquement `etapes.E1_recherche` et,

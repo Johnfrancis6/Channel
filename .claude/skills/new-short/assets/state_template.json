@@ -11,7 +11,10 @@
   "voie": null,
   "consignes": {
     "mode_recherche": null,
-    "note_franco": null
+    "note_franco": null,
+    "format": null,
+    "reference": null,
+    "idees_max": null
   },
   "statut_global": "idee",
   "etape_actuelle": "E1_recherche",
