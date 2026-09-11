@@ -17,10 +17,24 @@ export const Subtitles: React.FC<Props> = ({mots, charte, fenetre = 5}) => {
   const {fps} = useVideoConfig();
   const tSecondes = frame / fps;
 
-  const indexActif = mots.findIndex((m) => tSecondes >= m.debut_s && tSecondes < m.fin_s);
+  // Dernier mot commence a cet instant, pas seulement le mot en cours de
+  // prononciation : entre deux mots il y a toujours un silence, et une
+  // correspondance exacte (debut <= t < fin) faisait disparaitre les
+  // sous-titres dans chacun de ces trous. En pratique ils clignotaient entre
+  // chaque mot. On garde le groupe affiche pendant le silence, seule la mise
+  // en avant du mot s'eteint.
+  let indexActif = -1;
+  for (let i = 0; i < mots.length; i++) {
+    if (tSecondes >= mots[i].debut_s) {
+      indexActif = i;
+    } else {
+      break;
+    }
+  }
   if (indexActif === -1) {
     return null;
   }
+  const enCoursDePrononciation = tSecondes < mots[indexActif].fin_s;
 
   const debut = Math.max(0, indexActif - Math.floor(fenetre / 2));
   const fin = Math.min(mots.length, debut + fenetre);
@@ -52,7 +66,10 @@ export const Subtitles: React.FC<Props> = ({mots, charte, fenetre = 5}) => {
           <span
             key={debut + i}
             style={{
-              color: debut + i === indexActif ? charte.couleurs.accent : charte.couleurs.texte_principal,
+              color:
+                debut + i === indexActif && enCoursDePrononciation
+                  ? charte.couleurs.accent
+                  : charte.couleurs.texte_principal,
             }}
           >
             {m.mot}
