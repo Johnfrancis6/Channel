@@ -37,6 +37,11 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
 - `00_Profil/profil_chaine.md`, `00_Profil/conventions.md`
 - le dernier `02_Veille_hebdo/*_analyse_concurrentielle.md`, s'il existe
 - en cas de revision : `etapes.E3_filtre.message`
+- **en cas de refus au CP2** : `etapes.CP2.commentaire` (§5.5, l'agent precedent
+  est relance avec le commentaire en input). C'est le cas quand E2_redaction
+  repasse a `a_venir` alors que le script avait deja ete ecrit : Franco a
+  refuse le script, et son commentaire prime sur tout le reste. Les rapports
+  refuses precedents sont archives dans `checkpoints/refuses/`.
 
 ## Etape 4 — Ecrire le script
 

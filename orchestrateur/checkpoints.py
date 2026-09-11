@@ -1,5 +1,6 @@
 import os
 import re
+from datetime import datetime, timezone
 
 DECISION_RE = re.compile(
     r"##\s*D[ÉE]CISION\s*\n"
@@ -28,6 +29,30 @@ def lire_decision(video_dir, checkpoint_id):
     statut = match.group("statut").strip().upper()
     commentaire = match.group("commentaire").strip()
     return {"statut": statut, "commentaire": commentaire or None}
+
+
+def archiver_rapport_refuse(video_dir, checkpoint_id):
+    """
+    Deplace un rapport refuse vers checkpoints/refuses/ et retourne le chemin
+    d'archive (ou None s'il n'y avait rien a archiver).
+
+    Indispensable apres un refus : sans ca, generer_rapport_si_absent() voit
+    l'ancien fichier, ne le regenere pas, et l'Orchestrateur relit
+    indefiniment le meme "REFUSE" au lieu d'attendre une nouvelle decision.
+    """
+    path = chemin_rapport(video_dir, checkpoint_id)
+    if not os.path.isfile(path):
+        return None
+    dossier_archive = os.path.join(video_dir, "checkpoints", "refuses")
+    os.makedirs(dossier_archive, exist_ok=True)
+    horodatage = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    archive = os.path.join(dossier_archive, f"rapport_{checkpoint_id}_{horodatage}.md")
+    suffixe = 1
+    while os.path.exists(archive):
+        archive = os.path.join(dossier_archive, f"rapport_{checkpoint_id}_{horodatage}_{suffixe}.md")
+        suffixe += 1
+    os.replace(path, archive)
+    return archive
 
 
 def generer_rapport_si_absent(video_dir, checkpoint_id, resume):

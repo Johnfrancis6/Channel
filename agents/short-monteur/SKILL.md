@@ -18,6 +18,12 @@ au storyboard lui-meme (c'est le Designer, A6) ni au CP3.
 `etapes.E4_audio.statut == "termine"` **et**
 `etapes.E5_storyboard.statut == "termine"` (les deux, §6.2).
 
+**Cas du refus au CP3.** Si le montage avait deja ete fait et que
+`E6_montage` est repasse a `a_venir`, c'est que Franco a refuse le rendu :
+lis `etapes.CP3.commentaire` et traite-le en priorite (§5.5, l'agent
+precedent est relance avec le commentaire en input). Les rapports refuses
+precedents sont archives dans `checkpoints/refuses/`.
+
 ## Etape 2 — Marquer le debut
 
 ```bash

@@ -41,6 +41,11 @@ def _lignes_a_faire(root):
                 lignes.append(f"- [{etape_id}] {video_id} — valider le rapport de checkpoint")
             elif statut == "attente_franco":
                 lignes.append(f"- [ACTION] {video_id} — {etape_id} : action manuelle requise")
+            elif statut == "refuse":
+                # Filet de securite : l'Orchestrateur remet normalement le
+                # checkpoint a `a_venir` apres un refus. Un `refuse` qui
+                # persiste signale une video figee, a ne pas laisser invisible.
+                lignes.append(f"- [REFUS] {video_id} — {etape_id} : refuse, reprise non declenchee")
         for a in etapes_agent_actionnables(state):
             verbe = "Relancer" if a["statut"] == "echec" else "Lancer"
             lignes.append(
