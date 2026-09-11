@@ -3,9 +3,16 @@
 Deploie les skills du depot vers .claude/skills/, pour que Claude Code les
 detecte comme skills de projet quand ce depot est ouvert localement.
 
-Deux sources de verite (§9.2), toutes deux couvertes :
+Trois sources de verite (§9.2), toutes couvertes :
   - agents/short-*/  : les 7 agents du pipeline (A2 a A7, H1) ;
-  - skills/*/        : les skills utilitaires (new-short, short-state).
+  - skills/*/        : les skills utilitaires (new-short, short-state...) ;
+  - outils/          : les scripts partages par plusieurs agents, deployes
+                       sous <skill>/outils/ chez ceux qui les declarent
+                       (OUTILS_PAR_SKILL).
+
+Les outils sont copies plutot que partages par un chemin commun : un skill
+doit rester installable seul (§14), donc il embarque ce dont il a besoin.
+La liste est explicite pour qu'on voie d'un coup d'oeil qui depend de quoi.
 
 `.claude/skills/` est entierement genere : ne jamais l'editer a la main.
 Modifie la source, puis relance ce script.
@@ -32,7 +39,17 @@ from pathlib import Path
 RACINE_DEPOT = Path(__file__).resolve().parent.parent
 AGENTS_DIR = RACINE_DEPOT / "agents"
 SKILLS_DIR = RACINE_DEPOT / "skills"
+OUTILS_DIR = RACINE_DEPOT / "outils"
 CIBLE_DIR = RACINE_DEPOT / ".claude" / "skills"
+
+# Qui embarque quel outil partage. Un outil declare ici pour un skill
+# inexistant, ou un fichier absent de outils/, fait echouer le deploiement :
+# mieux vaut un echec bruyant qu'un skill deploye sans son outil — c'est
+# exactement la derive silencieuse que --verifier existe pour attraper.
+OUTILS_PAR_SKILL = {
+    "short-designer": ["generer_apercus.py"],
+    "short-monteur": ["generer_apercus.py"],
+}
 
 # Extensions traitees comme du texte : contenu normalise en LF a la copie et
 # a la comparaison. Tout le reste est copie octet pour octet.
@@ -83,6 +100,18 @@ def fichiers_pertinents(racine):
     }
 
 
+def contenu_attendu(source):
+    """{chemin relatif deploye: fichier source} — le skill plus ses outils."""
+    attendu = {relatif: source / relatif for relatif in fichiers_pertinents(source)}
+    for nom in OUTILS_PAR_SKILL.get(source.name, []):
+        origine = OUTILS_DIR / nom
+        if not origine.is_file():
+            raise SystemExit(
+                f"Outil declare pour {source.name} mais introuvable : {origine}")
+        attendu[Path("outils") / nom] = origine
+    return attendu
+
+
 def verifier():
     """Liste des ecarts entre les sources et .claude/skills/."""
     ecarts = []
@@ -95,14 +124,14 @@ def verifier():
             ecarts.append(f"{source.name} : absent de .claude/skills/")
             continue
 
-        fichiers_source = fichiers_pertinents(source)
+        attendu = contenu_attendu(source)
         fichiers_cible = fichiers_pertinents(cible)
-        for manquant in sorted(fichiers_source - fichiers_cible):
+        for manquant in sorted(set(attendu) - fichiers_cible):
             ecarts.append(f"{source.name}/{manquant} : manquant dans .claude/skills/")
-        for en_trop in sorted(fichiers_cible - fichiers_source):
+        for en_trop in sorted(fichiers_cible - set(attendu)):
             ecarts.append(f"{source.name}/{en_trop} : dans .claude/skills/ mais plus dans la source")
-        for commun in sorted(fichiers_source & fichiers_cible):
-            if contenu_normalise(source / commun) != contenu_normalise(cible / commun):
+        for commun in sorted(set(attendu) & fichiers_cible):
+            if contenu_normalise(attendu[commun]) != contenu_normalise(cible / commun):
                 ecarts.append(f"{source.name}/{commun} : contenu different")
 
     if CIBLE_DIR.is_dir():
@@ -130,10 +159,10 @@ def synchroniser():
         cible = CIBLE_DIR / source.name
         if cible.exists():
             shutil.rmtree(cible)
-        for relatif in sorted(fichiers_pertinents(source)):
+        for relatif, origine in sorted(contenu_attendu(source).items()):
             destination = cible / relatif
             destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_bytes(contenu_normalise(source / relatif))
+            destination.write_bytes(contenu_normalise(origine))
         deployes.append(source.name)
 
     return deployes, orphelins
@@ -141,7 +170,7 @@ def synchroniser():
 
 def main(argv=None):
     ap = argparse.ArgumentParser(
-        description="Deploie agents/short-* et skills/* vers .claude/skills/.")
+        description="Deploie agents/short-*, skills/* et outils/ vers .claude/skills/.")
     ap.add_argument("--verifier", action="store_true",
                     help="signale la derive sans rien ecrire (code 1 si derive)")
     args = ap.parse_args(argv)

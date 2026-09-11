@@ -1,0 +1,18 @@
+{
+  "TitleCard": [
+    {"nom": "titre-seul", "params": {"texte": "Most of them are not agents."}},
+    {"nom": "titre-et-sous-titre", "params": {"texte": "What changed this week", "sousTitre": "AI news, decoded"}}
+  ],
+  "StickmanTalk": [
+    {"nom": "intro", "params": {"pose": "intro"}},
+    {"nom": "lean-in", "params": {"pose": "lean_in", "label": "REAL EXAMPLE"}},
+    {"nom": "outro", "params": {"pose": "outro"}}
+  ],
+  "ConceptCutaway": [
+    {"nom": "llm-single-turn", "params": {"scene": "llm_single_turn", "label": "STEP 1 — LLM"}},
+    {"nom": "workflow-tools", "params": {"scene": "workflow_tools", "label": "STEP 2 — AI WORKFLOW"}},
+    {"nom": "workflow-fixed-path", "params": {"scene": "workflow_fixed_path", "label": "FIXED PATH"}},
+    {"nom": "agent-loop", "params": {"scene": "agent_loop", "label": "STEP 3 — AI AGENT"}},
+    {"nom": "github-demo", "params": {"scene": "github_demo", "label": "CLAUDE + GITHUB"}}
+  ]
+}

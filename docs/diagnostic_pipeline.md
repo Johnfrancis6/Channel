@@ -235,6 +235,28 @@ Cause racine : **aucun référent visuel**. Le §8 prévoit pourtant « un aper�
 par composant dans `REGISTRE.md` — jamais fait. On ne cadre pas ce qu'on n'a
 jamais vu.
 
+### Ce que le catalogue a révélé dès son premier passage
+
+`outils/generer_apercus.py` existe maintenant, et les dix premières images
+ont montré en quelques secondes trois défauts que personne n'avait vus :
+
+- **`ConceptCutaway` laisse environ les trois quarts du cadre vides**, et ses
+  schémas sont génériques : deux rectangles « STEP 1 / STEP 2 » qui
+  n'illustrent en rien le concept annoncé. Le stickman de fond est
+  minuscule, et les sous-titres (`paddingBottom: 220`) le recouvrent. **Ce
+  plan a tenu 14,4 secondes** dans la vidéo qui attend au CP3.
+- **`StickmanTalk` : `intro` et `outro` rendent une image strictement
+  identique** — même empreinte md5. Le mapping interne envoie les deux sur
+  la pose `wave`. L'API annonce trois poses, il y en a deux. A6 croit
+  choisir là où il n'a pas le choix.
+- **Aucun composant ne remplit le 1080×1920.** Le personnage fait environ un
+  cinquième de la hauteur.
+
+Ces trois défauts existaient depuis le début et **aucun test ne pouvait les
+attraper** : il fallait regarder. C'est la meilleure justification du
+catalogue — et une illustration de la remarque de méthode faite en revue,
+sur ce que le dépôt teste et ce qu'il ne teste pas.
+
 ---
 
 ## File d'attente
@@ -243,7 +265,9 @@ jamais vu.
 |---|---|---|
 | 1 | Point d'entrée : format, référence, idées, titre court | ✅ fait |
 | 2 | Rapport de checkpoint tronqué avant la décision | ✅ fait |
-| 3 | Catalogue d'aperçus de composants + cadrage d'A6 (décrire l'image, pas la clé ; supprimer le doublon texte/sous-titres) | ⬜ |
+| 3a | Catalogue d'aperçus de composants (`outils/generer_apercus.py`) | ✅ fait |
+| 3b | Cadrage d'A6 : décrire l'image et non la clé, supprimer le doublon texte/sous-titres, dialogue de cadrage | ⬜ |
+| 3c | Reprendre les composants d'après les aperçus : remplir le cadre, `intro`≠`outro`, schémas non génériques | ⬜ |
 | 4 | `outils/` + corpus + segmentation rétroactive de la vidéo 1 | ⬜ |
 | 5 | E4 : 8 tentatives, `max_tentatives`=3, aucune alerte — 2 h 20 perdues | ⬜ |
 | 6 | Réajustement complet d'A2 (branche `sujet_impose`, gabarit 7 sections) | ⬜ |

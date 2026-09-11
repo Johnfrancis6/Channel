@@ -49,6 +49,13 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
   Avant, rien de tout ca ne t'etait adresse : `note_franco` ne figurait pas
   dans tes inputs, et l'intention de Franco ne t'arrivait que si le
   Chercheur l'avait recopiee dans sa recherche.
+- **`composants/apercus/README.md`** — **le catalogue visuel**. Une image
+  par composant et par variante, rendue par la composition reelle. C'est ce
+  que la video montrera. **Regarde-les avant de choisir** : un nom comme
+  `scene="workflow_fixed_path"` ne dit rien de ce qui est a l'ecran, et
+  choisir sans voir, c'est laisser le Monteur inventer le visuel au moment
+  de coder. Si le catalogue manque ou date, regenere-le :
+  `python3 <chemin-du-skill>/outils/generer_apercus.py`
 - **`composants/lottie/README.md`** — le jeu de base Lottie reutilisable
   (personnage, transitions) et ce que chaque fichier montre. Regarde-le
   avant de demander une animation de personnage : elle existe peut-etre
@@ -192,7 +199,7 @@ tant que Franco n'a pas lance le run Colab.
   `note_franco`, `reference`, `format`, `idees_max`), `03_script_final.md`,
   `03_script_tts.txt`, `00_Profil/charte_visuelle/charte.json` (bloc
   `animation` compris) et `charte.md`, `videos/{video_id}/assets/`,
-  `composants/lottie/README.md`,
+  `composants/lottie/README.md`, `composants/apercus/README.md`,
   `composants/REGISTRE.md`,
   `composants/src/components/registry.ts`
 - Ecrits : `videos/{video_id}/05_storyboard.md`, `05_storyboard.json`,

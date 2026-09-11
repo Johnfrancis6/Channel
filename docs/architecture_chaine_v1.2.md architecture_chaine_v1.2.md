@@ -395,7 +395,8 @@ Le dossier `/ChaineYouTube/` doit être partagé avec chaque compte Colab, et ch
 ## 8. Animation — bibliothèque de composants évolutive
 
 - **Tokens de charte** : tous les composants lisent `charte.json` (couleurs, typos, durées, easing). La cohérence visuelle est donc garantie par le code, pas par la discipline.
-- **Registre des composants** : `composants/REGISTRE.md` indique pour chaque composant son nom, ses paramètres, un aperçu, sa version et les vidéos qui l'utilisent.
+- **Registre des composants** : `composants/REGISTRE.md` indique pour chaque composant son nom, ses paramètres, sa version et les vidéos qui l'utilisent.
+- **Catalogue visuel** : `composants/apercus/` — une image par composant et par variante de paramètres, générée par `outils/generer_apercus.py` et déclarée dans `composants/apercus.json`. Les aperçus passent par la **composition de rendu réelle**, donc ce qu'on y voit est ce que la vidéo montrera. A6 choisit en regardant ; A7 régénère après avoir créé ou modifié un composant. Sans lui, A6 choisissait une clé (`scene="workflow_fixed_path"`) sans avoir jamais vu ce qu'elle met à l'écran, et le contenu visuel était improvisé au montage.
 - **Règle du Monteur** :
   1. réutiliser un composant existant ;
   2. sinon, en étendre un ;
@@ -521,12 +522,13 @@ chaine-youtube/
 ├── composants/           # bibliothèque Remotion + REGISTRE.md
 ├── notebooks/            # notebook voix off (Qwen3-TTS)
 ├── schemas/              # schéma JSON de state.json
+├── outils/               # scripts partagés par plusieurs agents, embarqués par ceux qui les déclarent
 ├── skills/               # new-short, short-state, short-publier
 ├── tests/                # suite unittest (orchestrateur, agents, skills)
 └── .claude/skills/       # MIROIR GÉNÉRÉ — ne jamais éditer à la main
 ```
 
-**`.claude/skills/` est entièrement généré** par `agents/_synchroniser_vers_claude_skills.py`, à partir de deux sources : `agents/short-*/` et `skills/*/`. On modifie la source, puis on relance le script ; `--verifier` signale la dérive sans rien écrire, et `tests/test_sync_skills.py` fait échouer la suite si le miroir a divergé. Le garde-fou existe parce que la dérive s'est déjà produite en silence : des scripts ajoutés dans `agents/` n'avaient jamais été déployés, et les skills réellement chargés par Claude Code tournaient sans eux.
+**`.claude/skills/` est entièrement généré** par `agents/_synchroniser_vers_claude_skills.py`, à partir de trois sources : `agents/short-*/`, `skills/*/` et `outils/`. Les outils partagés sont **copiés** sous `<skill>/outils/` chez ceux qui les déclarent (`OUTILS_PAR_SKILL`) plutôt que partagés par un chemin commun : un skill doit rester installable seul (§14), donc il embarque ce dont il a besoin, et la liste explicite montre d'un coup d'œil qui dépend de quoi. On modifie la source, puis on relance le script ; `--verifier` signale la dérive sans rien écrire, et `tests/test_sync_skills.py` fait échouer la suite si le miroir a divergé. Le garde-fou existe parce que la dérive s'est déjà produite en silence : des scripts ajoutés dans `agents/` n'avaient jamais été déployés, et les skills réellement chargés par Claude Code tournaient sans eux.
 
 Les prompts sont versionnés : quand H1 recommande un ajustement validé par Franco, on garde la trace de ce qui a changé et on peut comparer avant et après.
 

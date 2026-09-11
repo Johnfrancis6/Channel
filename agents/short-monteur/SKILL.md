@@ -109,6 +109,18 @@ signale-le dans ton message de cloture.
 
 Verifie que ca compile : `cd composants && npm run typecheck`.
 
+**Apres avoir cree ou modifie un composant**, declare ses variantes dans
+`composants/apercus.json` et regenere le catalogue :
+
+```bash
+python3 <chemin-du-skill>/outils/generer_apercus.py
+```
+
+Sans ca, le Designer continuera de choisir a l'aveugle sur la prochaine
+video — c'est exactement ce qui s'est passe sur `2026-09-11_v01`. Regarde
+les images produites : elles disent en une seconde ce qu'aucun test ne peut
+verifier (cadre trop vide, texte illisible, element hors champ).
+
 ## Etape 4 — Construire les props de rendu
 
 ```bash
