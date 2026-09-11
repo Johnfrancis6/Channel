@@ -5,6 +5,8 @@ d'une etape a la suivante, en respectant §4.2 (contrat agent) et §6.2
 """
 
 import os
+import re
+import unicodedata
 
 from .agents_registry import obtenir_agent
 from .checkpoints import archiver_rapport_refuse, generer_rapport_si_absent, lire_decision
@@ -85,21 +87,102 @@ def _executer_etape_agent(video_dir, state, etape_def, max_tentatives):
         ajouter_historique(state, agent_id, "echec", resultat["message"])
 
 
-def _lire_extrait(video_dir, nom_fichier, max_chars=3000):
+RE_TITRE = re.compile(r"^#{1,6} .*$", re.MULTILINE)
+
+
+def _normaliser_titre(texte):
+    sans_accent = unicodedata.normalize("NFKD", texte).encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]+", " ", sans_accent).strip()
+
+
+def _decouper_sections(contenu):
+    """[(titre|None, bloc)] en suivant les titres Markdown. Le preambule a un titre None."""
+    debuts = [m.start() for m in RE_TITRE.finditer(contenu)]
+    if not debuts:
+        return [(None, contenu)]
+    sections = []
+    if debuts[0] > 0:
+        sections.append((None, contenu[:debuts[0]]))
+    bornes = debuts + [len(contenu)]
+    for i, depart in enumerate(debuts):
+        bloc = contenu[depart:bornes[i + 1]]
+        sections.append((bloc.splitlines()[0], bloc))
+    return sections
+
+
+def _tronquer(bloc, budget):
+    return bloc[:max(budget, 0)].rstrip() + "\n\n[...]"
+
+
+def _extraire_sections(contenu, max_chars, sections_prioritaires):
+    """
+    Reduit `contenu` a `max_chars`, en gardant d'abord les sections dont le
+    titre correspond a `sections_prioritaires`.
+
+    Une troncature naive par le debut coupait le rapport de CP1 en plein
+    milieu d'une phrase, et jetait precisement la section "Points a trancher
+    par Franco" — c'est-a-dire les questions sur lesquelles il doit decider.
+    Restaient les sources, qui ne servent pas a decider. Le rapport de
+    checkpoint est fait pour etre lu au telephone sans ouvrir les sorties
+    (§5.5) : ce qui porte la decision doit survivre a la coupe.
+    """
+    if len(contenu) <= max_chars:
+        return contenu
+
+    sections = _decouper_sections(contenu)
+    motifs = [_normaliser_titre(p) for p in sections_prioritaires if p]
+    est_prio = [
+        bool(titre) and any(motif in _normaliser_titre(titre) for motif in motifs)
+        for titre, _ in sections
+    ]
+
+    budget = max_chars
+    gardees = {}
+    for indices in ([i for i, p in enumerate(est_prio) if p],
+                    [i for i, p in enumerate(est_prio) if not p]):
+        for i in indices:
+            if budget <= 0:
+                break
+            bloc = sections[i][1]
+            if len(bloc) > budget:
+                gardees[i] = _tronquer(bloc, budget)
+                budget = 0
+            else:
+                gardees[i] = bloc
+                budget -= len(bloc)
+
+    morceaux = []
+    precedent = None
+    for i in sorted(gardees):
+        if precedent is not None and i != precedent + 1:
+            morceaux.append("[...]")
+        morceaux.append(gardees[i].strip())
+        precedent = i
+    if gardees and max(gardees) != len(sections) - 1:
+        morceaux.append("[...]")
+    return "\n\n".join(morceaux)
+
+
+def _lire_extrait(video_dir, nom_fichier, max_chars=3000, sections_prioritaires=()):
     chemin = os.path.join(video_dir, nom_fichier)
     if not os.path.isfile(chemin):
         return None
     with open(chemin, "r", encoding="utf-8-sig") as f:
         contenu = f.read()
-    if len(contenu) > max_chars:
-        contenu = contenu[:max_chars] + "\n\n[...]"
-    return contenu
+    return _extraire_sections(contenu, max_chars, sections_prioritaires)
 
 
+# (fichier, titre affiche, sections a preserver en priorite si le fichier
+# depasse la taille de l'extrait). Ce sont les sections qui portent la
+# decision de Franco, pas celles qui l'informent.
 RESUME_SOURCES = {
-    "CP1": [("01_recherche.md", "Recherche")],
-    "CP2": [("03_script_final.md", "Script final"), ("03_rapport_metriques.md", "Rapport metriques (nouveaux termes de lexique)")],
-    "CP3": [("05_storyboard.md", "Storyboard")],
+    "CP1": [("01_recherche.md", "Recherche",
+             ("Points a trancher", "Angle propose", "Incertitudes"))],
+    "CP2": [("03_script_final.md", "Script final", ()),
+            ("03_rapport_metriques.md", "Rapport metriques (nouveaux termes de lexique)",
+             ("Nouveaux termes", "Lexique", "A corriger", "Hors cible"))],
+    "CP3": [("05_storyboard.md", "Storyboard",
+             ("Nouveaux composants", "Duree totale"))],
 }
 
 
@@ -116,8 +199,8 @@ def _construire_resume_checkpoint(video_dir, state, checkpoint_id):
         morceaux.append(f"Sujet : {state.get('sujet') or state.get('titre_travail') or '(a determiner)'}")
         if state.get("angle"):
             morceaux.append(f"Angle propose : {state['angle']}")
-    for nom_fichier, titre in RESUME_SOURCES.get(checkpoint_id, []):
-        extrait = _lire_extrait(video_dir, nom_fichier)
+    for nom_fichier, titre, prioritaires in RESUME_SOURCES.get(checkpoint_id, []):
+        extrait = _lire_extrait(video_dir, nom_fichier, sections_prioritaires=prioritaires)
         if extrait:
             morceaux.append(f"## {titre} (`{nom_fichier}`)\n\n{extrait}")
     if checkpoint_id == "CP3":
