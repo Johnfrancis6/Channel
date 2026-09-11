@@ -229,6 +229,37 @@ def _traiter_echec_agent_reel(state, etape_id, max_tentatives):
     # (l'action apparait au tableau de bord via etapes_agent_actionnables).
 
 
+def _traiter_echec_etape_manuelle(state, etape_id, max_tentatives):
+    """
+    Une etape manuelle peut echouer sans qu'aucun agent soit en cause : le
+    notebook Colab passe `E4_audio` a `echec` quand le controle qualite WER
+    ne passe pas (§7.2, cellule 5).
+
+    Rien ne rattrapait ce statut. E4_audio n'est pas de kind "agent", donc ni
+    _traiter_echec_agent_reel ni etapes_agent_actionnables ne la regardaient,
+    et la branche `attente_franco`/`manuel` de traiter_video ne traitait que
+    `a_venir`. Le run audio pouvait echouer trois fois d'affilee sans que rien
+    n'apparaisse au tableau de bord : la video disparaissait de "A faire par
+    Franco" et s'arretait la.
+
+    On applique donc la regle du §2 : relance tant qu'on est sous les 3
+    tentatives (ici, c'est Franco qui relance le run), alerte au-dela.
+    """
+    etape = state["etapes"][etape_id]
+    tentatives = etape.get("tentatives", 0)
+    message = etape.get("message") or "echec"
+    agent = etape.get("agent") or etape_id
+
+    if tentatives >= max_tentatives:
+        etape["statut"] = "alerte"
+        ajouter_historique(state, agent, "alerte",
+                            f"{etape_id} : {tentatives} echecs, intervention de Franco requise.")
+    else:
+        etape["statut"] = "attente_franco"
+        ajouter_historique(state, agent, "attente_franco",
+                            f"{etape_id} : {message} — a relancer par Franco.")
+
+
 def etapes_agent_actionnables(state):
     """Etapes 'agent' (a_venir ou echec) pretes a etre lancees par un agent reel."""
     resultat = []
@@ -277,6 +308,8 @@ def traiter_video(video_dir, state, config):
         elif etape_def["kind"] in ("attente_franco", "manuel"):
             if etape["statut"] == "a_venir" and _pret(state, etape_id):
                 etape["statut"] = "attente_franco"
+            elif etape["statut"] == "echec":
+                _traiter_echec_etape_manuelle(state, etape_id, max_tentatives)
 
     _mettre_a_jour_statut_global(state)
     _mettre_a_jour_etape_actuelle(state)

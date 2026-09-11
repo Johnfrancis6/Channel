@@ -67,7 +67,15 @@ def _lignes_a_faire(root, config):
             elif statut == "attente_validation":
                 lignes.append(f"- [{etape_id}] {video_id} — valider le rapport de checkpoint")
             elif statut == "attente_franco":
-                lignes.append(f"- [ACTION] {video_id} — {etape_id} : action manuelle requise")
+                # Le message porte la raison quand l'action fait suite a un
+                # echec (ex. le controle WER du notebook Colab) : sans lui,
+                # Franco relancerait le meme run sans savoir ce qui a rate.
+                detail = etape.get("message")
+                tentatives = etape.get("tentatives", 0)
+                ligne = f"- [ACTION] {video_id} — {etape_id} : action manuelle requise"
+                if detail and tentatives:
+                    ligne += f" (tentative {tentatives} : {detail})"
+                lignes.append(ligne)
             elif statut == "refuse":
                 # Filet de securite : l'Orchestrateur remet normalement le
                 # checkpoint a `a_venir` apres un refus. Un `refuse` qui
