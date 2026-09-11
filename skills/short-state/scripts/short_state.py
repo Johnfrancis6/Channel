@@ -68,7 +68,7 @@ def trouver_racine(arg):
 
 def lire_json(chemin):
     try:
-        return json.loads(chemin.read_text(encoding="utf-8")), None
+        return json.loads(chemin.read_text(encoding="utf-8-sig")), None
     except FileNotFoundError:
         return None, "absent"
     except (json.JSONDecodeError, OSError) as e:
@@ -99,7 +99,7 @@ def depuis(dt, now):
 def lire_decision(chemin):
     """Lit le bloc DÉCISION d'un rapport de checkpoint (lecture seule)."""
     try:
-        texte = chemin.read_text(encoding="utf-8")
+        texte = chemin.read_text(encoding="utf-8-sig")
     except OSError:
         return None
     idx = max(texte.upper().find("DÉCISION"), texte.upper().find("DECISION"))

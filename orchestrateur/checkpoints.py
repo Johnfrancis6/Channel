@@ -20,7 +20,7 @@ def lire_decision(video_dir, checkpoint_id):
     path = chemin_rapport(video_dir, checkpoint_id)
     if not os.path.isfile(path):
         return None
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8-sig") as f:
         contenu = f.read()
     match = DECISION_RE.search(contenu)
     if not match:

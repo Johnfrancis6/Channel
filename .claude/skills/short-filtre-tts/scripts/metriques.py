@@ -39,7 +39,7 @@ def main():
     ap.add_argument("--fichier", required=True)
     a = ap.parse_args()
 
-    with open(a.fichier, encoding="utf-8") as f:
+    with open(a.fichier, encoding="utf-8-sig") as f:
         texte = f.read()
 
     phrases = [analyser(p) for p in decouper_phrases(texte)]

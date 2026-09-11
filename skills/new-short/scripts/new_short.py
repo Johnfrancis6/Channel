@@ -69,7 +69,7 @@ def trouver_racine(arg):
 
 def lire_json(chemin, defaut=None):
     try:
-        return json.loads(chemin.read_text(encoding="utf-8"))
+        return json.loads(chemin.read_text(encoding="utf-8-sig"))
     except FileNotFoundError:
         return defaut
     except (json.JSONDecodeError, OSError):
@@ -213,7 +213,7 @@ def main():
                    doublon_de=doublon, sujet=sujet)
 
     try:
-        template = json.loads(TEMPLATE.read_text(encoding="utf-8"))
+        template = json.loads(TEMPLATE.read_text(encoding="utf-8-sig"))
     except (OSError, json.JSONDecodeError) as e:
         sortir(2, f"Template state.json illisible : {e}")
 

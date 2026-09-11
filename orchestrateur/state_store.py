@@ -10,7 +10,7 @@ def now_iso():
 
 def load_state(video_dir):
     path = os.path.join(video_dir, "state.json")
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8-sig") as f:
         return json.load(f)
 
 

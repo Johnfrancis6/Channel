@@ -20,7 +20,7 @@ def acquerir_verrou(root, duree_secondes=DUREE_VERROU_DEFAUT_SECONDES):
     os.makedirs(os.path.dirname(chemin), exist_ok=True)
 
     if os.path.exists(chemin):
-        with open(chemin, "r", encoding="utf-8") as f:
+        with open(chemin, "r", encoding="utf-8-sig") as f:
             verrou = json.load(f)
         expire_le = datetime.strptime(verrou["expire_le"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
         if datetime.now(timezone.utc) < expire_le:

@@ -65,7 +65,7 @@ def trouver_racine(arg):
 
 
 def lire_state(dossier):
-    return json.loads((dossier / "state.json").read_text(encoding="utf-8"))
+    return json.loads((dossier / "state.json").read_text(encoding="utf-8-sig"))
 
 
 def ecrire_state(dossier, state):

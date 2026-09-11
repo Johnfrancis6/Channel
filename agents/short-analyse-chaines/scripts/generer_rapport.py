@@ -54,13 +54,13 @@ def main():
     ap.add_argument("--sortie", required=True)
     a = ap.parse_args()
 
-    with open(a.stats, encoding="utf-8") as f:
+    with open(a.stats, encoding="utf-8-sig") as f:
         data = json.load(f)
     chaines = data.get("chaines", data if isinstance(data, list) else [])
 
     notes = None
     if a.notes:
-        with open(a.notes, encoding="utf-8") as f:
+        with open(a.notes, encoding="utf-8-sig") as f:
             notes = json.load(f)
 
     contenu = rendre(chaines, a.semaine, notes)

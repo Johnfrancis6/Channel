@@ -52,11 +52,11 @@ def main():
     ap.add_argument("--sortie", required=True)
     a = ap.parse_args()
 
-    with open(a.charte, encoding="utf-8") as f:
+    with open(a.charte, encoding="utf-8-sig") as f:
         charte = json.load(f)
-    with open(a.storyboard, encoding="utf-8") as f:
+    with open(a.storyboard, encoding="utf-8-sig") as f:
         storyboard = json.load(f)
-    with open(a.timestamps, encoding="utf-8") as f:
+    with open(a.timestamps, encoding="utf-8-sig") as f:
         timestamps_bruts = json.load(f)
 
     try:

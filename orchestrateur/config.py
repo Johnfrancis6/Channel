@@ -27,6 +27,6 @@ def charger_config(root):
     path = os.path.join(root, "01_Orchestrateur", "config.json")
     if not os.path.isfile(path):
         return dict(DEFAUTS)
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8-sig") as f:
         config = json.load(f)
     return {**DEFAUTS, **config}

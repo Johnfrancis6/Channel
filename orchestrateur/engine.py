@@ -89,7 +89,7 @@ def _lire_extrait(video_dir, nom_fichier, max_chars=3000):
     chemin = os.path.join(video_dir, nom_fichier)
     if not os.path.isfile(chemin):
         return None
-    with open(chemin, "r", encoding="utf-8") as f:
+    with open(chemin, "r", encoding="utf-8-sig") as f:
         contenu = f.read()
     if len(contenu) > max_chars:
         contenu = contenu[:max_chars] + "\n\n[...]"
