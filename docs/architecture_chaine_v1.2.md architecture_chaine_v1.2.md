@@ -161,12 +161,13 @@ Il produit :
 
 **A6 — Designer**
 - **Charte visuelle** (ponctuelle, validée en lot) : palette, typographie des sous-titres, rythme des transitions, frame d'accroche, style d'illustration. Elle est livrée en deux formats : `charte.md` pour l'humain et `charte.json` pour le code (design tokens).
+- **Cadrage** (par vidéo, avant le storyboard) : A6 analyse le script, élabore **ce qui est faisable** au vu du catalogue visuel et du jeu de base Lottie, et écrit `05_cadrage.md` — ce que chaque bloc doit montrer **à l'écran** (l'image, pas la clé), le coût de ce qui manque, et ses questions. Il le soumet à Franco et attend ses ajustements avant d'écrire le storyboard. C'est un dialogue, pas une étape de la machine d'états : rien ne change dans §6.2. Si Franco n'est pas disponible, A6 poursuit sur sa proposition et le signale à la clôture.
 - **Storyboard** (par vidéo, après le CP2, en parallèle de l'audio) :
   - découpage du script en scènes — **une scène par phrase de `03_script_tts.txt`** (le recalage des durées sur l'audio en dépend, §8) ;
   - pour chaque scène, le composant de la bibliothèque à utiliser et ses paramètres ;
   - pour chaque scène, sa **direction artistique** : `mouvement`, `rythme`, `technique`, `accent` (vocabulaire fermé, §8) ;
   - la liste des **nouveaux composants nécessaires** s'il en manque.
-- Il produit **deux fichiers** : `05_storyboard.md` (lecture humaine, revue au CP3) et `05_storyboard.json` (lu par le Monteur).
+- Il produit **trois fichiers** : `05_cadrage.md` (l'intention, discutée avec Franco), `05_storyboard.md` (lecture humaine, revue au CP3) et `05_storyboard.json` (lu par le Monteur).
 - Le script `generer_storyboard.py` ne produit qu'un **squelette** (une scène par phrase, durées estimées, DA par défaut de la charte), marqué `a_completer`. Le choix du composant, des paramètres et de la direction artistique reste le travail de l'agent.
 
 **A7 — Monteur vidéo**
@@ -500,6 +501,7 @@ Avant de clore E6, A7 rend quelques images fixes (`remotion still` sur le hook, 
         ├── 04_timestamps.json       # mot par mot, pour les sous-titres
         ├── 04_phrases.json          # bornes par phrase, pour les durées de scènes (§8)
         ├── 04_rapport_audio.md
+        ├── 05_cadrage.md            # intention visuelle, discutée avec Franco avant le storyboard
         ├── 05_storyboard.md         # lecture humaine, revu au CP3
         ├── 05_storyboard.json       # lu par le Monteur
         ├── 06_video_finale.mp4

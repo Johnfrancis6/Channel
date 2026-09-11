@@ -39,7 +39,13 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
 
 ## Etape 3 — Composants : reutiliser, etendre, ou creer
 
-Lis `videos/{video_id}/05_storyboard.json`.
+Lis d'abord **`videos/{video_id}/05_cadrage.md`** : c'est la note de
+cadrage du Designer, discutee avec Franco. Elle dit en clair ce que chaque
+bloc doit montrer a l'ecran, ce qui a ete juge faisable et a quel cout.
+Quand le storyboard ne donne qu'une cle (`scene="workflow_fixed_path"`), le
+cadrage donne l'image — c'est lui qui fait autorite sur l'intention.
+
+Puis `videos/{video_id}/05_storyboard.json`.
 
 **Avant tout** : si des scenes portent encore `"a_completer": true`, c'est
 que A6 a livre le squelette sans le trancher. Ne monte pas a l'aveugle —
@@ -212,7 +218,7 @@ Si `orchestrateur_cmd` est renseigne, execute-le pour ouvrir le CP3.
 
 ## Fichiers
 
-- Lus : `videos/{video_id}/state.json`, `05_storyboard.json`,
+- Lus : `videos/{video_id}/state.json`, `05_cadrage.md`, `05_storyboard.json`,
   `04_voixoff.wav`, `04_timestamps.json`, `04_phrases.json`,
   `videos/{video_id}/assets/` (images d'inspiration, fichiers Lottie),
   `00_Profil/charte_visuelle/charte.json` (bloc `animation` compris),

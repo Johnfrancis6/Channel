@@ -77,7 +77,78 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
   `composants/src/components/registry.ts` (source de verite : les noms
   exacts a utiliser dans `composant`)
 
-## Etape 4 — Generer le squelette, puis le trancher
+## Etape 4 — Cadrer avec Franco, avant d'ecrire quoi que ce soit
+
+**C'est la nouvelle etape centrale de ton travail.** Tu n'ecris pas le
+storyboard puis tu attends le CP3 : tu analyses, tu proposes, tu poses tes
+questions, Franco ajuste, et seulement apres tu ecris.
+
+### 4.1 — Analyse le contenu
+
+Lis le script en entier avant de penser images. Repere :
+
+- la **structure reelle** (hook, promesse, les `idees_max` idees, l'exemple,
+  la cloture) — elle ne suit pas forcement le decoupage en phrases ;
+- les **moments qui portent** : la phrase qui fait comprendre, le chiffre, la
+  chute. Ce sont eux qui meritent une image forte ;
+- les **passages de liaison**, qui ne meritent qu'une image sobre.
+
+### 4.2 — Elabore ce qui est faisable
+
+Regarde le **catalogue visuel** (`composants/apercus/README.md`) et le **jeu
+de base Lottie**, puis classe honnetement :
+
+| Categorie | Ce que ca veut dire |
+|---|---|
+| Reutilisable tel quel | le composant existe et rend bien ce qu'il faut |
+| A etendre | un parametre optionnel retro-compatible suffit |
+| A creer | rien ne convient — dis **ce que ca coute** et pourquoi ca vaut le coup |
+| Hors de portee | annonce-le, et propose un repli qui tient |
+
+Une animation « naturelle et fluide » sur un element dessine a la main
+coute cher en Remotion : si c'est un personnage ou une transition, regarde
+d'abord le jeu de base Lottie (§8).
+
+### 4.3 — Ecris `05_cadrage.md` et soumets-le a Franco
+
+```markdown
+# Cadrage visuel — {video_id}
+
+## Ce que raconte le script
+(3 a 5 lignes : la structure reelle et les moments qui portent)
+
+## Ce que je propose de montrer
+| Bloc | Ce qu'on voit a l'ecran | Composant | Nouveau ? |
+|---|---|---|---|
+| Hook | ... | ... | non |
+
+## Ce qui est faisable, et a quel cout
+- Reutilisable tel quel : ...
+- A etendre : ...
+- A creer : ... (cout, et pourquoi ca vaut le coup)
+- Hors de portee : ... (et le repli propose)
+
+## Questions pour Franco
+1. ...
+2. ...
+
+## Ce que je ne ferai pas sans reponse
+- ...
+```
+
+**Colonne « Ce qu'on voit a l'ecran » : decris l'image, jamais la cle.**
+`scene="workflow_fixed_path"` ne veut rien dire pour un humain, et sur
+`2026-09-11_v01` une cle de ce genre a laisse 14,4 secondes d'ecran dont
+personne n'avait decide le contenu. Ecris plutot : « trois boites reliees
+par une fleche rigide, le modele au centre ne peut pas en sortir ». C'est
+ca, ton metier.
+
+Presente ensuite ta proposition a Franco et **attends ses ajustements**
+avant l'etape 5. S'il n'est pas disponible, ne bloque pas : ecris le
+storyboard sur ta proposition, et dis clairement dans ton message de
+cloture que le cadrage n'a pas ete valide.
+
+## Etape 5 — Generer le squelette, puis le trancher
 
 ```bash
 python3 <chemin-du-skill>/scripts/generer_storyboard.py --video <video_id> --root <racine> \
@@ -94,9 +165,21 @@ tranche :
 
 1. **le composant** — nom exact du registre ; reutilise avant de demander
    du neuf (§8) ;
-2. **les parametres** du composant. N'y remets jamais la phrase prononcee
-   comme texte a l'ecran : les sous-titres la portent deja, l'afficher
-   ferait doublon. Le champ `phrase` sert de repere, pas de parametre ;
+2. **les parametres** du composant, en respectant trois regles que le
+   premier catalogue a rendues evidentes :
+
+   - **Jamais la phrase prononcee a l'ecran.** Les sous-titres la portent
+     deja. Sur `2026-09-11_v01`, les trois premieres scenes affichaient mot
+     pour mot la phrase dite, par-dessus les sous-titres qui la repetaient :
+     quinze secondes de doublon. Le texte a l'ecran est un **mot-cle**, un
+     **chiffre** ou un **titre court** — jamais la phrase. Le champ `phrase`
+     est un repere pour toi, pas un parametre.
+   - **Remplis le cadre.** On est en 1080x1920. Aucun composant actuel ne
+     remplit ce format : le personnage fait un cinquieme de la hauteur, le
+     reste est noir. Si ta scene laisse les trois quarts de l'ecran vides,
+     c'est qu'il manque quelque chose.
+   - **Laisse la place aux sous-titres.** Ils occupent le bas du cadre
+     (environ 220 px de marge). N'y place rien d'important ;
 3. **la direction artistique** (`da`), avec ce vocabulaire ferme :
 
 | Champ | Valeurs | Ce que ca decide |
@@ -171,13 +254,26 @@ Ecris **deux fichiers**, toujours coherents entre eux :
 pas encore, mets son nom quand meme (le Monteur le creera) et decris-le
 dans `nouveaux_composants_necessaires`.
 
-## Etape 5 — Cloturer
+**Un composant ou une variante qui n'existe pas encore se DECRIT, il ne se
+nomme pas.** Donne au minimum :
+
+- ce qu'on voit : les elements, leur nombre, leur disposition dans le cadre ;
+- ce qui bouge, et ce qui reste fixe ;
+- ce que la scene doit faire comprendre en une seconde.
+
+Exemple de ce qu'il ne faut pas faire — c'est ce qui a ete livre sur
+`2026-09-11_v01` : `scene="workflow_fixed_path"`, sans un mot de plus. Le
+Monteur a invente le visuel seul, et le resultat est deux rectangles
+generiques dans un ecran aux trois quarts vide.
+
+## Etape 6 — Cloturer
 
 Succes :
 
 ```bash
 python3 <chemin-du-skill>/scripts/etape.py terminer --video <video_id> --etape E5_storyboard \
-  --sorties 05_storyboard.md 05_storyboard.json --message "Resume en une phrase"
+  --sorties 05_cadrage.md 05_storyboard.md 05_storyboard.json \
+  --message "Resume en une phrase, et si le cadrage n'a pas ete valide par Franco, dis-le"
 ```
 
 Echec (script final absent, charte introuvable) :
@@ -187,7 +283,7 @@ python3 <chemin-du-skill>/scripts/etape.py echouer --video <video_id> --etape E5
   --message "Raison precise"
 ```
 
-## Etape 6 — Relancer l'Orchestrateur
+## Etape 7 — Relancer l'Orchestrateur
 
 Si `orchestrateur_cmd` est renseigne, execute-le. Le montage (E6) attend
 aussi que l'audio (E4) soit termine : ne t'inquiete pas si rien ne bouge
@@ -202,5 +298,6 @@ tant que Franco n'a pas lance le run Colab.
   `composants/lottie/README.md`, `composants/apercus/README.md`,
   `composants/REGISTRE.md`,
   `composants/src/components/registry.ts`
-- Ecrits : `videos/{video_id}/05_storyboard.md`, `05_storyboard.json`,
+- Ecrits : `videos/{video_id}/05_cadrage.md`, `05_storyboard.md`,
+  `05_storyboard.json`,
   `videos/{video_id}/state.json` (uniquement `etapes.E5_storyboard`)

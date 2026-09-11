@@ -235,6 +235,23 @@ Cause racine : **aucun référent visuel**. Le §8 prévoit pourtant « un aper�
 par composant dans `REGISTRE.md` — jamais fait. On ne cadre pas ce qu'on n'a
 jamais vu.
 
+### Le cadrage est désormais un dialogue, pas une livraison
+
+A6 n'écrit plus le storyboard pour le découvrir au CP3. Il analyse le
+script, élabore **ce qui est faisable** au vu du catalogue et du jeu de base
+Lottie, écrit `05_cadrage.md` — ce que chaque bloc montre à l'écran, le coût
+de ce qui manque, ses questions — et attend les ajustements de Franco.
+
+Ça ne crée **ni étape ni agent** dans §6.2, contrairement à l'Art Director
+écarté en revue : c'est le même E5, rendu interactif. Et si Franco n'est pas
+disponible, A6 poursuit sur sa proposition en le signalant — le pipeline ne
+se bloque pas sur une absence.
+
+Trois règles de contenu à l'écran en découlent, toutes tirées de ce que le
+catalogue a montré : jamais la phrase prononcée à l'écran (les sous-titres
+la portent), remplir le cadre 1080×1920, et laisser les 220 px du bas aux
+sous-titres.
+
 ### Ce que le catalogue a révélé dès son premier passage
 
 `outils/generer_apercus.py` existe maintenant, et les dix premières images
@@ -266,7 +283,7 @@ sur ce que le dépôt teste et ce qu'il ne teste pas.
 | 1 | Point d'entrée : format, référence, idées, titre court | ✅ fait |
 | 2 | Rapport de checkpoint tronqué avant la décision | ✅ fait |
 | 3a | Catalogue d'aperçus de composants (`outils/generer_apercus.py`) | ✅ fait |
-| 3b | Cadrage d'A6 : décrire l'image et non la clé, supprimer le doublon texte/sous-titres, dialogue de cadrage | ⬜ |
+| 3b | Cadrage d'A6 : `05_cadrage.md`, décrire l'image et non la clé, doublon texte/sous-titres supprimé | ✅ fait |
 | 3c | Reprendre les composants d'après les aperçus : remplir le cadre, `intro`≠`outro`, schémas non génériques | ⬜ |
 | 4 | `outils/` + corpus + segmentation rétroactive de la vidéo 1 | ⬜ |
 | 5 | E4 : 8 tentatives, `max_tentatives`=3, aucune alerte — 2 h 20 perdues | ⬜ |
