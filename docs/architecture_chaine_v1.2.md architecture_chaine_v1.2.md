@@ -17,6 +17,15 @@ Relecture de fond du workflow, doc contre code. Le détail et le raisonnement so
 - **Règle des sigles** : écriture normale (`LLM`), pas d'épellation (`L L M`) — l'épellation casse le contrôle qualité WER (§7.4).
 - **Sections remises à jour sur le code réel** : §4.3 (A6/A7), §5.4 (`state.json`), §7.2 (notebook Qwen3-TTS et ses modes), §9.1 et §9.2 (arborescences), §12.
 
+### Diagnostic étape par étape — à partir du 11/09/2026
+
+Relecture du pipeline étape par étape sur les artefacts réellement produits. Journal, décisions et file d'attente dans [diagnostic_pipeline.md](diagnostic_pipeline.md).
+
+- **La durée se calibre en idées, pas en secondes** : 3 idées maximum, le coût en mots d'une idée dépend du **format**. Une interview fictive dépasse 60 s sans déroger à la règle (§9.1, §14).
+- **Consignes structurées à la création** : `format`, `reference` et `idees_max` remplacent le fourre-tout de `note_franco`, et sont lues par le Chercheur **et** le Designer.
+- **Le rapport de checkpoint ne perd plus sa partie décisionnelle** : l'extrait préserve d'abord les sections qui portent la décision (§5.5).
+- **Titre de travail borné à 80 caractères** : un sujet d'une phrase entière ne fait pas un titre.
+
 ### v1.2 (création des skills)
 
 - **Le registre n'est plus écrit par plusieurs acteurs.** `state.json` est la seule source de vérité. `registre_videos.json` devient une vue reconstruite par l'Orchestrateur, et `short-state` le recalcule en direct. Aucun fichier partagé n'est écrit par deux acteurs.
@@ -225,7 +234,13 @@ La forme qui fait foi est `skills/new-short/assets/state_template.json`, validé
   "sujet": "...", "angle": "...", "sujet_id": null,
   "pilier": "actu_ia",
   "voie": "rapide",
-  "consignes": { "mode_recherche": null, "note_franco": null },
+  "consignes": {
+    "mode_recherche": "sujet_impose",
+    "note_franco": "Stickman en intro, puis cutaway par étape",
+    "format": "explication_progressive",
+    "reference": "https://www.youtube.com/shorts/…",
+    "idees_max": 3
+  },
   "statut_global": "en_production",
   "etape_actuelle": "CP2",
   "boucle_A4_A5": 1,
@@ -258,6 +273,7 @@ Quelques champs méritent un mot :
 
 - **`boucle_A4_A5`** : compteur de tours de révision rédaction ⇄ filtre, écrit par l'Orchestrateur. Au 3ᵉ tour, `E3_filtre` passe en `alerte` (§4.3, A5). Un refus au CP2 le remet à zéro : un refus n'est pas un échec technique.
 - **`etapes.CP3.seo`** : les champs SEO remplis par Franco au CP3 (§11).
+- **`consignes`** : ce que Franco impose à la création (§14). `format` porte le budget en mots par idée et sert de clé au corpus ; `reference` est une vidéo dont on reprend le gabarit narratif ; `idees_max` est le budget du Short — **un nombre d'idées, pas une durée**. Ces trois champs sont lus par le Chercheur (A2) **et** par le Designer (A6) : avant eux, une consigne de mise en scène n'avait que `note_franco` comme porte d'entrée et n'atteignait le Designer que par ricochet, recopiée dans la recherche puis dans le script.
 - **Toutes les étapes portent `agent`**, y compris `E4_audio` (`colab_voix`, le notebook) et `E7_publication` (`publication`, le skill `short-publier`) : les scripts d'étape s'en servent pour savoir à qui attribuer l'écriture.
 
 ### 5.5 Protocole de validation
@@ -269,6 +285,8 @@ Pour que Franco n'ait pas à modifier du JSON à la main, notamment depuis son t
 Statut : EN_ATTENTE        <!-- remplacer par VALIDE ou REFUSE -->
 Commentaire :
 ```
+
+**Ce qui porte la décision survit à la coupe.** Le résumé est un extrait borné ; l'extraction suit les sections Markdown et garde en priorité celles qui portent la décision — « Points à trancher », « Angle proposé », « Nouveaux termes », « Nouveaux composants ». Une troncature naïve par le début coupait le rapport de CP1 en plein milieu d'une phrase et jetait précisément les questions posées à Franco, ne laissant que les sources : le fichier fait pour décider depuis un téléphone faisait écran au lieu de servir.
 
 À l'exécution suivante, l'Orchestrateur lit ce bloc et le retranscrit dans `state.json`. En cas de refus, l'agent précédent est relancé avec le commentaire en input. Au CP2, le bloc contient aussi les nouveaux termes du lexique, à valider ou corriger. Au CP3, il contient les champs SEO (§11).
 
@@ -542,6 +560,9 @@ Publiées : 4 — Abandonnées : 1 — Prochain cycle hebdo : dimanche
 
 ## 12. Décisions ouvertes (Session 2)
 
+> Le diagnostic étape par étape en cours ([diagnostic_pipeline.md](diagnostic_pipeline.md)) tient sa propre file d'attente et ses décisions transverses — budget en idées, découverte des formats sur 6 vidéos, corpus de structures, paliers vers l'autonomie. Les deux listes se complètent.
+
+
 - **À trancher en ouverture de session** :
   - système d'exploitation de la machine qui fera tourner l'Orchestrateur ;
   - chemin local de `/ChaineYouTube` (Google Drive pour ordinateur ou rclone) ;
@@ -596,9 +617,11 @@ Il crée `videos/{id}/state.json` et `checkpoints/`, puis relance l'Orchestrateu
 | « new short sur X » | Sujet de Franco | Individuel, après la recherche |
 | « new short actu » | Veille du Chercheur (voie rapide) | Individuel |
 
+**Consignes structurées.** `--format` (format narratif, **champ libre** : les formats se découvrent au fil des premières vidéos), `--reference` (vidéo dont on reprend le format ou la mise en scène, relayée jusqu'au Designer) et `--idees` (budget du Short, défaut 3). `--note` reste pour le reste. `--titre` donne une étiquette courte ; sans lui elle est dérivée du sujet et bornée à 80 caractères.
+
 Codes de retour du script :
 - 0 : vidéo créée ;
-- 2 : racine introuvable ;
+- 2 : racine introuvable, ou argument invalide ;
 - 3 : backlog vide ;
 - 4 : doublon (création seulement avec l'accord de Franco) ;
 - 5 : `sujet_id` inconnu.
