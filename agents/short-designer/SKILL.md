@@ -56,15 +56,9 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
   choisir sans voir, c'est laisser le Monteur inventer le visuel au moment
   de coder. Si le catalogue manque ou date, regenere-le :
   `python3 <chemin-du-skill>/outils/generer_apercus.py`
-- **`composants/lottie/README.md`** — le jeu de base Lottie reutilisable
-  (personnage, transitions) et ce que chaque fichier montre. Regarde-le
-  avant de demander une animation de personnage : elle existe peut-etre
-  deja.
-- **`videos/{video_id}/assets/`** — images d'inspiration et fichiers Lottie
-  deposes par Franco pour **cette** video. Regarde-les : c'est la reference
-  visuelle la plus directe dont tu disposes. Un `.json` Lottie qui s'y
-  trouve est une animation prete a l'emploi, a placer dans une scene avec
-  `technique: "lottie"`.
+- **`videos/{video_id}/assets/`** — images d'inspiration deposees par Franco
+  pour **cette** video. Regarde-les : c'est la reference visuelle la plus
+  directe dont tu disposes.
 - `videos/{video_id}/03_script_final.md` et `03_script_tts.txt` (une
   phrase par ligne : bon decoupage naturel des scenes)
 - `00_Profil/charte_visuelle/charte.json` — en particulier le bloc
@@ -95,8 +89,8 @@ Lis le script en entier avant de penser images. Repere :
 
 ### 4.2 — Elabore ce qui est faisable
 
-Regarde le **catalogue visuel** (`composants/apercus/README.md`) et le **jeu
-de base Lottie**, puis classe honnetement :
+Regarde le **catalogue visuel** (`composants/apercus/README.md`), puis
+classe honnetement :
 
 | Categorie | Ce que ca veut dire |
 |---|---|
@@ -105,9 +99,10 @@ de base Lottie**, puis classe honnetement :
 | A creer | rien ne convient — dis **ce que ca coute** et pourquoi ca vaut le coup |
 | Hors de portee | annonce-le, et propose un repli qui tient |
 
-Une animation « naturelle et fluide » sur un element dessine a la main
-coute cher en Remotion : si c'est un personnage ou une transition, regarde
-d'abord le jeu de base Lottie (§8).
+**Tout est code en Remotion** : la fluidite ne vient pas d'un fichier tout
+fait, elle se code. Une animation vraiment naturelle sur un element dessine
+a la main coute donc du temps a A7 — quand tu en demandes une, dis-le dans
+« a quel cout », ce n'est pas gratuit.
 
 ### 4.3 — Ecris `05_cadrage.md` et soumets-le a Franco
 
@@ -186,15 +181,11 @@ tranche :
 |---|---|---|
 | `mouvement` | `entree_par_le_bas`, `fondu`, `zoom_lent`, `glissement_lateral`, `apparition_sequencee`, `aucun` | comment la scene entre et vit |
 | `rythme` | `pose` (on laisse respirer), `standard`, `punch` (accent, coupe seche) | l'energie de la scene |
-| `technique` | `spring`, `interpolate`, `lottie`, `statique` | comment A7 l'implemente |
+| `technique` | `spring`, `interpolate`, `statique` | comment A7 l'implemente |
 
-**Quand choisir `lottie`** (charte, bloc `animation.lottie`) : pour ce qui
-est **fixe et expressif** — personnage, transition, icone, effet. Un
-fichier Lottie est pre-rendu : on le joue, on le boucle, on le recolore,
-on ne change pas ce qu'il raconte. Tout ce qui **varie d'une video a
-l'autre** — un schema, du texte, des chiffres — reste en Remotion, sinon
-chaque nouvelle video exigerait un fichier fait a la main avant de pouvoir
-tourner. Les deux se superposent dans une meme scene.
+`spring` par defaut : un mouvement reel accelere puis se pose, une rampe
+lineaire se voit immediatement. Reserve `interpolate` a ce qui doit rester
+discret, et `statique` a ce qui ne doit pas bouger du tout.
 | `accent` | texte libre court, optionnel | ce que la scene doit mettre en avant |
 
 Puis retire `"a_completer"` de la scene. **Aucune scene ne doit rester
@@ -295,7 +286,7 @@ tant que Franco n'a pas lance le run Colab.
   `note_franco`, `reference`, `format`, `idees_max`), `03_script_final.md`,
   `03_script_tts.txt`, `00_Profil/charte_visuelle/charte.json` (bloc
   `animation` compris) et `charte.md`, `videos/{video_id}/assets/`,
-  `composants/lottie/README.md`, `composants/apercus/README.md`,
+  `composants/apercus/README.md`,
   `composants/REGISTRE.md`,
   `composants/src/components/registry.ts`
 - Ecrits : `videos/{video_id}/05_cadrage.md`, `05_storyboard.md`,

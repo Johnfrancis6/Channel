@@ -115,9 +115,9 @@ class TestConsignesStructurees(unittest.TestCase):
         self.assertEqual(self.lire_state(out["video_id"])["titre_travail"], "LLM vs workflow vs agent")
 
     def test_le_dossier_assets_est_cree(self):
-        # Franco y depose ses references visuelles et ses fichiers Lottie ;
-        # A6 s'en inspire, A7 les rend. Sans le dossier, il n'a pas d'endroit
-        # ou les mettre et la reference repart dans une note en texte libre.
+        # Franco y depose ses references visuelles ; A6 s'en inspire pour
+        # cadrer. Sans le dossier, il n'a pas d'endroit ou les mettre et la
+        # reference repart dans une note en texte libre.
         code, out = self.run_script("--sujet", "Un sujet")
         self.assertEqual(code, 0, out)
         chemin = os.path.join(self.root, "videos", out["video_id"], "assets")

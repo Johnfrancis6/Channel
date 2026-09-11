@@ -25,6 +25,13 @@ const PROPS_PAR_DEFAUT: VideoProps = {
       duree_entree_s: 0.3,
       technique_defaut: 'spring',
       wobble: {actif: true, amplitude_px: 6, periode_s: 1.2, cible: 'trace_main'},
+      naturel: {
+        decalage_entree_ms: 80,
+        variation_vitesse: 0.15,
+        mouvement_secondaire_retard_ms: 120,
+        anticipation_px: 10,
+        parallaxe_fond: 0.4,
+      },
     },
     format: {largeur_px: 1080, hauteur_px: 1920, fps: FPS},
   },

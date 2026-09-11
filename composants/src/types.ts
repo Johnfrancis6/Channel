@@ -25,6 +25,15 @@ export type AnimationTokens = {
   duree_entree_s?: number;
   technique_defaut?: TechniqueDA;
   wobble?: {actif: boolean; amplitude_px: number; periode_s: number; cible?: string};
+  // Ce qui separe une animation vivante d'une animation mecanique. La
+  // fluidite se code : elle ne vient pas d'un fichier pre-rendu.
+  naturel?: {
+    decalage_entree_ms?: number;
+    variation_vitesse?: number;
+    mouvement_secondaire_retard_ms?: number;
+    anticipation_px?: number;
+    parallaxe_fond?: number;
+  };
   regles?: string[];
 };
 
@@ -41,7 +50,8 @@ export type MouvementDA =
 
 export type RythmeDA = 'pose' | 'standard' | 'punch';
 
-export type TechniqueDA = 'spring' | 'interpolate' | 'lottie' | 'statique';
+// Lottie ecarte (11/09/2026) : tout est code en Remotion.
+export type TechniqueDA = 'spring' | 'interpolate' | 'statique';
 
 export type DirectionArtistique = {
   mouvement: MouvementDA;

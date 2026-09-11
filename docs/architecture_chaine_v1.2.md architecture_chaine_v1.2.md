@@ -437,23 +437,22 @@ Deux niveaux, et aucun des deux n'est décidé au moment de coder :
 
 A7 l'implémente fidèlement et ne la rejuge pas. Le vocabulaire est fermé volontairement : un champ libre redeviendrait de l'improvisation au montage. C'est l'**option (a)** de la revue du 11/09/2026 — enrichir A6 plutôt que créer un agent Art Director, qui aurait ajouté une étape à §6.2 pour une décision qui tient dans un champ.
 
-### Style visé et répartition Lottie / Remotion
+### Style visé et animation
 
 Le style visé est le **sticker animé** : formes pleines, contours nets, mouvement fluide et naturel — pas le trait filaire procédural des premiers composants.
 
-**Lottie est autorisé pour tout type d'animation** (11/09/2026). Sa limite n'est pas réglementaire mais technique : un fichier Lottie est **pré-rendu**. On le joue, on le boucle, on en lit un segment, on recolore des couches — on ne change pas ce qu'il raconte.
+**Lottie a été envisagé puis écarté** (11/09/2026) : tout est codé en Remotion. Le raisonnement vaut d'être conservé, parce qu'il éclaire le compromis. Un fichier Lottie est **pré-rendu** : on le joue, on le boucle, on le recolore, mais on ne change pas ce qu'il raconte. Il aurait donné la fluidité toute faite sur le personnage et les transitions, au prix d'un blocage dur — un schéma dont le contenu change à chaque vidéo aurait exigé un nouveau fichier fait à la main, faisant de chaque vidéo une dépendance humaine. En restant tout-Remotion, on garde des composants **paramétrables** et une identité propre ; en contrepartie, **la fluidité se code**.
 
-| Ce qu'on anime | Technique |
-|---|---|
-| Personnage, stickman, mascotte | **Lottie** |
-| Transitions, icônes animées, effets | **Lottie** |
-| Schéma dont le contenu change d'une vidéo à l'autre | **Remotion** |
-| Texte, chiffres, labels | **Remotion** |
-| Sous-titres calés sur `04_timestamps.json` | **Remotion** |
+Huit règles séparent une animation vivante d'une animation mécanique. Leurs valeurs sont dans `charte.json > animation.naturel`, et elles s'appliquent à **tous** les composants, pas seulement au personnage :
 
-La raison est opérationnelle : `ConceptCutaway` a déjà cinq variantes et la prochaine vidéo en demandera d'autres. En Lottie, chaque nouveau schéma serait un fichier à produire à la main avant que la vidéo puisse tourner — chaque vidéo deviendrait une dépendance humaine, ce que le pipeline cherche précisément à éviter. Les deux techniques se superposent sans difficulté dans une même scène.
-
-**Provenance** : un **jeu de base réutilisable** de quatre fichiers dans `composants/lottie/` — stickman qui parle, qui pointe, qui réagit, plus une transition. Le stickman revenant dans chaque vidéo, un seul bon fichier s'amortit sur toute la série. Les animations propres à une vidéo vivent dans son `assets/`. Cahier des charges, contraintes techniques et **licences** (une chaîne monétisable est un usage commercial) : `composants/lottie/README.md`.
+1. **Ressort plutôt que rampe** — `spring()` par défaut ; une rampe linéaire se voit immédiatement.
+2. **Rien ne s'arrête net** — une fin brutale est le signe le plus sûr d'une animation bâclée.
+3. **Décalage** (80 ms) — ce qui entre ensemble paraît mécanique.
+4. **Jamais deux éléments à la même vitesse** (±15 %) — sinon c'est un bloc rigide, pas un groupe d'objets.
+5. **Mouvement secondaire** (120 ms de retard) — quelque chose suit l'élément principal.
+6. **Anticipation** (10 px) — un léger recul avant les gestes marqués.
+7. **Parallaxe** (fond à 0,4) — c'est ce qui fait l'immersion, bien plus que le détail du dessin.
+8. **Rien n'est jamais totalement immobile** — une image figée paraît morte.
 
 ### Durées de scènes
 
@@ -517,7 +516,7 @@ Avant de clore E6, A7 rend quelques images fixes (`remotion still` sur le hook, 
         ├── 05_storyboard.md         # lecture humaine, revu au CP3
         ├── 05_storyboard.json       # lu par le Monteur
         ├── 06_video_finale.mp4
-        ├── assets/                  # images d'inspiration et fichiers Lottie déposés par Franco
+        ├── assets/                  # images d'inspiration déposées par Franco
         └── checkpoints/
             ├── rapport_CP1.md
             ├── rapport_CP2.md
@@ -617,7 +616,7 @@ Publiées : 4 — Abandonnées : 1 — Prochain cycle hebdo : dimanche
 - **Transcriptions des concurrents** : méthode de récupération et plan B quand elle casse.
 - **Audit API YouTube** : à lancer pendant la phase test.
 - **Qualité des animations (A7 Monteur)** : à intégrer dans `agents/short-monteur/` — pas encore fait.
-  - ~~**Lottie** pour les composants où une vraie qualité d'animation compte~~ → **tranché le 11/09/2026 : Lottie est autorisé pour tout type d'animation**, dans la limite de ce qu'un fichier pré-rendu sait faire. Le style visé est le **sticker animé**, et la règle de répartition Lottie / Remotion est en §8. Reste ouvert : **d'où viennent les fichiers** (LottieFiles, export After Effects) et sous quelle licence.
+  - ~~**Lottie** pour les composants où une vraie qualité d'animation compte~~ → **écarté le 11/09/2026**. Un fichier pré-rendu ne peut pas illustrer un schéma dont le contenu change d'une vidéo à l'autre : chaque variante serait devenue une dépendance humaine. Tout est codé en Remotion, et la fluidité se code — huit règles en §8. Le style visé reste le **sticker animé**. La contrepartie est assumée : **raffiner les composants existants** devient le chantier, à la place de l'intégration de fichiers.
   - ~~**Boucle de vérification visuelle**~~ → **faite le 11/09/2026** : étape 5 du skill `short-monteur` (`remotion still` sur le hook, un milieu, une fin), documentée en §8.
   - Pistes évoquées, non actées : **Rive** (`@remotion/rive`), **d3-ease** pour des courbes de mouvement plus naturelles, **rough.js** pour un rendu « tracé à la main » si Franco veut cette esthétique, **`@remotion/noise`** pour le wobble (la règle du wobble est posée en charte, son implémentation reste au choix de A7).
 - **Contrôle qualité audio par phrase** : le notebook fait un WER **global** ; une seule phrase ratée fait échouer tout le run, et le rapport ne dit pas laquelle. Le §4.3 donne pourtant « les phrases signalées par le contrôle qualité » comme input de H1 : cet input n'existe pas. À reprendre si les runs réels montrent que le cas est fréquent (§7.2).

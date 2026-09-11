@@ -112,34 +112,41 @@ Formes pleines, contours nets, mouvement **fluide et naturel** — pas le
 trait filaire procedural des premiers composants. L'elasticite prime sur la
 precision geometrique.
 
-## Lottie ou Remotion : qui fait quoi
+## Tout est anime en Remotion
 
-Lottie est autorise pour tout type d'animation (decision du 11/09/2026),
-mais un fichier Lottie est une animation **pre-rendue** : on la joue, on la
-boucle, on en lit un segment, on recolore des couches — on ne change pas ce
-qu'elle raconte. La repartition suit donc cette limite :
+Lottie a ete envisage puis **ecarte** (11/09/2026) : tout est code en
+Remotion. On y gagne une identite propre et, surtout, des composants
+**parametrables** — un fichier pre-rendu ne peut pas illustrer un schema
+dont le contenu change d'une video a l'autre, ce qui aurait fait de chaque
+nouvelle variante une dependance humaine.
 
-| Ce qu'on anime | Technique |
-|---|---|
-| Personnage, stickman, mascotte | **Lottie** — c'est fait pour ca |
-| Transitions, icones animees, effets | **Lottie** |
-| Schema dont le contenu change d'une video a l'autre | **Remotion** |
-| Texte, chiffres, labels | **Remotion** |
-| Sous-titres cales sur `04_timestamps.json` | **Remotion** |
+En contrepartie, la fluidite se code. Elle ne vient pas toute seule.
 
-La raison est operationnelle : `ConceptCutaway` a cinq variantes et la
-prochaine video en demandera d'autres. En Lottie, chaque nouveau schema
-serait un fichier a produire a la main avant de pouvoir tourner — chaque
-video deviendrait une dependance humaine. Les deux techniques se
-superposent sans probleme dans une meme scene.
+## Ce qui fait qu'une animation codee parait naturelle
 
-**Provenance des fichiers** : un **jeu de base reutilisable** de quatre
-fichiers dans `composants/lottie/` (stickman qui parle, qui pointe, qui
-reagit, plus une transition), rejoue d'une video a l'autre. Le stickman
-revient dans chaque video : un seul bon fichier s'amortit sur toute la
-serie. Les animations propres a une seule video vont dans
-`videos/{video_id}/assets/`. Cahier des charges, contraintes techniques et
-licences : `composants/lottie/README.md`.
+Une animation mecanique et une animation vivante different par des details
+qui se decrivent tous en une ligne. Ce sont des regles, pas des gouts :
+
+1. **Ressort plutot que rampe.** `spring()` par defaut, pas
+   `interpolate()` lineaire. Un mouvement reel accelere puis se pose ; une
+   rampe lineaire se voit immediatement.
+2. **Rien ne s'arrete net.** Une fin brutale est le signe le plus sur d'une
+   animation codee a la va-vite. Laisse le mouvement se poser.
+3. **Decalage.** Quand plusieurs elements entrent, espace-les de 60 a 100 ms.
+   Tout ce qui entre en meme temps parait mecanique.
+4. **Jamais deux elements exactement a la meme vitesse.** Varie de 10 a 20 %
+   entre eux — c'est ce qui separe un groupe d'objets d'un bloc rigide.
+5. **Mouvement secondaire.** Quand l'element principal bouge, quelque chose
+   le suit avec un temps de retard (un bras, une ombre, un trait).
+6. **Anticipation** sur les gestes marques : un leger recul avant le
+   mouvement, une dizaine de pixels suffit.
+7. **Profondeur par parallaxe.** Le fond bouge moins vite que le premier
+   plan. C'est ce qui fait l'immersion, bien plus que le detail du dessin.
+8. **Rien n'est jamais totalement immobile.** Le wobble (ci-dessous) garde
+   l'image vivante ; une image parfaitement figee parait morte.
+
+Ces regles s'appliquent a tous les composants, pas seulement au
+personnage.
 
 Pas de miniature pour l'instant (§4.3).
 """
@@ -263,20 +270,16 @@ CHARTE_JSON = {
     # `da` de chaque scene, A7 les applique.
     "animation": {
         "style": "sticker_anime",
-        # Lottie autorise pour tout type d'animation (11/09/2026), dans la
-        # limite de ce qu'un fichier pre-rendu sait faire : `fixe` liste ce
-        # qui lui revient, `variable` ce qui reste a Remotion parce que le
-        # contenu change d'une video a l'autre.
-        "lottie": {
-            "actif": True,
-            "fixe": ["personnage", "transition", "icone", "effet"],
-            "variable": ["schema", "texte", "sous_titres"],
-            "dossiers": ["videos/{video_id}/assets/", "composants/lottie/"],
-            # Jeu de base reutilise d'une video a l'autre : peu de fichiers,
-            # mais coherents entre eux. Cahier des charges et licences dans
-            # composants/lottie/README.md.
-            "jeu_de_base": ["stickman_parle", "stickman_pointe",
-                            "stickman_reagit", "transition"]
+        # Lottie ecarte (11/09/2026) : tout est code en Remotion. La
+        # fluidite ne vient donc pas d'un fichier pre-rendu, elle se code —
+        # ces valeurs sont ce qui separe une animation vivante d'une
+        # animation mecanique. Voir charte.md pour les huit regles.
+        "naturel": {
+            "decalage_entree_ms": 80,
+            "variation_vitesse": 0.15,
+            "mouvement_secondaire_retard_ms": 120,
+            "anticipation_px": 10,
+            "parallaxe_fond": 0.4
         },
         "easing_entree": "ease-out",
         "easing_transition": "ease-in-out",

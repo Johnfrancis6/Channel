@@ -83,7 +83,6 @@ les valeurs par defaut :
 |---|---|
 | `spring` | `spring()` de Remotion |
 | `interpolate` | `interpolate()` + easing de `charte.animation.easing_entree` |
-| `lottie` | `@remotion/lottie` sur un fichier de `videos/{video_id}/assets/` ou de `composants/lottie/` — voir ci-dessous |
 | `statique` | aucune interpolation |
 
 `da.rythme` module la duree d'entree : `pose` l'allonge (~1.5x),
@@ -92,26 +91,32 @@ les valeurs par defaut :
 La **regle du wobble** (`charte.animation.wobble`) s'applique aux elements
 dessines a la main (stickman, traits), jamais au texte.
 
-**Lottie.** Le style vise est le sticker anime, et Lottie est autorise pour
-tout type d'animation. Sa limite est technique, pas reglementaire : un
-fichier Lottie est **pre-rendu**. On le joue, on le boucle, on en lit un
-segment, on recolore des couches — on ne change pas ce qu'il raconte.
-Reserve-le donc au **fixe et expressif** (personnage, transition, icone) et
-garde en Remotion tout ce qui **varie d'une video a l'autre** (schemas,
-texte, chiffres, sous-titres). Sinon chaque nouvelle variante de schema
-exigerait un fichier fait a la main avant que la video puisse tourner.
+**Tout est code en Remotion.** Lottie a ete envisage puis ecarte : la
+fluidite ne vient pas d'un fichier pre-rendu, elle se code — et c'est ton
+travail. Les huit regles ci-dessous separent une animation vivante d'une
+animation mecanique ; leurs valeurs sont dans `charte.json >
+animation.naturel`.
 
-Ou trouver les fichiers : `composants/lottie/` pour le **jeu de base**
-reutilise d'une video a l'autre (voir son `README.md` : ce que chaque
-fichier montre, s'il boucle, sa licence), `videos/{video_id}/assets/` pour
-ce qui est propre a cette video. Recolore les couches aux tokens de
-`charte.json` plutot que de garder la palette du fichier d'origine. Si `@remotion/lottie` n'est pas
-encore installe, installe-le (`npm i @remotion/lottie lottie-web` dans
-`composants/`) et copie le `.json` dans `composants/public/lottie/` — le
-serveur de rendu sert les assets locaux depuis la, comme pour l'audio
-(prefixe `/public/`). Si une scene demande `technique: "lottie"` mais
-qu'aucun fichier n'est disponible, ne bloque pas : rends-la en Remotion et
-signale-le dans ton message de cloture.
+1. **Ressort plutot que rampe** : `spring()` par defaut. Un mouvement reel
+   accelere puis se pose ; une rampe lineaire se voit immediatement.
+2. **Rien ne s'arrete net.** Une fin brutale est le signe le plus sur d'une
+   animation bâclee. Laisse le mouvement se poser.
+3. **Decalage** (`decalage_entree_ms`, 80 ms) : quand plusieurs elements
+   entrent, espace-les. Tout ce qui entre ensemble parait mecanique.
+4. **Jamais deux elements exactement a la meme vitesse**
+   (`variation_vitesse`, 15 %) — c'est ce qui separe un groupe d'objets
+   d'un bloc rigide.
+5. **Mouvement secondaire** (`mouvement_secondaire_retard_ms`, 120 ms) :
+   quand l'element principal bouge, quelque chose le suit avec du retard.
+6. **Anticipation** (`anticipation_px`, 10 px) sur les gestes marques : un
+   leger recul avant le mouvement.
+7. **Parallaxe** (`parallaxe_fond`, 0.4) : le fond bouge moins vite que le
+   premier plan. C'est ce qui fait l'immersion, bien plus que le detail du
+   dessin.
+8. **Rien n'est jamais totalement immobile** : le wobble garde l'image
+   vivante ; une image figee parait morte.
+
+Applique-les a **tous** les composants, pas seulement au personnage.
 
 Verifie que ca compile : `cd composants && npm run typecheck`.
 
@@ -220,7 +225,7 @@ Si `orchestrateur_cmd` est renseigne, execute-le pour ouvrir le CP3.
 
 - Lus : `videos/{video_id}/state.json`, `05_cadrage.md`, `05_storyboard.json`,
   `04_voixoff.wav`, `04_timestamps.json`, `04_phrases.json`,
-  `videos/{video_id}/assets/` (images d'inspiration, fichiers Lottie),
+  `videos/{video_id}/assets/` (images d'inspiration),
   `00_Profil/charte_visuelle/charte.json` (bloc `animation` compris),
   `composants/src/components/registry.ts`
 - Ecrits : `videos/{video_id}/06_video_finale.mp4`,

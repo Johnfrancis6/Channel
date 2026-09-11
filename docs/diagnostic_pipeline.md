@@ -85,36 +85,31 @@ L'outil d'analyse vit dans **`outils/`**, dossier commun déployé par
 `agents/_synchroniser_vers_claude_skills.py` — il sert A3 (concurrents) et
 H1 (nos propres vidéos).
 
-### Style visé : sticker animé, et Lottie autorisé partout
+### Style visé : sticker animé, tout codé en Remotion
 
 Le style visé est le **sticker animé** — formes pleines, mouvement fluide et
-naturel — et **Lottie est autorisé pour tout type d'animation**.
+naturel. **Lottie a été envisagé puis écarté** (11/09/2026).
 
-Ce n'est pas une préférence de détail mais une **définition de charte**, et
-elle déplace une décision antérieure : on avait rangé Lottie dans « outils du
-Monteur, après l'étude des formats ». Si la charte dit sticker animé fluide,
-Lottie cesse d'être une optimisation tardive pour devenir un prérequis.
+Le raisonnement mérite d'être conservé, parce qu'il montre ce qu'on a pesé.
+Lottie donnait la fluidité toute faite sur le personnage et les transitions,
+mais un fichier pré-rendu ne peut pas illustrer un schéma dont le contenu
+change d'une vidéo à l'autre : chaque nouvelle variante de `ConceptCutaway`
+aurait exigé un fichier fait à la main avant que la vidéo puisse tourner.
+Franco a préféré raffiner les composants existants.
 
-**Sa limite est technique, pas réglementaire.** Un fichier Lottie est
-pré-rendu : on le joue, on le boucle, on le recolore, on ne change pas ce
-qu'il raconte. D'où la règle de répartition (§8) — Lottie pour ce qui est
-**fixe et expressif** (personnage, transitions, icônes), Remotion pour ce qui
-est **variable et informatif** (schémas, texte, sous-titres). Sans cette
-séparation, chaque nouvelle variante de `ConceptCutaway` exigerait un fichier
-fait à la main avant que la vidéo puisse tourner : chaque vidéo deviendrait
-une dépendance humaine.
+**Le coût ne disparaît pas, il change de nature.** Lottie achetait la
+fluidité ; en Remotion pur, elle se code, par composant, et ça retombe sur
+A7. En échange : une identité propre, et des composants **paramétrables**.
 
-**Provenance tranchée (11/09/2026)** : un **jeu de base réutilisable** de
-quatre fichiers dans `composants/lottie/` — stickman qui parle, qui pointe,
-qui réagit, plus une transition. Le stickman revient dans chaque vidéo :
-un seul bon fichier s'amortit sur toute la série. Les animations propres à
-une vidéo vont dans son `assets/`.
+Huit règles en découlent (§8, valeurs dans `charte.json >
+animation.naturel`) : ressort plutôt que rampe, rien ne s'arrête net,
+décalage de 80 ms à l'entrée, ±15 % de variation de vitesse entre éléments,
+mouvement secondaire à 120 ms, anticipation de 10 px, parallaxe du fond à
+0,4, et rien de totalement immobile.
 
-Cahier des charges, contraintes techniques et licences dans
-`composants/lottie/README.md`. Point à ne pas négliger : une chaîne
-monétisable est un **usage commercial**, et les catalogues publics mélangent
-des licences qui l'autorisent et d'autres non. Un fichier sans licence
-identifiée ne rentre pas.
+**Conséquence sur la file d'attente : 3c se débloque.** La reprise des
+composants attendait les fichiers Lottie ; elle n'attend plus rien, et c'est
+désormais le seul chemin vers la qualité visuelle.
 
 ### Chaque vidéo a un dossier `assets/`
 
@@ -326,13 +321,12 @@ sinon d'autres règles connaîtront le même sort.
 | 2 | Rapport de checkpoint tronqué avant la décision | ✅ fait |
 | 3a | Catalogue d'aperçus de composants (`outils/generer_apercus.py`) | ✅ fait |
 | 3b | Cadrage d'A6 : `05_cadrage.md`, décrire l'image et non la clé, doublon texte/sous-titres supprimé | ✅ fait |
-| 3c | Reprendre les composants d'après les aperçus : remplir le cadre, `intro`≠`outro`, schémas non génériques | ⬜ |
+| 3c | Reprendre les composants d'après les aperçus : remplir le cadre, `intro`≠`outro`, schémas non génériques, appliquer les huit règles du naturel | ⬜ **débloqué** |
 | 4 | `outils/` + corpus + segmentation rétroactive de la vidéo 1 | ⬜ |
 | 5 | E4 : plafond de tentatives dans le notebook, diagnostic WER gradué, agent cohérent | ✅ fait |
 | 6 | Réajustement complet d'A2 (branche `sujet_impose`, gabarit 7 sections) | ⬜ |
 | 7 | Constante 2,5 → 3,2 mots/s dans `generer_storyboard.py` | ⬜ |
-| — | *En attente de Franco* : les 4 fichiers du jeu de base Lottie | ⬜ |
-| — | *Plus tard* : reste des outils du Monteur (Rive, d3-ease, rough.js) | ⬜ |
+| — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer
 
@@ -345,9 +339,6 @@ ce qu'on lui confie est décoratif.
 
 ## En attente de Franco
 
-- Les **4 fichiers Lottie du jeu de base** (`composants/lottie/README.md`
-  dit exactement ce qu'on attend et sous quelles contraintes). Rien ne
-  bloque en attendant : le Monteur rend en Remotion et le signale.
 - La **vidéo de référence** pour caler le vocabulaire de segmentation.
 - `00_Profil/projets_franco.md` — ce qu'il peut **montrer à l'écran**, pas
   seulement ce qu'il fait. Fichier qu'il écrit, qu'aucun agent n'écrit.
