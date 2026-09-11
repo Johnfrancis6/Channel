@@ -19,6 +19,7 @@ from .profil_defaults import (
     CONVENTIONS_MD,
     LEXIQUE_PRONONCIATION_MD,
     PROFIL_CHAINE_MD,
+    PROJETS_FRANCO_MD,
 )
 
 DOSSIERS = [
@@ -75,6 +76,7 @@ def initialiser(root):
     profil = {
         "00_Profil/profil_chaine.md": PROFIL_CHAINE_MD,
         "00_Profil/conventions.md": CONVENTIONS_MD,
+        "00_Profil/projets_franco.md": PROJETS_FRANCO_MD,
         "00_Profil/lexique_prononciation.md": LEXIQUE_PRONONCIATION_MD,
         "00_Profil/charte_visuelle/charte.md": CHARTE_MD,
         "00_Profil/charte_visuelle/charte.json": json.dumps(CHARTE_JSON, ensure_ascii=False, indent=2),

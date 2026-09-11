@@ -19,6 +19,7 @@ class TestInitStructure(unittest.TestCase):
 
         for relatif in ("00_Profil/profil_chaine.md", "00_Profil/conventions.md",
                          "00_Profil/lexique_prononciation.md",
+                         "00_Profil/projets_franco.md",
                          "00_Profil/charte_visuelle/charte.md",
                          "00_Profil/charte_visuelle/charte.json",
                          "00_Profil/chaines_concurrentes.json",

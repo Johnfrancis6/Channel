@@ -16,9 +16,17 @@ PROFIL_CHAINE_MD = """# Profil de la chaine
 - **Angle** : "ingenieur ML" qui decode et teste. Les projets reels de Franco servent d'illustration ponctuelle.
 - **5 piliers** : actu_ia, avis_outil, concept, projet_perso, tuto
 
+## Ton de voix
+
+**Pas de charabia neutre a la robotique.** Une voix incarnee, qui assume un
+point de vue : "j'ai teste, voila ce qui a casse". Pas de tournures
+impersonnelles, pas de precautions oratoires, pas de vocabulaire d'assistant
+("il est important de noter que", "plongeons dans"). Si une phrase pourrait
+sortir telle quelle d'un billet de blog genere, elle est a reecrire.
+
 ## A completer / valider par Franco
 
-- Ton de voix (formel/familier, humour, rythme, expressions a eviter)
+- Ton de voix : preciser l'humour et le rythme (le registre est pose ci-dessus)
 - Chaines concurrentes de reference, pour l'Analyseur de chaines (A3)
 - Mots-cles et sources de veille, pour le Chercheur (A2)
 - Exemples de titres/hooks qui fonctionnent bien dans la niche
@@ -99,6 +107,100 @@ avoir a les reinventer (§8).
   premieres secondes se jouent sur le texte et la voix.
 
 Pas de miniature pour l'instant (§4.3).
+"""
+
+PROJETS_FRANCO_MD = """# Projets et outils de Franco
+
+*Brouillon monte a partir des reponses de Franco (11/09/2026). **A relire et
+corriger par lui** : c'est son fichier, aucun agent n'ecrit ici.*
+
+**Lu par** : le Chercheur (A2) pour choisir ses exemples, le Redacteur (A4)
+pour les ancrer dans du vecu.
+
+## A quoi sert ce fichier
+
+A fournir des **exemples et des illustrations**, pas des sujets. Les sujets
+viennent du backlog, de la veille actu ou de ce qui marche dans la niche.
+Ici, on repond a une seule question : *quand il faut illustrer une idee,
+qu'est-ce que Franco a sous la main qui soit vrai, teste, et montrable ?*
+
+Un exemple qui n'est pas **montrable a l'ecran** ne sert a rien. C'est le
+champ decisif de chaque entree.
+
+## Terrain quotidien
+
+Franco construit et teste **chaque jour des systemes d'agents**, avec deux
+obsessions : l'**autonomie** et le **cadrage dans le contexte de
+l'utilisateur**. C'est le socle de credibilite de la chaine — tout ce qui
+touche aux agents, au contexte, a la memoire et aux garde-fous est du vecu,
+pas de la lecture.
+
+## En cours
+
+### Serveur MCP — maj 2026-09-11
+- Montrable : *a completer par Franco*
+- Illustre bien : comment un agent atteint un service externe
+
+### Automatisation YouTube (ce pipeline) — maj 2026-09-11
+- Montrable : le tableau de bord, un `state.json` qui avance, un storyboard
+- Illustre bien : machine d'etats, checkpoints humains, agents specialises
+
+### Tests sur Claude Code — maj 2026-09-11
+- Montrable : *a completer par Franco*
+- Illustre bien : ce qu'un agent de code fait vraiment, et ou il achoppe
+
+### Agent WhatsApp — maj 2026-09-11
+- Montrable : *a completer par Franco*
+- Illustre bien : un agent branche sur un canal que tout le monde connait
+
+### Orchestration d'agents pour construire un logiciel — maj 2026-09-11
+- Montrable : *a completer par Franco*
+- Illustre bien : plusieurs agents qui se repartissent un travail reel
+
+### Claude + MCP VS Code sur GitHub — maj 2026-09-11
+- Montrable : Claude lit le code, le modifie et commit sur un vrai depot
+- Illustre bien : la difference workflow / agent, l'action via un service
+  externe. C'est l'exemple valide au CP1 de `2026-09-11_v01`
+
+## Outils testes
+
+| Outil | Verdict | Montrable ? |
+|---|---|---|
+| Qwen3-TTS | clonage propre, WER 0,87 % | oui — comparaison audio avant/apres |
+| F5-TTS | defaut structurel : le contenu de la reference fuit dans la sortie, reproduit sur deux echantillons | oui — excellent contre-exemple |
+| Remotion | bibliotheque de composants d'animation | oui — le rendu lui-meme |
+
+## Echecs reproductibles
+
+Un echec qu'on sait refaire vaut mieux qu'une reussite qu'on ne sait pas
+expliquer. Pas de captures gardees, mais les erreurs se reproduisent — donc
+elles se filment.
+
+### Site e-commerce construit par copier-coller entre sessions
+Du code repris morceau par morceau d'une session a l'autre, jusqu'a
+l'ecroulement complet du projet.
+
+- **Ce que ca illustre** : ce qui arrive quand un agent n'a pas le contexte
+  du projet, seulement des fragments. Le sujet n'est pas "l'IA code mal",
+  c'est la perte de contexte entre sessions
+- **Montrable** : oui, l'echec est reproductible — donc rejouable a l'ecran
+- **Pilier** : avis d'outil, ou concept (contexte et memoire d'un agent)
+
+## A ne pas utiliser comme exemple
+
+- **Trop niche pour des debutants curieux** : upgrade Laravel, configuration
+  serveur, tout ce qui suppose un metier precis
+- **Jamais teste en vrai** : tout ce qui viendrait d'une demo ou d'une page
+  marketing. La chaine dit "j'ai teste", ca doit etre vrai
+
+## A completer par Franco
+
+- Le champ **Montrable** des quatre projets marques *a completer* : qu'est-ce
+  qu'on voit a l'ecran ? Un terminal qui defile, une interface, une courbe,
+  un avant/apres ?
+- Ce qui est **sous NDA ou non partageable**, s'il y en a — la question n'a
+  pas encore ete tranchee
+- D'autres echecs reproductibles : ce sont les meilleures illustrations
 """
 
 CHAINES_CONCURRENTES_JSON = []
