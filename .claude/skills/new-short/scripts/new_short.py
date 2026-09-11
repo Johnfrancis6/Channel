@@ -109,6 +109,18 @@ def charger_backlog(racine):
     return [s for s in sujets if isinstance(s, dict) and s.get("sujet_id")]
 
 
+def est_valide_en_lot(sujet):
+    """Un sujet du backlog n'est "validé en lot" que s'il porte `valide_le`.
+
+    C'est ce marqueur (§9.1) qui autorise new_short à pré-valider le CP1. Sans
+    ce garde-fou, n'importe quelle entrée déposée dans backlog_sujets.json —
+    une proposition du Chercheur pas encore soumise, une ligne ajoutée à la
+    main — ferait démarrer une vidéo avec CP1 déjà `valide`, donc un sujet
+    choisi sans l'accord de Franco. C'est précisément ce qu'interdit le §2.
+    """
+    return bool(sujet.get("valide_le"))
+
+
 def chercher_doublon(sujet, videos):
     cible = normaliser(sujet)
     if len(cible) < 8:
@@ -168,8 +180,10 @@ def main():
     backlog = charger_backlog(racine)
     utilises = {v.get("sujet_id") for v in videos
                 if v.get("sujet_id") and v.get("statut_global") not in STATUTS_INACTIFS}
-    disponibles = [s for s in backlog if s["sujet_id"] not in utilises]
+    disponibles = [s for s in backlog
+                   if s["sujet_id"] not in utilises and est_valide_en_lot(s)]
     disponibles.sort(key=lambda s: (s.get("valide_le") or "", s["sujet_id"]))
+    non_valides = [s["sujet_id"] for s in backlog if not est_valide_en_lot(s)]
 
     sujet, angle, pilier = a.sujet, a.angle, a.pilier
     sujet_id, cp1_lot, semaine = None, False, None
@@ -178,6 +192,13 @@ def main():
         trouve = next((s for s in backlog if s["sujet_id"] == a.sujet_id), None)
         if trouve is None:
             sortir(5, f"sujet_id inconnu dans le backlog : {a.sujet_id}",
+                   disponibles=[{"sujet_id": s["sujet_id"], "sujet": s.get("sujet")} for s in disponibles])
+        if not est_valide_en_lot(trouve):
+            # Pas de --force ici : §2, le système ne choisit jamais le sujet
+            # final sans l'accord de Franco. Il doit valider le lot d'abord.
+            sortir(5, f"Le sujet {a.sujet_id} est dans le backlog mais n'est pas validé "
+                      f"(champ `valide_le` absent) : il ne peut pas pré-valider le CP1. "
+                      f"Fais-le valider au CP1 groupé, ou lance-le avec --sujet pour un CP1 individuel.",
                    disponibles=[{"sujet_id": s["sujet_id"], "sujet": s.get("sujet")} for s in disponibles])
         if trouve["sujet_id"] in utilises and not a.force:
             sortir(4, f"Le sujet {a.sujet_id} est déjà utilisé par une vidéo active.")
@@ -195,8 +216,11 @@ def main():
         pilier = pilier or "actu_ia"
     else:
         if not disponibles:
-            sortir(3, "Aucun sujet validé disponible dans le backlog.",
-                   backlog_total=len(backlog))
+            sortir(3, "Aucun sujet validé disponible dans le backlog."
+                      + (f" {len(non_valides)} sujet(s) y figurent sans `valide_le` : "
+                         f"ils attendent le CP1 groupé." if non_valides else ""),
+                   backlog_total=len(backlog),
+                   sujets_non_valides=non_valides)
         s = disponibles[0]
         sujet_id, voie, cp1_lot = s["sujet_id"], "tampon", True
         sujet, angle = s.get("sujet"), angle or s.get("angle")

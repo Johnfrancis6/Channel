@@ -1,9 +1,22 @@
 import json
 import os
+from datetime import datetime, timedelta, timezone
 
 from .engine import etapes_agent_actionnables
 from .hebdo import taches_hebdo_manquantes
 from .state_store import list_video_dirs, load_state, now_iso
+
+
+def _parse_iso(valeur):
+    try:
+        return datetime.strptime(valeur, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    except (ValueError, TypeError):
+        return None
+
+
+def _depuis(debut, maintenant):
+    heures = (maintenant - debut).total_seconds() / 3600
+    return f"{heures:.0f} h" if heures >= 1 else f"{heures * 60:.0f} min"
 
 
 def construire_registre(root):
@@ -28,19 +41,46 @@ def ecrire_registre(root, registre):
         json.dump(registre, f, ensure_ascii=False, indent=2)
 
 
-def _lignes_a_faire(root):
+def _lignes_a_faire(root, config):
     lignes = []
+    maintenant = datetime.now(timezone.utc)
+    seuil_blocage = timedelta(hours=float(config.get("seuil_blocage_heures", 2)))
     for video_dir in list_video_dirs(root):
         state = load_state(video_dir)
         video_id = state["video_id"]
         for etape_id, etape in state["etapes"].items():
             statut = etape.get("statut")
-            if statut == "alerte":
+            if statut == "en_cours":
+                # En mode `reel`, un agent qui plante ou qu'on interrompt laisse
+                # son etape a `en_cours` pour toujours : elle n'est ni relancable
+                # (etapes_agent_actionnables ignore `en_cours`) ni signalee. Sans
+                # ce test, la video s'arrete en silence. short-state le detecte
+                # deja avec le meme seuil ; le tableau de bord doit le voir aussi.
+                debut = _parse_iso(etape.get("debut"))
+                if debut and maintenant - debut > seuil_blocage:
+                    lignes.append(
+                        f"- [BLOQUE] {video_id} — {etape_id} : en cours depuis "
+                        f"{_depuis(debut, maintenant)}, l'agent a probablement echoue"
+                    )
+            elif statut == "alerte":
                 lignes.append(f"- [ALERTE] {video_id} — {etape_id} : {etape.get('tentatives', '?')} echecs (voir historique)")
             elif statut == "attente_validation":
                 lignes.append(f"- [{etape_id}] {video_id} — valider le rapport de checkpoint")
             elif statut == "attente_franco":
-                lignes.append(f"- [ACTION] {video_id} — {etape_id} : action manuelle requise")
+                # Le message porte la raison quand l'action fait suite a un
+                # echec (ex. le controle WER du notebook Colab) : sans lui,
+                # Franco relancerait le meme run sans savoir ce qui a rate.
+                detail = etape.get("message")
+                tentatives = etape.get("tentatives", 0)
+                ligne = f"- [ACTION] {video_id} — {etape_id} : action manuelle requise"
+                if detail and tentatives:
+                    ligne += f" (tentative {tentatives} : {detail})"
+                lignes.append(ligne)
+            elif statut == "refuse":
+                # Filet de securite : l'Orchestrateur remet normalement le
+                # checkpoint a `a_venir` apres un refus. Un `refuse` qui
+                # persiste signale une video figee, a ne pas laisser invisible.
+                lignes.append(f"- [REFUS] {video_id} — {etape_id} : refuse, reprise non declenchee")
         for a in etapes_agent_actionnables(state):
             verbe = "Relancer" if a["statut"] == "echec" else "Lancer"
             lignes.append(
@@ -70,7 +110,7 @@ def _lignes_en_production(root):
 
 
 def rendre_dashboard(root, config):
-    a_faire = _lignes_a_faire(root)
+    a_faire = _lignes_a_faire(root, config)
     en_production = _lignes_en_production(root)
     registre = construire_registre(root)
 

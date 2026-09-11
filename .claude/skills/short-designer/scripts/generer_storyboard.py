@@ -45,15 +45,28 @@ def lire_json_defaut(chemin, defaut=None):
         return defaut
 
 
+# Ancre sur la declaration elle-meme, pas sur n'importe quelle occurrence du
+# mot REGISTRE : le fichier le mentionne d'abord dans un commentaire
+# ("...dans composants/REGISTRE.md"), et un motif large partait de la pour
+# capturer le premier bloc {...} venu — en pratique `{charte?: CharteTokens}`
+# de ComposantParams. parser_registre() renvoyait donc une liste vide, A6
+# croyait qu'aucun composant n'existait, et demandait a A7 de recreer
+# TitleCard alors qu'il est deja au registre (contraire au §8, qui impose de
+# reutiliser d'abord).
+# `[^}]*` plutot que `.*?` avec DOTALL : le corps ne peut pas deborder du bloc.
+RE_REGISTRE = re.compile(r"export\s+const\s+REGISTRE\b[^={};]*=\s*\{([^}]*)\}")
+
+
 def parser_registre(chemin):
     if not chemin.is_file():
         return []
     contenu = chemin.read_text(encoding="utf-8-sig")
-    m = re.search(r"REGISTRE[^{]*\{(.*?)\}", contenu, re.DOTALL)
+    m = RE_REGISTRE.search(contenu)
     if not m:
         return []
+    corps = re.sub(r"//[^\n]*", "", m.group(1))  # commentaires de fin de ligne
     noms = []
-    for morceau in m.group(1).split(","):
+    for morceau in corps.split(","):
         nom = morceau.strip().split(":")[0].strip()
         if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", nom):
             noms.append(nom)
@@ -129,6 +142,13 @@ def main():
         avertissements.append("charte.json introuvable — valeurs par defaut utilisees.")
 
     composants_disponibles = parser_registre(REGISTRY_TS)
+    if REGISTRY_TS.is_file() and not composants_disponibles:
+        # Ne pas laisser passer ca en silence : A7 se verrait demander de
+        # recreer des composants qui existent deja (§8).
+        avertissements.append(
+            f"Registre Remotion illisible ou vide ({REGISTRY_TS.name}) — aucun composant "
+            "reutilisable detecte. Verifie la declaration `export const REGISTRE = {...}`."
+        )
 
     scenes, nouveaux = construire_scenes(phrases, composants_disponibles)
     duree_totale = round(sum(s["duree_s"] for s in scenes), 1)

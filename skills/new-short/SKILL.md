@@ -45,11 +45,18 @@ La sortie est toujours un JSON avec `code` :
 |---|---|---|
 | 0 | Vidéo créée | Passer à l'étape 3 |
 | 2 | Racine introuvable ou erreur d'écriture | Demander le chemin du dossier à Franco et suggérer de définir `CHAINE_YT_ROOT` |
-| 3 | Backlog vide | Proposer deux options : un short en voie rapide (`--voie rapide`), ou un sujet donné par Franco |
+| 3 | Aucun sujet validé disponible | Proposer deux options : un short en voie rapide (`--voie rapide`), ou un sujet donné par Franco. Si `sujets_non_valides` est non vide, dis-le : ces sujets attendent le CP1 groupé |
 | 4 | Doublon probable (`doublon_de`) | Montrer la vidéo existante et demander s'il veut quand même créer (`--force`) |
-| 5 | `sujet_id` inconnu | Montrer la liste `disponibles` renvoyée |
+| 5 | `sujet_id` inconnu, ou présent au backlog mais pas encore validé | Montrer la liste `disponibles` renvoyée |
 
 Ne relance jamais avec `--force` sans l'accord explicite de Franco.
+
+**`--force` ne contourne que le doublon.** Un sujet du backlog dépourvu de
+`valide_le` n'a pas passé le CP1 groupé : il est refusé même avec `--force`,
+et aucun `--force` ne peut pré-valider un CP1. C'est la règle du §2 — le
+système ne choisit jamais le sujet final sans l'accord de Franco. Si Franco
+veut ce sujet tout de suite, relance-le avec `--sujet "…"` : la vidéo partira
+alors sur un CP1 individuel, qu'il validera lui-même.
 
 ## Étape 3 — Relancer l'Orchestrateur
 

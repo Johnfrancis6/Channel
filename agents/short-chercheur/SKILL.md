@@ -29,6 +29,12 @@ Regarde `consignes.mode_recherche` :
 | `sujet_backlog` | Sujet valide en lot, deja dans `sujet`/`angle`/`pilier` |
 | `veille_actu` | Voie rapide : aucun sujet encore, c'est a toi de le trouver |
 
+**Cas du refus au CP1.** Si `E1_recherche` est repasse a `a_venir` alors que
+`01_recherche.md` existe deja, c'est que Franco a refuse le sujet ou
+l'angle : lis `etapes.CP1.commentaire` et traite-le en priorite (§5.5,
+l'agent precedent est relance avec le commentaire en input). Les rapports
+refuses precedents sont archives dans `checkpoints/refuses/`.
+
 ## Etape 2 — Marquer le debut
 
 ```bash

@@ -21,20 +21,35 @@ distincts des skills generiques du marketplace (`design`, `docx`, etc.).
 
 ## Installation locale (`.claude/skills/`)
 
-`agents/short-*/` reste la source de verite versionnee (§9.2). Pour que
-Claude Code detecte ces skills quand ce depot est ouvert localement, une
-copie est synchronisee dans `.claude/skills/` a la racine du depot.
+Il y a deux sources de verite versionnees (§9.2), et une seule cible :
 
-**Ne jamais editer `.claude/skills/` directement.** Modifie `agents/short-*/`,
-puis relance :
+| Source | Contenu | Cible |
+|---|---|---|
+| `agents/short-*/` | les 7 agents du pipeline | `.claude/skills/<nom>/` |
+| `skills/*/` | `new-short`, `short-state` | `.claude/skills/<nom>/` |
+
+`.claude/skills/` est **entierement genere**. Ne jamais l'editer
+directement : modifie la source, puis relance
 
 ```bash
 python3 agents/_synchroniser_vers_claude_skills.py
 ```
 
-`new-short` et `short-state` (dans `skills/`) suivent un chemin
-d'installation different : ils sont arrives via un plugin du marketplace
-Claude Code, rattache au compte de Franco (§14).
+Les fichiers texte sont normalises en LF a la copie (les sources sont en
+CRLF), sinon chaque synchronisation reecrirait les fichiers deployes en
+entier et polluerait les diffs git.
+
+Pour verifier sans rien ecrire — fichier manquant, en trop, contenu
+different, dossier orphelin :
+
+```bash
+python3 agents/_synchroniser_vers_claude_skills.py --verifier
+```
+
+`tests/test_sync_skills.py` lance cette verification : la suite echoue si
+`.claude/skills/` a derive. C'est deja arrive en silence — deux scripts
+ajoutes dans `agents/` n'avaient jamais ete deployes, et les skills
+reellement charges par Claude Code tournaient sans eux.
 
 `_etape_template.py` est la source commune de `scripts/etape.py`, duplique
 dans chaque agent (les skills sont installes independamment, voir §14) :

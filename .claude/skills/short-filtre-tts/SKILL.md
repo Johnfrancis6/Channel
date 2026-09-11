@@ -39,9 +39,26 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
 python3 <chemin-du-skill>/scripts/metriques.py --fichier videos/<video_id>/02_script_brut.md
 ```
 
-Ce script ne fait que compter (longueur, virgules, triades probables,
-parentheses/URL) ; le jugement sur le style et les zombie nouns reste le
-tien. Lis aussi `00_Profil/conventions.md` et `00_Profil/lexique_prononciation.md`.
+Ce script ne fait que compter ; le jugement sur le style et les zombie nouns
+reste le tien. Lis aussi `00_Profil/conventions.md` et
+`00_Profil/lexique_prononciation.md`.
+
+Il ignore les titres du gabarit (`## Hook`, `## Corps`...) : ils ne sont
+jamais prononces. Pour chaque phrase il donne :
+
+| Champ | Sens |
+|---|---|
+| `mots` | nombre de mots reellement prononces |
+| `section` | titre d'ou vient la phrase (`Hook`, `Corps`...) |
+| `hors_cible` | hors de la bande cible 8-18 mots (§7.3) — a surveiller, pas une action imposee |
+| `trop_longue` | plus de 22 mots : **a decouper** |
+| `trop_courte` | moins de 4 mots : **a fusionner**, sauf hook court |
+| `triade_probable`, `contient_parenthese_ou_url` | a corriger |
+
+**Exception des hooks courts (§7.3)** : une phrase `trop_courte` dont la
+`section` est le Hook n'est pas a fusionner d'office — c'est un choix
+d'ecriture. Marque-la explicitement dans `03_rapport_metriques.md` pour que
+le controle qualite audio la surveille.
 
 ## Etape 4 — Decider : corriger ou renvoyer en revision
 

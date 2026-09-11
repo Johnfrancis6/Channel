@@ -1,7 +1,22 @@
 """
-Point d'entree de l'Orchestrateur (A1). Squelette etape 1 (§13) : agents
-factices, pas encore de declenchement hebdomadaire (A3/H1) ni de creation
-automatique de videos depuis le backlog (a construire aux etapes suivantes).
+Point d'entree de l'Orchestrateur (A1).
+
+Ce qu'il fait a chaque execution (§4.3) : verrou, lecture des state.json,
+transcription des decisions de Franco, avancement de chaque video, puis
+regeneration du registre, du tableau de bord et de derniere_execution.json.
+
+Le mode d'execution des agents vient de `mode_agents` dans config.json :
+- "factice" : l'Orchestrateur execute lui-meme les agents simules
+  (agents_factices/), pour les tests ;
+- "reel" : les agents sont des skills Claude Code lances a la main ou en
+  headless. L'Orchestrateur ne les execute pas ; il signale au tableau de
+  bord l'etape prete, gere la boucle A4<->A5 et l'escalade en alerte.
+  C'est ce que init_structure ecrit pour une vraie installation.
+
+Reste a construire (§13) : la creation automatique de videos depuis le
+backlog quand le tampon descend sous la cible (A1, point 5). Les taches
+hebdomadaires (A3, H1, lot de sujets A2) ne sont pas executees ici non plus,
+mais leur absence est signalee au tableau de bord (voir hebdo.py).
 
 Usage : python -m orchestrateur.main --root /chemin/vers/ChaineYouTube
 """

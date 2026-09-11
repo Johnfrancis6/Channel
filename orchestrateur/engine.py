@@ -7,7 +7,7 @@ d'une etape a la suivante, en respectant §4.2 (contrat agent) et §6.2
 import os
 
 from .agents_registry import obtenir_agent
-from .checkpoints import generer_rapport_si_absent, lire_decision
+from .checkpoints import archiver_rapport_refuse, generer_rapport_si_absent, lire_decision
 from .constants import PIPELINE_PAR_ID
 from .state_store import ajouter_historique, now_iso
 
@@ -105,6 +105,13 @@ RESUME_SOURCES = {
 
 def _construire_resume_checkpoint(video_dir, state, checkpoint_id):
     morceaux = []
+    # Un checkpoint ne revient a `a_venir` qu'apres un refus : si un
+    # commentaire subsiste au moment de le rouvrir, c'est celui de ce refus.
+    # On le rappelle pour que Franco voie ce qu'il avait demande.
+    refus_precedent = state["etapes"][checkpoint_id].get("commentaire")
+    if refus_precedent:
+        morceaux.append(f"> Refus precedent : {refus_precedent}\n> "
+                         f"(rapport archive dans `checkpoints/refuses/`)")
     if checkpoint_id == "CP1":
         morceaux.append(f"Sujet : {state.get('sujet') or state.get('titre_travail') or '(a determiner)'}")
         if state.get("angle"):
@@ -128,14 +135,41 @@ def _ouvrir_checkpoint_si_pret(video_dir, state, etape_id):
         generer_rapport_si_absent(video_dir, etape_id, resume=resume)
 
 
-def _reagir_au_refus(state, checkpoint_id):
-    if checkpoint_id == "CP1":
-        state["etapes"]["E1_recherche"]["statut"] = "a_venir"
-    elif checkpoint_id == "CP2":
-        state["etapes"]["E2_redaction"]["statut"] = "a_venir"
-        state["etapes"]["E3_filtre"]["statut"] = "a_venir"
-    elif checkpoint_id == "CP3":
-        state["etapes"]["E6_montage"]["statut"] = "a_venir"
+ETAPES_A_REPRENDRE_APRES_REFUS = {
+    "CP1": ["E1_recherche"],
+    "CP2": ["E2_redaction", "E3_filtre"],
+    "CP3": ["E6_montage"],
+}
+
+
+def _reagir_au_refus(video_dir, state, checkpoint_id):
+    """
+    Refus de Franco (§5.5) : les etapes en amont repartent avec le commentaire
+    en input, et le checkpoint lui-meme revient a `a_venir` pour pouvoir se
+    rouvrir quand elles auront fini.
+
+    Remettre le checkpoint a `a_venir` est indispensable : laisse a `refuse`,
+    il ne se rouvrait jamais (_ouvrir_checkpoint_si_pret n'agit que sur
+    `a_venir`) et _pret() bloquait tout l'aval, qui exige `valide`. La video
+    restait coincee sans rien signaler au tableau de bord.
+    """
+    for etape_id in ETAPES_A_REPRENDRE_APRES_REFUS[checkpoint_id]:
+        etape = state["etapes"][etape_id]
+        etape["statut"] = "a_venir"
+        # Un refus n'est pas un echec technique : le compteur repart a zero,
+        # sinon quelques refus suffisent a declencher une fausse alerte.
+        etape["tentatives"] = 0
+        etape.pop("action", None)
+
+    if checkpoint_id == "CP2":
+        # La boucle A4<->A5 repart elle aussi : sinon un refus sur une video
+        # ayant deja boucle deux fois partirait en alerte des le premier tour.
+        state["boucle_A4_A5"] = 0
+
+    # Le commentaire reste dans l'etape du checkpoint : c'est l'input de
+    # l'agent relance (§5.5). Seul le statut est remis a zero.
+    state["etapes"][checkpoint_id]["statut"] = "a_venir"
+    archiver_rapport_refuse(video_dir, checkpoint_id)
 
 
 def _transcrire_decisions_franco(video_dir, state):
@@ -153,7 +187,7 @@ def _transcrire_decisions_franco(video_dir, state):
         ajouter_historique(state, "orchestrateur", f"{checkpoint_id}_{nouveau_statut}",
                             decision["commentaire"] or "")
         if nouveau_statut == "refuse":
-            _reagir_au_refus(state, checkpoint_id)
+            _reagir_au_refus(video_dir, state, checkpoint_id)
 
 
 def _mettre_a_jour_statut_global(state):
@@ -193,6 +227,37 @@ def _traiter_echec_agent_reel(state, etape_id, max_tentatives):
                             f"{etape_id} : {tentatives} echecs, intervention de Franco requise.")
     # sinon on laisse "echec" : l'agent reel devra etre relance manuellement
     # (l'action apparait au tableau de bord via etapes_agent_actionnables).
+
+
+def _traiter_echec_etape_manuelle(state, etape_id, max_tentatives):
+    """
+    Une etape manuelle peut echouer sans qu'aucun agent soit en cause : le
+    notebook Colab passe `E4_audio` a `echec` quand le controle qualite WER
+    ne passe pas (§7.2, cellule 5).
+
+    Rien ne rattrapait ce statut. E4_audio n'est pas de kind "agent", donc ni
+    _traiter_echec_agent_reel ni etapes_agent_actionnables ne la regardaient,
+    et la branche `attente_franco`/`manuel` de traiter_video ne traitait que
+    `a_venir`. Le run audio pouvait echouer trois fois d'affilee sans que rien
+    n'apparaisse au tableau de bord : la video disparaissait de "A faire par
+    Franco" et s'arretait la.
+
+    On applique donc la regle du §2 : relance tant qu'on est sous les 3
+    tentatives (ici, c'est Franco qui relance le run), alerte au-dela.
+    """
+    etape = state["etapes"][etape_id]
+    tentatives = etape.get("tentatives", 0)
+    message = etape.get("message") or "echec"
+    agent = etape.get("agent") or etape_id
+
+    if tentatives >= max_tentatives:
+        etape["statut"] = "alerte"
+        ajouter_historique(state, agent, "alerte",
+                            f"{etape_id} : {tentatives} echecs, intervention de Franco requise.")
+    else:
+        etape["statut"] = "attente_franco"
+        ajouter_historique(state, agent, "attente_franco",
+                            f"{etape_id} : {message} — a relancer par Franco.")
 
 
 def etapes_agent_actionnables(state):
@@ -243,6 +308,8 @@ def traiter_video(video_dir, state, config):
         elif etape_def["kind"] in ("attente_franco", "manuel"):
             if etape["statut"] == "a_venir" and _pret(state, etape_id):
                 etape["statut"] = "attente_franco"
+            elif etape["statut"] == "echec":
+                _traiter_echec_etape_manuelle(state, etape_id, max_tentatives)
 
     _mettre_a_jour_statut_global(state)
     _mettre_a_jour_etape_actuelle(state)
