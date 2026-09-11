@@ -43,6 +43,9 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
     de cloture pour que le Filtre TTS ne le prenne pas pour du gras ;
   - `note_franco` et `reference` : contraintes de Franco, pas suggestions
 - `00_Profil/profil_chaine.md`, `00_Profil/conventions.md`
+- **`00_Profil/projets_franco.md`** — ce que Franco a reellement teste et
+  peut montrer a l'ecran. Quand tu ancres une idee dans un exemple, prends-le
+  la : la chaine dit « j'ai teste », ca doit etre vrai
 - le dernier `02_Veille_hebdo/*_analyse_concurrentielle.md`, s'il existe
 - en cas de revision : `etapes.E3_filtre.message`
 - **en cas de refus au CP2** : `etapes.CP2.commentaire` (§5.5, l'agent precedent
@@ -113,6 +116,7 @@ Filtre TTS.
 
 - Lus : `videos/{video_id}/state.json`, `01_recherche.md`,
   `00_Profil/profil_chaine.md`, `00_Profil/conventions.md`,
+  `00_Profil/projets_franco.md`,
   `02_Veille_hebdo/*_analyse_concurrentielle.md`
 - Ecrits : `videos/{video_id}/02_script_brut.md`,
   `videos/{video_id}/state.json` (uniquement `etapes.E2_redaction`)

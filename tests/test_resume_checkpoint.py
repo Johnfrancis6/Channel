@@ -79,6 +79,43 @@ class TestExtraireSections(unittest.TestCase):
         self.assertLessEqual(len(extrait), 700)
 
 
+class TestSectionsPrioritairesReelles(unittest.TestCase):
+    """Les motifs declares dans RESUME_SOURCES doivent couvrir le gabarit
+    reel de 01_recherche.md, y compris ses variantes selon le mode."""
+
+    def gabarit(self, titre_angle):
+        return (
+            "# Recherche — un titre\n\n## Sources\n" + "- https://x.test\n" * 120 +
+            "\n## Faits verifies\n" + "- un fait verifie et detaille. " * 120 +
+            f"\n\n## Matiere a hook\n\n- un fait contre-intuitif\n"
+            f"\n## {titre_angle}\n\nProgression en trois etapes.\n"
+            "\n## Incertitudes assumees\n\nLe chiffre de dix mille n'est pas recoupe.\n"
+            "\n## Termes a risque de prononciation\n\n- MCP\n"
+            + QUESTIONS
+        )
+
+    def extraire(self, titre_angle):
+        from orchestrateur.engine import RESUME_SOURCES
+        prioritaires = RESUME_SOURCES["CP1"][0][2]
+        return _extraire_sections(self.gabarit(titre_angle), 3000, prioritaires)
+
+    def test_angle_propose_survit(self):
+        self.assertIn("Progression en trois etapes", self.extraire("Angle propose"))
+
+    def test_angle_confirme_survit_aussi(self):
+        # En mode `sujet_impose`, A6 ecrit "Angle confirme" : un motif cale
+        # sur la seule forme "Angle propose" laisserait tomber la section.
+        self.assertIn("Progression en trois etapes", self.extraire("Angle confirme"))
+
+    def test_les_incertitudes_survivent(self):
+        # Un chiffre non recoupe qui disparait du rapport devient une
+        # affirmation de la chaine sans que Franco l'ait vu.
+        self.assertIn("n'est pas recoupe", self.extraire("Angle confirme"))
+
+    def test_les_questions_survivent(self):
+        self.assertIn("Points a trancher par Franco", self.extraire("Angle confirme"))
+
+
 class TestResumeCP1(unittest.TestCase):
     def setUp(self):
         self.video_dir = tempfile.mkdtemp(prefix="chaine_yt_resume_")

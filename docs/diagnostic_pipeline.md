@@ -161,11 +161,12 @@ questions.
 | `engine.py` | rapport de checkpoint tronqué par le début, amputé de sa partie décisionnelle | ✅ corrigé |
 | `short-designer` | ne lisait pas `consignes.note_franco`, son destinataire naturel | ✅ corrigé |
 | `short-chercheur` | lisait `note_franco` sans instruction | ✅ corrigé |
-| `short-chercheur` | branche `sujet_impose` non écrite | ⬜ à faire |
-| `short-chercheur` | gabarit sans hook, budget, hiérarchie des faits, incertitudes, termes à risque | ⬜ à faire |
-| `short-chercheur` | échec sans critère : A2 ne peut structurellement pas échouer | ⬜ à faire |
-| `short-chercheur` | `commencer` (qui incrémente `tentatives`) avant vérification des entrées | ⬜ à faire |
-| Entrées | `chaines_concurrentes.json` vide, aucune analyse concurrentielle, aucun fichier projets | ⬜ à faire |
+| `short-chercheur` | branche `sujet_impose` non écrite | ✅ corrigé |
+| `short-chercheur` | gabarit sans hook, budget, hiérarchie des faits, incertitudes, termes à risque | ✅ corrigé — sept sections |
+| `short-chercheur` | échec sans critère : A2 ne pouvait structurellement pas échouer | ✅ corrigé |
+| `short-chercheur` | `commencer` (qui incrémente `tentatives`) avant vérification des entrées | ✅ corrigé — les inputs passent avant |
+| `projets_franco.md` | créé, mais **lu par aucun agent** | ✅ corrigé — A2 et A4 le lisent |
+| Entrées | `chaines_concurrentes.json` vide, aucune analyse concurrentielle | ⬜ reste à faire |
 
 ### Le rapport CP1 ne contenait pas les questions
 
@@ -354,7 +355,7 @@ l'arithmétique derrière les 16,4 s de décalage son/image.
 | 3c | Reprendre les composants d'après les aperçus : remplir le cadre, `intro`≠`outro`, schémas non génériques, appliquer les huit règles du naturel | ⬜ **débloqué** |
 | 4 | `outils/` + corpus + segmentation rétroactive de la vidéo 1 | ⬜ |
 | 5 | E4 : plafond de tentatives dans le notebook, diagnostic WER gradué, agent cohérent | ✅ fait |
-| 6 | Réajustement complet d'A2 (branche `sujet_impose`, gabarit 7 sections) | ⬜ |
+| 6 | Réajustement complet d'A2 (branche `sujet_impose`, gabarit 7 sections) | ✅ fait |
 | 6b | Budget en idées appliqué par A4 et mesuré par A5 | ✅ fait |
 | 7 | Constante 2,5 → 3,2 mots/s dans `generer_storyboard.py` | ✅ fait |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |

@@ -177,7 +177,9 @@ def _lire_extrait(video_dir, nom_fichier, max_chars=3000, sections_prioritaires=
 # decision de Franco, pas celles qui l'informent.
 RESUME_SOURCES = {
     "CP1": [("01_recherche.md", "Recherche",
-             ("Points a trancher", "Angle propose", "Incertitudes"))],
+             # "Angle confirme" en mode sujet_impose, "Angle propose" sinon.
+             ("Points a trancher", "Angle confirme", "Angle propose",
+              "Incertitudes"))],
     "CP2": [("03_script_final.md", "Script final", ()),
             ("03_rapport_metriques.md", "Rapport metriques (nouveaux termes de lexique)",
              ("Nouveaux termes", "Lexique", "A corriger", "Hors cible"))],

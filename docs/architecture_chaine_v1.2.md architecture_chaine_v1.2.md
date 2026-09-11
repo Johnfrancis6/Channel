@@ -133,6 +133,11 @@ Chaque agent respecte les mêmes règles vis-à-vis de `state.json` :
   7. il régénère `TABLEAU_DE_BORD.md` et la vue `registre_videos.json`, écrit `derniere_execution.json`, puis libère le verrou.
 
 **A2 — Chercheur web**
+- **Son métier change selon `consignes.mode_recherche`.** En `sujet_impose` — le mode courant — Franco a déjà tranché le sujet et l'angle : A2 ne les rediscute pas, il les **vérifie, les étaye et trouve l'exemple qui les incarne**. En `sujet_backlog` il précise une esquisse d'angle ; en `veille_actu` seulement, il propose un sujet.
+- Il livre **`idees_max` faits porteurs** et marque le reste « bonus, écartable ». Sans cette hiérarchie, A4 prend tout : six faits livrés à plat ont donné 258 mots pour un budget de 135 sur `2026-09-11_v01`.
+- `01_recherche.md` compte sept sections : Sources · Faits vérifiés (porteurs / bonus) · **Matière à hook** (trois candidats) · Angle confirmé ou proposé · **Incertitudes assumées** · **Termes à risque de prononciation** · Points à trancher au CP1.
+- Il lit `00_Profil/projets_franco.md` pour ses exemples : un exemple qui n'est pas **montrable à l'écran** ne sert à rien.
+- **Vérification** : deux sources indépendantes sur le fait central, sans exception. Un fait secondaire à une seule source part en « Incertitudes assumées », pas en « Faits vérifiés » — sinon un chiffre invérifiable devient une affirmation de la chaîne.
 - Chaque semaine, il produit `sujets_proposes_{AAAA-Sxx}.md` pour la voie tampon (piliers intemporels), soumis au CP1 groupé.
 - Chaque jour, il fait une veille actu IA. Si un sujet mérite la voie rapide, il le propose au CP1 individuel.
 - Pour chaque vidéo validée, il produit `01_recherche.md` : sources, faits vérifiés, angle "ingénieur ML".
