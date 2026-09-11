@@ -104,6 +104,12 @@ class TestAgentsReels(unittest.TestCase):
         state = load_state(self.video_dir)
         self.assertEqual(state["etapes"]["CP2"]["statut"], "attente_validation")
 
+        _valider_checkpoint(self.video_dir, "CP2")
+        run_once(self.root)
+        state = load_state(self.video_dir)
+        self.assertEqual(state["etapes"]["CP2"]["statut"], "valide")
+        self.assertEqual(state["etapes"]["E4_audio"]["statut"], "attente_franco")
+
     def test_revision_filtre_renvoie_a_la_redaction(self):
         self._executer_chercheur()
         run_once(self.root)
