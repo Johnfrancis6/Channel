@@ -1,0 +1,32 @@
+{
+  "version_schema": 1,
+  "video_id": null,
+  "cree_le": null,
+  "cree_par": "new_short",
+  "titre_travail": null,
+  "sujet": null,
+  "angle": null,
+  "sujet_id": null,
+  "pilier": null,
+  "voie": null,
+  "consignes": {
+    "mode_recherche": null,
+    "note_franco": null
+  },
+  "statut_global": "idee",
+  "etape_actuelle": "E1_recherche",
+  "etapes": {
+    "E1_recherche":   { "agent": "chercheur",   "statut": "a_venir", "tentatives": 0, "debut": null, "fin": null, "sorties": [] },
+    "CP1":            { "statut": "a_venir", "commentaire": null, "date": null },
+    "E2_redaction":   { "agent": "redacteur",   "statut": "a_venir", "tentatives": 0, "debut": null, "fin": null, "sorties": [] },
+    "E3_filtre":      { "agent": "filtre_tts",  "statut": "a_venir", "tentatives": 0, "debut": null, "fin": null, "sorties": [] },
+    "CP2":            { "statut": "a_venir", "commentaire": null, "date": null },
+    "E4_audio":       { "agent": "colab_voix",  "statut": "a_venir", "tentatives": 0, "debut": null, "fin": null, "sorties": [] },
+    "E5_storyboard":  { "agent": "designer",    "statut": "a_venir", "tentatives": 0, "debut": null, "fin": null, "sorties": [] },
+    "E6_montage":     { "agent": "monteur",     "statut": "a_venir", "tentatives": 0, "debut": null, "fin": null, "sorties": [] },
+    "CP3":            { "statut": "a_venir", "commentaire": null, "date": null, "seo": { "titre": null, "description": null, "tags": [] } },
+    "E7_publication": { "agent": "publication", "statut": "a_venir", "tentatives": 0, "debut": null, "fin": null, "sorties": [] }
+  },
+  "publication": { "date_prevue": null, "date_effective": null, "url": null },
+  "historique": []
+}
