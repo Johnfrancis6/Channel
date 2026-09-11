@@ -481,12 +481,15 @@ Publiées : 4 — Abandonnées : 1 — Prochain cycle hebdo : dimanche
   - un argument `--chaine` pour les skills.
 
 - **Déclenchement de l'Orchestrateur** : cron local + Claude Code en mode headless, ou lancement manuel. Accès à Drive depuis la machine locale : Google Drive pour ordinateur ou rclone.
-- **Outil d'animation** : Manim, Motion Canvas ou Remotion.
-- **Notebook voix** : réduction de bruit (noisereduce, ou DeepFilterNet/Demucs si la source est très bruitée), version exacte et API de Qwen TTS, durée idéale de l'extrait de référence pour chaque modèle.
+- **Outil d'animation** : ~~Manim, Motion Canvas ou Remotion~~ → **tranché : Remotion** (React + spring animations).
+- **Notebook voix** : ~~réduction de bruit~~ → **tranché : désactivée par défaut** (`DENOISE = False` dans `voix_off.ipynb`) — la référence de Franco (voix ElevenLabs) est déjà propre, `noisereduce` la dénaturait sans bruit réel à retirer. ~~version exacte et API de Qwen TTS~~ → **tranché : moteur de synthèse basculé sur Qwen3-TTS** (package `qwen-tts`, modèle `Qwen/Qwen3-TTS-12Hz-1.7B-Base`, `generate_voice_clone(text, language, ref_audio, ref_text)`) après que F5-TTS ait montré un défaut structurel (fuite du contenu de la référence dans la sortie, reproduit sur deux échantillons différents). Reste ouvert : durée idéale de l'extrait de référence (3-10s annoncé par Qwen3-TTS, à confirmer sur plusieurs voix).
 - **Seuils** : métriques de style de A5, écart toléré par le contrôle qualité audio, cible du tampon.
 - **Quota Claude Pro** : partagé entre claude.ai et Claude Code, à mesurer pendant la semaine de test.
 - **Transcriptions des concurrents** : méthode de récupération et plan B quand elle casse.
 - **Audit API YouTube** : à lancer pendant la phase test.
+- **Qualité des animations (A7 Monteur)** : à intégrer dans `agents/short-monteur/` — pas encore fait.
+  - **Lottie** (`@remotion/lottie`) pour les composants où une vraie qualité d'animation compte (ex. le stickman) : Claude Code intègre un fichier Lottie fourni par Franco (export After Effects, ou pioché sur LottieFiles) plutôt que de dessiner l'animation en SVG procédural à la main.
+  - **Boucle de vérification visuelle** : avant de clore E6_montage, l'agent rend quelques frames clés (`npx remotion render` sur une image) et les regarde, pour itérer sur le visuel plutôt que de livrer un rendu jamais vu directement au CP3.
 
 ---
 
