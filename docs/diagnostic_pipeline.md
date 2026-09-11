@@ -418,11 +418,41 @@ Et une question transverse qui remonte d'E4 : **le déclenchement de
 l'Orchestrateur**, non tranché depuis le §12. Tant qu'il ne tourne pas, tout
 ce qu'on lui confie est décoratif.
 
+## Priorite revisee : le contenu qui marche avant le vecu
+
+Franco a tranche (11/09/2026) : partir d'abord du **contenu tendance** de la
+niche, pas de ses propres donnees. `projets_franco.md` reste donc un
+brouillon facultatif, qui se remplira au fil des videos — A2 et A4 s'en
+servent quand il est rempli, et prennent un exemple public verifiable
+sinon, en le signalant au CP1.
+
+**Ce qui devient le chemin critique**, et qui est aujourd'hui a zero :
+
+| Maillon | Etat |
+|---|---|
+| `00_Profil/chaines_concurrentes.json` | **vide** — genere vide, jamais rempli |
+| `YOUTUBE_API_KEY` | non configuree |
+| A3 analyseur de chaines | **jamais tourne** |
+| `02_Veille_hebdo/*_analyse_concurrentielle.md` | **n'existe pas** |
+| Corpus de structures | pas encore construit |
+
+A2 signale deja lui-meme l'absence d'analyse concurrentielle dans ses
+« Points a trancher ». Tant que cette chaine reste vide, « se baser sur le
+contenu qui marche » n'a aucun support : on retombe sur l'intuition.
+
+**Tension a garder en tete** : le §1 positionne la chaine sur « l'ingenieur
+ML qui decode et **teste** ». Un sujet tendance traite sans vecu s'aligne
+sur la niche mais affaiblit l'angle. Les deux se concilient — prendre un
+sujet qui marche et l'ancrer dans un test reel — mais ca suppose de
+remplir `projets_franco.md` a un moment.
+
 ## En attente de Franco
 
 - La **vidéo de référence** pour caler le vocabulaire de segmentation.
-- `00_Profil/projets_franco.md` — ce qu'il peut **montrer à l'écran**, pas
-  seulement ce qu'il fait. Fichier qu'il écrit, qu'aucun agent n'écrit.
+- **La liste de chaînes concurrentes** (`chaines_concurrentes.json`) et une
+  clé API YouTube : c'est le chemin critique du contenu tendance.
+- `00_Profil/projets_franco.md` — facultatif désormais, à compléter au fil
+  des vidéos. Fichier qu'il écrit, qu'aucun agent n'écrit.
 - Le lexique de prononciation sur le Drive (entrées en épellation).
 - La vidéo `2026-09-11_v01` est au CP3 avec 16,4 s de décalage son/image :
   à re-monter après un run audio produisant `04_phrases.json`.

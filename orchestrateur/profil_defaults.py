@@ -163,6 +163,12 @@ pour les ancrer dans du vecu.
 
 A fournir des **exemples et des illustrations**, pas des sujets. Les sujets
 viennent du backlog, de la veille actu ou de ce qui marche dans la niche.
+
+**Ce fichier est facultatif et peut rester en brouillon.** Franco a choisi
+(11/09/2026) de partir d'abord du contenu qui marche dans la niche plutot
+que de son propre vecu. A2 et A4 le lisent quand il est rempli, et prennent
+un exemple public verifiable sinon — en le signalant au CP1. Il se
+completera au fil des videos.
 Ici, on repond a une seule question : *quand il faut illustrer une idee,
 qu'est-ce que Franco a sous la main qui soit vrai, teste, et montrable ?*
 

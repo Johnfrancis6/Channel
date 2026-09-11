@@ -59,12 +59,16 @@ alerte (§2).
 
 - `00_Profil/profil_chaine.md` — ton, audience, piliers
 - **`00_Profil/projets_franco.md`** — ce que Franco construit, teste, et
-  surtout ce qu'il peut **montrer a l'ecran**. C'est la que tu prends tes
-  exemples. Un exemple qui n'est pas montrable ne sert a rien, et un
-  exemple hors de ce fichier sera probablement rejete au CP1 : c'est ce qui
-  s'est passe sur `2026-09-11_v01`, ou « upgrade Laravel » a du etre
-  remplace a la main. Si tout y est vieux de plus d'un mois, dis-le au CP1
-  plutot que de piocher un projet perime.
+  surtout ce qu'il peut **montrer a l'ecran**. Regarde-le en premier pour
+  tes exemples : un exemple tire de son vecu vaut mieux qu'un exemple
+  generique, et un exemple hors de ce fichier a plus de chances d'etre
+  rejete au CP1 (« upgrade Laravel » l'a ete sur `2026-09-11_v01`).
+
+  **Mais il n'est pas obligatoire.** S'il est vide, encore en brouillon, ou
+  si tout y est vieux de plus d'un mois, ne force pas : prends un exemple
+  public, verifiable et montrable, et signale au CP1 que tu n'as pas
+  d'illustration tiree du vecu de Franco. Un exemple perime est pire qu'un
+  exemple externe.
 - le dernier `02_Veille_hebdo/{AAAA-Sxx}_analyse_concurrentielle.md`, s'il
   existe — ce que les concurrents ont deja dit, pour ne pas le repeter. S'il
   manque, signale-le dans « Points a trancher » : tu travailles alors sans
