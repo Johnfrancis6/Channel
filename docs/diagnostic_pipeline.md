@@ -85,6 +85,36 @@ L'outil d'analyse vit dans **`outils/`**, dossier commun déployé par
 `agents/_synchroniser_vers_claude_skills.py` — il sert A3 (concurrents) et
 H1 (nos propres vidéos).
 
+### Style visé : sticker animé, et Lottie autorisé partout
+
+Le style visé est le **sticker animé** — formes pleines, mouvement fluide et
+naturel — et **Lottie est autorisé pour tout type d'animation**.
+
+Ce n'est pas une préférence de détail mais une **définition de charte**, et
+elle déplace une décision antérieure : on avait rangé Lottie dans « outils du
+Monteur, après l'étude des formats ». Si la charte dit sticker animé fluide,
+Lottie cesse d'être une optimisation tardive pour devenir un prérequis.
+
+**Sa limite est technique, pas réglementaire.** Un fichier Lottie est
+pré-rendu : on le joue, on le boucle, on le recolore, on ne change pas ce
+qu'il raconte. D'où la règle de répartition (§8) — Lottie pour ce qui est
+**fixe et expressif** (personnage, transitions, icônes), Remotion pour ce qui
+est **variable et informatif** (schémas, texte, sous-titres). Sans cette
+séparation, chaque nouvelle variante de `ConceptCutaway` exigerait un fichier
+fait à la main avant que la vidéo puisse tourner : chaque vidéo deviendrait
+une dépendance humaine.
+
+Reste ouvert : **d'où viennent les fichiers**, et sous quelle licence.
+
+### Chaque vidéo a un dossier `assets/`
+
+Franco y dépose ses images d'inspiration et ses fichiers Lottie. Lu par A6
+(référence visuelle la plus directe) et A7 (rendu). Créé par `new_short.py`
+à côté de `checkpoints/`.
+
+C'est aussi ce qui manquait pour que le dialogue de cadrage ait un support :
+une référence visuelle n'a plus à repartir dans une note en texte libre.
+
 ### Le corpus est le seul actif qui prend de la valeur
 
 Aujourd'hui **rien ne s'accumule** dans tout le système : le rapport

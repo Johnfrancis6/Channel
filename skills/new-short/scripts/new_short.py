@@ -6,6 +6,8 @@ Il écrit UNIQUEMENT :
   - videos/{video_id}/            (nouveau dossier, création exclusive)
   - videos/{video_id}/state.json
   - videos/{video_id}/checkpoints/
+  - videos/{video_id}/assets/     (images d'inspiration et fichiers Lottie
+                                   déposés par Franco, lus par A6 et A7)
 
 Il ne lance aucun agent et ne modifie aucun fichier partagé. Le registre des
 vidéos est une vue reconstruite à partir des state.json.
@@ -329,6 +331,9 @@ def main():
     if not a.dry_run:
         try:
             (dossier / "checkpoints").mkdir(exist_ok=True)
+            # Franco y depose ses references visuelles et ses fichiers
+            # Lottie : le Designer s'en inspire, le Monteur les rend.
+            (dossier / "assets").mkdir(exist_ok=True)
             ecrire_json_atomique(dossier / "state.json", st)
         except OSError as e:
             shutil.rmtree(dossier, ignore_errors=True)
@@ -337,7 +342,9 @@ def main():
     sortir(0, "Simulation : rien n'a été écrit." if a.dry_run else "Vidéo créée.",
            video_id=video_id,
            chemin=str(dossier),
-           fichiers_crees=[] if a.dry_run else [f"videos/{video_id}/state.json", f"videos/{video_id}/checkpoints/"],
+           fichiers_crees=[] if a.dry_run else [f"videos/{video_id}/state.json",
+                                                f"videos/{video_id}/checkpoints/",
+                                                f"videos/{video_id}/assets/"],
            voie=voie, mode_recherche=mode, pilier=pilier,
            titre_travail=st["titre_travail"],
            format=a.format_video, reference=a.reference, idees_max=a.idees,

@@ -106,6 +106,33 @@ avoir a les reinventer (§8).
 - **Rien ne bouge pendant le hook** au-dela de l'entree : les trois
   premieres secondes se jouent sur le texte et la voix.
 
+## Style vise : sticker anime
+
+Formes pleines, contours nets, mouvement **fluide et naturel** — pas le
+trait filaire procedural des premiers composants. L'elasticite prime sur la
+precision geometrique.
+
+## Lottie ou Remotion : qui fait quoi
+
+Lottie est autorise pour tout type d'animation (decision du 11/09/2026),
+mais un fichier Lottie est une animation **pre-rendue** : on la joue, on la
+boucle, on en lit un segment, on recolore des couches — on ne change pas ce
+qu'elle raconte. La repartition suit donc cette limite :
+
+| Ce qu'on anime | Technique |
+|---|---|
+| Personnage, stickman, mascotte | **Lottie** — c'est fait pour ca |
+| Transitions, icones animees, effets | **Lottie** |
+| Schema dont le contenu change d'une video a l'autre | **Remotion** |
+| Texte, chiffres, labels | **Remotion** |
+| Sous-titres cales sur `04_timestamps.json` | **Remotion** |
+
+La raison est operationnelle : `ConceptCutaway` a cinq variantes et la
+prochaine video en demandera d'autres. En Lottie, chaque nouveau schema
+serait un fichier a produire a la main avant de pouvoir tourner — chaque
+video deviendrait une dependance humaine. Les deux techniques se
+superposent sans probleme dans une meme scene.
+
 Pas de miniature pour l'instant (§4.3).
 """
 
@@ -227,6 +254,17 @@ CHARTE_JSON = {
     # plutot que redecides a chaque video. A6 s'y refere dans le bloc
     # `da` de chaque scene, A7 les applique.
     "animation": {
+        "style": "sticker_anime",
+        # Lottie autorise pour tout type d'animation (11/09/2026), dans la
+        # limite de ce qu'un fichier pre-rendu sait faire : `fixe` liste ce
+        # qui lui revient, `variable` ce qui reste a Remotion parce que le
+        # contenu change d'une video a l'autre.
+        "lottie": {
+            "actif": True,
+            "fixe": ["personnage", "transition", "icone", "effet"],
+            "variable": ["schema", "texte", "sous_titres"],
+            "dossiers": ["videos/{video_id}/assets/", "composants/lottie/"]
+        },
         "easing_entree": "ease-out",
         "easing_transition": "ease-in-out",
         "duree_entree_s": 0.3,

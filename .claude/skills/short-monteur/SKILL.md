@@ -77,7 +77,7 @@ les valeurs par defaut :
 |---|---|
 | `spring` | `spring()` de Remotion |
 | `interpolate` | `interpolate()` + easing de `charte.animation.easing_entree` |
-| `lottie` | `@remotion/lottie` sur un fichier fourni par Franco (§12) |
+| `lottie` | `@remotion/lottie` sur un fichier de `videos/{video_id}/assets/` ou de `composants/lottie/` — voir ci-dessous |
 | `statique` | aucune interpolation |
 
 `da.rythme` module la duree d'entree : `pose` l'allonge (~1.5x),
@@ -85,6 +85,24 @@ les valeurs par defaut :
 
 La **regle du wobble** (`charte.animation.wobble`) s'applique aux elements
 dessines a la main (stickman, traits), jamais au texte.
+
+**Lottie.** Le style vise est le sticker anime, et Lottie est autorise pour
+tout type d'animation. Sa limite est technique, pas reglementaire : un
+fichier Lottie est **pre-rendu**. On le joue, on le boucle, on en lit un
+segment, on recolore des couches — on ne change pas ce qu'il raconte.
+Reserve-le donc au **fixe et expressif** (personnage, transition, icone) et
+garde en Remotion tout ce qui **varie d'une video a l'autre** (schemas,
+texte, chiffres, sous-titres). Sinon chaque nouvelle variante de schema
+exigerait un fichier fait a la main avant que la video puisse tourner.
+
+Ou trouver les fichiers : `videos/{video_id}/assets/` pour cette video,
+`composants/lottie/` pour les recurrents. Si `@remotion/lottie` n'est pas
+encore installe, installe-le (`npm i @remotion/lottie lottie-web` dans
+`composants/`) et copie le `.json` dans `composants/public/lottie/` — le
+serveur de rendu sert les assets locaux depuis la, comme pour l'audio
+(prefixe `/public/`). Si une scene demande `technique: "lottie"` mais
+qu'aucun fichier n'est disponible, ne bloque pas : rends-la en Remotion et
+signale-le dans ton message de cloture.
 
 Verifie que ca compile : `cd composants && npm run typecheck`.
 
@@ -181,6 +199,7 @@ Si `orchestrateur_cmd` est renseigne, execute-le pour ouvrir le CP3.
 
 - Lus : `videos/{video_id}/state.json`, `05_storyboard.json`,
   `04_voixoff.wav`, `04_timestamps.json`, `04_phrases.json`,
+  `videos/{video_id}/assets/` (images d'inspiration, fichiers Lottie),
   `00_Profil/charte_visuelle/charte.json` (bloc `animation` compris),
   `composants/src/components/registry.ts`
 - Ecrits : `videos/{video_id}/06_video_finale.mp4`,

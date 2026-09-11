@@ -114,6 +114,22 @@ class TestConsignesStructurees(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertEqual(self.lire_state(out["video_id"])["titre_travail"], "LLM vs workflow vs agent")
 
+    def test_le_dossier_assets_est_cree(self):
+        # Franco y depose ses references visuelles et ses fichiers Lottie ;
+        # A6 s'en inspire, A7 les rend. Sans le dossier, il n'a pas d'endroit
+        # ou les mettre et la reference repart dans une note en texte libre.
+        code, out = self.run_script("--sujet", "Un sujet")
+        self.assertEqual(code, 0, out)
+        chemin = os.path.join(self.root, "videos", out["video_id"], "assets")
+        self.assertTrue(os.path.isdir(chemin), f"{chemin} absent")
+        self.assertIn(f"videos/{out['video_id']}/assets/", out["fichiers_crees"])
+
+    def test_dry_run_ne_cree_pas_assets(self):
+        code, out = self.run_script("--sujet", "Un sujet", "--dry-run")
+        self.assertEqual(code, 0, out)
+        self.assertEqual(out["fichiers_crees"], [])
+        self.assertFalse(os.path.isdir(os.path.join(self.root, "videos", out["video_id"])))
+
     def test_note_franco_reste_disponible(self):
         code, out = self.run_script("--sujet", "Un sujet", "--note", "Garder le ton direct")
         self.assertEqual(code, 0, out)

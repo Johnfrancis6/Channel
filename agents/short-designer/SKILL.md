@@ -49,6 +49,11 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
   Avant, rien de tout ca ne t'etait adresse : `note_franco` ne figurait pas
   dans tes inputs, et l'intention de Franco ne t'arrivait que si le
   Chercheur l'avait recopiee dans sa recherche.
+- **`videos/{video_id}/assets/`** — images d'inspiration et fichiers Lottie
+  deposes par Franco pour **cette** video. Regarde-les : c'est la reference
+  visuelle la plus directe dont tu disposes. Un `.json` Lottie qui s'y
+  trouve est une animation prete a l'emploi, a placer dans une scene avec
+  `technique: "lottie"`.
 - `videos/{video_id}/03_script_final.md` et `03_script_tts.txt` (une
   phrase par ligne : bon decoupage naturel des scenes)
 - `00_Profil/charte_visuelle/charte.json` — en particulier le bloc
@@ -88,6 +93,14 @@ tranche :
 | `mouvement` | `entree_par_le_bas`, `fondu`, `zoom_lent`, `glissement_lateral`, `apparition_sequencee`, `aucun` | comment la scene entre et vit |
 | `rythme` | `pose` (on laisse respirer), `standard`, `punch` (accent, coupe seche) | l'energie de la scene |
 | `technique` | `spring`, `interpolate`, `lottie`, `statique` | comment A7 l'implemente |
+
+**Quand choisir `lottie`** (charte, bloc `animation.lottie`) : pour ce qui
+est **fixe et expressif** — personnage, transition, icone, effet. Un
+fichier Lottie est pre-rendu : on le joue, on le boucle, on le recolore,
+on ne change pas ce qu'il raconte. Tout ce qui **varie d'une video a
+l'autre** — un schema, du texte, des chiffres — reste en Remotion, sinon
+chaque nouvelle video exigerait un fichier fait a la main avant de pouvoir
+tourner. Les deux se superposent dans une meme scene.
 | `accent` | texte libre court, optionnel | ce que la scene doit mettre en avant |
 
 Puis retire `"a_completer"` de la scene. **Aucune scene ne doit rester
@@ -174,7 +187,8 @@ tant que Franco n'a pas lance le run Colab.
 - Lus : `videos/{video_id}/state.json` (dont **`consignes`** :
   `note_franco`, `reference`, `format`, `idees_max`), `03_script_final.md`,
   `03_script_tts.txt`, `00_Profil/charte_visuelle/charte.json` (bloc
-  `animation` compris) et `charte.md`, `composants/REGISTRE.md`,
+  `animation` compris) et `charte.md`, `videos/{video_id}/assets/`,
+  `composants/REGISTRE.md`,
   `composants/src/components/registry.ts`
 - Ecrits : `videos/{video_id}/05_storyboard.md`, `05_storyboard.json`,
   `videos/{video_id}/state.json` (uniquement `etapes.E5_storyboard`)
