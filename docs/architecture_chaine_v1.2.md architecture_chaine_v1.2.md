@@ -464,7 +464,7 @@ Le style visé est le **sticker animé** : formes pleines, contours nets, mouvem
 
 **Lottie a été envisagé puis écarté** (11/09/2026) : tout est codé en Remotion. Le raisonnement vaut d'être conservé, parce qu'il éclaire le compromis. Un fichier Lottie est **pré-rendu** : on le joue, on le boucle, on le recolore, mais on ne change pas ce qu'il raconte. Il aurait donné la fluidité toute faite sur le personnage et les transitions, au prix d'un blocage dur — un schéma dont le contenu change à chaque vidéo aurait exigé un nouveau fichier fait à la main, faisant de chaque vidéo une dépendance humaine. En restant tout-Remotion, on garde des composants **paramétrables** et une identité propre ; en contrepartie, **la fluidité se code**.
 
-Huit règles séparent une animation vivante d'une animation mécanique. Leurs valeurs sont dans `charte.json > animation.naturel`, et elles s'appliquent à **tous** les composants, pas seulement au personnage :
+Huit règles séparent une animation vivante d'une animation mécanique. Elles sont implémentées **une fois pour toutes** dans `composants/src/animation.ts` — un composant qui refait ses `interpolate()` à la main retombe dans le geste unique d'origine. Leurs valeurs sont dans `charte.json > animation.naturel`, et elles s'appliquent à **tous** les composants, pas seulement au personnage :
 
 1. **Ressort plutôt que rampe** — `spring()` par défaut ; une rampe linéaire se voit immédiatement.
 2. **Rien ne s'arrête net** — une fin brutale est le signe le plus sûr d'une animation bâclée.
@@ -482,6 +482,12 @@ Les durées du storyboard sont des **estimations** (~2,5 mots/s). Elles sont rec
 - le recalage **suppose une scène par phrase** ; si A6 fusionne ou coupe des scènes, le compte ne correspond plus, le recalage est abandonné (avec avertissement) et l'estimation est conservée ;
 - les scènes se suivent sans trou : une scène va de la fin de la phrase précédente à la fin de la sienne, ce qui absorbe la pause inter-phrases ;
 - la composition ne dure **jamais moins que l'audio** : `duree_audio_s` est passé aux props, la dernière scène absorbe le reliquat. Sans ça, une voix off plus longue que la somme des scènes était coupée net.
+
+### Ce que le premier catalogue a corrigé
+
+Avant `animation.ts`, les trois composants faisaient **exactement le même geste** : deux `interpolate()` linéaires — opacité 0→1 et translateY 24→0 — sur 0,3 seconde. Sur une scène de 16 s, cela donnait 0,3 s d'animation et 15,7 s d'image fixe. `spring()` n'était appelé nulle part, aucun composant ne lisait `da`, et `Sequence` juxtaposait les scènes sans transition : onze coupes franches d'affilée.
+
+Ce n'était pas une limite de Remotion mais de ce qui en était utilisé. Un agent optimise ce qu'on peut lui reprocher : le code compilait, les props étaient typées, aucune couleur n'était en dur — tous les critères vérifiables étaient au vert, et personne ne regardait le reste.
 
 ### Vérification visuelle
 

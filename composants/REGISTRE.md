@@ -35,27 +35,29 @@ suit qu'une partie, `non` s'il l'ignore encore.
 
 | Composant | DA |
 |---|---|
-| `TitleCard` | non — a reprendre |
-| `StickmanTalk` | partiel — entree en dur (`entree_par_le_bas` + `interpolate`) |
-| `ConceptCutaway` | non — a reprendre |
+| `TitleCard` | oui |
+| `StickmanTalk` | oui |
+| `ConceptCutaway` | oui |
 
-## A reprendre, vu sur les apercus
+Tous passent par `src/animation.ts`, qui implemente les huit regles du §8
+une fois pour toutes. Un composant qui refait ses `interpolate()` a la main
+retombe dans le geste unique d'origine : opacite plus translation sur
+0,3 s, puis image fixe.
 
-Constats du premier passage du catalogue (11/09/2026) :
+## Ce que le premier catalogue avait revele, et ce qui a ete corrige
 
-- **`ConceptCutaway`** : environ les trois quarts du cadre sont vides, et les
-  schemas sont generiques — deux rectangles « STEP 1 / STEP 2 » qui
-  n'illustrent pas le concept annonce. Le stickman de fond est minuscule, et
-  les sous-titres (`paddingBottom: 220`) le recouvrent. Ce composant a tenu
-  14,4 s a l'ecran dans `2026-09-11_v01`.
-- **`StickmanTalk`** : les poses `intro` et `outro` rendent une image
-  **strictement identique** (meme empreinte). L'API en annonce trois, il n'y
-  en a que deux. A6 croit choisir la ou il n'a pas le choix.
-- **Occupation du cadre** : aucun composant ne remplit le 1080x1920. Le
-  personnage fait environ un cinquieme de la hauteur.
+| Constat (11/09/2026) | Etat |
+|---|---|
+| `ConceptCutaway` laissait ~3/4 du cadre vides, schemas generiques (« STEP 1 / STEP 2 ») | corrige — maillons pleine largeur, rail qui materialise le chemin fixe, boucle circulaire pour l'agent |
+| `StickmanTalk` : `intro` et `outro` rendaient la **meme image** (meme md5) | corrige — trois poses distinctes (`wave`, `point`, `open`) |
+| Aucun composant ne remplissait le 1080x1920 | corrige — le personnage occupe ~40 % de la hauteur, halo de profondeur |
+| Un seul geste d'animation, 0,3 s puis image fixe | corrige — `spring()`, entrees en cascade, mouvement continu sur toute la scene |
+| Le trait du corps traversait la tete du stickman | corrige — le cou part du bas reel du cercle |
+| Le bras du salut disparaissait dans le crane | corrige — epaule abaissee, angles revus |
+| Onze coupes franches entre scenes | corrige — fondu enchaine de 0,25 s dans `Video.tsx` |
 
-Ces trois defauts existaient depuis le debut. Aucun test ne pouvait les
-attraper : il fallait regarder.
+Aucun de ces defauts n'etait detectable par un test : il fallait regarder.
+C'est la raison d'etre du catalogue.
 
 \* `Subtitles` n'est pas choisi par scene : il est surimprime automatiquement
 sur toute la video par `src/Video.tsx`, cale sur `04_timestamps.json`.

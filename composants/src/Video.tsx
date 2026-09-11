@@ -34,8 +34,16 @@ export function dureeTotaleFrames(
 
 // `duree_audio_s` n'est pas lu ici : il sert a calculateMetadata (Root.tsx),
 // qui fixe durationInFrames, relu ci-dessous via useVideoConfig().
+// Chevauchement entre deux scenes consecutives. Sans lui, `Sequence` les
+// juxtapose et chaque changement de scene est une coupe franche — onze
+// coupes seches d'affilee sur la premiere video. La scene suivante demarre
+// un peu avant la fin de la precedente et entre en fondu par-dessus : le
+// calage sur l'audio est preserve, seule l'entree deborde.
+const CHEVAUCHEMENT_S = 0.25;
+
 export const Video: React.FC<VideoProps> = ({charte, scenes, mots, audioSrc}) => {
   const {fps, durationInFrames} = useVideoConfig();
+  const chevauchement = Math.round(CHEVAUCHEMENT_S * fps);
 
   // La derniere scene absorbe le reliquat : sans ca, un audio plus long que
   // les scenes se termine sur un ecran vide (seuls les sous-titres restent).
@@ -56,9 +64,16 @@ export const Video: React.FC<VideoProps> = ({charte, scenes, mots, audioSrc}) =>
         const debut = frameCourant;
         frameCourant += dureeFrames;
         const Composant = REGISTRE[scene.composant];
+        // La premiere scene n'a rien sur quoi deborder.
+        const avance = i === 0 ? 0 : chevauchement;
 
         return (
-          <Sequence key={scene.id} from={debut} durationInFrames={dureeFrames} name={scene.id}>
+          <Sequence
+            key={scene.id}
+            from={debut - avance}
+            durationInFrames={dureeFrames + avance}
+            name={scene.id}
+          >
             {Composant ? (
               <Composant charte={charte} da={scene.da} {...scene.params} />
             ) : (

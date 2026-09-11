@@ -1,21 +1,26 @@
 import React from 'react';
-import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import type {CharteTokens} from '../types';
+import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import type {CharteTokens, DirectionArtistique} from '../types';
 import {Stickman} from './Stickman';
+import {progressionEntree, retardSecondaireFrames, styleContinu, styleEntree} from '../animation';
 
-export type ConceptScene = 'llm_single_turn' | 'workflow_tools' | 'workflow_fixed_path' | 'agent_loop' | 'github_demo';
+export type ConceptScene =
+  | 'llm_single_turn'
+  | 'workflow_tools'
+  | 'workflow_fixed_path'
+  | 'agent_loop'
+  | 'github_demo';
 
 export type ConceptCutawayParams = {
   scene: ConceptScene;
   label?: string;
 };
 
-type Props = ConceptCutawayParams & {charte: CharteTokens};
+type Props = ConceptCutawayParams & {charte: CharteTokens; da?: DirectionArtistique};
 
 type ElementChaine = {texte: string; tag?: string};
 
-// Une chaine lineaire = une famille de scenes (LLM single-pass, workflow a
-// outils, workflow a chemin fixe, demo GitHub) ; seul agent_loop est
+// Une chaine lineaire = une famille de scenes ; seul agent_loop est
 // circulaire (§8, la boucle est la distinction visuelle cle agent vs
 // workflow).
 const CHAINES: Partial<Record<ConceptScene, ElementChaine[]>> = {
@@ -31,155 +36,229 @@ const CHAINES: Partial<Record<ConceptScene, ElementChaine[]>> = {
 
 const NOEUDS_BOUCLE = ['PLAN', 'ACT', 'OBSERVE', 'DECIDE'];
 
-const Maillon: React.FC<{
-  item: ElementChaine;
-  opacite: number;
-  couleurBord: string;
-  couleurTexte: string;
-  couleurTag: string;
-  famille: string;
-}> = ({item, opacite, couleurBord, couleurTexte, couleurTag, famille}) => (
-  <div style={{opacity: opacite, textAlign: 'center'}}>
-    {item.tag ? (
-      <div style={{color: couleurTag, fontFamily: famille, fontSize: 20, fontWeight: 700, marginBottom: 6}}>
-        {item.tag}
-      </div>
-    ) : null}
-    <div
-      style={{
-        border: `3px solid ${couleurBord}`,
-        borderRadius: 12,
-        padding: '18px 28px',
-        color: couleurTexte,
-        fontFamily: famille,
-        fontSize: 30,
-        fontWeight: 700,
-        minWidth: 260,
-      }}
-    >
-      {item.texte}
-    </div>
-  </div>
+// Un chemin fixe se montre par un rail rigide qui traverse les etapes :
+// c'est ce qui distingue visuellement le workflow de l'agent. Sans lui, le
+// schema n'etait que des rectangles empiles, vrais pour n'importe quel
+// concept.
+const AVEC_RAIL: ConceptScene[] = ['workflow_fixed_path'];
+
+const Fleche: React.FC<{couleur: string; opacite: number}> = ({couleur, opacite}) => (
+  <svg width={40} height={74} viewBox="0 0 40 74" style={{opacity: opacite, margin: '4px 0'}}>
+    <line x1={20} y1={4} x2={20} y2={54} stroke={couleur} strokeWidth={5} strokeLinecap="round" />
+    <polyline
+      points="8,44 20,60 32,44"
+      fill="none"
+      stroke={couleur}
+      strokeWidth={5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
 );
 
-// Stickman reduit en fond + illustration animee au premier plan pour une
-// etape du concept (§8). Reutilisable pour de futures videos du pilier
-// concept : le scene "kind" choisit la mise en scene (chaine lineaire ou
-// boucle), le reste (label, stickman) est generique.
-export const ConceptCutaway: React.FC<Props> = ({scene, label, charte}) => {
+const Maillon: React.FC<{
+  item: ElementChaine;
+  style: React.CSSProperties;
+  charte: CharteTokens;
+  accentue: boolean;
+}> = ({item, style, charte, accentue}) => {
+  const famille = charte.typographie.sous_titres.famille;
+  const bord = accentue ? charte.couleurs.accent_secondaire : charte.couleurs.accent;
+  return (
+    <div style={{...style, textAlign: 'center', position: 'relative', zIndex: 1}}>
+      {item.tag ? (
+        <div
+          style={{
+            color: charte.couleurs.accent_secondaire,
+            fontFamily: famille,
+            fontSize: 30,
+            fontWeight: 700,
+            marginBottom: 10,
+            letterSpacing: 2,
+          }}
+        >
+          {item.tag}
+        </div>
+      ) : null}
+      <div
+        style={{
+          border: `5px solid ${bord}`,
+          borderRadius: 20,
+          padding: '30px 44px',
+          color: charte.couleurs.texte_principal,
+          fontFamily: famille,
+          fontSize: 46,
+          fontWeight: 700,
+          minWidth: 520,
+          backgroundColor: `${bord}14`,
+        }}
+      >
+        {item.texte}
+      </div>
+    </div>
+  );
+};
+
+// La boucle : quatre noeuds en cercle, relies par un anneau. C'est la
+// forme qui dit "agent" d'un coup d'oeil, par opposition a la chaine.
+const Boucle: React.FC<{charte: CharteTokens; progression: number; rotation: number}> = ({
+  charte,
+  progression,
+  rotation,
+}) => {
+  const R = 300;
+  const C = 380;
+  const famille = charte.typographie.sous_titres.famille;
+  return (
+    <svg width={760} height={760} viewBox="0 0 760 760">
+      <circle
+        cx={C}
+        cy={C}
+        r={R}
+        fill="none"
+        stroke={charte.couleurs.accent}
+        strokeWidth={6}
+        strokeDasharray={2 * Math.PI * R}
+        // Le cercle se trace au lieu d'apparaitre : le trace dit le sens de
+        // la boucle, une apparition ne dit rien.
+        strokeDashoffset={2 * Math.PI * R * (1 - progression)}
+        transform={`rotate(${-90 + rotation} ${C} ${C})`}
+        opacity={0.85}
+      />
+      {NOEUDS_BOUCLE.map((nom, i) => {
+        const angle = (-90 + i * 90) * (Math.PI / 180);
+        const x = C + Math.cos(angle) * R;
+        const y = C + Math.sin(angle) * R;
+        const apparu = Math.max(0, Math.min(1, progression * 4 - i));
+        return (
+          <g key={nom} opacity={apparu}>
+            {/* r=88 et non 72 : "OBSERVE" debordait de son cercle. */}
+            <circle cx={x} cy={y} r={88} fill={charte.couleurs.fond} stroke={charte.couleurs.accent} strokeWidth={5} />
+            <text
+              x={x}
+              y={y + 10}
+              textAnchor="middle"
+              fill={charte.couleurs.texte_principal}
+              fontFamily={famille}
+              fontSize={27}
+              fontWeight={700}
+            >
+              {nom}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+};
+
+// Illustration animee d'une etape du concept, avec le stickman en retrait
+// (§8). Le composant laissait environ les trois quarts du cadre vides et
+// ses schemas etaient generiques ; il occupe desormais le 1080x1920 et le
+// schema porte la distinction qu'il illustre.
+export const ConceptCutaway: React.FC<Props> = ({scene, label, charte, da}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const famille = charte.typographie.sous_titres.famille;
-  const dureeEntree = Math.max(1, Math.round(charte.rythme.duree_transition_s * fps));
-  const decalageMaillon = Math.round(fps * 0.5);
-
   const chaine = CHAINES[scene];
+  const retard = retardSecondaireFrames(charte, fps);
+  const progression = progressionEntree(frame, fps, charte, da, 1);
 
   return (
-    <AbsoluteFill style={{backgroundColor: charte.couleurs.fond, alignItems: 'center'}}>
+    <AbsoluteFill style={{backgroundColor: charte.couleurs.fond, overflow: 'hidden'}}>
+      <AbsoluteFill
+        style={{
+          ...styleEntree(frame, fps, charte, da, 4),
+          background: `radial-gradient(ellipse at 50% 42%, ${charte.couleurs.accent}1a 0%, transparent 62%)`,
+        }}
+      />
+
       {label ? (
         <div
           style={{
-            marginTop: 120,
+            ...styleEntree(frame, fps, charte, da, 0),
+            position: 'absolute',
+            top: 120,
+            width: '100%',
+            textAlign: 'center',
             color: charte.couleurs.accent_secondaire,
             fontFamily: famille,
-            fontSize: 34,
-            fontWeight: 700,
-            letterSpacing: 2,
-            textAlign: 'center',
-            opacity: interpolate(frame, [0, dureeEntree], [0, 1], {extrapolateRight: 'clamp'}),
+            fontSize: 52,
+            fontWeight: 800,
+            letterSpacing: 4,
           }}
         >
           {label}
         </div>
       ) : null}
 
-      <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
-        {chaine ? (
-          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20}}>
-            {chaine.map((item, i) => {
-              const debut = i * decalageMaillon;
-              const opacite = interpolate(frame, [debut, debut + dureeEntree], [0, 1], {
-                extrapolateLeft: 'clamp',
-                extrapolateRight: 'clamp',
-              });
-              return (
+      <AbsoluteFill
+        style={{
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingTop: 120,
+          paddingBottom: 420,
+        }}
+      >
+        <div style={styleContinu(frame, fps, charte, da)}>
+          {chaine ? (
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative'}}>
+              {AVEC_RAIL.includes(scene) ? (
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: 0,
+                    bottom: 0,
+                    width: 10,
+                    marginLeft: -5,
+                    borderRadius: 5,
+                    backgroundColor: `${charte.couleurs.accent_secondaire}55`,
+                    opacity: progression,
+                    // Derriere les maillons : au-dessus, le rail barrait le
+                    // texte de chaque etape.
+                    zIndex: 0,
+                  }}
+                />
+              ) : null}
+              {chaine.map((item, i) => (
                 <React.Fragment key={item.texte}>
                   {i > 0 ? (
-                    <div style={{color: charte.couleurs.accent, fontSize: 32, opacity: opacite}}>{'↓'}</div>
+                    <div style={{position: 'relative', zIndex: 1}}>
+                      <Fleche
+                        couleur={charte.couleurs.accent}
+                        opacite={progressionEntree(frame, fps, charte, da, i * 2)}
+                      />
+                    </div>
                   ) : null}
                   <Maillon
                     item={item}
-                    opacite={opacite}
-                    couleurBord={charte.couleurs.accent}
-                    couleurTexte={charte.couleurs.texte_principal}
-                    couleurTag={charte.couleurs.accent_secondaire}
-                    famille={famille}
+                    style={styleEntree(frame, fps, charte, da, i * 2 + 1)}
+                    charte={charte}
+                    accentue={i === chaine.length - 1}
                   />
                 </React.Fragment>
-              );
-            })}
-          </div>
-        ) : (
-          <BoucleAgent charte={charte} frame={frame} fps={fps} />
-        )}
+              ))}
+            </div>
+          ) : (
+            <Boucle charte={charte} progression={progression} rotation={(frame / fps) * 6} />
+          )}
+        </div>
       </AbsoluteFill>
 
-      <div style={{position: 'absolute', bottom: 90, left: 60}}>
-        <Stickman color={charte.couleurs.accent} scale={0.75} pose="neutral" phase={(frame % fps) / fps} />
+      {/* Le stickman raconte en fond, au-dessus de la zone des sous-titres. */}
+      <div style={{position: 'absolute', left: 60, bottom: 300, opacity: 0.75}}>
+        <div style={styleEntree(frame, fps, charte, da, 5)}>
+          <Stickman
+            color={charte.couleurs.accent}
+            scale={1.5}
+            pose="point"
+            phase={(frame / (fps * 2.4)) % 1}
+            phaseGeste={((frame - retard) / (fps * 1.6)) % 1}
+            epaisseur={8}
+          />
+        </div>
       </div>
     </AbsoluteFill>
-  );
-};
-
-// Diagramme circulaire pour agent_loop : 4 etapes autour d'un cercle, un
-// point met en evidence l'etape active pour suggerer la boucle continue
-// (par opposition au chemin fixe/lineaire des autres scenes).
-const BoucleAgent: React.FC<{charte: CharteTokens; frame: number; fps: number}> = ({charte, frame, fps}) => {
-  const rayon = 220;
-  const dureeTour = fps * 3.2;
-  const angle = ((frame % dureeTour) / dureeTour) * Math.PI * 2 - Math.PI / 2;
-  const famille = charte.typographie.sous_titres.famille;
-
-  return (
-    <div style={{position: 'relative', width: rayon * 2 + 200, height: rayon * 2 + 200}}>
-      {NOEUDS_BOUCLE.map((nom, i) => {
-        const a = (i / NOEUDS_BOUCLE.length) * Math.PI * 2 - Math.PI / 2;
-        const x = rayon * Math.cos(a) + rayon + 100;
-        const y = rayon * Math.sin(a) + rayon + 100;
-        return (
-          <div
-            key={nom}
-            style={{
-              position: 'absolute',
-              left: x - 70,
-              top: y - 30,
-              width: 140,
-              border: `3px solid ${charte.couleurs.accent}`,
-              borderRadius: 10,
-              padding: '10px 0',
-              textAlign: 'center',
-              color: charte.couleurs.texte_principal,
-              fontFamily: famille,
-              fontSize: 24,
-              fontWeight: 700,
-            }}
-          >
-            {nom}
-          </div>
-        );
-      })}
-      <div
-        style={{
-          position: 'absolute',
-          left: rayon * Math.cos(angle) + rayon + 100 - 12,
-          top: rayon * Math.sin(angle) + rayon + 100 - 12,
-          width: 24,
-          height: 24,
-          borderRadius: '50%',
-          backgroundColor: charte.couleurs.accent_secondaire,
-        }}
-      />
-    </div>
   );
 };

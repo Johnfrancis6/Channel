@@ -1,63 +1,76 @@
 import React from 'react';
-import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import type {CharteTokens} from '../types';
+import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import type {CharteTokens, DirectionArtistique} from '../types';
 import {Stickman} from './Stickman';
 import type {StickmanPose} from './Stickman';
+import {retardSecondaireFrames, styleContinu, styleEntree} from '../animation';
 
 export type StickmanTalkParams = {
   pose: 'intro' | 'lean_in' | 'outro';
   label?: string;
 };
 
-type Props = StickmanTalkParams & {charte: CharteTokens};
+type Props = StickmanTalkParams & {charte: CharteTokens; da?: DirectionArtistique};
 
+// Trois poses distinctes. `intro` et `outro` rendaient la meme image avant
+// (toutes deux mappees sur 'wave') : A6 croyait choisir la ou il n'avait
+// pas le choix.
 const POSE_VERS_STICKMAN: Record<StickmanTalkParams['pose'], StickmanPose> = {
   intro: 'wave',
-  lean_in: 'lean',
-  outro: 'wave',
+  lean_in: 'point',
+  outro: 'open',
 };
 
-// Stickman plein cadre qui s'adresse a la camera (intro, transition,
-// cloture) — §8, cree par le Monteur pour 2026-09-11_v01.
-export const StickmanTalk: React.FC<Props> = ({pose, label, charte}) => {
+// Stickman plein cadre qui s'adresse a la camera (§8). Le personnage
+// occupait un cinquieme de la hauteur sur un fond noir vide : il prend
+// desormais la moitie du cadre, sur un halo qui donne de la profondeur.
+export const StickmanTalk: React.FC<Props> = ({pose, label, charte, da}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const dureeEntree = Math.max(1, Math.round(charte.rythme.duree_transition_s * fps));
 
-  const opacite = interpolate(frame, [0, dureeEntree], [0, 1], {extrapolateRight: 'clamp'});
-  const decalageY = interpolate(frame, [0, dureeEntree], [24, 0], {extrapolateRight: 'clamp'});
+  const entree = styleEntree(frame, fps, charte, da);
+  const continu = styleContinu(frame, fps, charte, da);
+  // Le halo suit le personnage en retrait (parallaxe, regle 7).
+  const haloEntree = styleEntree(frame, fps, charte, da, 1);
+  const retard = retardSecondaireFrames(charte, fps);
 
   return (
-    <AbsoluteFill
-      style={{
-        backgroundColor: charte.couleurs.fond,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <div style={{opacity: opacite, transform: `translateY(${decalageY}px)`, textAlign: 'center'}}>
-        <Stickman
-          color={charte.couleurs.accent}
-          scale={1.6}
-          pose={POSE_VERS_STICKMAN[pose]}
-          phase={(frame % fps) / fps}
-        />
-        {label ? (
-          <div
-            style={{
-              marginTop: 32,
-              color: charte.couleurs.texte_principal,
-              fontFamily: charte.typographie.sous_titres.famille,
-              fontSize: 48,
-              fontWeight: 700,
-              letterSpacing: 2,
-              textTransform: 'uppercase',
-            }}
-          >
-            {label}
+    <AbsoluteFill style={{backgroundColor: charte.couleurs.fond, overflow: 'hidden'}}>
+      <AbsoluteFill
+        style={{
+          ...haloEntree,
+          background: `radial-gradient(circle at 50% 46%, ${charte.couleurs.accent}22 0%, transparent 62%)`,
+        }}
+      />
+      <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', paddingBottom: 260}}>
+        <div style={{...entree, textAlign: 'center'}}>
+          <div style={continu}>
+            <Stickman
+              color={charte.couleurs.accent}
+              scale={3.1}
+              pose={POSE_VERS_STICKMAN[pose]}
+              phase={(frame / (fps * 2.4)) % 1}
+              phaseGeste={((frame - retard) / (fps * 1.3)) % 1}
+            />
           </div>
-        ) : null}
-      </div>
+          {label ? (
+            <div
+              style={{
+                ...styleEntree(frame, fps, charte, da, 2),
+                marginTop: 56,
+                color: charte.couleurs.texte_principal,
+                fontFamily: charte.typographie.sous_titres.famille,
+                fontSize: 54,
+                fontWeight: 700,
+                letterSpacing: 3,
+                textTransform: 'uppercase',
+              }}
+            >
+              {label}
+            </div>
+          ) : null}
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };

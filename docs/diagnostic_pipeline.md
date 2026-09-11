@@ -344,6 +344,56 @@ Et la durée estimée tombe à **80,6 s** contre 82,5 s réellement enregistrée
 constante de `generer_storyboard.py` passe de 2,5 à 3,2 — c'était
 l'arithmétique derrière les 16,4 s de décalage son/image.
 
+## E6 — Les composants, repris
+
+**Le système n'était pas monotone à cause de Remotion : il n'en utilisait
+presque rien.** Les trois composants faisaient le même geste — deux
+`interpolate()` linéaires, opacité et translateY, sur 0,3 s. `spring()`
+n'apparaissait nulle part, aucun composant ne lisait `da`, et `Sequence`
+juxtaposait les scènes sans transition.
+
+Sur la scène 8 de `2026-09-11_v01`, qui dure 16 secondes : **0,3 s
+d'animation, 15,7 s d'image fixe.**
+
+Cause : A7 a écrit ces composants sans jamais voir le résultat, et tous les
+critères vérifiables étaient au vert — le code compile, les props sont
+typées, aucune couleur en dur. Le skill disait « suis le style de
+`TitleCard.tsx` », ce qu'il a fait fidèlement : le patron du premier
+composant s'est propagé aux deux suivants. Un agent optimise ce qu'on peut
+lui reprocher.
+
+### Ce qui a été fait
+
+- **`composants/src/animation.ts`** implémente les huit règles une fois
+  pour toutes : spring amorti, décalage d'entrée, variation de vitesse,
+  anticipation, mouvement secondaire, parallaxe, wobble non répétitif,
+  sortie qui ne coupe pas net. Les composants s'y branchent au lieu de
+  réinventer le geste.
+- **Les trois composants lisent `da`** : le vocabulaire de direction
+  artistique posé plus tôt était inerte.
+- **Le cadre est rempli** : le personnage passe d'un cinquième à ~40 % de
+  la hauteur, les schémas occupent la largeur, un halo donne de la
+  profondeur.
+- **Les schémas portent enfin leur distinction** : un rail rigide traverse
+  les étapes du chemin fixe, une boucle circulaire figure l'agent. Avant,
+  « STEP 1 / STEP 2 » aurait illustré n'importe quel concept.
+- **`intro` ≠ `outro`** : trois poses distinctes.
+- **Fondu enchaîné de 0,25 s** entre scènes, sans dépendance
+  supplémentaire — la scène suivante déborde sur la précédente, le calage
+  sur l'audio est préservé.
+
+### Corrigé en regardant, pas en testant
+
+Deux défauts de dessin n'ont été vus que sur les aperçus : le trait du
+corps **traversait la tête** du stickman (le cou partait d'une coordonnée
+fixe alors que tête et torse respirent en déphasé), et le bras du salut
+**disparaissait dans le crâne** (à −75°, il montait presque à la
+verticale). Un troisième est apparu au rendu suivant : le rail barrait le
+texte des étapes.
+
+Aucun test ne pouvait les attraper. C'est exactement ce que le catalogue
+existe pour rendre visible.
+
 ## File d'attente
 
 | # | Chantier | État |
@@ -352,7 +402,7 @@ l'arithmétique derrière les 16,4 s de décalage son/image.
 | 2 | Rapport de checkpoint tronqué avant la décision | ✅ fait |
 | 3a | Catalogue d'aperçus de composants (`outils/generer_apercus.py`) | ✅ fait |
 | 3b | Cadrage d'A6 : `05_cadrage.md`, décrire l'image et non la clé, doublon texte/sous-titres supprimé | ✅ fait |
-| 3c | Reprendre les composants d'après les aperçus : remplir le cadre, `intro`≠`outro`, schémas non génériques, appliquer les huit règles du naturel | ⬜ **débloqué** |
+| 3c | Composants repris : `animation.ts`, cadre rempli, `intro`≠`outro`, schémas parlants, transitions | ✅ fait |
 | 4 | `outils/` + corpus + segmentation rétroactive de la vidéo 1 | ⬜ |
 | 5 | E4 : plafond de tentatives dans le notebook, diagnostic WER gradué, agent cohérent | ✅ fait |
 | 6 | Réajustement complet d'A2 (branche `sujet_impose`, gabarit 7 sections) | ✅ fait |
