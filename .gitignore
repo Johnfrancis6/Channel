@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+01_Orchestrateur/verrou.json
+01_Orchestrateur/derniere_execution.json
+01_Orchestrateur/log_erreurs.md

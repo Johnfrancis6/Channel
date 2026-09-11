@@ -1,0 +1,36 @@
+{
+  "video_id": "2026-09-11_v01",
+  "titre_travail": "Fake video 1 — CP1 en attente",
+  "pilier": "actu_ia",
+  "voie": "rapide",
+  "statut_global": "en_production",
+  "etape_actuelle": "CP1",
+  "etapes": {
+    "E1_recherche": {
+      "agent": "chercheur",
+      "statut": "termine",
+      "tentatives": 1,
+      "debut": "2026-09-11T07:00:00Z",
+      "fin": "2026-09-11T07:08:00Z",
+      "sorties": ["01_recherche.md"]
+    },
+    "CP1": { "statut": "attente_validation", "commentaire": null, "date": null },
+    "E2_redaction": { "statut": "a_venir" },
+    "E3_filtre": { "statut": "a_venir" },
+    "CP2": { "statut": "a_venir" },
+    "E4_audio": { "statut": "a_venir" },
+    "E5_storyboard": { "statut": "a_venir" },
+    "E6_montage": { "statut": "a_venir" },
+    "CP3": { "statut": "a_venir" },
+    "E7_publication": { "statut": "a_venir" }
+  },
+  "publication": { "date_prevue": null, "date_effective": null, "url": null },
+  "historique": [
+    {
+      "horodatage": "2026-09-11T07:08:00Z",
+      "agent": "chercheur",
+      "evenement": "termine",
+      "message": "Recherche terminée, en attente de CP1"
+    }
+  ]
+}
