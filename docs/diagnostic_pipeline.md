@@ -394,6 +394,27 @@ texte des étapes.
 Aucun test ne pouvait les attraper. C'est exactement ce que le catalogue
 existe pour rendre visible.
 
+## CP3 — le rapport montrait le mauvais fichier
+
+Le CP3 **autorise la publication**. Son rapport contenait le storyboard
+entier — le plan de tournage — et sur la vidéo elle-même : rien. Pas le
+chemin du `.mp4`, pas sa durée, pas le nombre de scènes rendues, pas les
+composants créés. Il était même tronqué au milieu de « Nouveaux composants
+neces… ».
+
+Et le storyboard disait : *« ~98.8s, au-dessus d'un Short typique, à
+trancher par Franco au CP3 »*. La décision avait bien été repoussée jusqu'à
+lui — sans aucun des chiffres pour la prendre.
+
+Le rapport porte désormais, dans cet ordre : le fichier et son poids, la
+durée du rendu **face à celle de la voix off**, l'écart s'il dépasse une
+seconde, les scènes laissées `a_completer`, les nouveaux composants, le
+message du Monteur, puis un rappel de regarder la vidéo. Le storyboard
+n'est plus qu'un rappel borné à 1200 caractères.
+
+Vérifié sur le dossier reconstitué de `2026-09-11_v01` : l'écart de
+**16,3 s** apparaît en troisième ligne.
+
 ## File d'attente
 
 | # | Chantier | État |
@@ -412,7 +433,9 @@ existe pour rendre visible.
 
 ## Reste à diagnostiquer
 
-CP2 et CP3 sur fichiers réels, H1 et A3 (jamais tournés), E6 et E7.
+CP2 sur fichier réel, H1 (jamais tourné, et son input « phrases signalées
+par le contrôle qualité » n'existe plus depuis que le WER est global), E7
+(neuf, jamais exercé).
 
 Et une question transverse qui remonte d'E4 : **le déclenchement de
 l'Orchestrateur**, non tranché depuis le §12. Tant qu'il ne tourne pas, tout
