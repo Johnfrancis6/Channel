@@ -16,7 +16,9 @@ mot/debut_s/fin_s, au besoin enveloppee dans {"mots": [...]} ou
 """
 import argparse
 import json
+import shutil
 import sys
+from pathlib import Path
 
 
 def normaliser_mots(data):
@@ -43,6 +45,25 @@ def construire(charte, storyboard, timestamps_bruts, audio=None):
     return props
 
 
+def preparer_audio_public(audio_path):
+    """Copie l'audio dans composants/public/ (§8) : le serveur de rendu de
+    Remotion sert les assets locaux depuis ce dossier, a la racine — un
+    chemin absolu brut ou une URI file:// echouent tous les deux (404 /
+    protocole non supporte). Suppose cwd == composants/ (cf. skill A7,
+    etape 4)."""
+    source = Path(audio_path).resolve()
+    video_id = source.parent.name
+    dossier_public = Path("public") / "audio" / video_id
+    dossier_public.mkdir(parents=True, exist_ok=True)
+    dest = dossier_public / source.name
+    shutil.copyfile(source, dest)
+    # Le bundle de rendu sert le contenu de public/ sous le prefixe
+    # /public/ (copie dans <outDir>/public par @remotion/bundler), pas a la
+    # racine — verifie empiriquement, staticFile() ne s'applique pas ici
+    # puisque ce chemin est ecrit en dur dans les props JSON.
+    return f"/public/audio/{video_id}/{source.name}"
+
+
 def main():
     ap = argparse.ArgumentParser(description="Assemble les props Remotion pour le rendu (§8).")
     ap.add_argument("--charte", required=True)
@@ -59,8 +80,10 @@ def main():
     with open(a.timestamps, encoding="utf-8-sig") as f:
         timestamps_bruts = json.load(f)
 
+    audio_src = preparer_audio_public(a.audio) if a.audio else None
+
     try:
-        props = construire(charte, storyboard, timestamps_bruts, a.audio)
+        props = construire(charte, storyboard, timestamps_bruts, audio_src)
     except ValueError as e:
         print(json.dumps({"ok": False, "message": str(e)}, ensure_ascii=False))
         sys.exit(2)

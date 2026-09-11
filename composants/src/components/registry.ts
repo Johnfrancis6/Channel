@@ -1,5 +1,7 @@
 import type {ComponentType} from 'react';
 import {TitleCard} from './TitleCard';
+import {StickmanTalk} from './StickmanTalk';
+import {ConceptCutaway} from './ConceptCutaway';
 import type {CharteTokens} from '../types';
 
 // Registre des composants (§8) : le Monteur (A7) doit d'abord reutiliser un
@@ -13,6 +15,8 @@ export type ComposantParams = Record<string, unknown> & {charte?: CharteTokens};
 
 export const REGISTRE: Record<string, ComponentType<any>> = {
   TitleCard,
+  StickmanTalk,
+  ConceptCutaway,
 };
 
 export function composantExiste(nom: string): boolean {

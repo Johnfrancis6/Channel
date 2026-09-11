@@ -10,6 +10,8 @@ sinon en creer un nouveau (statut `nouveau`, revu de fait au CP3).
 | Composant | Parametres | Version | Statut | Videos |
 |---|---|---|---|---|
 | `TitleCard` | `texte` (string), `sousTitre` (string, optionnel) | 1 | valide | — |
+| `StickmanTalk` | `pose` (`"intro"` \| `"lean_in"` \| `"outro"`), `label` (string, optionnel) | 1 | nouveau | 2026-09-11_v01 |
+| `ConceptCutaway` | `scene` (`"llm_single_turn"` \| `"workflow_tools"` \| `"workflow_fixed_path"` \| `"agent_loop"` \| `"github_demo"`), `label` (string, optionnel) | 1 | nouveau | 2026-09-11_v01 |
 | `Subtitles`* | `mots` (MotHorodate[]) | 1 | valide | — |
 
 \* `Subtitles` n'est pas choisi par scene : il est surimprime automatiquement
