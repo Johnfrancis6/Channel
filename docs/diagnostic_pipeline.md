@@ -104,7 +104,17 @@ séparation, chaque nouvelle variante de `ConceptCutaway` exigerait un fichier
 fait à la main avant que la vidéo puisse tourner : chaque vidéo deviendrait
 une dépendance humaine.
 
-Reste ouvert : **d'où viennent les fichiers**, et sous quelle licence.
+**Provenance tranchée (11/09/2026)** : un **jeu de base réutilisable** de
+quatre fichiers dans `composants/lottie/` — stickman qui parle, qui pointe,
+qui réagit, plus une transition. Le stickman revient dans chaque vidéo :
+un seul bon fichier s'amortit sur toute la série. Les animations propres à
+une vidéo vont dans son `assets/`.
+
+Cahier des charges, contraintes techniques et licences dans
+`composants/lottie/README.md`. Point à ne pas négliger : une chaîne
+monétisable est un **usage commercial**, et les catalogues publics mélangent
+des licences qui l'autorisent et d'autres non. Un fichier sans licence
+identifiée ne rentre pas.
 
 ### Chaque vidéo a un dossier `assets/`
 
@@ -238,7 +248,8 @@ jamais vu.
 | 5 | E4 : 8 tentatives, `max_tentatives`=3, aucune alerte — 2 h 20 perdues | ⬜ |
 | 6 | Réajustement complet d'A2 (branche `sujet_impose`, gabarit 7 sections) | ⬜ |
 | 7 | Constante 2,5 → 3,2 mots/s dans `generer_storyboard.py` | ⬜ |
-| — | *Plus tard* : outils du Monteur, qualité d'animation | ⬜ |
+| — | *En attente de Franco* : les 4 fichiers du jeu de base Lottie | ⬜ |
+| — | *Plus tard* : reste des outils du Monteur (Rive, d3-ease, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer
 
@@ -247,6 +258,9 @@ réels, H1 et A3 (jamais tournés), E6 et E7.
 
 ## En attente de Franco
 
+- Les **4 fichiers Lottie du jeu de base** (`composants/lottie/README.md`
+  dit exactement ce qu'on attend et sous quelles contraintes). Rien ne
+  bloque en attendant : le Monteur rend en Remotion et le signale.
 - La **vidéo de référence** pour caler le vocabulaire de segmentation.
 - `00_Profil/projets_franco.md` — ce qu'il peut **montrer à l'écran**, pas
   seulement ce qu'il fait. Fichier qu'il écrit, qu'aucun agent n'écrit.

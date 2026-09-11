@@ -49,6 +49,10 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
   Avant, rien de tout ca ne t'etait adresse : `note_franco` ne figurait pas
   dans tes inputs, et l'intention de Franco ne t'arrivait que si le
   Chercheur l'avait recopiee dans sa recherche.
+- **`composants/lottie/README.md`** — le jeu de base Lottie reutilisable
+  (personnage, transitions) et ce que chaque fichier montre. Regarde-le
+  avant de demander une animation de personnage : elle existe peut-etre
+  deja.
 - **`videos/{video_id}/assets/`** — images d'inspiration et fichiers Lottie
   deposes par Franco pour **cette** video. Regarde-les : c'est la reference
   visuelle la plus directe dont tu disposes. Un `.json` Lottie qui s'y
@@ -188,6 +192,7 @@ tant que Franco n'a pas lance le run Colab.
   `note_franco`, `reference`, `format`, `idees_max`), `03_script_final.md`,
   `03_script_tts.txt`, `00_Profil/charte_visuelle/charte.json` (bloc
   `animation` compris) et `charte.md`, `videos/{video_id}/assets/`,
+  `composants/lottie/README.md`,
   `composants/REGISTRE.md`,
   `composants/src/components/registry.ts`
 - Ecrits : `videos/{video_id}/05_storyboard.md`, `05_storyboard.json`,

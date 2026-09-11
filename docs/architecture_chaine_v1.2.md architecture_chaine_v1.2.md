@@ -439,7 +439,7 @@ Le style visé est le **sticker animé** : formes pleines, contours nets, mouvem
 
 La raison est opérationnelle : `ConceptCutaway` a déjà cinq variantes et la prochaine vidéo en demandera d'autres. En Lottie, chaque nouveau schéma serait un fichier à produire à la main avant que la vidéo puisse tourner — chaque vidéo deviendrait une dépendance humaine, ce que le pipeline cherche précisément à éviter. Les deux techniques se superposent sans difficulté dans une même scène.
 
-Les fichiers vivent dans `videos/{id}/assets/` pour une vidéo donnée, dans `composants/lottie/` pour les récurrents.
+**Provenance** : un **jeu de base réutilisable** de quatre fichiers dans `composants/lottie/` — stickman qui parle, qui pointe, qui réagit, plus une transition. Le stickman revenant dans chaque vidéo, un seul bon fichier s'amortit sur toute la série. Les animations propres à une vidéo vivent dans son `assets/`. Cahier des charges, contraintes techniques et **licences** (une chaîne monétisable est un usage commercial) : `composants/lottie/README.md`.
 
 ### Durées de scènes
 

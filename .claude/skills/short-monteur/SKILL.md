@@ -95,8 +95,11 @@ garde en Remotion tout ce qui **varie d'une video a l'autre** (schemas,
 texte, chiffres, sous-titres). Sinon chaque nouvelle variante de schema
 exigerait un fichier fait a la main avant que la video puisse tourner.
 
-Ou trouver les fichiers : `videos/{video_id}/assets/` pour cette video,
-`composants/lottie/` pour les recurrents. Si `@remotion/lottie` n'est pas
+Ou trouver les fichiers : `composants/lottie/` pour le **jeu de base**
+reutilise d'une video a l'autre (voir son `README.md` : ce que chaque
+fichier montre, s'il boucle, sa licence), `videos/{video_id}/assets/` pour
+ce qui est propre a cette video. Recolore les couches aux tokens de
+`charte.json` plutot que de garder la palette du fichier d'origine. Si `@remotion/lottie` n'est pas
 encore installe, installe-le (`npm i @remotion/lottie lottie-web` dans
 `composants/`) et copie le `.json` dans `composants/public/lottie/` — le
 serveur de rendu sert les assets locaux depuis la, comme pour l'audio

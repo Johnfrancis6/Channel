@@ -133,6 +133,14 @@ serait un fichier a produire a la main avant de pouvoir tourner — chaque
 video deviendrait une dependance humaine. Les deux techniques se
 superposent sans probleme dans une meme scene.
 
+**Provenance des fichiers** : un **jeu de base reutilisable** de quatre
+fichiers dans `composants/lottie/` (stickman qui parle, qui pointe, qui
+reagit, plus une transition), rejoue d'une video a l'autre. Le stickman
+revient dans chaque video : un seul bon fichier s'amortit sur toute la
+serie. Les animations propres a une seule video vont dans
+`videos/{video_id}/assets/`. Cahier des charges, contraintes techniques et
+licences : `composants/lottie/README.md`.
+
 Pas de miniature pour l'instant (§4.3).
 """
 
@@ -263,7 +271,12 @@ CHARTE_JSON = {
             "actif": True,
             "fixe": ["personnage", "transition", "icone", "effet"],
             "variable": ["schema", "texte", "sous_titres"],
-            "dossiers": ["videos/{video_id}/assets/", "composants/lottie/"]
+            "dossiers": ["videos/{video_id}/assets/", "composants/lottie/"],
+            # Jeu de base reutilise d'une video a l'autre : peu de fichiers,
+            # mais coherents entre eux. Cahier des charges et licences dans
+            # composants/lottie/README.md.
+            "jeu_de_base": ["stickman_parle", "stickman_pointe",
+                            "stickman_reagit", "transition"]
         },
         "easing_entree": "ease-out",
         "easing_transition": "ease-in-out",
