@@ -111,11 +111,11 @@ Un seul trou connu : **CP2 n'a jamais été examiné sur un fichier réel.**
 | Son étape | `CP3`, `attente_validation` |
 | Audio / rendu | **82,5 s** contre **98,9 s** → 16,4 s d'écart |
 | `04_phrases.json` | **absent** (run antérieur à la révision) |
-| Tentatives E4 | **8** (4 runs F5-TTS à 93-98 % de WER, puis Qwen3-TTS à 0,87 %) |
+| Tentatives E4 | **8** déclarées, **9 échecs** enregistrés — deux échecs ne se rattachent à aucun run (anomalie de traçabilité). F5-TTS en deux régimes : 5 échecs à **93-98 %** (fuite de référence) puis 4 à **8-18 %** (marginaux). Qwen3-TTS ensuite : 0,87 % |
 | `orchestrateur_cmd` | `null` — le cron n'est pas branché |
 | `mode_agents` | `reel` ✅ |
 | `chaines_concurrentes.json` | `[]`, 2 octets — **vide** |
-| `lexique_prononciation.md` | 7 entrées **en épellation**, contraire au §7.4 |
+| `lexique_prononciation.md` | 7 entrées, dont **5 épelées** (`L L M`, `G P T five`, `v L L M`, `V S Code`, `M C P`) ; `Git Hub` scindée, `rag` légitime. Contraire au §7.4 |
 | `projets_franco.md` | **absent du Drive** (facultatif depuis le 11/09) |
 | `consignes` de la vidéo 1 | tout en `note_franco` libre ; les champs `format` / `reference` / `idees_max` sont postérieurs |
 
@@ -202,6 +202,28 @@ Plafond de tentatives appliqué dans le notebook (la règle vivait dans
 l'orchestrateur, qui ne tourne pas entre deux runs Colab), diagnostic WER
 gradué (structurel au-delà de 30 %), nom d'agent pris du state, et écriture
 de `04_phrases.json`.
+
+### Une piste ouverte au bloc 1, à instruire ici
+
+Le lexique fait prononcer `L L M`, `M C P`, `V S Code`. Si Whisper
+retranscrit `LLM`, le WER compte des erreurs qui n'en sont pas — ce qui
+expliquerait des runs F5-TTS bloqués à 8-18 % **sans défaut audio réel**.
+
+Deux faits à croiser avant de conclure :
+
+- le `03_script_tts.txt` **actuel** ne contient aucune forme épelée (`Step
+  one is the plain LLM`, `a VS Code tool called MCP`) — vérifié ;
+- mais il a été **modifié le 11/09 à 15:41**, soit après le dernier échec
+  (15:31) et juste avant le run Qwen3 réussi (15:45). Les runs à 8-18 % ont
+  donc tourné sur une version que personne n'a relue.
+
+La modification de 15:41 est peut-être exactement le retrait des
+épellations. **Le test est l'historique des versions du fichier sur le
+Drive** (Google Drive garde les révisions) : si la version d'avant 15:41
+contient `L L M`, l'hypothèse est confirmée et le §7.4 gagne sa preuve la
+plus solide. Sinon, elle tombe, et les 8-18 % restent à expliquer.
+
+Ne conclus pas sans cette version : c'est la seule donnée qui tranche.
 
 ### Le blocage concret à traiter
 
