@@ -41,7 +41,7 @@ export function dureeTotaleFrames(
 // calage sur l'audio est preserve, seule l'entree deborde.
 const CHEVAUCHEMENT_S = 0.25;
 
-export const Video: React.FC<VideoProps> = ({charte, scenes, mots, audioSrc}) => {
+export const Video: React.FC<VideoProps> = ({charte, scenes, mots, ressources, audioSrc}) => {
   const {fps, durationInFrames} = useVideoConfig();
   const chevauchement = Math.round(CHEVAUCHEMENT_S * fps);
 
@@ -83,7 +83,20 @@ export const Video: React.FC<VideoProps> = ({charte, scenes, mots, audioSrc}) =>
             name={scene.id}
           >
             {Composant ? (
-              <Composant charte={charte} da={scene.da} pulsationFrame={pulsationFrame} {...scene.params} />
+              <Composant
+                charte={charte}
+                da={scene.da}
+                pulsationFrame={pulsationFrame}
+                // `ressources` est passe a tous les composants comme `charte` :
+                // un composant recoit une **cle** dans ses params et lit le
+                // fichier ici. Ceux qui n'en ont pas besoin l'ignorent.
+                ressources={ressources}
+                // Sert a alterner les gestes d'une scene a l'autre (sens du
+                // punch-in, du glissement) : trois plans qui bougent
+                // exactement pareil redeviennent un seul plan.
+                indexScene={i}
+                {...scene.params}
+              />
             ) : (
               <ComposantInconnu nom={scene.composant} />
             )}

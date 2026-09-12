@@ -222,3 +222,39 @@ export function opaciteSortie(frame: number, dureeScene: number, fps: number): n
     easing: Easing.in(Easing.cubic),
   });
 }
+
+/**
+ * Punch-in : la camera se rapproche lentement sur toute la scene.
+ *
+ * Different de `styleContinu` : celui-ci derive pour que l'image ne soit pas
+ * morte (regle 8), celui-la est un **mouvement de plan**. Sur une capture
+ * d'ecran ou un b-roll, c'est ce qui distingue un plan d'une vignette collee
+ * au milieu du cadre.
+ *
+ * `da.rythme` en decide l'ampleur : `pose` respire a peine, `punch` entre
+ * franchement. Le sens s'inverse une scene sur deux (`index`) — trois plans
+ * d'affilee qui se rapprochent au meme rythme redeviennent un seul geste,
+ * pour la meme raison que le glissement lateral alterne son sens.
+ */
+export function punchIn(
+  frame: number,
+  fps: number,
+  dureeScene: number,
+  da?: DirectionArtistique,
+  index = 0,
+): React.CSSProperties {
+  const AMPLEUR: Record<RythmeDA, number> = {pose: 0.03, standard: 0.06, punch: 0.10};
+  const ampleur = AMPLEUR[da?.rythme ?? 'standard'] ?? 0.06;
+  // Un plan qui s'eloigne est aussi un plan : alterner evite que chaque
+  // capture de la video fasse exactement le meme geste.
+  const sens = index % 2 === 0 ? 1 : -1;
+  const p = interpolate(frame, [0, Math.max(1, dureeScene)], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    // Lineaire a dessein : un mouvement de camera lent qui ralentit en fin
+    // de plan se lit comme un ratage de rendu, pas comme une intention.
+    easing: Easing.linear,
+  });
+  const depart = sens === 1 ? 1 : 1 + ampleur;
+  return {transform: `scale(${depart + sens * ampleur * p})`};
+}

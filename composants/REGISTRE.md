@@ -28,6 +28,9 @@ pareil : c'est le style qui redevient improvise.
 | `TitleCard` | `texte` (string), `sousTitre` (string, optionnel) | 1 | valide | — |
 | `StickmanTalk` | `pose` (`"intro"` \| `"lean_in"` \| `"outro"`), `label` (string, optionnel) | 1 | nouveau | 2026-09-11_v01 |
 | `ConceptCutaway` | `scene` (`"llm_single_turn"` \| `"workflow_tools"` \| `"workflow_fixed_path"` \| `"agent_loop"` \| `"github_demo"` \| `"context7_demo"` \| `"playwright_demo"` \| `"firecrawl_demo"` \| `"higgsfield_demo"` \| `"github_mcp_demo"`), `label` (string, optionnel), `compteur` (string, optionnel, ex. `"1/5"`) | 2 | nouveau | 2026-09-11_v01, 2026-09-12_v01 |
+| `PlanCapture` | `capture` (cle de ressource), `logo` (cle, optionnel), `label` (string, optionnel), `cadrage` (`"haut"` \| `"centre"` \| `"bas"`), `hauteur` (px, defaut 980), `compteur` (string, optionnel) | 1 | nouveau | — |
+| `PlanBroll` | `broll` (cle de ressource : clip **ou** photo), `accroche` (string, optionnel), `compteur` (string, optionnel) | 1 | nouveau | — |
+| `PlanLogos` | `logos` (`{cle, libelle?}[]`), `label` (string, optionnel), `relier` (bool, defaut vrai), `compteur` (string, optionnel) | 1 | nouveau | — |
 | `Subtitles`* | `mots` (MotHorodate[]) | 1 | valide | — |
 
 Colonne `DA` : `oui` si le composant applique `da`, `partiel` s'il n'en
@@ -38,6 +41,42 @@ suit qu'une partie, `non` s'il l'ignore encore.
 | `TitleCard` | oui |
 | `StickmanTalk` | oui |
 | `ConceptCutaway` | oui |
+| `PlanCapture` | oui |
+| `PlanBroll` | oui |
+| `PlanLogos` | oui |
+
+### Les composants « contenants » (E5b, 12/09/2026)
+
+`PlanCapture`, `PlanBroll` et `PlanLogos` ne dessinent rien. Ils mettent en
+scene un **asset** resolu en amont par l'etape E5b et passe dans
+`props.ressources` — une table `cle -> {type, src, ...}` transmise a tous les
+composants comme `charte`. Un composant recoit une **cle** dans ses params
+et lit le fichier dans cette table.
+
+**Pourquoi ils existent.** Jusqu'au 12/09/2026, le seul asset du systeme
+etait `04_voixoff.wav`. Aucun composant n'utilisait `<Img>` ni
+`<OffthreadVideo>` : tout ce qui s'affichait devait d'abord etre dessine a la
+main en SVG. Creer un visuel neuf coutait donc un fichier `.tsx`, un
+typecheck, une entree au catalogue et une relecture au CP3 — alors que le
+reutiliser ne coutait rien. **Le barème disait « repete ».** C'est ainsi que
+cinq serveurs MCP ont rendu cinq fois le meme schema a trois boites avec
+d'autres mots.
+
+Avec ces trois composants, la variete vient de la **donnee** : cinq captures
+de cinq pages ne peuvent pas se ressembler, et ca ne coute pas une ligne de
+code de plus que la premiere.
+
+| Regle | Consequence |
+|---|---|
+| Une ressource absente affiche « Ressource manquante : <cle> » en clair | un trou se voit au catalogue et au CP3, au lieu d'un cadre noir |
+| `PlanCapture` met la capture a la **largeur** du cadre | un `objectFit: cover` rognait 30 % de la largeur — navigation et panneau lateral disparaissaient |
+| `PlanBroll` accepte un clip **ou une photo** | les banques libres servent les deux, et une photo qui se rapproche est un plan de liaison valable |
+| `PlanBroll` coupe toujours le son du clip | la seule piste audio de la video est la voix off |
+| `PlanLogos` calcule la taille des pastilles selon leur nombre | une taille fixe laissait plus de la moitie du 1080x1920 vide |
+
+Les assets d'exemple du catalogue vivent dans `composants/apercus_assets/`
+(versionne), recopies dans `public/apercus/` au moment du rendu — `public/`
+est ignore par git et peut etre vide sur un depot fraichement clone.
 
 ### `ConceptCutaway` v2 — famille « serveur MCP » (2026-09-12_v01)
 

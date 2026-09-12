@@ -142,13 +142,21 @@ python3 <chemin-du-skill>/scripts/construire_props.py \
   --timestamps <racine>/videos/<video_id>/04_timestamps.json \
   --phrases <racine>/videos/<video_id>/04_phrases.json \
   --audio <racine>/videos/<video_id>/04_voixoff.wav \
+  --ressources <racine>/videos/<video_id>/05b_ressources.json \
   --sortie /tmp/<video_id>_props.json
 ```
 
-Ce script fait deux choses :
+Ce script fait trois choses :
 
 - il normalise `04_timestamps.json` quel que soit son format exact (cles
   `word`/`start`/`end` ou `mot`/`debut_s`/`fin_s`) ;
+- avec `--ressources`, il **copie les assets** de `05b_ressources.json`
+  (captures, logos, images, b-roll) dans `composants/public/` et remplit
+  `props.ressources`, la table que les composants `Plan*` consultent. Le
+  serveur de rendu de Remotion ne sert que ce dossier : un chemin absolu ou
+  une URI `file://` echouent tous les deux. Une ressource dont le fichier
+  manque est **omise** — le composant affiche « Ressource manquante » en
+  clair, ce qui se voit, plutot qu'un cadre noir que personne ne remarque ;
 - avec `--phrases`, il **recale les durees de scenes sur l'audio reel**.
   Sans ce recalage, les scenes gardent l'estimation a ~2.5 mots/s du
   storyboard : le visuel derive de la voix, et la video se termine avant ou

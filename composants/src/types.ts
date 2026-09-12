@@ -53,6 +53,18 @@ export type RythmeDA = 'pose' | 'standard' | 'punch';
 // Lottie ecarte (11/09/2026) : tout est code en Remotion.
 export type TechniqueDA = 'spring' | 'interpolate' | 'statique';
 
+// Transition vers la scene suivante, choisie par A6 scene par scene.
+// Avant, Video.tsx appliquait un fondu enchaine de 0,25 s code en dur,
+// identique sur les dix coupes : une signature unique et repetee se lit
+// comme un diaporama, exactement comme l'absence de transition se lisait
+// comme onze coupes seches.
+export type TransitionSortie =
+  | 'fondu'
+  | 'glissement'
+  | 'balayage'
+  | 'iris'
+  | 'coupe';
+
 export type DirectionArtistique = {
   mouvement: MouvementDA;
   rythme: RythmeDA;
@@ -85,11 +97,74 @@ export type Scene = {
   // phrase, le timestamp reel vient de 04_phrases.json. Absent quand la DA ne
   // demande pas d'accent ponctuel.
   pulsation_s?: number;
+  // Assets a aller chercher pour cette scene (E5b). Ecrits par A6, resolus
+  // par A8 ; inertes au rendu, ou seule compte `Ressources`.
+  besoins?: Besoin[];
+  // Transition vers la scene suivante. Absente = valeur par defaut de la
+  // charte. Ignoree sur la derniere scene.
+  transition_sortie?: TransitionSortie;
   // A6 n'a pas encore tranche le composant / les params / la DA.
   a_completer?: boolean;
   // Direction artistique de la scene, decidee par A6 (§8). Optionnelle :
   // un storyboard produit avant la revue du 11/09/2026 n'en a pas.
   da?: DirectionArtistique;
+};
+
+// --- Ressources (E5b) -------------------------------------------------
+// Ce qui manquait au systeme : un chemin pour qu'un pixel non dessine en SVG
+// arrive a l'ecran. Avant, le seul asset du pipeline etait 04_voixoff.wav,
+// copie en dur dans public/ par construire_props.py ; aucun composant
+// n'utilisait <Img> ni <OffthreadVideo>. Resultat : tout ce qui s'affichait
+// devait d'abord etre dessine a la main dans un .tsx, ce qui rendait la
+// variete structurellement plus chere que la repetition.
+
+export type TypeRessource = 'logo' | 'capture' | 'image' | 'broll';
+
+/** Un asset resolu par A8, pret a etre affiche. */
+export type Ressource = {
+  type: TypeRessource;
+  // URL servie par le bundle de rendu (prefixe /public/), pas un chemin
+  // disque : un chemin absolu ou une URI file:// echouent tous les deux.
+  src: string;
+  largeur_px?: number;
+  hauteur_px?: number;
+  // Broll uniquement : duree du clip. Sert a le boucler quand le recalage
+  // sur l'audio rend la scene plus longue que lui — sinon la fin du plan
+  // est un ecran noir, et le recalage peut allonger une scene bien apres
+  // qu'A8 a choisi le clip.
+  duree_s?: number;
+  // D'ou vient le fichier, et sous quelle licence. Trace parce qu'on publie
+  // sur YouTube : une capture d'ecran, un logo CC0 et une image generee
+  // n'engagent pas la meme chose.
+  provenance?: string;
+  licence?: string;
+};
+
+/** Table des ressources de la video, indexee par la cle choisie par A6. */
+export type Ressources = Record<string, Ressource>;
+
+/**
+ * Un besoin declare par A6 dans le storyboard, resolu par A8 (E5b) en une
+ * entree de `Ressources` portant la meme `cle`.
+ *
+ * C'est le renversement de contrat : A6 ne nomme plus une cle de composant
+ * opaque (`scene="context7_demo"`), il declare **ce qu'il faut aller
+ * chercher**. Deux scenes voisines qui declarent deux URL differentes ne
+ * peuvent pas rendre la meme image — ce que cinq variantes de
+ * ConceptCutaway, elles, faisaient.
+ */
+export type Besoin = {
+  cle: string;
+  type: TypeRessource;
+  // Logo : le nom de la marque (resolu sur Simple Icons).
+  // Image / broll : la requete en clair.
+  requete?: string;
+  // Capture : la page a photographier.
+  url?: string;
+  // Broll : duree minimale utile, pour ecarter les clips trop courts.
+  duree_min_s?: number;
+  // Une scene peut se rendre sans (repli sur le texte seul).
+  obligatoire?: boolean;
 };
 
 // Un mot avec ses timestamps, tel que produit par faster-whisper sur
@@ -104,6 +179,10 @@ export type VideoProps = {
   charte: CharteTokens;
   scenes: Scene[];
   mots: MotHorodate[];
+  // Table des assets resolus par A8, passee a tous les composants comme
+  // `charte` : un composant recoit une **cle** dans ses params et lit le
+  // fichier ici. Absente sur une video montee avant E5b.
+  ressources?: Ressources;
   audioSrc?: string;
   // Duree reelle de 04_voixoff.wav. La composition ne doit jamais durer
   // moins que l'audio, sinon la voix off est coupee en fin de video.

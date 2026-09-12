@@ -78,6 +78,42 @@ python3 outils/generer_apercus.py
 
 - Parametres : `scene` = `github_mcp_demo`, `label` = `GITHUB MCP`, `compteur` = `5/5`
 
+## PlanBroll
+
+### photo-accroche
+
+![PlanBroll — photo-accroche](PlanBroll-photo-accroche.png)
+
+- Parametres : `broll` = `fond`, `accroche` = `3 minutes`
+
+## PlanCapture
+
+### capture-seule
+
+![PlanCapture — capture-seule](PlanCapture-capture-seule.png)
+
+- Parametres : `capture` = `page`, `label` = `LA VRAIE PAGE`
+
+### capture-logo-compteur
+
+![PlanCapture — capture-logo-compteur](PlanCapture-capture-logo-compteur.png)
+
+- Parametres : `capture` = `page`, `logo` = `marque`, `label` = `CONTEXT7 MCP`, `compteur` = `1/5`
+
+### ressource-manquante
+
+![PlanCapture — ressource-manquante](PlanCapture-ressource-manquante.png)
+
+- Parametres : `capture` = `page_absente`, `label` = `REPLI VISIBLE`
+
+## PlanLogos
+
+### trois-logos-relies
+
+![PlanLogos — trois-logos-relies](PlanLogos-trois-logos-relies.png)
+
+- Parametres : `label` = `CE QUI SE BRANCHE`, `logos` = `[{'cle': 'a', 'libelle': 'CLAUDE'}, {'cle': 'b', 'libelle': 'MCP'}, {'cle': 'c', 'libelle': 'GITHUB'}]`
+
 ## StickmanTalk
 
 ### intro

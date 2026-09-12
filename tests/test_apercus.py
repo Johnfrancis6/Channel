@@ -114,12 +114,32 @@ class TestVariantes(unittest.TestCase):
         self.assertEqual(len(generer_apercus.variantes(self.DECLARATION)), 3)
 
     def test_nom_derive_si_absent(self):
-        noms = [n for c, n, _, _ in generer_apercus.variantes(self.DECLARATION) if c == "A"]
+        noms = [n for c, n, _, _, _ in generer_apercus.variantes(self.DECLARATION) if c == "A"]
         self.assertIn("v2", noms)
+
+    def test_ressources_de_la_variante_sont_transmises(self):
+        """Les composants « contenants » (PlanCapture, PlanBroll, PlanLogos) ne
+        rendent rien sans asset : leur declaration porte une table
+        `ressources` que le rendu doit recevoir telle quelle."""
+        declaration = {"PlanCapture": [
+            {"nom": "avec-asset", "params": {"capture": "page"},
+             "ressources": {"page": {"type": "capture", "src": "/public/apercus/x.png"}}}]}
+        (_, _, _, _, ressources), = generer_apercus.variantes(declaration)
+        self.assertEqual(ressources["page"]["src"], "/public/apercus/x.png")
+        props = generer_apercus.props_pour("PlanCapture", {"capture": "page"}, None,
+                                           generer_apercus.charte_par_defaut(), ressources)
+        self.assertEqual(props["ressources"], ressources)
+
+    def test_props_sans_ressources_nomet_pas_la_cle(self):
+        """Une video montee avant E5b n'a pas de ressources : la cle ne doit
+        pas apparaitre a vide dans les props."""
+        props = generer_apercus.props_pour("TitleCard", {}, None,
+                                           generer_apercus.charte_par_defaut(), {})
+        self.assertNotIn("ressources", props)
 
     def test_filtre_par_composant(self):
         resultat = generer_apercus.variantes(self.DECLARATION, "B")
-        self.assertEqual([c for c, _, _, _ in resultat], ["B"])
+        self.assertEqual([c for c, _, _, _, _ in resultat], ["B"])
 
 
 class TestDeploiementOutils(unittest.TestCase):

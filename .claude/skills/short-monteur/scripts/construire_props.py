@@ -162,7 +162,7 @@ def recaler_scenes(scenes, phrases_json):
     return scenes_recalees, fin_audio, avertissements
 
 
-def construire(charte, storyboard, timestamps_bruts, audio=None, phrases_json=None):
+def construire(charte, storyboard, timestamps_bruts, audio=None, phrases_json=None, ressources=None):
     scenes = storyboard.get("scenes", [])
     if not scenes:
         raise ValueError("Aucune scene dans le storyboard.")
@@ -176,6 +176,8 @@ def construire(charte, storyboard, timestamps_bruts, audio=None, phrases_json=No
             "(~2.5 mots/s) et ne suivent pas la voix off."
         )
     props = {"charte": charte, "scenes": scenes, "mots": normaliser_mots(timestamps_bruts)}
+    if ressources:
+        props["ressources"] = ressources
     if duree_audio_s is not None:
         props["duree_audio_s"] = duree_audio_s
     if audio:
@@ -183,15 +185,21 @@ def construire(charte, storyboard, timestamps_bruts, audio=None, phrases_json=No
     return props, avertissements
 
 
-def preparer_audio_public(audio_path):
-    """Copie l'audio dans composants/public/ (§8) : le serveur de rendu de
-    Remotion sert les assets locaux depuis ce dossier, a la racine — un
-    chemin absolu brut ou une URI file:// echouent tous les deux (404 /
-    protocole non supporte). Suppose cwd == composants/ (cf. skill A7,
-    etape 4)."""
-    source = Path(audio_path).resolve()
-    video_id = source.parent.name
-    dossier_public = Path("public") / "audio" / video_id
+def copier_vers_public(source, video_id, categorie):
+    """Copie un fichier dans composants/public/ et rend l'URL que le rendu
+    saura servir.
+
+    Le serveur de rendu de Remotion ne sert que ce dossier : un chemin
+    absolu brut ou une URI file:// echouent tous les deux (404 / protocole
+    non supporte). Suppose cwd == composants/ (cf. skill A7, etape 4).
+
+    Ce tuyau existait deja, mais cable en dur pour 04_voixoff.wav — c'etait
+    le **seul** asset du systeme, et la raison pour laquelle tout ce qui
+    s'affichait devait d'abord etre dessine a la main en SVG. Le generaliser
+    est ce qui ouvre les captures, les logos, les images et le b-roll.
+    """
+    source = Path(source).resolve()
+    dossier_public = Path("public") / categorie / video_id
     dossier_public.mkdir(parents=True, exist_ok=True)
     dest = dossier_public / source.name
     shutil.copyfile(source, dest)
@@ -199,7 +207,60 @@ def preparer_audio_public(audio_path):
     # /public/ (copie dans <outDir>/public par @remotion/bundler), pas a la
     # racine — verifie empiriquement, staticFile() ne s'applique pas ici
     # puisque ce chemin est ecrit en dur dans les props JSON.
-    return f"/public/audio/{video_id}/{source.name}"
+    return f"/public/{categorie}/{video_id}/{source.name}"
+
+
+def preparer_audio_public(audio_path):
+    """Cas particulier historique : la voix off (§8)."""
+    source = Path(audio_path).resolve()
+    return copier_vers_public(source, source.parent.name, "audio")
+
+
+# Les cles du fichier de ressources qu'on recopie telles quelles dans les
+# props. Liste explicite : une cle interne a A8 (cout, requete d'origine,
+# tentatives) n'a rien a faire dans le bundle de rendu.
+CLES_RESSOURCE = ("type", "largeur_px", "hauteur_px", "duree_s", "provenance", "licence")
+
+
+def preparer_ressources(chemin_ressources):
+    """Resout 05b_ressources.json (ecrit par A8, E5b) en une table prete pour
+    le rendu : chaque fichier est copie dans public/ et sa cle porte l'URL.
+
+    Retourne (ressources, avertissements). Une ressource dont le fichier
+    manque est **omise** plutot que fausse : le composant affiche alors
+    « Ressource manquante » en clair, ce qui se voit au catalogue et au CP3.
+    Une URL qui pointe dans le vide, elle, produirait un trou noir que
+    personne ne remarque.
+    """
+    chemin = Path(chemin_ressources)
+    if not chemin.is_file():
+        return {}, [f"Aucun fichier de ressources a {chemin} : les plans qui en "
+                    f"attendent afficheront « Ressource manquante »."]
+    with open(chemin, encoding="utf-8-sig") as f:
+        brut = json.load(f)
+
+    dossier_video = chemin.resolve().parent
+    video_id = brut.get("video_id") or dossier_video.name
+    table = brut.get("ressources") or {}
+
+    ressources = {}
+    avertissements = []
+    for cle, r in table.items():
+        rel = r.get("chemin")
+        if not rel:
+            avertissements.append(f"Ressource « {cle} » sans champ `chemin` — ignoree.")
+            continue
+        source = Path(rel)
+        if not source.is_absolute():
+            source = dossier_video / rel
+        if not source.is_file():
+            avertissements.append(f"Ressource « {cle} » introuvable : {source} — ignoree.")
+            continue
+        entree = {k: r[k] for k in CLES_RESSOURCE if k in r}
+        entree["src"] = copier_vers_public(source, video_id, "assets")
+        entree.setdefault("type", "image")
+        ressources[cle] = entree
+    return ressources, avertissements
 
 
 def main():
@@ -209,6 +270,8 @@ def main():
     ap.add_argument("--timestamps", required=True)
     ap.add_argument("--phrases", help="04_phrases.json (bornes par phrase) — recale les durees de scenes.")
     ap.add_argument("--audio")
+    ap.add_argument("--ressources",
+                    help="05b_ressources.json (ecrit par A8, E5b) — captures, logos, images, b-roll.")
     ap.add_argument("--sortie", required=True)
     a = ap.parse_args()
 
@@ -228,8 +291,13 @@ def main():
 
     audio_src = preparer_audio_public(a.audio) if a.audio else None
 
+    ressources, avert_ressources = ({}, [])
+    if a.ressources:
+        ressources, avert_ressources = preparer_ressources(a.ressources)
+
     try:
-        props, avertissements = construire(charte, storyboard, timestamps_bruts, audio_src, phrases_json)
+        props, avertissements = construire(charte, storyboard, timestamps_bruts, audio_src,
+                                           phrases_json, ressources)
     except ValueError as e:
         print(json.dumps({"ok": False, "message": str(e)}, ensure_ascii=False))
         sys.exit(2)
@@ -240,10 +308,12 @@ def main():
     # Le recalage se constate sur les scenes elles-memes (`duree_s_storyboard`
     # n'est ecrit que par recaler_scenes), pas sur l'absence d'avertissement :
     # un accent non resolu n'empeche pas les durees d'etre calees.
+    avertissements = avert_ressources + avertissements
     recalees = [s for s in props["scenes"] if "duree_s_storyboard" in s]
     pulsations = {s["id"]: s["pulsation_s"] for s in props["scenes"] if "pulsation_s" in s}
     print(json.dumps({"ok": True, "sortie": a.sortie, "nb_scenes": len(props["scenes"]),
                       "nb_mots": len(props["mots"]),
+                      "nb_ressources": len(ressources),
                       "duree_audio_s": props.get("duree_audio_s"),
                       "scenes_recalees": len(recalees) == len(props["scenes"]) and bool(recalees),
                       "pulsations_s": pulsations,

@@ -1,23 +1,226 @@
 {
   "TitleCard": [
-    {"nom": "titre-seul", "params": {"texte": "Most of them are not agents."}},
-    {"nom": "titre-et-sous-titre", "params": {"texte": "What changed this week", "sousTitre": "AI news, decoded"}}
+    {
+      "nom": "titre-seul",
+      "params": {
+        "texte": "Most of them are not agents."
+      }
+    },
+    {
+      "nom": "titre-et-sous-titre",
+      "params": {
+        "texte": "What changed this week",
+        "sousTitre": "AI news, decoded"
+      }
+    }
   ],
   "StickmanTalk": [
-    {"nom": "intro", "params": {"pose": "intro"}},
-    {"nom": "lean-in", "params": {"pose": "lean_in", "label": "REAL EXAMPLE"}},
-    {"nom": "outro", "params": {"pose": "outro"}}
+    {
+      "nom": "intro",
+      "params": {
+        "pose": "intro"
+      }
+    },
+    {
+      "nom": "lean-in",
+      "params": {
+        "pose": "lean_in",
+        "label": "REAL EXAMPLE"
+      }
+    },
+    {
+      "nom": "outro",
+      "params": {
+        "pose": "outro"
+      }
+    }
   ],
   "ConceptCutaway": [
-    {"nom": "llm-single-turn", "params": {"scene": "llm_single_turn", "label": "STEP 1 — LLM"}},
-    {"nom": "workflow-tools", "params": {"scene": "workflow_tools", "label": "STEP 2 — AI WORKFLOW"}},
-    {"nom": "workflow-fixed-path", "params": {"scene": "workflow_fixed_path", "label": "FIXED PATH"}},
-    {"nom": "agent-loop", "params": {"scene": "agent_loop", "label": "STEP 3 — AI AGENT"}},
-    {"nom": "github-demo", "params": {"scene": "github_demo", "label": "CLAUDE + GITHUB"}},
-    {"nom": "context7-demo", "params": {"scene": "context7_demo", "label": "CONTEXT7 MCP", "compteur": "1/5"}},
-    {"nom": "playwright-demo", "params": {"scene": "playwright_demo", "label": "PLAYWRIGHT MCP", "compteur": "2/5"}},
-    {"nom": "firecrawl-demo", "params": {"scene": "firecrawl_demo", "label": "FIRECRAWL MCP", "compteur": "3/5"}},
-    {"nom": "higgsfield-demo", "params": {"scene": "higgsfield_demo", "label": "HIGGSFIELD MCP", "compteur": "4/5"}},
-    {"nom": "github-mcp-demo", "params": {"scene": "github_mcp_demo", "label": "GITHUB MCP", "compteur": "5/5"}}
+    {
+      "nom": "llm-single-turn",
+      "params": {
+        "scene": "llm_single_turn",
+        "label": "STEP 1 — LLM"
+      }
+    },
+    {
+      "nom": "workflow-tools",
+      "params": {
+        "scene": "workflow_tools",
+        "label": "STEP 2 — AI WORKFLOW"
+      }
+    },
+    {
+      "nom": "workflow-fixed-path",
+      "params": {
+        "scene": "workflow_fixed_path",
+        "label": "FIXED PATH"
+      }
+    },
+    {
+      "nom": "agent-loop",
+      "params": {
+        "scene": "agent_loop",
+        "label": "STEP 3 — AI AGENT"
+      }
+    },
+    {
+      "nom": "github-demo",
+      "params": {
+        "scene": "github_demo",
+        "label": "CLAUDE + GITHUB"
+      }
+    },
+    {
+      "nom": "context7-demo",
+      "params": {
+        "scene": "context7_demo",
+        "label": "CONTEXT7 MCP",
+        "compteur": "1/5"
+      }
+    },
+    {
+      "nom": "playwright-demo",
+      "params": {
+        "scene": "playwright_demo",
+        "label": "PLAYWRIGHT MCP",
+        "compteur": "2/5"
+      }
+    },
+    {
+      "nom": "firecrawl-demo",
+      "params": {
+        "scene": "firecrawl_demo",
+        "label": "FIRECRAWL MCP",
+        "compteur": "3/5"
+      }
+    },
+    {
+      "nom": "higgsfield-demo",
+      "params": {
+        "scene": "higgsfield_demo",
+        "label": "HIGGSFIELD MCP",
+        "compteur": "4/5"
+      }
+    },
+    {
+      "nom": "github-mcp-demo",
+      "params": {
+        "scene": "github_mcp_demo",
+        "label": "GITHUB MCP",
+        "compteur": "5/5"
+      }
+    }
+  ],
+  "PlanCapture": [
+    {
+      "nom": "capture-seule",
+      "params": {
+        "capture": "page",
+        "label": "LA VRAIE PAGE"
+      },
+      "ressources": {
+        "page": {
+          "type": "capture",
+          "src": "/public/apercus/capture-exemple.png",
+          "largeur_px": 1400,
+          "hauteur_px": 900,
+          "provenance": "capture:https://example.com",
+          "licence": "capture-ecran"
+        }
+      }
+    },
+    {
+      "nom": "capture-logo-compteur",
+      "params": {
+        "capture": "page",
+        "logo": "marque",
+        "label": "CONTEXT7 MCP",
+        "compteur": "1/5"
+      },
+      "ressources": {
+        "page": {
+          "type": "capture",
+          "src": "/public/apercus/capture-exemple.png",
+          "largeur_px": 1400,
+          "hauteur_px": 900,
+          "provenance": "capture:https://example.com",
+          "licence": "capture-ecran"
+        },
+        "marque": {
+          "type": "logo",
+          "src": "/public/apercus/logo-exemple.svg",
+          "provenance": "exemple-catalogue",
+          "licence": "interne"
+        }
+      }
+    },
+    {
+      "nom": "ressource-manquante",
+      "params": {
+        "capture": "page_absente",
+        "label": "REPLI VISIBLE"
+      },
+      "ressources": {}
+    }
+  ],
+  "PlanBroll": [
+    {
+      "nom": "photo-accroche",
+      "params": {
+        "broll": "fond",
+        "accroche": "3 minutes"
+      },
+      "ressources": {
+        "fond": {
+          "type": "image",
+          "src": "/public/apercus/capture-exemple.png",
+          "provenance": "exemple-catalogue",
+          "licence": "interne"
+        }
+      }
+    }
+  ],
+  "PlanLogos": [
+    {
+      "nom": "trois-logos-relies",
+      "params": {
+        "label": "CE QUI SE BRANCHE",
+        "logos": [
+          {
+            "cle": "a",
+            "libelle": "CLAUDE"
+          },
+          {
+            "cle": "b",
+            "libelle": "MCP"
+          },
+          {
+            "cle": "c",
+            "libelle": "GITHUB"
+          }
+        ]
+      },
+      "ressources": {
+        "a": {
+          "type": "logo",
+          "src": "/public/apercus/logo-exemple.svg",
+          "provenance": "exemple-catalogue",
+          "licence": "interne"
+        },
+        "b": {
+          "type": "logo",
+          "src": "/public/apercus/logo-exemple.svg",
+          "provenance": "exemple-catalogue",
+          "licence": "interne"
+        },
+        "c": {
+          "type": "logo",
+          "src": "/public/apercus/logo-exemple.svg",
+          "provenance": "exemple-catalogue",
+          "licence": "interne"
+        }
+      }
+    }
   ]
 }

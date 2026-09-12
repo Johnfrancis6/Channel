@@ -29,6 +29,7 @@ Sortie : JSON sur stdout. Codes :
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -57,6 +58,13 @@ COMPOSANTS = REPO_ROOT / "composants"
 DECLARATION = COMPOSANTS / "apercus.json"
 SORTIE_DIR = COMPOSANTS / "apercus"
 REGISTRY_TS = COMPOSANTS / "src" / "components" / "registry.ts"
+# Assets d'exemple du catalogue, versionnes (contrairement a public/, qui est
+# ignore par git). Les composants « contenants » — PlanCapture, PlanBroll,
+# PlanLogos — ne dessinent rien par eux-memes : sans fichier a afficher, leur
+# apercu ne montrerait que le repli « Ressource manquante », donc rien de ce
+# que A6 a besoin de voir pour choisir.
+APERCUS_ASSETS = COMPOSANTS / "apercus_assets"
+PUBLIC_APERCUS = COMPOSANTS / "public" / "apercus"
 
 # 1 s : apres l'animation d'entree (~0,3 s par defaut), donc en regime
 # etabli. Une frame 0 montrerait surtout des elements a opacite zero.
@@ -97,6 +105,20 @@ def charte_par_defaut():
     }
 
 
+def publier_assets_exemple():
+    """Recopie apercus_assets/ dans public/apercus/, seul dossier que le
+    serveur de rendu de Remotion sait servir. Retourne le nombre de fichiers."""
+    if not APERCUS_ASSETS.is_dir():
+        return 0
+    PUBLIC_APERCUS.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for f in sorted(APERCUS_ASSETS.iterdir()):
+        if f.is_file():
+            shutil.copyfile(f, PUBLIC_APERCUS / f.name)
+            n += 1
+    return n
+
+
 def variantes(declaration, filtre=None):
     """[(composant, nom_variante, params, da)] a rendre."""
     resultat = []
@@ -105,11 +127,12 @@ def variantes(declaration, filtre=None):
             continue
         for i, variante in enumerate(liste or []):
             nom = variante.get("nom") or f"v{i + 1}"
-            resultat.append((composant, nom, variante.get("params") or {}, variante.get("da")))
+            resultat.append((composant, nom, variante.get("params") or {}, variante.get("da"),
+                             variante.get("ressources") or {}))
     return resultat
 
 
-def props_pour(composant, params, da, charte):
+def props_pour(composant, params, da, charte, ressources=None):
     scene = {"id": "apercu", "composant": composant, "duree_s": DUREE_SCENE_S, "params": params}
     if da:
         scene["da"] = da
@@ -121,17 +144,20 @@ def props_pour(composant, params, da, charte):
     # ce que la video montrera » : ce n'etait pas vrai sur ce point.
     mots = [{"mot": "apercu", "debut_s": 0.0, "fin_s": 0.6},
             {"mot": "sous-titre", "debut_s": 0.6, "fin_s": 1.4}]
-    return {"charte": charte, "scenes": [scene], "mots": mots}
+    props = {"charte": charte, "scenes": [scene], "mots": mots}
+    if ressources:
+        props["ressources"] = ressources
+    return props
 
 
-def rendre(composant, nom, params, da, charte, frame, browser):
+def rendre(composant, nom, params, da, charte, frame, browser, ressources=None):
     SORTIE_DIR.mkdir(parents=True, exist_ok=True)
     sortie = SORTIE_DIR / f"{composant}-{nom}.png"
 
     fd, chemin_props = tempfile.mkstemp(suffix=".json", prefix="apercu_")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
-            json.dump(props_pour(composant, params, da, charte), f, ensure_ascii=False)
+            json.dump(props_pour(composant, params, da, charte, ressources), f, ensure_ascii=False)
 
         env = dict(os.environ)
         if browser:
@@ -200,11 +226,15 @@ def main():
 
     declaration = charger_declaration()
     a_rendre = variantes(declaration, a.composant)
+    # Avant tout rendu : les composants « contenants » lisent leurs fichiers
+    # depuis public/, qui n'est pas versionne et peut donc etre vide sur un
+    # depot fraichement clone.
+    nb_assets = publier_assets_exemple()
     if not a_rendre:
         sortir(2, message=f"Aucune variante a rendre{' pour ' + a.composant if a.composant else ''}.")
 
     if a.liste:
-        sortir(0, variantes=[{"composant": c, "nom": n, "params": p} for c, n, p, _ in a_rendre])
+        sortir(0, variantes=[{"composant": c, "nom": n, "params": p} for c, n, p, _, _ in a_rendre])
 
     if not (COMPOSANTS / "node_modules").is_dir():
         sortir(4, message="composants/node_modules absent — lance 'npm install' dans composants/")
@@ -216,8 +246,8 @@ def main():
             charte = {**charte, **json.loads(chemin.read_text(encoding="utf-8-sig"))}
 
     rendus, echecs = [], []
-    for composant, nom, params, da in a_rendre:
-        chemin, erreur = rendre(composant, nom, params, da, charte, a.frame, a.browser)
+    for composant, nom, params, da, ressources in a_rendre:
+        chemin, erreur = rendre(composant, nom, params, da, charte, a.frame, a.browser, ressources)
         if erreur:
             echecs.append({"composant": composant, "variante": nom, "erreur": erreur})
         else:
@@ -229,7 +259,8 @@ def main():
     if echecs and not rendus:
         sortir(6, message="Aucun apercu n'a pu etre rendu.", echecs=echecs)
 
-    sortir(0, rendus=[{"composant": c, "variante": n, "fichier": Path(f).name}
+    sortir(0, assets_exemple=nb_assets,
+           rendus=[{"composant": c, "variante": n, "fichier": Path(f).name}
                       for c, n, _, _, f in rendus],
            catalogue=str(SORTIE_DIR / "README.md"),
            echecs=echecs)

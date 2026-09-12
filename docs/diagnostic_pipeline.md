@@ -431,6 +431,119 @@ n'est plus qu'un rappel borné à 1200 caractères.
 Vérifié sur le dossier reconstitué de `2026-09-11_v01` : l'écart de
 **16,3 s** apparaît en troisième ligne.
 
+## E5b — La matiere manquait, pas la description (12/09/2026)
+
+Point de depart : « les animations sont monotones ». Premier reflexe, le
+mien comme celui de Franco : **A6 devrait mieux decrire pour guider A7.**
+
+C'est faux, et le depot le prouvait deja. La couche de description existe et
+elle est bonne : le SKILL d'A6 impose `05_cadrage.md` avec la consigne
+« decris l'image, jamais la cle », exemples a l'appui ; le SKILL d'A7 ordonne
+de le lire en premier et lui donne autorite sur l'intention. Tout ca etait
+ecrit avant cette seance. **Et le resultat restait monotone.**
+
+Trois verrous en dessous, aucun n'etant un probleme de langage.
+
+### Verrou 1 — On avait optimise pour la constance, on avait obtenu l'uniformite
+
+La regle du Monteur — « reutiliser, sinon etendre, sinon creer » — a ete
+ecrite pour empecher la derive stylistique, et elle marche. Mais creer un
+visuel neuf coute un `.tsx`, un typecheck, une entree au catalogue et une
+relecture au CP3, la ou le reutiliser ne coute rien.
+
+**Le barème disait « repete ».** A7 est un agent rationnel face a un barème.
+C'est ainsi que cinq serveurs MCP ont rendu cinq fois le meme schema a trois
+boites avec d'autres mots.
+
+### Verrou 2 — Aucune etape ne produisait de matiere
+
+Sept agents, et pas un qui aille chercher une image, un logo, une video ou
+une capture. `videos/{id}/assets/` existait, mais comme moodboard *regarde*
+par A6 et A7, jamais comme stock *compose*. Entre « on sait quoi montrer » et
+« on monte », personne n'allait chercher la chose.
+
+### Verrou 3 — Un seul tuyau d'asset, reserve au son
+
+`construire_props.py` copiait `04_voixoff.wav` dans `composants/public/` et
+rendait `/public/audio/...`. C'etait **toute** la plomberie d'assets du
+systeme. Consequence directe : `<Img>` et `<OffthreadVideo>` n'apparaissaient
+nulle part dans les composants. Il n'existait aucun chemin pour qu'un pixel
+non dessine en SVG atteigne l'ecran.
+
+### Ce qui a ete fait
+
+- **Le tuyau est generalise** : `copier_vers_public(source, video_id,
+  categorie)`. L'audio en devient un cas particulier.
+- **Un contrat de ressources** : `Besoin[]` dans le storyboard (ce qu'A6
+  declare), `05b_ressources.json` (ce qu'A8 resout), `props.ressources`
+  (ce que le rendu consomme), passe a tous les composants comme `charte`.
+- **Trois composants « contenants »** — `PlanCapture`, `PlanBroll`,
+  `PlanLogos` — qui ne dessinent rien et mettent en scene un asset. La
+  variete vient desormais de la **donnee** : cinq captures de cinq pages ne
+  peuvent pas se ressembler, et la cinquieme ne coute pas une ligne de plus
+  que la premiere.
+- **`outils/capturer_web.py`** : capture d'une page en PNG, **sans nouvelle
+  dependance** — on pilote le Chromium que Remotion telecharge deja. Ajouter
+  Playwright aurait installe un second navigateur pour faire ce que le
+  premier sait faire.
+- **`outils/recuperer_logo.py`** : le vrai logo d'une marque en SVG
+  (Simple Icons, CC0), depose dans la banque partagee.
+
+### Le controle qui se croyait vert — trois fois de suite
+
+La partie la plus instructive de la seance. `capturer_web.py` a valide une
+capture fausse **trois fois**, chaque fois pour une raison differente :
+
+1. Une **interstitielle TLS** : le PNG etait parfaitement valide. Ajout d'une
+   relecture du DOM a la recherche de marqueurs d'erreur.
+2. Un **corps JSON d'erreur de proxy** : ni page d'erreur Chrome, ni
+   marqueur connu. Ajout du controle « pas de `<title>` » et « le corps est
+   du JSON ».
+3. Une **page d'erreur reseau** que le controle precedent laissait passer,
+   pour deux raisons cumulees : la relecture se faisait dans un **second
+   lancement** du navigateur, qui pouvait reussir la ou la capture avait
+   echoue ; et le scan s'arretait aux 40 000 premiers caracteres, alors que
+   les marqueurs de la page d'erreur de Chromium tombent vers l'offset
+   142 000. **Le controle etait ecrit, correct, et desactive en silence par
+   une borne arbitraire.**
+
+Corrige : `--screenshot` et `--dump-dom` dans **le meme lancement** (Chromium
+les accepte ensemble), scan du DOM entier, et suppression du PNG refuse.
+
+**Mais le troisieme defaut n'a ete vu qu'en REGARDANT le PNG.** Aucune des
+deux versions precedentes du controle ne pouvait l'attraper, par
+construction : un controle automatique attrape ce qu'on a prevu. C'est la
+meme lecon que celle du catalogue, sur un autre terrain — et c'est pourquoi
+l'etape E5b doit se terminer par un agent qui ouvre les captures.
+
+### Deux defauts de composition, vus au catalogue
+
+Exactement ce pour quoi le catalogue existe :
+
+- `PlanCapture` utilisait `objectFit: cover` : sur une capture 1400x900 dans
+  un cadre de ~975 px, **30 % de la largeur etait rognee** — navigation a
+  gauche et panneau de droite disparaissaient. Une page web se cadre par sa
+  largeur ; c'est en hauteur qu'on coupe, comme un navigateur.
+- `PlanLogos` avait une taille de pastille fixe a 190 px : trois logos
+  tenaient dans une bande centrale et laissaient **plus de la moitie du
+  1080x1920 vide** — le defaut reproche a `ConceptCutaway` au premier
+  passage du catalogue, reintroduit par une constante. La taille se calcule
+  maintenant depuis le nombre de logos.
+
+### Ce qui reste pour fermer E5b
+
+L'agent A8 lui-meme (lecture des `besoins`, dispatch vers les outils,
+ecriture de `05b_ressources.json`, banque partagee sur Drive), la recherche
+de b-roll (Pexels), les transitions a la demande via `TransitionSeries`, et
+la passe de critique visuelle scene par scene. Les briques sur lesquelles
+tout ca repose sont en place et verifiees.
+
+**Note d'environnement** : la seance s'est tenue dans un bac a sable dont le
+proxy refuse le CONNECT vers le web general. `capturer_web.py` a donc ete
+valide de bout en bout sur une page **locale** (`file://`), et
+`recuperer_logo.py` n'a pu etre eprouve que sur ses chemins d'echec. Les deux
+demandent une premiere execution reelle sur le poste de Franco.
+
 ## File d'attente
 
 | # | Chantier | État |
@@ -454,6 +567,12 @@ Vérifié sur le dossier reconstitué de `2026-09-11_v01` : l'écart de
 | 14 | E4 : rapport audio archivé par tentative, `FORCER_RELANCE` lève aussi le contrôle de statut | ✅ fait |
 | 15 | Composants : boucle rognée, rail à travers le texte, `lean_in` sans inclinaison, sous-titres absents du catalogue | ✅ fait |
 | 16 | Graphe de dépendances dérivé de `PIPELINE` ; `short-state` lisait une clé que personne n'écrit | ✅ fait |
+| 17 | E5b : tuyau d'assets generalise, contrat `Besoin`/`Ressource`, `PlanCapture`/`PlanBroll`/`PlanLogos`, `capturer_web.py`, `recuperer_logo.py` | ✅ fait |
+| 18 | Agent A8 (Documentaliste) : lit les `besoins`, ecrit `05b_ressources.json`, alimente la banque partagee | ⬜ |
+| 19 | B-roll : `outils/chercher_broll.py` (Pexels/Pixabay) | ⬜ |
+| 20 | Transitions a la demande : `transition_sortie` par scene via `TransitionSeries`, jamais deux fois la meme d'affilee | ⬜ |
+| 21 | Passe de critique visuelle : une image fixe **par scene** de la vraie video, regardee avant le CP3 | ⬜ |
+| 22 | Sous-titres animes (ressort par mot) et hierarchie typographique par ligne | ⬜ |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer
