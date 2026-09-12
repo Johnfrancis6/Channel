@@ -437,6 +437,7 @@ Vérifié sur le dossier reconstitué de `2026-09-11_v01` : l'écart de
 | 6b | Budget en idées appliqué par A4 et mesuré par A5 | ✅ fait |
 | 7 | Constante 2,5 → 3,2 mots/s dans `generer_storyboard.py` | ✅ fait |
 | 8 | H1 : indicateurs tirés des `state.json`, rapports refusés lus, suivi des recommandations | ✅ fait |
+| 9 | Déclenchement : lanceur cron `outils/lancer_orchestrateur.py` | ✅ fait — reste à installer la crontab chez Franco |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer
@@ -445,9 +446,10 @@ CP2 sur fichier réel, E7 (neuf, jamais exercé). H1 a été réajusté (voir
 plus bas) mais n'a toujours **jamais tourné** : il ne le pourra utilement
 qu'une fois deux ou trois vidéos passées de bout en bout.
 
-Et une question transverse qui remonte d'E4 : **le déclenchement de
-l'Orchestrateur**, non tranché depuis le §12. Tant qu'il ne tourne pas, tout
-ce qu'on lui confie est décoratif.
+La question transverse qui remontait d'E4 — **le déclenchement de
+l'Orchestrateur** — est tranchée : cron toutes les 15 minutes (§6.4, plus
+bas). Le lanceur est écrit et testé ; la crontab, elle, ne peut s'installer
+que depuis la machine de Franco.
 
 ## A3 — L'analyse de structure, et ce que la mesure reelle a corrige
 
@@ -578,8 +580,60 @@ référence/transcrit, écrit **uniquement quand le WER échoue** et tronqué à
 Au passage, `boucle_A4_A5` est entré au schéma : le champ était écrit par
 l'orchestrateur et lu par H1, mais absent du contrat documenté.
 
+## Déclenchement — le cron, et le faux Drive qu'il aurait fabriqué
+
+Franco a tranché le 12/09 : **cron**. C'était le dernier point qui rendait
+tout le reste décoratif — une machine à états que personne ne fait avancer
+ne fait rien avancer.
+
+La tentation était de mettre `python -m orchestrateur.main --root ...`
+directement dans la crontab. En le testant, le défaut est apparu tout de
+suite, et il est sérieux :
+
+> Lancé sur un dossier **vide** — le point de montage d'un Drive non monté
+> existe presque toujours, vide — `main.py` écrit `registre_videos.json`,
+> `TABLEAU_DE_BORD.md` et `01_Orchestrateur/derniere_execution.json`,
+> **et sort 0**.
+
+Trois conséquences en chaîne : cron ne signale rien (code 0) ; une fausse
+racine locale apparaît, qui **masque le vrai Drive au remontage** ; et
+`short-state` lit ensuite un tableau de bord parfaitement sain, vide de
+toute vidéo. Le pipeline ne dirait pas « je ne trouve rien », il dirait
+« il n'y a rien ». C'est exactement le genre de panne silencieuse que la
+revue cherche depuis le début.
+
+`outils/lancer_orchestrateur.py` place donc le garde-fou **avant toute
+écriture** : la racine doit exister *et* contenir
+`01_Orchestrateur/config.json`. Sinon, sortie 2, message sur stderr, rien
+d'écrit.
+
+Trois autres particularités de cron sont traitées au passage :
+
+- **un verrou actif n'est pas une erreur.** `main.py` sort 1 ; à un passage
+  tous les quarts d'heure, deux exécutions se chevauchent régulièrement, et
+  un mail d'erreur à chaque fois finit par faire couper le cron. C'est une
+  sortie 0 et une ligne « ignoré » ;
+- **la sortie part en mail que personne ne lit.** Chaque passage écrit une
+  ligne dans `01_Orchestrateur/journal_cron.log`, plafonné à 2000 lignes —
+  le fichier est sur le Drive, il se synchronise. Seules les vraies erreurs
+  vont sur stderr : le mail redevient un signal ;
+- **pas de répertoire courant, PATH minimal.** `--verifier` imprime la ligne
+  de crontab avec l'interpréteur et les chemins absolus déjà résolus, et
+  **les espaces échappées** : un chemin Google Drive contient presque
+  toujours « Mon Drive ». Sans guillemets, la ligne est cassée et l'erreur
+  n'apparaît que dans ce mail que personne ne lit.
+
+La cadence de 15 minutes vient du seuil existant : `short-state` alerte sur
+un Orchestrateur muet depuis 6 h. Un quart d'heure laisse aussi le pipeline
+repartir sans attendre après chaque validation de checkpoint.
+
+**Ce qui n'est pas fait, et ne peut pas l'être d'ici** : la crontab elle-même.
+Elle vit sur la machine de Franco. Trois commandes, §6.4.
+
 ## En attente de Franco
 
+- **Installer la crontab** : `python3 outils/lancer_orchestrateur.py --root "<racine>" --verifier`,
+  puis coller la ligne affichée dans `crontab -e` (§6.4).
 - La **vidéo de référence** pour caler le vocabulaire de segmentation.
 - **La liste de chaînes concurrentes** (`chaines_concurrentes.json`) et une
   clé API YouTube : c'est le chemin critique du contenu tendance.

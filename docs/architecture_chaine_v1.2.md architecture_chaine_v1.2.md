@@ -25,6 +25,7 @@ Relecture du pipeline étape par étape sur les artefacts réellement produits. 
 - **Consignes structurées à la création** : `format`, `reference` et `idees_max` remplacent le fourre-tout de `note_franco`, et sont lues par le Chercheur **et** le Designer.
 - **Le rapport de checkpoint ne perd plus sa partie décisionnelle** : l'extrait préserve d'abord les sections qui portent la décision (§5.5).
 - **Titre de travail borné à 80 caractères** : un sujet d'une phrase entière ne fait pas un titre.
+- **L'Orchestrateur tourne sur cron** : `outils/lancer_orchestrateur.py`, toutes les 15 minutes (§6.4). Le lanceur existe parce que `main.py` lancé sur un Drive non monté écrit une fausse racine locale **et sort 0** — cron n'aurait rien signalé.
 - **H1 mesure au lieu de relire** : `rassembler_inputs.py` agrège les `state.json` (tentatives, alertes, refus, boucles, durées) et expose le suivi `recommandations.jsonl`. Le signal le plus fort de la semaine — huit tentatives sur `E4_audio` — vivait dans des fichiers que H1 n'ouvrait pas (§4.3).
 
 ### v1.2 (création des skills)
@@ -344,6 +345,53 @@ E7 Publication                             ← manuelle (phase test) puis automa
 
 ---
 
+### 6.4 Déclenchement de l'Orchestrateur — cron
+
+**Tranché le 12/09/2026 : cron, toutes les 15 minutes.** L'Orchestrateur ne
+décide rien de lui-même ; tant que rien ne le lance, chaque règle qu'on lui
+confie est décorative. La cadence tient au seuil d'alerte : `short-state`
+signale un Orchestrateur muet depuis `seuil_orchestrateur_heures` (6 h par
+défaut), et un quart d'heure laisse le pipeline avancer sans attendre après
+chaque validation de checkpoint. Une cadence horaire (`0 * * * *`) reste
+possible si les écritures Drive dérangent.
+
+Le cron n'appelle pas `python -m orchestrateur.main` directement, mais
+`outils/lancer_orchestrateur.py`. Quatre raisons, toutes vérifiées :
+
+| Particularité de cron | Ce qu'elle casse |
+|---|---|
+| Pas de répertoire courant utile | `python -m` exige d'être à la racine du dépôt ; le lanceur se situe lui-même |
+| La racine est sur le Drive | **Drive non monté : le point de montage existe, vide.** `main.py` y écrit alors `registre_videos.json`, `TABLEAU_DE_BORD.md` et `derniere_execution.json`, **et sort 0**. Une fausse racine locale apparaît, masque le vrai Drive au remontage, et rien ne le signale. Le garde-fou passe donc avant toute écriture |
+| Un verrou actif sort 1 | Deux exécutions qui se chevauchent sont le cas nominal d'un cron serré ; un mail d'erreur à chaque passage ferait couper le cron |
+| La sortie part en mail | Chaque exécution écrit une ligne dans `01_Orchestrateur/journal_cron.log` (plafonné à 2000 lignes). Seules les vraies erreurs vont sur stderr, donc seules elles déclenchent un mail |
+
+**Installation** (macOS ou Linux) :
+
+```bash
+# 1. La ligne de crontab, chemins absolus résolus, espaces échappées
+python3 outils/lancer_orchestrateur.py --root "<racine>" --verifier
+
+# 2. Coller la ligne affichée
+crontab -e
+
+# 3. Reporter la même commande dans 01_Orchestrateur/config.json
+#    > orchestrateur_cmd — c'est ce que `new-short` affiche à Franco
+#    après avoir créé une vidéo.
+```
+
+`--verifier` n'écrit rien : il diagnostique la racine et imprime la ligne à
+coller. Les chemins Google Drive contiennent presque toujours une espace
+(« Mon Drive ») ; elle est déjà échappée dans la ligne affichée.
+
+Codes de sortie : **0** exécution faite ou ignorée (verrou), **1** échec de
+l'exécution, **2** racine inutilisable — et dans ce dernier cas, rien n'a
+été écrit.
+
+Sur Windows, le lanceur ne change pas ; seul le planificateur diffère
+(Planificateur de tâches, même commande).
+
+---
+
 ## 7. Voix off — notebook Colab
 
 ### 7.1 Workflow
@@ -524,6 +572,7 @@ Avant de clore E6, A7 rend quelques images fixes (`remotion still` sur le hook, 
 │   ├── config.json                 # orchestrateur_cmd, cible_tampon, seuils
 │   ├── derniere_execution.json
 │   ├── verrou.json
+│   ├── journal_cron.log            # une ligne par passage du cron (§6.4)
 │   ├── log_erreurs.md
 │   └── calendrier_publication.md
 ├── 02_Veille_hebdo/
@@ -570,7 +619,7 @@ chaine-youtube/
 ├── composants/           # bibliothèque Remotion + REGISTRE.md
 ├── notebooks/            # notebook voix off (Qwen3-TTS)
 ├── schemas/              # schéma JSON de state.json
-├── outils/               # scripts partagés par plusieurs agents, embarqués par ceux qui les déclarent
+├── outils/               # scripts partagés par plusieurs agents (embarqués par ceux qui les déclarent) et lanceur cron
 ├── skills/               # new-short, short-state, short-publier
 ├── tests/                # suite unittest (orchestrateur, agents, skills)
 └── .claude/skills/       # MIROIR GÉNÉRÉ — ne jamais éditer à la main
@@ -635,7 +684,7 @@ Publiées : 4 — Abandonnées : 1 — Prochain cycle hebdo : dimanche
 - **À trancher en ouverture de session** :
   - système d'exploitation de la machine qui fera tourner l'Orchestrateur ;
   - chemin local de `/ChaineYouTube` (Google Drive pour ordinateur ou rclone) ;
-  - cron ou lancement manuel pour les premiers tests.
+  - ~~cron ou lancement manuel pour les premiers tests~~ → **tranché le 12/09/2026 : cron toutes les 15 minutes**, via `outils/lancer_orchestrateur.py` (§6.4). Reste à installer sur la machine de Franco : la crontab ne peut pas s'écrire depuis le dépôt.
 - **Multi-chaînes** : **après**, et pas avant la semaine de test. Analyse d'impact faite le 11/09/2026 — le coût est réel mais modéré, et il ne baissera pas en attendant :
   - **la racine est déjà paramétrable** partout (`--root`, `CHAINE_YT_ROOT`, puis les emplacements Drive habituels). C'est le point qui aurait pu coûter cher, et il est déjà réglé. Ce qui reste en dur, c'est le *nom* `ChaineYouTube` dans la détection automatique : une seconde chaîne devra passer `--root` explicitement, ou on remplace la liste de candidats par un fichier de chaînes connues ;
   - **les piliers sont figés à trois endroits** : `new_short.py` (`PILIERS`), `schemas/state_schema.json` (enum `pilier`) et le profil par défaut. C'est le vrai chantier : il faut les sortir dans un `profil_chaine.json` lisible par la machine, et assouplir l'enum du schéma ;
@@ -643,7 +692,7 @@ Publiées : 4 — Abandonnées : 1 — Prochain cycle hebdo : dimanche
   - **un argument `--chaine`** pour les skills, qui résout vers la bonne racine ;
   - ordre recommandé : faire tourner une chaîne une semaine, puis sortir les piliers, puis `--chaine`. Préparer le terrain avant d'avoir publié une seule vidéo, c'est généraliser sur un seul exemple.
 
-- **Déclenchement de l'Orchestrateur** : cron local + Claude Code en mode headless, ou lancement manuel. Accès à Drive depuis la machine locale : Google Drive pour ordinateur ou rclone.
+- **Déclenchement de l'Orchestrateur** : ~~cron local + Claude Code en mode headless, ou lancement manuel~~ → **tranché : cron** (§6.4). Reste ouvert : l'accès à Drive depuis la machine locale (Google Drive pour ordinateur ou rclone), et le lancement des agents eux-mêmes en mode headless — le cron fait avancer la machine à états, il n'exécute aucun skill.
 - **Outil d'animation** : ~~Manim, Motion Canvas ou Remotion~~ → **tranché : Remotion** (React + spring animations).
 - **Notebook voix** : ~~réduction de bruit~~ → **tranché : désactivée par défaut** (`DENOISE = False` dans `voix_off.ipynb`) — la référence de Franco (voix ElevenLabs) est déjà propre, `noisereduce` la dénaturait sans bruit réel à retirer. ~~version exacte et API de Qwen TTS~~ → **tranché : moteur de synthèse basculé sur Qwen3-TTS** (package `qwen-tts`, modèle `Qwen/Qwen3-TTS-12Hz-1.7B-Base`, `generate_voice_clone(text, language, ref_audio, ref_text)`) après que F5-TTS ait montré un défaut structurel (fuite du contenu de la référence dans la sortie, reproduit sur deux échantillons différents). Reste ouvert : durée idéale de l'extrait de référence (3-10s annoncé par Qwen3-TTS, à confirmer sur plusieurs voix).
 - **Seuils** : métriques de style de A5, écart toléré par le contrôle qualité audio, cible du tampon.
