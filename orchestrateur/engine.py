@@ -11,7 +11,7 @@ import unicodedata
 
 from .agents_registry import obtenir_agent
 from .checkpoints import archiver_rapport_refuse, generer_rapport_si_absent, lire_decision
-from .constants import PIPELINE_PAR_ID
+from .constants import PIPELINE_PAR_ID, STATUTS_CLOS, STATUTS_E7
 from .state_store import ajouter_historique, now_iso
 
 DEPENDANCES = {
@@ -368,6 +368,10 @@ def _transcrire_decisions_franco(video_dir, state):
 
 
 def _mettre_a_jour_statut_global(state):
+    # Au-dela de `prete`, le statut appartient a E7 (§11) : le recalculer
+    # ecrasait `publiee` par `prete` a chaque passage, CP3 etant valide.
+    if state["statut_global"] in STATUTS_E7:
+        return
     etapes = state["etapes"]
     if etapes["CP1"]["statut"] == "valide" and state["statut_global"] in ("idee", "sujet_valide"):
         state["statut_global"] = "en_production"
@@ -461,6 +465,13 @@ def traiter_video(video_dir, state, config):
     """Fait avancer une video d'un pas d'execution de l'Orchestrateur. Mute `state`."""
     max_tentatives = config["max_tentatives"]
     mode_agents = config.get("mode_agents", "factice")
+
+    # Une video publiee ou abandonnee est sortie du pipeline : la faire
+    # avancer n'a plus de sens, et pour une video abandonnee en cours de
+    # route, l'etape en attente serait proposee indefiniment au tableau de
+    # bord.
+    if state["statut_global"] in STATUTS_CLOS:
+        return
 
     _transcrire_decisions_franco(video_dir, state)
 

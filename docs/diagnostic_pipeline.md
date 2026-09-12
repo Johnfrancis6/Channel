@@ -438,13 +438,19 @@ Vérifié sur le dossier reconstitué de `2026-09-11_v01` : l'écart de
 | 7 | Constante 2,5 → 3,2 mots/s dans `generer_storyboard.py` | ✅ fait |
 | 8 | H1 : indicateurs tirés des `state.json`, rapports refusés lus, suivi des recommandations | ✅ fait |
 | 9 | Déclenchement : lanceur cron `outils/lancer_orchestrateur.py` | ✅ fait — reste à installer la crontab chez Franco |
+| 10 | E7 : les statuts de fin appartiennent à E7, abandon d'une vidéo, `programmee` → `publiee` sans `--force` | ✅ fait |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer
 
-CP2 sur fichier réel, E7 (neuf, jamais exercé). H1 a été réajusté (voir
-plus bas) mais n'a toujours **jamais tourné** : il ne le pourra utilement
-qu'une fois deux ou trois vidéos passées de bout en bout.
+**CP2 sur fichier réel** — le dernier du diagnostic étape par étape. Les
+deux autres checkpoints montraient chacun un défaut qu'aucun test ne
+pouvait attraper ; celui-ci se lira mieux sur le script de la prochaine
+vidéo que sur celui de la vidéo 1, déjà au CP3.
+
+H1 et E7 ont été réajustés (voir plus bas) mais n'ont **jamais tourné**.
+Pour H1 il faut deux ou trois vidéos passées de bout en bout ; pour E7, une
+première publication réelle.
 
 La question transverse qui remontait d'E4 — **le déclenchement de
 l'Orchestrateur** — est tranchée : cron toutes les 15 minutes (§6.4, plus
@@ -629,6 +635,58 @@ repartir sans attendre après chaque validation de checkpoint.
 
 **Ce qui n'est pas fait, et ne peut pas l'être d'ici** : la crontab elle-même.
 Elle vit sur la machine de Franco. Trois commandes, §6.4.
+
+## E7 — l'étape tenait, l'Orchestrateur la défaisait
+
+E7 n'avait jamais été exercée. En la testant, le défaut trouvé est le plus
+coûteux du lot, et il ne vient pas de E7 :
+
+> `publier.py` écrit `statut_global = "publiee"`. Le passage suivant de
+> l'Orchestrateur le réécrit en `prete`, parce que `CP3` est valide.
+
+Le skill dit, à son étape 4, de relancer l'Orchestrateur juste après. **La
+commande censée confirmer la publication la défaisait.** Et depuis
+aujourd'hui, le cron la défait tout seul dans le quart d'heure. Les trois
+symptômes sont exactement ceux que `short-publier` avait été écrit pour
+corriger : compteur « Publiées » à zéro, tampon qui recompte comme
+disponible une vidéo déjà en ligne, `short-state` qui propose de publier ce
+qui est publié.
+
+La règle manquante tient en une phrase : **au-delà de `prete`, le statut
+appartient à E7.** L'Orchestrateur calcule jusqu'à `prete` ; `programmee`,
+`publiee` et `abandonnee` ne se recalculent pas.
+
+### L'abandon : lu par quatre endroits, écrit par personne
+
+`abandonnee` existait dans l'enum du schéma. Le tableau de bord le compte
+(« Abandonnées : N »), `short-state` sort ces vidéos du tampon,
+`short-state` et `new-short` libèrent leur `sujet_id`. **Aucune ligne ne
+l'écrivait.** Il n'y avait donc pas de sortie de secours : une idée laissée
+tomber restait à vie dans le tampon, gardait son sujet réservé, et — parce
+que le tableau de bord ne filtrait pas non plus — réclamait son agent à
+chaque passage. `--statut abandonnee --motif "..."` ferme le cycle, sans
+exiger de CP3 : on abandonne justement une vidéo qui n'y arrivera pas. Le
+motif est obligatoire, c'est la seule trace de la raison et H1 la lit.
+
+### Deux défauts plus petits
+
+- **`programmee` → `publiee` exigeait `--force`.** Le code 8 protège contre
+  l'écrasement accidentel, mais il s'appliquait aussi à `programmee`, qui
+  n'est pas un état final. Le trajet nominal décrit par le skill — je
+  programme, puis je publie — se heurtait donc au drapeau réservé aux
+  corrections. Seuls les cycles clos sont désormais protégés.
+- **L'URL n'était pas vérifiée.** C'est le champ par lequel H1 rapproche les
+  performances YouTube des vidéos produites : une valeur qui n'est pas une
+  adresse ne se voit que des semaines plus tard, au premier rapport.
+
+### Ce que ça confirme, encore
+
+Le bug de la résurrection ne vivait dans aucun des deux composants : ni
+`publier.py` ni `_mettre_a_jour_statut_global` n'ont tort isolément. Il
+vivait dans leur **articulation**, et aucun test unitaire des deux côtés ne
+pouvait le voir. C'est la même leçon qu'aux composants Remotion, où trois
+défauts n'ont été trouvés qu'en regardant les rendus : le dépôt teste ce
+qui existe, pas ce qui devrait exister.
 
 ## En attente de Franco
 

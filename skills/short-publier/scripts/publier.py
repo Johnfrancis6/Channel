@@ -15,13 +15,23 @@ Ne publie rien sur YouTube : Franco publie (phase test, §11), ce script
 enregistre. Il refuse d'agir si le CP3 n'est pas valide (§2 : aucune
 publication sans CP3 valide).
 
+Il ferme aussi le cycle **dans l'autre sens** : `--statut abandonnee`. Le
+statut existait dans le schema, le tableau de bord le comptait, `new-short`
+et `short-state` liberaient le `sujet_id` des videos abandonnees — mais
+aucun code ne l'ecrivait jamais. Une idee laissee tomber restait donc a vie
+dans le tampon, gardait son sujet reserve et reclamait un agent a chaque
+passage de l'Orchestrateur. Un abandon n'exige pas de CP3 : on abandonne
+justement une video qui n'y arrivera pas.
+
 Usage :
   python3 publier.py --video ID [--root R] --url https://youtube.com/shorts/xxx
   python3 publier.py --video ID --statut programmee --date 2026-09-14
+  python3 publier.py --video ID --statut abandonnee --motif "sujet deja traite"
 
 Sortie : JSON sur stdout. Codes :
-  0 ok | 2 racine introuvable | 4 date invalide | 6 video inconnue |
-  7 CP3 non valide | 8 deja publiee (relancer avec --force)
+  0 ok | 2 racine introuvable | 4 date invalide, URL manquante ou invalide,
+  motif manquant | 6 video inconnue | 7 CP3 non valide |
+  8 cycle deja clos (relancer avec --force)
 """
 import argparse
 import json
@@ -29,6 +39,12 @@ import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+
+# Statuts dont on ne sort pas sans `--force` (miroir de
+# orchestrateur/constants.py > STATUTS_CLOS ; un skill doit rester
+# installable seul, §14, donc il reprend la valeur au lieu de l'importer).
+STATUTS_TERMINAUX = {"publiee", "abandonnee"}
 
 
 def maintenant_iso():
@@ -98,7 +114,8 @@ def main():
     ap.add_argument("--video", required=True)
     ap.add_argument("--url", help="URL du Short publie (obligatoire pour --statut publiee).")
     ap.add_argument("--date", help="Date de publication (AAAA-MM-JJ ou ISO). Defaut : maintenant.")
-    ap.add_argument("--statut", choices=["publiee", "programmee"], default="publiee")
+    ap.add_argument("--statut", choices=["publiee", "programmee", "abandonnee"], default="publiee")
+    ap.add_argument("--motif", help="Raison de l'abandon (obligatoire pour --statut abandonnee).")
     ap.add_argument("--force", action="store_true",
                     help="Reecrit une publication deja enregistree (correction d'URL ou de date).")
     a = ap.parse_args()
@@ -115,21 +132,51 @@ def main():
     etapes = state.get("etapes", {})
 
     cp3 = (etapes.get("CP3") or {}).get("statut")
-    if cp3 != "valide":
+    if a.statut != "abandonnee" and cp3 != "valide":
         sortir(7, message=f"CP3 non valide (statut : {cp3}). Aucune publication sans CP3 valide (§2).",
                checkpoint=cp3)
 
-    if state.get("statut_global") in ("publiee", "programmee") and not a.force:
-        sortir(8, message=f"Deja enregistree comme {state['statut_global']}. Relance avec --force pour corriger.",
+    # Seuls les statuts terminaux sont proteges. `programmee` ne l'est pas :
+    # programmer puis publier est le trajet nominal decrit par le skill, et il
+    # exigeait `--force`, c'est-a-dire le drapeau reserve aux corrections.
+    if state.get("statut_global") in STATUTS_TERMINAUX and not a.force:
+        sortir(8, message=f"Cycle deja clos ({state['statut_global']}). Relance avec --force pour corriger.",
                statut_global=state["statut_global"],
                publication=state.get("publication"))
 
     if a.statut == "publiee" and not a.url:
         sortir(4, message="--url est obligatoire pour --statut publiee.")
 
+    if a.url and not a.url.startswith(("http://", "https://")):
+        # L'URL est ce que H1 utilise pour rapprocher les performances
+        # YouTube des videos produites : une valeur fantaisiste s'y voit tard.
+        sortir(4, message=f"URL invalide : {a.url}. Attendu une adresse http(s).")
+
+    if a.statut == "abandonnee" and not a.motif:
+        sortir(4, message="--motif est obligatoire pour --statut abandonnee : "
+                          "c'est la seule trace de la raison, et H1 la lit (§4.3).")
+
     date_iso = normaliser_date(a.date)
     if date_iso is None:
         sortir(4, message=f"Date illisible : {a.date}. Attendu AAAA-MM-JJ ou AAAA-MM-JJTHH:MM:SSZ.")
+
+    if a.statut == "abandonnee":
+        # Ni date de publication ni tentative : la video n'a jamais ete
+        # publiee. Le motif est la seule trace de la raison, et H1 la lit.
+        etape = etapes.setdefault("E7_publication", {"agent": "publication", "tentatives": 0,
+                                                     "debut": None, "fin": None, "sorties": []})
+        etape["message"] = f"Abandonnee : {a.motif}"
+        state["statut_global"] = "abandonnee"
+        state["etape_actuelle"] = "termine"
+        state.setdefault("historique", []).append({
+            "horodatage": maintenant_iso(),
+            "agent": "publication",
+            "evenement": "abandonnee",
+            "message": a.motif,
+        })
+        ecrire_state(dossier, state)
+        sortir(0, message="Video abandonnee.", video=a.video, statut_global="abandonnee",
+               motif=a.motif)
 
     publication = state.setdefault("publication", {"date_prevue": None, "date_effective": None, "url": None})
     if a.statut == "publiee":

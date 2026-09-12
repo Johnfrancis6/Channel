@@ -51,16 +51,32 @@ python3 <chemin-du-skill>/scripts/publier.py --video <video_id> \
 ```
 
 Une video `programmee` reste visible au tableau de bord (`E7_publication`
-en `attente_franco`) jusqu'a ce qu'on la repasse en `publiee` avec l'URL.
+en `attente_franco`) jusqu'a ce qu'on la repasse en `publiee` avec l'URL —
+sans `--force` : programmer puis publier est le trajet normal, pas une
+correction.
 
-Correction d'une URL ou d'une date deja saisie : ajoute `--force` (sans
-lui, le script refuse avec le code 8 pour ne pas ecraser en silence).
+Video abandonnee (sujet laisse tomber, doublon, actualite perimee) :
+
+```bash
+python3 <chemin-du-skill>/scripts/publier.py --video <video_id> \
+  --statut abandonnee --motif "sujet deja traite dans 2026-09-04_v01" [--root R]
+```
+
+L'abandon n'exige **pas** de CP3 valide : on abandonne justement une video
+qui n'y arrivera pas. Le `--motif` est obligatoire — c'est la seule trace
+de la raison, et H1 la lit (§4.3). Une fois abandonnee, la video sort du
+tampon, libere son `sujet_id` et ne reclame plus aucun agent.
+
+Correction d'une URL ou d'une date deja saisie : ajoute `--force`. Sans
+lui, le script refuse avec le code 8 sur un cycle **deja clos** (`publiee`
+ou `abandonnee`), pour ne pas ecraser en silence.
 
 ## Etape 3 — Lire le resultat
 
 Le script repond en JSON. Codes : `0` ok, `2` racine introuvable,
-`4` date invalide ou URL manquante, `6` video inconnue, `7` CP3 non valide,
-`8` deja enregistree (utiliser `--force`).
+`4` date invalide, URL manquante ou fantaisiste, motif d'abandon manquant,
+`6` video inconnue, `7` CP3 non valide, `8` cycle deja clos (utiliser
+`--force`).
 
 Sur un code `7`, ne contourne rien : dis a Franco que le CP3 doit etre
 valide d'abord, et propose `short-state --video <id>` pour voir ou en est
@@ -71,6 +87,11 @@ la validation.
 Si `orchestrateur_cmd` est renseigne dans `01_Orchestrateur/config.json`,
 execute-le : le registre et le tableau de bord sont regeneres, le tampon
 recalcule, et la video sort de la file de production.
+
+L'Orchestrateur ne touche plus au statut une fois qu'il vaut `programmee`,
+`publiee` ou `abandonnee` (§5.3). Ce n'etait pas le cas : il le reecrivait
+en `prete` des le passage suivant, et cette relance-ci defaisait donc la
+publication qu'elle etait censee confirmer.
 
 ## Fichiers
 

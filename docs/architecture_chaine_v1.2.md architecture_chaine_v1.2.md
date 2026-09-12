@@ -25,6 +25,7 @@ Relecture du pipeline étape par étape sur les artefacts réellement produits. 
 - **Consignes structurées à la création** : `format`, `reference` et `idees_max` remplacent le fourre-tout de `note_franco`, et sont lues par le Chercheur **et** le Designer.
 - **Le rapport de checkpoint ne perd plus sa partie décisionnelle** : l'extrait préserve d'abord les sections qui portent la décision (§5.5).
 - **Titre de travail borné à 80 caractères** : un sujet d'une phrase entière ne fait pas un titre.
+- **E7 tenait, l'Orchestrateur la défaisait** : `publier.py` écrivait `publiee`, le passage suivant réécrivait `prete`. Les statuts au-delà de `prete` appartiennent désormais à E7, et une vidéo publiée ou abandonnée sort du pipeline (§5.3, §11). Ajout de l'abandon, qu'aucun code n'écrivait alors que quatre endroits le lisaient.
 - **L'Orchestrateur tourne sur cron** : `outils/lancer_orchestrateur.py`, toutes les 15 minutes (§6.4). Le lanceur existe parce que `main.py` lancé sur un Drive non monté écrit une fausse racine locale **et sort 0** — cron n'aurait rien signalé.
 - **H1 mesure au lieu de relire** : `rassembler_inputs.py` agrège les `state.json` (tentatives, alertes, refus, boucles, durées) et expose le suivi `recommandations.jsonl`. Le signal le plus fort de la semaine — huit tentatives sur `E4_audio` — vivait dans des fichiers que H1 n'ouvrait pas (§4.3).
 
@@ -229,6 +230,10 @@ On peut donc arrêter le système n'importe quand : l'exécution suivante repren
 (+ `abandonnee`, et `attente_franco` quand la vidéo est bloquée sur une action humaine)
 
 Le dossier d'une vidéo **ne bouge jamais**. Seul son statut change dans le registre. Quand une vidéo est publiée, le registre passe à `publiee`, avec la date de publication et l'URL.
+
+**Qui écrit quoi.** L'Orchestrateur calcule les statuts jusqu'à `prete` inclus. Au-delà — `programmee`, `publiee`, `abandonnee` — le statut appartient à E7 (`short-publier`) et l'Orchestrateur **ne le recalcule plus** (`STATUTS_E7`). Sans cette règle il réécrivait `publiee` en `prete` au passage suivant, CP3 étant valide : la publication était défaite par la commande censée la confirmer, puis par le cron tous les quarts d'heure, et le tampon recomptait comme disponible une vidéo déjà en ligne.
+
+Une vidéo `publiee` ou `abandonnee` est **sortie du pipeline** (`STATUTS_CLOS`) : l'Orchestrateur ne la fait plus avancer et le tableau de bord ne réclame plus ses étapes en attente. Sans ce filtre, une vidéo abandonnée à E2 demandait le Rédacteur à chaque passage, pour toujours.
 
 ### 5.4 Exemple de `state.json`
 
@@ -672,6 +677,8 @@ Publiées : 4 — Abandonnées : 1 — Prochain cycle hebdo : dimanche
 - Franco remplit les champs SEO (titre, description, tags) dans le bloc de décision de `rapport_CP3.md`.
 - Une fois le CP3 validé, le système uploade la vidéo via l'API YouTube, la programme selon le calendrier et passe le registre à `programmee`, puis à `publiee`.
 
+**Abandonner une vidéo** : `short-publier --statut abandonnee --motif "..."`. Le statut existait au schéma, le tableau de bord le comptait, `new-short` et `short-state` libéraient le `sujet_id` des vidéos abandonnées — mais **aucun code ne l'écrivait**. Une idée laissée tomber restait donc à vie dans le tampon et gardait son sujet réservé. Un abandon n'exige pas de CP3 valide : on abandonne justement une vidéo qui n'y arrivera pas. Le motif est obligatoire — c'est la seule trace de la raison, et H1 la lit.
+
 **Contrainte à vérifier tôt** : à ma connaissance, les vidéos uploadées via l'API par un projet Google Cloud non audité restent bloquées en privé. Il faut demander l'audit de conformité du projet API **dès la phase test** pour ne pas bloquer le passage en automatique. À revérifier dans la documentation actuelle au moment de l'implémentation.
 
 ---
@@ -755,11 +762,11 @@ Il détecte aussi une décision déjà saisie par Franco mais pas encore transcr
 
 ### `short-publier` — fermer le cycle de vie d'une vidéo
 
-Il enregistre une publication faite par Franco (phase test, §11) : date, URL, passage du registre à `publiee` ou `programmee`, clôture de `E7_publication`. Il ne parle pas à l'API YouTube et refuse d'agir si le CP3 n'est pas validé (§2).
+Il enregistre une publication faite par Franco (phase test, §11) : date, URL, passage du registre à `publiee` ou `programmee`, clôture de `E7_publication`. Il ne parle pas à l'API YouTube et refuse d'agir si le CP3 n'est pas validé (§2). Il ferme aussi le cycle dans l'autre sens : `--statut abandonnee --motif "..."`, sans exiger de CP3.
 
-Codes de retour : 0 enregistré · 2 racine introuvable · 4 date invalide ou URL manquante · 6 vidéo inconnue · 7 CP3 non validé · 8 déjà enregistrée (relancer avec `--force` pour corriger).
+Codes de retour : 0 enregistré · 2 racine introuvable · 4 date invalide, URL manquante ou fantaisiste, motif d'abandon manquant · 6 vidéo inconnue · 7 CP3 non validé · 8 cycle déjà clos (relancer avec `--force` pour corriger).
 
-Une vidéo `programmee` garde `E7_publication` en `attente_franco` : elle reste visible au tableau de bord jusqu'à la mise en ligne réelle.
+Une vidéo `programmee` garde `E7_publication` en `attente_franco` : elle reste visible au tableau de bord jusqu'à la mise en ligne réelle. Le passage `programmee` → `publiee` **n'exige pas `--force`** : c'est le trajet normal, pas une correction. Seul un cycle clos (`publiee`, `abandonnee`) est protégé.
 
 ### Emplacement de la racine
 

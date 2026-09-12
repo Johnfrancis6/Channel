@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime, timedelta, timezone
 
+from .constants import STATUTS_CLOS
 from .engine import etapes_agent_actionnables
 from .hebdo import taches_hebdo_manquantes
 from .state_store import list_video_dirs, load_state, now_iso
@@ -47,6 +48,10 @@ def _lignes_a_faire(root, config):
     seuil_blocage = timedelta(hours=float(config.get("seuil_blocage_heures", 2)))
     for video_dir in list_video_dirs(root):
         state = load_state(video_dir)
+        # Une video abandonnee garde ses etapes en l'etat : sans ce filtre,
+        # celle qu'on abandonne a E2 reclame le redacteur pour toujours.
+        if state["statut_global"] in STATUTS_CLOS:
+            continue
         video_id = state["video_id"]
         for etape_id, etape in state["etapes"].items():
             statut = etape.get("statut")

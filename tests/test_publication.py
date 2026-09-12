@@ -107,6 +107,58 @@ class TestPublier(unittest.TestCase):
         code, out = self.run_script("--url", "https://youtu.be/x", "--date", "14/09/2026")
         self.assertEqual(code, 4)
 
+    def test_programmer_puis_publier_sans_force(self):
+        # C'est le trajet nominal decrit par le skill. Il exigeait `--force`,
+        # le drapeau reserve aux corrections : la protection contre
+        # l'ecrasement bloquait l'etape suivante du cycle normal.
+        self.run_script("--statut", "programmee", "--date", "2026-09-20")
+        code, out = self.run_script("--url", "https://youtu.be/x", "--date", "2026-09-20")
+
+        self.assertEqual(code, 0, out)
+        state = self.lire()
+        self.assertEqual(state["statut_global"], "publiee")
+        self.assertEqual(state["etapes"]["E7_publication"]["statut"], "termine")
+
+    def test_url_fantaisiste_refusee(self):
+        # H1 s'en sert pour rapprocher les performances YouTube des videos
+        # produites : une valeur qui n'est pas une adresse se voit tard.
+        code, out = self.run_script("--url", "youtube/abc")
+        self.assertEqual(code, 4)
+        self.assertEqual(self.lire()["statut_global"], "prete")
+
+    def test_abandon_ferme_le_cycle_sans_cp3(self):
+        # `abandonnee` etait lu par quatre endroits (tampon de short-state,
+        # liberation du sujet_id, compteur du tableau de bord) et ecrit par
+        # personne : une idee laissee tomber restait a vie dans le tampon.
+        state = self.lire()
+        state["etapes"]["CP3"]["statut"] = "a_venir"
+        state["statut_global"] = "en_production"
+        self.ecrire(state)
+
+        code, out = self.run_script("--statut", "abandonnee", "--motif", "sujet deja traite ailleurs")
+
+        self.assertEqual(code, 0, out)
+        state = self.lire()
+        self.assertEqual(state["statut_global"], "abandonnee")
+        self.assertEqual(state["etape_actuelle"], "termine")
+        self.assertEqual(state["historique"][-1]["evenement"], "abandonnee")
+        self.assertEqual(state["historique"][-1]["message"], "sujet deja traite ailleurs")
+        # Rien n'a ete publie : pas de date inventee.
+        self.assertIsNone(state["publication"]["date_effective"])
+        self.assertIsNone(state["publication"]["date_prevue"])
+
+    def test_abandon_sans_motif_refuse(self):
+        code, out = self.run_script("--statut", "abandonnee")
+        self.assertEqual(code, 4)
+        self.assertIn("motif", out["message"])
+        self.assertEqual(self.lire()["statut_global"], "prete")
+
+    def test_un_cycle_clos_est_protege(self):
+        self.run_script("--statut", "abandonnee", "--motif", "trop proche du sujet precedent")
+        code, out = self.run_script("--url", "https://youtu.be/x")
+        self.assertEqual(code, 8)
+        self.assertEqual(self.lire()["statut_global"], "abandonnee")
+
     def test_etat_reste_valide_au_regard_du_schema(self):
         self.run_script("--url", "https://www.youtube.com/shorts/abc")
         state = self.lire()
