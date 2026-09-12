@@ -7,8 +7,10 @@ chaque concurrent a la main est exactement le genre de friction qui fait
 qu'une liste ne se remplit jamais — et `chaines_concurrentes.json` est
 vide depuis le debut.
 """
+import json
 import os
 import sys
+import tempfile
 import unittest
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -105,3 +107,65 @@ class TestResumeReponse(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestFusionnerChaines(unittest.TestCase):
+    """
+    Franco donne sa liste de chaines en conversation et l'agent l'ecrit
+    (decision du 12/09/2026). Le fichier reste le sien : un agent qui le
+    remplacerait effacerait une chaine ajoutee a la main entre deux
+    analyses.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="chaines_test_")
+        self.chemin = os.path.join(self.tmp, "00_Profil", "chaines_concurrentes.json")
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _ecrire(self, contenu):
+        os.makedirs(os.path.dirname(self.chemin), exist_ok=True)
+        with open(self.chemin, "w", encoding="utf-8") as f:
+            f.write(contenu)
+
+    def _lire(self):
+        with open(self.chemin, encoding="utf-8-sig") as f:
+            return json.load(f)
+
+    def test_cree_le_fichier_absent(self):
+        liste, ajoutees = stats_youtube.fusionner_chaines(
+            self.chemin, [{"channel_id": "UC1", "nom": "Chaine A"}])
+        self.assertEqual(ajoutees, 1)
+        self.assertEqual(self._lire(), [{"channel_id": "UC1", "nom": "Chaine A"}])
+        self.assertEqual(liste, self._lire())
+
+    def test_n_efface_jamais_une_chaine_existante(self):
+        self._ecrire(json.dumps([{"channel_id": "UC1", "nom": "Ajoutee a la main"}]))
+
+        _, ajoutees = stats_youtube.fusionner_chaines(
+            self.chemin, [{"channel_id": "UC2", "nom": "Chaine B"}])
+
+        self.assertEqual(ajoutees, 1)
+        self.assertEqual([c["channel_id"] for c in self._lire()], ["UC1", "UC2"])
+        self.assertEqual(self._lire()[0]["nom"], "Ajoutee a la main")
+
+    def test_une_chaine_deja_presente_n_est_pas_dupliquee(self):
+        self._ecrire(json.dumps([{"channel_id": "UC1", "nom": "Chaine A"}]))
+        _, ajoutees = stats_youtube.fusionner_chaines(
+            self.chemin, [{"channel_id": "UC1", "nom": "Chaine A"}])
+        self.assertEqual(ajoutees, 0)
+        self.assertEqual(len(self._lire()), 1)
+
+    def test_un_nom_manquant_est_complete(self):
+        self._ecrire(json.dumps([{"channel_id": "UC1", "nom": None}]))
+        stats_youtube.fusionner_chaines(self.chemin, [{"channel_id": "UC1", "nom": "Chaine A"}])
+        self.assertEqual(self._lire()[0]["nom"], "Chaine A")
+
+    def test_un_fichier_illisible_n_est_pas_ecrase(self):
+        self._ecrire("{ ceci n'est pas du json")
+        with self.assertRaises(ValueError):
+            stats_youtube.fusionner_chaines(self.chemin, [{"channel_id": "UC1", "nom": "A"}])
+        with open(self.chemin, encoding="utf-8") as f:
+            self.assertIn("ceci n'est pas du json", f.read())

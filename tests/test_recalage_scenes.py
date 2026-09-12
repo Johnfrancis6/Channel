@@ -90,3 +90,71 @@ class TestConstruireAvecPhrases(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestScenesQuiCouvrentPlusieursPhrases(unittest.TestCase):
+    """
+    Le cas de la premiere video reelle : A6 a fusionne 24 phrases en 11
+    scenes. `recaler_scenes` refusait alors de recaler, donc les durees
+    restaient les estimations du storyboard — 98,8 s pour 82,5 s d'audio,
+    soit les 16,4 s d'ecart constatees.
+    """
+
+    def _phrases(self, bornes):
+        return {"phrases": [{"index": i + 1, "texte": f"p{i + 1}", "debut_s": d, "fin_s": f}
+                            for i, (d, f) in enumerate(bornes)],
+                "duree_totale_s": bornes[-1][1] + 1.0}
+
+    def test_une_scene_peut_couvrir_plusieurs_phrases(self):
+        scenes = [{"id": "s1", "duree_s": 6.4, "phrases": [1, 2]},
+                  {"id": "s2", "duree_s": 4.8, "phrases": [3]},
+                  {"id": "s3", "duree_s": 12.8, "phrases": [4, 5, 6]}]
+        phrases = self._phrases([(0.0, 2.3), (2.74, 4.54), (5.02, 7.88),
+                                 (8.88, 12.62), (12.98, 16.34), (17.02, 18.62)])
+
+        recalees, duree, avertissements = construire_props.recaler_scenes(scenes, phrases)
+
+        self.assertEqual(avertissements, [])
+        # s1 va de 0 a la fin de la phrase 2 ; s2 jusqu'a la fin de la 3 ;
+        # s3 jusqu'au bout de l'audio.
+        self.assertEqual([s["duree_s"] for s in recalees], [4.54, 3.34, 11.74])
+        self.assertEqual(duree, 19.62)
+        self.assertAlmostEqual(sum(s["duree_s"] for s in recalees), duree, places=2)
+
+    def test_la_duree_totale_suit_l_audio_et_non_le_storyboard(self):
+        # 98,8 s de storyboard pour 82,5 s d'audio : c'est l'audio qui gagne.
+        scenes = [{"id": "s1", "duree_s": 50.0, "phrases": [1]},
+                  {"id": "s2", "duree_s": 48.8, "phrases": [2]}]
+        phrases = {"phrases": [{"index": 1, "texte": "a", "debut_s": 0.0, "fin_s": 40.0},
+                               {"index": 2, "texte": "b", "debut_s": 40.5, "fin_s": 82.0}],
+                   "duree_totale_s": 82.5}
+
+        recalees, duree, _ = construire_props.recaler_scenes(scenes, phrases)
+
+        self.assertEqual(duree, 82.5)
+        self.assertEqual(sum(s["duree_s"] for s in recalees), 82.5)
+        # L'estimation d'origine reste lisible pour le diagnostic.
+        self.assertEqual(recalees[0]["duree_s_storyboard"], 50.0)
+
+    def test_un_numero_de_phrase_hors_script_fait_renoncer(self):
+        # Storyboard et script desynchronises : recaler serait pire que ne
+        # rien faire.
+        scenes = [{"id": "s1", "duree_s": 3.0, "phrases": [1]},
+                  {"id": "s2", "duree_s": 3.0, "phrases": [9]}]
+        phrases = self._phrases([(0.0, 2.0), (2.5, 4.0)])
+
+        recalees, _, avertissements = construire_props.recaler_scenes(scenes, phrases)
+
+        self.assertEqual([s["duree_s"] for s in recalees], [3.0, 3.0])
+        self.assertTrue(avertissements)
+
+    def test_l_appariement_un_pour_un_reste_valable(self):
+        # Storyboard sans la cle `phrases` : le comportement d'avant.
+        scenes = [{"id": "s1", "duree_s": 3.0}, {"id": "s2", "duree_s": 3.0}]
+        phrases = self._phrases([(0.0, 2.0), (2.5, 4.0)])
+
+        recalees, duree, avertissements = construire_props.recaler_scenes(scenes, phrases)
+
+        self.assertEqual(avertissements, [])
+        self.assertEqual([s["duree_s"] for s in recalees], [2.0, 3.0])
+        self.assertEqual(duree, 5.0)

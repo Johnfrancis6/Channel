@@ -10,7 +10,7 @@ signale dans "nouveaux_composants_necessaires" pour le Monteur (A7, §8) —
 ce script ne cree jamais de composant.
 
 **Ce script produit un squelette, pas un storyboard fini.** Il pose la
-structure (une scene par phrase, les durees, la direction artistique par
+structure (une scene par phrase au depart, les durees, la direction artistique par
 defaut de la charte) et marque chaque scene `a_completer`. C'est A6 qui
 tranche ensuite, scene par scene, le composant, ses parametres et la
 direction artistique — c'est le coeur de son travail (§8), pas quelque
@@ -132,6 +132,14 @@ def construire_scenes(phrases, composants_disponibles, da_defaut):
             # parametre de composant : afficher la phrase a l'ecran ferait
             # doublon avec les sous-titres, qui la portent deja.
             "phrase": phrase,
+            # Les phrases que la scene couvre, en numeros de ligne de
+            # 03_script_tts.txt. Le squelette en met une ; **si A6 fusionne
+            # des scenes, il fusionne ces listes** (§8). Sans elles, A7 ne
+            # peut recaler les durees que si le nombre de scenes est reste
+            # egal au nombre de phrases — ce qui n'a pas ete le cas sur la
+            # premiere video reelle : 11 scenes pour 24 phrases, donc aucun
+            # recalage, donc 16,4 s d'ecart entre le son et l'image.
+            "phrases": [i + 1],
             "composant": nom,
             "duree_s": duree_pour(phrase),
             "params": {},

@@ -151,7 +151,7 @@ python3 <chemin-du-skill>/scripts/generer_storyboard.py --video <video_id> --roo
   --sortie-json videos/<video_id>/05_storyboard.json
 ```
 
-Ce script pose la structure : une scene par phrase, les ids, les durees
+Ce script pose la structure : une scene par phrase au depart, les ids, les durees
 estimees, la DA par defaut de la charte. Il marque chaque scene
 `"a_completer": true`.
 
@@ -197,12 +197,23 @@ Quelques reperes de bon sens, en plus des regles de la charte : varier le
 moments qui portent le propos, et garder le hook sobre (rien ne bouge
 au-dela de l'entree).
 
-**Durees** : celles du squelette sont des estimations (~2.5 mots/s).
-Elles sont recalees automatiquement sur l'audio reel au montage, a partir
-de `04_phrases.json` (§7.2). Ce recalage **suppose une scene par phrase** :
-si tu fusionnes ou coupes des scenes, le compte ne correspond plus, le
-recalage est abandonne et le visuel derive de la voix. Ne t'en ecarte que
-si c'est vraiment necessaire, et dis-le dans le `.md`.
+**Durees** : celles du squelette sont des estimations. Elles sont
+recalees automatiquement sur l'audio reel au montage, a partir de
+`04_phrases.json` (§7.2).
+
+**La cle `phrases` de chaque scene est ce qui rend ce recalage possible.**
+Elle liste les numeros de ligne de `03_script_tts.txt` que la scene
+couvre. Le squelette en met une par scene. **Si tu fusionnes des scenes,
+fusionne les listes** : `"phrases": [6, 7, 8]`. Si tu en coupes une en
+deux, repartis les numeros.
+
+Une scene sans cette cle, ou un storyboard dont les numeros ne couvrent pas
+le script, fait abandonner le recalage : les durees restent des estimations
+et le visuel derive de la voix. C'est exactement ce qui s'est passe sur
+`2026-09-11_v01` — 11 scenes pour 24 phrases, aucune correspondance
+enregistree, **16,4 s d'ecart** entre 82,5 s de voix et 98,9 s d'image.
+Fusionner des scenes est legitime ; ne pas dire ce qu'elles couvrent ne
+l'est pas.
 
 Ecris **deux fichiers**, toujours coherents entre eux :
 
@@ -230,7 +241,7 @@ Ecris **deux fichiers**, toujours coherents entre eux :
 ```json
 {
   "scenes": [
-    {"id": "s1", "phrase": "...", "composant": "TitleCard", "duree_s": 3.2,
+    {"id": "s1", "phrase": "...", "phrases": [1, 2], "composant": "TitleCard", "duree_s": 3.2,
      "params": {"texte": "...", "sousTitre": "..."},
      "da": {"mouvement": "entree_par_le_bas", "rythme": "punch",
             "technique": "spring", "accent": "le titre"}}

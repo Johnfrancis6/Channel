@@ -439,6 +439,7 @@ Vérifié sur le dossier reconstitué de `2026-09-11_v01` : l'écart de
 | 8 | H1 : indicateurs tirés des `state.json`, rapports refusés lus, suivi des recommandations | ✅ fait |
 | 9 | Déclenchement : lanceur cron `outils/lancer_orchestrateur.py` | ✅ fait — reste à installer la crontab chez Franco |
 | 10 | E7 : les statuts de fin appartiennent à E7, abandon d'une vidéo, `programmee` → `publiee` sans `--force` | ✅ fait |
+| 11 | Recalage son/image : les scènes déclarent les phrases qu'elles couvrent + convertisseur de rattrapage | ✅ fait |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer
@@ -688,13 +689,71 @@ pouvait le voir. C'est la même leçon qu'aux composants Remotion, où trois
 défauts n'ont été trouvés qu'en regardant les rendus : le dépôt teste ce
 qui existe, pas ce qui devrait exister.
 
+## Le recalage son/image ne pouvait pas marcher
+
+Franco a demandé le convertisseur `04_timestamps.json` → `04_phrases.json`,
+pour éviter une re-synthèse de la vidéo 1. Il est écrit, testé sur les
+bornes réelles du run Qwen3-TTS — et **il n'aurait rien réglé seul.**
+
+En ouvrant le vrai `05_storyboard.json` avant de coder :
+
+| | |
+|---|---|
+| Phrases dans `03_script_tts.txt` | **24** |
+| Scènes dans `05_storyboard.json` | **11** |
+| Ce que fait `recaler_scenes` quand les nombres diffèrent | rien |
+
+A6 a fusionné les phrases en scènes — `STEP 1 — LLM` couvre trois phrases —
+et **la correspondance n'est écrite nulle part**. Les scènes `TitleCard`
+portent leur texte, mais `StickmanTalk` et `ConceptCutaway` ne portent
+qu'une pose et un label. Le lien phrase → scène était perdu à l'écriture.
+
+Donc : même avec un `04_phrases.json` parfait, le recalage était abandonné,
+les durées restaient les estimations du storyboard (98,8 s), et l'audio en
+faisait 82,5. Les 16,4 s d'écart ne venaient pas d'une constante fausse —
+elles venaient d'une **hypothèse jamais vérifiée** : « une scène par
+phrase ». Elle est fausse dès la première vidéo réelle, et c'est la bonne
+façon de faire : une illustration qui tient trois phrases vaut mieux qu'un
+plan qui change à chaque virgule.
+
+La correction est petite : chaque scène déclare `"phrases": [6, 7, 8]`, et
+A7 agrège. A6 fusionne les listes quand il fusionne les scènes. Un
+storyboard sans la clé retombe sur l'appariement 1 pour 1 ; des numéros qui
+débordent du script font abandonner le recalage avec un avertissement.
+
+### Le convertisseur, et ce qu'il ne prétend pas être
+
+Le notebook porte cet avertissement, écrit avant lui : *« c'est la seule
+étape du pipeline qui connaisse les bornes exactement ; après coup, on ne
+peut que les deviner, ce que le WER non nul rend fragile. »* C'est toujours
+vrai. Le script assume donc son statut :
+
+- il **mesure son propre alignement** et refuse d'écrire sous 80 %, parce
+  que des bornes fausses décaleraient tout le montage — mieux vaut rien ;
+- le fichier produit porte `source: "reconstruit"` ;
+- un script totalement étranger à l'audio l'arrête net.
+
+Vérifié sur les quatre premières phrases réelles de `2026-09-11_v01` : il
+retrouve exactement les bornes qu'avait écrites le notebook, contraction
+`Here's` / `Here is` comprise — c'est là que l'alignement par comptage de
+mots aurait dérivé.
+
+## A3 remplit lui-même la liste de chaînes
+
+Décision de Franco (12/09) : il donne les chaînes en conversation, l'agent
+les résout et les écrit. `--fusionner` **ajoute sans jamais retirer** : le
+fichier reste celui de Franco, et une chaîne ajoutée à la main entre deux
+analyses n'est pas effacée — même principe que le corpus. L'agent écrit la
+liste, il ne choisit pas les concurrents.
+
 ## En attente de Franco
 
 - **Installer la crontab** : `python3 outils/lancer_orchestrateur.py --root "<racine>" --verifier`,
   puis coller la ligne affichée dans `crontab -e` (§6.4).
 - La **vidéo de référence** pour caler le vocabulaire de segmentation.
-- **La liste de chaînes concurrentes** (`chaines_concurrentes.json`) et une
-  clé API YouTube : c'est le chemin critique du contenu tendance.
+- **La liste de chaînes concurrentes** : à donner à A3 en conversation
+  (URLs ou `@handles`), il résout et écrit `chaines_concurrentes.json`
+  lui-même depuis le 12/09. La clé API est déjà configurée.
 - `00_Profil/projets_franco.md` — facultatif désormais, à compléter au fil
   des vidéos. Fichier qu'il écrit, qu'aucun agent n'écrit.
 - Le lexique de prononciation sur le Drive (entrées en épellation).

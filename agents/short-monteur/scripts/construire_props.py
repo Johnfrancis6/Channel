@@ -13,8 +13,9 @@ Usage :
 durees de scenes sur l'audio reellement synthetise. Sans lui, les scenes
 gardent l'estimation a ~2.5 mots/s du storyboard : le visuel derive de la
 voix des la premiere phrase un peu longue, et la video se termine avant ou
-apres l'audio. A6 fait une scene par phrase, donc le recalage est un simple
-appariement par index.
+apres l'audio. Chaque scene declare les phrases qu'elle couvre (cle
+`phrases`), parce qu'une scene en illustre souvent plusieurs ; a defaut, on
+retombe sur l'appariement 1 pour 1 quand les nombres coincident.
 
 Normalise `04_timestamps.json` quelle que soit sa forme exacte (le
 notebook voix off n'est pas encore fige, §13 etape 4) : accepte une liste
@@ -43,6 +44,37 @@ def normaliser_mots(data):
     return mots
 
 
+def _fins_par_scene(scenes, phrases):
+    """
+    Fin de chaque scene, en secondes, ou None si on ne sait pas la calculer.
+
+    Deux appariements, dans cet ordre :
+
+    1. **chaque scene declare les phrases qu'elle couvre** (`phrases`, ecrit
+       par le squelette d'A6 et fusionne par A6 quand il fusionne des
+       scenes). C'est le cas general : une scene illustre souvent plusieurs
+       phrases ;
+    2. **autant de scenes que de phrases** : l'appariement 1 pour 1 des
+       storyboards qui n'ont pas encore la cle `phrases`.
+
+    Sinon on ne devine pas. Un appariement par index sur des nombres
+    differents decalerait tout le montage, ce qui est pire que de garder
+    l'estimation du storyboard.
+    """
+    numeros = [s.get("phrases") for s in scenes]
+    if all(isinstance(n, list) and n for n in numeros):
+        fins = []
+        for n in numeros:
+            dernier = max(int(x) for x in n)
+            if not 1 <= dernier <= len(phrases):
+                return None
+            fins.append(float(phrases[dernier - 1]["fin_s"]))
+        return fins
+    if len(scenes) == len(phrases):
+        return [float(p["fin_s"]) for p in phrases]
+    return None
+
+
 def recaler_scenes(scenes, phrases_json):
     """
     Cale les durees de scenes sur les bornes reelles des phrases.
@@ -51,31 +83,32 @@ def recaler_scenes(scenes, phrases_json):
     sans trou : la duree d'une scene va de la fin de la phrase precedente a
     la fin de la sienne, ce qui absorbe la pause inter-phrases. La derniere
     scene est prolongee jusqu'au bout de l'audio.
-
-    En cas de desaccord de nombre (A6 a fusionne ou coupe des scenes,
-    storyboard d'avant la revue du 11/09/2026), on ne recale rien : mieux
-    vaut l'estimation du storyboard qu'un appariement par index qui
-    decalerait tout le montage. L'avertissement remonte a l'agent.
     """
     phrases = phrases_json.get("phrases") or []
     duree_totale = phrases_json.get("duree_totale_s")
     if not phrases:
         return scenes, duree_totale, ["04_phrases.json ne contient aucune phrase — durees du storyboard conservees."]
-    if len(phrases) != len(scenes):
+
+    fins = _fins_par_scene(scenes, phrases)
+    if fins is None:
         return scenes, duree_totale, [
-            f"{len(phrases)} phrases pour {len(scenes)} scenes — recalage impossible, "
-            "durees du storyboard conservees. Verifie que le storyboard suit bien "
-            "03_script_tts.txt ligne a ligne (§8)."
+            f"{len(phrases)} phrases pour {len(scenes)} scenes, et les scenes ne disent "
+            "pas quelles phrases elles couvrent — recalage impossible, durees du "
+            "storyboard conservees. Ajoute la cle `phrases` a chaque scene du "
+            "storyboard (§8) : c'est ce qui permet a une scene d'en illustrer "
+            "plusieurs sans perdre le recalage."
         ]
 
     fin_audio = duree_totale if duree_totale is not None else float(phrases[-1]["fin_s"])
     scenes_recalees = []
     precedent = 0.0
-    for i, (scene, phrase) in enumerate(zip(scenes, phrases)):
-        fin = fin_audio if i == len(phrases) - 1 else float(phrase["fin_s"])
+    for i, scene in enumerate(scenes):
+        # La derniere scene va jusqu'au bout de l'audio : sinon la video
+        # s'arrete avant la voix off.
+        fin = fin_audio if i == len(scenes) - 1 else fins[i]
         duree = round(max(fin - precedent, 0.1), 3)
         scenes_recalees.append({**scene, "duree_s": duree, "duree_s_storyboard": scene.get("duree_s")})
-        precedent = fin
+        precedent = max(fin, precedent)
     return scenes_recalees, fin_audio, []
 
 

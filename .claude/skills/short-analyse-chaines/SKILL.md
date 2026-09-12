@@ -21,20 +21,29 @@ Deux parties, de fiabilite tres differente (§4.3) :
 ## Etape 1 — Lire la liste de chaines
 
 `00_Profil/chaines_concurrentes.json` : `[{"channel_id": "UCxxxx", "nom": "..."}]`.
-Si le fichier est vide, dis-le a Franco et arrete-toi : ce n'est pas a cet
-agent de choisir des concurrents (§4.3).
 
-**Si Franco te donne des URLs ou des `@handles`** plutot que des
-identifiants, resous-les d'abord — la sortie est directement collable dans
-`chaines_concurrentes.json` :
+**Si Franco te donne des chaines dans la conversation** (URLs, `@handles`
+ou identifiants), c'est toi qui remplis le fichier — il n'a pas a le faire
+a la main :
 
 ```bash
 python3 <chemin-du-skill>/scripts/stats_youtube.py \
-  --chaines "https://youtube.com/@unechaine" "@uneautre" --resoudre
+  --chaines "https://youtube.com/@unechaine" "@uneautre" --resoudre \
+  --fusionner <racine>/00_Profil/chaines_concurrentes.json
 ```
 
+`--fusionner` **ajoute sans jamais retirer** : le fichier reste celui de
+Franco, et une chaine qu'il y aurait mise a la main entre deux analyses
+n'est pas effacee. Le retour dit combien ont ete ajoutees et lesquelles ont
+echoue ; annonce les echecs plutot que de les taire. Sans `--fusionner`, la
+sortie est simplement collable.
+
 Une URL YouTube moderne n'expose plus l'identifiant `UC` : le script
-accepte donc les trois formes (identifiant, handle, URL).
+accepte les trois formes (identifiant, handle, URL).
+
+Si le fichier est vide **et** que Franco ne t'a rien donne, dis-le-lui et
+arrete-toi : tu peux ecrire la liste, tu ne choisis pas les concurrents
+(§4.3).
 
 ## Etape 2 — Statistiques (voie stable)
 

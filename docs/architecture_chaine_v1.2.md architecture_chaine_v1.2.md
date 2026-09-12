@@ -25,6 +25,8 @@ Relecture du pipeline étape par étape sur les artefacts réellement produits. 
 - **Consignes structurées à la création** : `format`, `reference` et `idees_max` remplacent le fourre-tout de `note_franco`, et sont lues par le Chercheur **et** le Designer.
 - **Le rapport de checkpoint ne perd plus sa partie décisionnelle** : l'extrait préserve d'abord les sections qui portent la décision (§5.5).
 - **Titre de travail borné à 80 caractères** : un sujet d'une phrase entière ne fait pas un titre.
+- **Le recalage son/image était inopérant** : il exigeait une scène par phrase, or A6 fusionne (11 scènes pour 24 phrases sur la vidéo 1, d'où 16,4 s d'écart). Chaque scène déclare désormais les **phrases qu'elle couvre** (§8). Et `outils/phrases_depuis_timestamps.py` reconstruit `04_phrases.json` pour les vidéos dont l'audio est antérieur au changement (§7.2).
+- **A3 écrit la liste de chaînes concurrentes** que Franco lui donne en conversation, en ajout seul (§4.3).
 - **E7 tenait, l'Orchestrateur la défaisait** : `publier.py` écrivait `publiee`, le passage suivant réécrivait `prete`. Les statuts au-delà de `prete` appartiennent désormais à E7, et une vidéo publiée ou abandonnée sort du pipeline (§5.3, §11). Ajout de l'abandon, qu'aucun code n'écrivait alors que quatre endroits le lisaient.
 - **L'Orchestrateur tourne sur cron** : `outils/lancer_orchestrateur.py`, toutes les 15 minutes (§6.4). Le lanceur existe parce que `main.py` lancé sur un Drive non monté écrit une fausse racine locale **et sort 0** — cron n'aurait rien signalé.
 - **H1 mesure au lieu de relire** : `rassembler_inputs.py` agrège les `state.json` (tentatives, alertes, refus, boucles, durées) et expose le suivi `recommandations.jsonl`. Le signal le plus fort de la semaine — huit tentatives sur `E4_audio` — vivait dans des fichiers que H1 n'ouvrait pas (§4.3).
@@ -147,6 +149,7 @@ Chaque agent respecte les mêmes règles vis-à-vis de `state.json` :
 - Ses inputs sont la liste de chaînes et mots-clés fournie par Franco et `profil_chaine.md`.
 
 **A3 — Analyseur de chaînes (hebdo)**
+- **Il écrit `00_Profil/chaines_concurrentes.json`** à partir de la liste que Franco lui donne en conversation (URLs, `@handles` ou identifiants) — `stats_youtube.py --resoudre --fusionner`, en **ajout seul** : le fichier reste celui de Franco, et une chaîne qu'il y aurait mise à la main n'est jamais effacée. Il écrit la liste, il ne choisit pas les concurrents.
 - Il **segmente chaque vidéo** avec `outils/analyser_transcription.py` : le LLM attribue un rôle à chaque phrase (vocabulaire fermé — `hook`, `promesse`, `contexte`, `idee`, `exemple`, `transition`, `cta`, `sponsoring`), le script mesure et valide. Les mesures s'accumulent dans `02_Veille_hebdo/corpus_structures.jsonl`, **append-only**.
 - Avant, il produisait une note en prose **indexée par chaîne** : ni mesurable, ni comparable, ni cumulable — et le hook, le CTA et le rythme sont des propriétés d'**une** vidéo, pas d'une chaîne. Le rapport hebdomadaire étant un fichier neuf chaque semaine, rien ne s'accumulait dans tout le système.
 - Il accepte les chaînes sous trois formes : identifiant `UCxxxx`, `@handle`, ou URL (`--resoudre` les convertit).
@@ -438,6 +441,16 @@ Les quatre premiers runs de `2026-09-11_v01` étaient à 93-98 % (fuite de réf�
 
 **Écart assumé avec la v1.1** : le contrôle qualité est **global** et non par phrase, et la régénération est relancée par Franco (`MODE = 'resume_after_fail'`) plutôt qu'automatiquement, 3 fois. C'est plus simple, mais ça a un coût : une seule phrase mal prononcée fait échouer tout le run, et le rapport ne signale plus *quelle* phrase a raté. Le §4.3 ne demande plus à H1 « les phrases signalées par le contrôle qualité » — cet input n'existe pas ; H1 travaille sur le diff référence/transcrit, présent uniquement quand le WER échoue. À reprendre quand les runs réels diront si le cas est fréquent (§12).
 
+**Rattraper une vidéo sans `04_phrases.json`.** Les bornes de phrases ne sont écrites que lors d'une **synthèse complète** : le notebook les connaît exactement, puisqu'il assemble lui-même les clips. Les vidéos antérieures à cette révision n'en ont pas, et les relancer coûte une re-synthèse entière (sur `2026-09-11_v01`, bloquée de surcroît par le plafond de tentatives). `outils/phrases_depuis_timestamps.py` les **reconstruit** en réalignant les mots transcrits sur `03_script_tts.txt` :
+
+```bash
+python3 outils/phrases_depuis_timestamps.py \
+  --timestamps 04_timestamps.json --script 03_script_tts.txt \
+  --audio 04_voixoff.wav --sortie 04_phrases.json
+```
+
+C'est une **approximation assumée** : l'alignement dépend du WER. Le script mesure donc le sien (`taux_alignement`), **refuse d'écrire** sous 80 % — des bornes fausses décaleraient tout le montage — et marque le fichier `source: "reconstruit"`, pour qu'on ne le confonde jamais avec des bornes exactes. Pour une vidéo neuve, c'est le notebook qui a raison.
+
 ### 7.3 Budget et calibrage des phrases (appliqués par A5)
 
 **Le budget du Short, d'abord.** La durée n'est pas fixée en secondes : c'est le **nombre d'idées** qui est plafonné (`consignes.idees_max`, 3 par défaut), et le coût en mots d'une idée dépend du format (§8). A5 mesure le total avec `metriques.py --idees N` et tranche :
@@ -537,11 +550,11 @@ Huit règles séparent une animation vivante d'une animation mécanique. Elles s
 
 ### Durées de scènes
 
-Les durées du storyboard sont des **estimations** (~2,5 mots/s). Elles sont recalées au montage sur `04_phrases.json`, borne à borne, par `construire_props.py --phrases`. Trois conséquences :
+Les durées du storyboard sont des **estimations** ; elles sont recalées au montage sur les bornes réelles de `04_phrases.json` (§7.2).
 
-- le recalage **suppose une scène par phrase** ; si A6 fusionne ou coupe des scènes, le compte ne correspond plus, le recalage est abandonné (avec avertissement) et l'estimation est conservée ;
-- les scènes se suivent sans trou : une scène va de la fin de la phrase précédente à la fin de la sienne, ce qui absorbe la pause inter-phrases ;
-- la composition ne dure **jamais moins que l'audio** : `duree_audio_s` est passé aux props, la dernière scène absorbe le reliquat. Sans ça, une voix off plus longue que la somme des scènes était coupée net.
+**Chaque scène déclare les phrases qu'elle couvre** — `"phrases": [6, 7, 8]`, en numéros de ligne de `03_script_tts.txt`. Le squelette d'A6 en met une par scène ; **A6 fusionne les listes quand il fusionne des scènes**, et A7 agrège les bornes correspondantes.
+
+Sans cette clé, le recalage ne fonctionnait que si le nombre de scènes égalait le nombre de phrases — hypothèse fausse dès la première vidéo réelle : **11 scènes pour 24 phrases**, donc aucun recalage, donc **16,4 s d'écart** entre 82,5 s de voix et 98,9 s d'image. Fusionner des scènes est légitime ; ne pas dire ce qu'elles couvrent ne l'est pas. Un storyboard sans la clé retombe sur l'appariement 1 pour 1 ; un storyboard dont les numéros débordent du script fait abandonner le recalage, avec un avertissement — mieux vaut l'estimation qu'un décalage général.
 
 ### Ce que le premier catalogue a corrigé
 

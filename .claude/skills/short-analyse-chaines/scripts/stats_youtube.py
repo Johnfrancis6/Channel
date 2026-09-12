@@ -17,6 +17,8 @@ exactement le genre de friction qui fait qu'on ne remplit jamais la liste.
 Usage :
   python3 stats_youtube.py --chaines UCxxxx @nomdechaine https://youtube.com/@autre
   python3 stats_youtube.py --chaines @nomdechaine --resoudre
+  python3 stats_youtube.py --chaines @nomdechaine --resoudre \
+      --fusionner 00_Profil/chaines_concurrentes.json
 Sortie : JSON sur stdout, une entree par chaine.
 """
 import argparse
@@ -24,6 +26,7 @@ import json
 import os
 import re
 import sys
+from pathlib import Path
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -144,6 +147,48 @@ def recuperer_chaine(reference, api_key, nb_videos=5):
     return resume
 
 
+def fusionner_chaines(chemin, resolues):
+    """
+    Ajoute les chaines resolues au fichier, sans jamais en retirer.
+
+    Franco donne sa liste en conversation et l'agent l'ecrit, mais le
+    fichier reste **le sien** : un agent qui remplace son contenu effacerait
+    une chaine ajoutee a la main entre deux analyses. On ajoute, on
+    dedoublonne par `channel_id`, et on met a jour un nom manquant.
+
+    Retourne (liste ecrite, nb ajoutees).
+    """
+    chemin = Path(chemin)
+    existantes = []
+    if chemin.is_file():
+        try:
+            charge = json.loads(chemin.read_text(encoding="utf-8-sig"))
+            if isinstance(charge, list):
+                existantes = [c for c in charge if isinstance(c, dict) and c.get("channel_id")]
+        except json.JSONDecodeError:
+            # Un fichier illisible n'est pas une raison de le perdre.
+            raise ValueError(f"{chemin} n'est pas un JSON valide — corrige-le avant de fusionner.")
+
+    par_id = {c["channel_id"]: dict(c) for c in existantes}
+    ajoutees = 0
+    for chaine in resolues:
+        cid = chaine.get("channel_id")
+        if not cid:
+            continue
+        if cid in par_id:
+            if not par_id[cid].get("nom") and chaine.get("nom"):
+                par_id[cid]["nom"] = chaine["nom"]
+        else:
+            par_id[cid] = {"channel_id": cid, "nom": chaine.get("nom")}
+            ajoutees += 1
+
+    liste = [par_id[c["channel_id"]] for c in existantes] + \
+            [v for k, v in par_id.items() if k not in {c["channel_id"] for c in existantes}]
+    chemin.parent.mkdir(parents=True, exist_ok=True)
+    chemin.write_text(json.dumps(liste, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return liste, ajoutees
+
+
 def main():
     ap = argparse.ArgumentParser(description="Statistiques de chaines concurrentes (§4.3, A3).")
     ap.add_argument("--chaines", nargs="+", required=True,
@@ -152,6 +197,9 @@ def main():
     ap.add_argument("--resoudre", action="store_true",
                     help="Resout les references en channel_id et sort, sans recuperer les videos "
                          "— pour remplir 00_Profil/chaines_concurrentes.json")
+    ap.add_argument("--fusionner", metavar="CHEMIN",
+                    help="Avec --resoudre : ajoute les chaines resolues a ce fichier "
+                         "(00_Profil/chaines_concurrentes.json) sans en retirer aucune.")
     a = ap.parse_args()
 
     api_key = os.environ.get("YOUTUBE_API_KEY")
@@ -163,13 +211,24 @@ def main():
     resultats = [recuperer_chaine(c, api_key, nb_videos) for c in a.chaines]
 
     if a.resoudre:
-        # Forme directement collable dans chaines_concurrentes.json.
-        print(json.dumps(
-            [{"channel_id": r["channel_id"], "nom": r.get("titre")}
-             for r in resultats if not r.get("erreur")]
-            + [{"reference": r.get("reference"), "erreur": r["erreur"]}
-               for r in resultats if r.get("erreur")],
-            ensure_ascii=False, indent=2))
+        resolues = [{"channel_id": r["channel_id"], "nom": r.get("titre")}
+                    for r in resultats if not r.get("erreur")]
+        echecs = [{"reference": r.get("reference"), "erreur": r["erreur"]}
+                  for r in resultats if r.get("erreur")]
+
+        if a.fusionner:
+            try:
+                liste, ajoutees = fusionner_chaines(a.fusionner, resolues)
+            except (OSError, ValueError) as e:
+                print(json.dumps({"ok": False, "message": str(e)}, ensure_ascii=False, indent=2))
+                sys.exit(2)
+            print(json.dumps({"ok": True, "fichier": a.fusionner, "ajoutees": ajoutees,
+                              "total": len(liste), "echecs": echecs},
+                             ensure_ascii=False, indent=2))
+            return
+
+        # Sans --fusionner : forme directement collable dans le fichier.
+        print(json.dumps(resolues + echecs, ensure_ascii=False, indent=2))
         return
 
     print(json.dumps({"ok": True, "chaines": resultats}, ensure_ascii=False, indent=2))

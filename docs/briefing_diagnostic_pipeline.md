@@ -186,13 +186,15 @@ Relancer l'audio de la vidéo 1 est bloqué **deux fois** : `E4_audio.statut`
 vaut `termine`, et `tentatives = 8` dépasse le plafond de 3. Or
 `04_phrases.json` n'est écrit que par une **synthèse complète**.
 
-Deux sorties, à trancher avec Franco :
-- éditer `state.json` à la main (statut → `attente_franco`, tentatives → 0)
-  puis relancer en `MODE = "full"` + `FORCER_RELANCE = True` ;
-- **ou** écrire un convertisseur `04_timestamps.json` → `04_phrases.json` :
-  les timestamps mot à mot existent déjà, il n'y a qu'à regrouper par
-  phrase. Évite la re-synthèse *et* l'édition manuelle, et sert de repli
-  pour toute vidéo antérieure au changement. C'est l'option recommandée.
+**Réglé le 12/09** : `outils/phrases_depuis_timestamps.py` reconstruit les
+bornes depuis les timestamps mot à mot, sans re-synthèse ni édition
+manuelle. Une commande, décrite au §7.2. Il reste à **la lancer** sur la
+vidéo 1, puis à relancer A7.
+
+Attention : c'est une approximation (le script mesure son alignement et
+refuse d'écrire sous 80 %), et le fichier produit porte
+`source: "reconstruit"`. Pour une vidéo neuve, c'est le notebook qui a
+raison.
 
 ---
 
@@ -275,8 +277,9 @@ relit `03_Amelioration/recommandations.jsonl` avant de proposer.
 ### Le blocage
 
 `chaines_concurrentes.json` est vide. **Tant qu'il l'est, A3 n'a rien à
-analyser** et « se baser sur le contenu qui marche » reste une intention.
-C'est le premier maillon à débloquer avec Franco.
+analyser.** Depuis le 12/09 c'est A3 qui le remplit : Franco donne ses
+chaînes en conversation (URLs ou `@handles`), le script les résout et les
+fusionne dans le fichier, en ajout seul. Demande-lui la liste.
 
 ---
 
@@ -292,7 +295,7 @@ consolide l'existant.
 ## Ce qui appartient à Franco, et à personne d'autre
 
 - installer la crontab et remplir `orchestrateur_cmd` ;
-- remplir `00_Profil/chaines_concurrentes.json` ;
+- **donner** sa liste de chaînes concurrentes à A3 (c'est A3 qui écrit le fichier) ;
 - corriger `00_Profil/lexique_prononciation.md` (épellations) ;
 - le **format** de la vidéo 2 et la **vidéo de référence** pour la
   segmentation ;
