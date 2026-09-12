@@ -24,6 +24,19 @@ Quatre taches :
 3. **Normalisation phonetique** : appliquer `00_Profil/lexique_prononciation.md`
    (sigles, noms de modeles, versions).
 
+**Regle des sigles (§7.4), a lire avant de proposer une prononciation.** Un
+sigle courant s'ecrit **normalement** — `LLM`, `MCP`, `VS Code` — jamais
+epele lettre par lettre (`L L M`). L'epellation casse le controle qualite :
+Whisper retranscrit `LLM`, donc le WER compte des erreurs qui n'en sont pas.
+**N'entre au lexique que ce que la synthese prononce reellement mal, verifie
+sur un run** — pas ce qu'on suppose difficile.
+
+Ce n'est pas theorique : au CP2 de `2026-09-11_v01`, A5 a propose `Git Hub`,
+`V S Code` et `M C P`, deja appliques au fichier TTS « pour ne pas bloquer la
+suite », et Franco a valide tel quel. Mesure apres coup : **3 a 5 points de
+WER fabriques** sur un audio par ailleurs propre, assez pour faire echouer
+un seuil a 3 %.
+
 ## Etape 1 — Verifier que c'est bien son tour
 
 `etapes.E3_filtre.statut` doit etre `a_venir` ou `echec`, et
@@ -69,7 +82,8 @@ calibre, pas le script qui est mauvais. Tu peux alors remesurer avec
 `--mots-par-idee` pour montrer ce que ca donnerait.
 
 Le contre-exemple est dans le depot : sur `2026-09-11_v01`, le script
-faisait **264 mots** — 82,5 s de voix off — et personne ne l'a mesure. Le
+faisait **258 mots** — 92,1 s de voix off estimees — et personne ne l'a
+mesure. Le
 depassement n'a ete vu qu'a E5, quand tout etait deja ecrit et enregistre.
 
 Ce script ne fait que compter ; le jugement sur le style et les zombie nouns
@@ -107,9 +121,32 @@ le controle qualite audio la surveille.
 - `videos/{video_id}/03_script_final.md` — version lisible, validee au CP2
 - `videos/{video_id}/03_script_tts.txt` — une phrase par ligne, lexique
   applique, sans changement de sens par rapport au script final
-- `videos/{video_id}/03_rapport_metriques.md` — metriques + **nouveaux
-  termes** du lexique rencontres, avec une proposition de prononciation a
-  valider au CP2
+- `videos/{video_id}/03_rapport_metriques.md` — il commence par une section
+  **`## Budget`**, avant tout le reste :
+
+```markdown
+## Budget
+
+| Mesure | Valeur |
+|---|---|
+| Mots prononces | 258 |
+| Budget ({idees_max} idees x {mots_par_idee}) | 135 |
+| Ratio | 1.91 |
+| Duree estimee / budget | 92.1 s / 48.2 s |
+| Verdict | **depasse** |
+
+{Une phrase : ce que tu as fait, ou ce que tu demandes a Franco.}
+```
+
+  Cette section est **obligatoire, meme quand le verdict est `ok`** : c'est
+  la seule ligne du rapport de CP2 qui parle de longueur. Sans elle, un
+  verdict `limite` que tu resserres seul, et surtout le signal « ce format
+  coute plus de mots par idee » de l'etape 3, n'atteignent jamais Franco —
+  c'est ce qui s'est passe sur `2026-09-11_v01`, ou le CP2 a ete valide
+  sans qu'une ligne ne mentionne un depassement de 91 %.
+
+  Puis les **nouveaux termes** du lexique rencontres, avec une proposition
+  de prononciation a valider au CP2.
 
 ## Etape 6 — Cloturer
 

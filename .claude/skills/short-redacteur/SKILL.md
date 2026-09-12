@@ -58,7 +58,7 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
 
 **Le budget d'abord.** `idees_max` idees porteuses, environ 45 mots
 chacune. Une idee de plus, et c'est tout l'aval qui derape : sur
-`2026-09-11_v01`, le script faisait 264 mots pour un budget de 135 — 82,5 s
+`2026-09-11_v01`, le script faisait 258 mots pour un budget de 135 — 92,1 s
 de voix off au lieu de ~42 s, et le probleme n'a ete vu qu'au montage,
 quand l'audio etait deja enregistre.
 

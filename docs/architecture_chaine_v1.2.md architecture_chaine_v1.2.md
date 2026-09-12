@@ -461,7 +461,7 @@ C'est une **approximation assumée** : l'alignement dépend du WER. Le script me
 | `limite` | ≤ +20 % | se resserre au calibrage — c'est du gras |
 | `depasse` | > +20 % | **renvoi à A4** : c'est une idée de trop, ça se règle en réécrivant |
 
-Vérifié sur `2026-09-11_v01` : 258 mots pour un budget de 135, ratio **1,91**, 123 mots de trop, 80,6 s estimées contre 42 s de budget. Le contrôle aurait crié à E3 ; en son absence, le dépassement n'a été vu qu'à E5, l'audio déjà enregistré, et repoussé au CP3.
+Vérifié sur `2026-09-11_v01` : 258 mots pour un budget de 135, ratio **1,91**, 123 mots de trop, 92,1 s estimées contre 48,2 s de budget. Le contrôle aurait crié à E3 ; en son absence, le dépassement n'a été vu qu'à E5, l'audio déjà enregistré, et repoussé au CP3.
 
 Le débit de référence est **2,8 mots/seconde**, mesuré sur cette même vidéo : **231 mots réellement prononcés** pour 82,5 s de voix off, pauses comprises. Une première estimation à 3,2 partait du script brut, marqueurs de mise en scène compris (`[intro — stickman face camera]`) — 27 mots jamais dits, soit 14 % d'erreur. `metriques.py` les retire désormais.
 

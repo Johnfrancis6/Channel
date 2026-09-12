@@ -122,15 +122,25 @@ SECTIONS_RELEGUEES = ("Sources",)
 
 
 def _rang_section(titre, motifs_prioritaires):
-    """0 porte la decision, 1 l'informe, 2 ne fait que la documenter."""
+    """
+    (rang, sous-rang) : 0 porte la decision, 1 l'informe, 2 ne fait que la
+    documenter.
+
+    Le sous-rang est la **position du motif dans `sections_prioritaires`**.
+    Sans lui, les sections prioritaires se servaient entre elles dans
+    l'ordre du document, et l'ordre declare ne voulait rien dire : au CP2,
+    `Hors cible` precede `Budget` dans le rapport et prenait tout le budget,
+    alors que le verdict de longueur est ce qui porte la decision.
+    """
     if not titre:
-        return 1
+        return (1, 0)
     normalise = _normaliser_titre(titre)
-    if any(motif in normalise for motif in motifs_prioritaires):
-        return 0
+    for position, motif in enumerate(motifs_prioritaires):
+        if motif in normalise:
+            return (0, position)
     if any(_normaliser_titre(r) in normalise for r in SECTIONS_RELEGUEES):
-        return 2
-    return 1
+        return (2, 0)
+    return (1, 0)
 
 
 def _extraire_sections(contenu, max_chars, sections_prioritaires):
@@ -150,6 +160,11 @@ def _extraire_sections(contenu, max_chars, sections_prioritaires):
     caracteres pour 3000) : 506 caracteres de liens gardes entiers pendant
     que `## Faits verifies` — le coeur de la recherche — tombait a 622 sur
     2151. Le troisieme rang lui rend exactement ces 506 caracteres : 1128.
+
+    Le meme defaut vivait un rang plus haut : entre sections prioritaires,
+    c'etait encore l'ordre du document qui tranchait. Au CP2, `Hors cible`
+    precede `Budget` dans le rapport et prenait tout. L'ordre dans lequel
+    `sections_prioritaires` est ecrit fait donc foi.
     """
     if len(contenu) <= max_chars:
         return contenu
@@ -158,19 +173,21 @@ def _extraire_sections(contenu, max_chars, sections_prioritaires):
     motifs = [_normaliser_titre(p) for p in sections_prioritaires if p]
     rangs = [_rang_section(titre, motifs) for titre, _ in sections]
 
+    # Rang, puis ordre declare des priorites, puis ordre du document.
+    ordre = sorted(range(len(sections)), key=lambda i: (rangs[i], i))
+
     budget = max_chars
     gardees = {}
-    for rang in (0, 1, 2):
-        for i in [j for j, r in enumerate(rangs) if r == rang]:
-            if budget <= 0:
-                break
-            bloc = sections[i][1]
-            if len(bloc) > budget:
-                gardees[i] = _tronquer(bloc, budget)
-                budget = 0
-            else:
-                gardees[i] = bloc
-                budget -= len(bloc)
+    for i in ordre:
+        if budget <= 0:
+            break
+        bloc = sections[i][1]
+        if len(bloc) > budget:
+            gardees[i] = _tronquer(bloc, budget)
+            budget = 0
+        else:
+            gardees[i] = bloc
+            budget -= len(bloc)
 
     morceaux = []
     precedent = None
@@ -205,8 +222,12 @@ RESUME_SOURCES = {
              ("Points a trancher", "Angle confirme", "Angle propose",
               "Incertitudes", "Matiere a hook"))],
     "CP2": [("03_script_final.md", "Script final", ()),
-            ("03_rapport_metriques.md", "Rapport metriques (nouveaux termes de lexique)",
-             ("Nouveaux termes", "Lexique", "A corriger", "Hors cible"))],
+            ("03_rapport_metriques.md", "Rapport metriques (budget et nouveaux termes)",
+             # "Budget" d'abord : c'est la seule section du CP2 qui parle de
+             # longueur. Sur 2026-09-11_v01 le script depassait de 91 % et le
+             # rapport n'en disait pas un mot — ni le gabarit d'A5 ni ces
+             # priorites ne prevoyaient la question.
+             ("Budget", "Nouveaux termes", "Lexique", "A corriger", "Hors cible"))],
     "CP3": [("05_storyboard.md", "Storyboard (rappel du plan)",
              ("Nouveaux composants", "Duree totale"))],
 }

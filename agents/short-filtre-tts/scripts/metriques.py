@@ -10,7 +10,7 @@ plafonne, et le cout en mots d'une idee depend du format (§8). Le budget
 se deduit donc de `consignes.idees_max`.
 
 Sans ce controle, personne ne mesurait la longueur totale avant le
-montage : sur 2026-09-11_v01, le script faisait 264 mots — 82,5 s de voix
+montage : sur 2026-09-11_v01, le script faisait 258 mots — 92,1 s de voix
 off — et le depassement n'a ete constate qu'a E5, quand tout etait deja
 ecrit et enregistre. Le Designer l'a signale sans pouvoir rien faire, en le
 repoussant au CP3.

@@ -295,3 +295,30 @@ class TestRangsDeSections(unittest.TestCase):
         self.assertIn(accroche.strip(), extrait)
         self.assertLess(extrait.index("Matiere a hook"), len(extrait))
         self.assertNotIn("lien. " * 200, extrait)
+
+
+class TestBudgetAuCP2(unittest.TestCase):
+    """
+    Sur 2026-09-11_v01, le script depassait le budget de 91 % et le rapport
+    de CP2 n'en disait pas un mot : ni le gabarit d'A5 ni les priorites du
+    checkpoint ne prevoyaient la question. Franco a valide sans savoir.
+    """
+
+    def _prioritaires_metriques(self):
+        (_, _, prioritaires), = [s for s in engine.RESUME_SOURCES["CP2"]
+                                 if s[0] == "03_rapport_metriques.md"]
+        return prioritaires
+
+    def test_le_budget_est_prioritaire(self):
+        prioritaires = self._prioritaires_metriques()
+        self.assertIn("Budget", prioritaires)
+        # Il passe avant les termes de lexique : une prononciation se
+        # rattrape au run suivant, une idee de trop se reecrit.
+        self.assertLess(prioritaires.index("Budget"), prioritaires.index("Nouveaux termes"))
+
+    def test_le_verdict_survit_a_la_coupe(self):
+        document = ("# Rapport metriques\n\n"
+                    "## Hors cible\n\n" + "phrase longue. " * 200 + "\n\n"
+                    "## Budget\n\n| Ratio | 1.91 |\n| Verdict | **depasse** |\n")
+        extrait = engine._extraire_sections(document, 400, self._prioritaires_metriques())
+        self.assertIn("depasse", extrait)

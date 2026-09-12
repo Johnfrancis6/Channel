@@ -179,7 +179,7 @@ qu'aucun test ne pouvait attraper.
 1. Le rapport CP2 permet-il de trancher, ou noie-t-il la décision comme le
    faisait CP1 ?
 2. Le script réel tient-il le budget en idées, mesuré et non estimé ?
-3. Le lexique du Drive contredit le §7.4 (7 entrées épelées). Il a été écrit
+3. Le lexique du Drive contredit le §7.4 (5 entrées épelées sur 7). Il a été écrit
    **après** le script de la vidéo 1, donc il n'a rien abîmé — mais il
    s'appliquerait à tous les suivants. Le ramener à ce que le §7.4 autorise.
 

@@ -346,10 +346,19 @@ Corrigé à trois endroits :
 11 mots — les chiffres exacts du `state.json` — 258 mots, ratio **1,91**,
 123 mots de trop. Le contrôle aurait crié à E3.
 
-Et la durée estimée tombe à **80,6 s** contre 82,5 s réellement enregistrées :
-**2,3 % d'écart**. Le débit de 3,2 mots/s est validé sur le terrain, et la
-constante de `generer_storyboard.py` passe de 2,5 à 3,2 — c'était
-l'arithmétique derrière les 16,4 s de décalage son/image.
+~~Et la durée estimée tombe à 80,6 s contre 82,5 s réellement enregistrées :
+2,3 % d'écart. Le débit de 3,2 mots/s est validé sur le terrain.~~
+
+**Faux, et faux circulairement** — corrigé plus bas le même jour. Le 3,2
+avait été obtenu en divisant **264** mots bruts par 82,5 s ; le « valider »
+en redivisant 258 par 3,2 revenait à comparer un chiffre à lui-même. Les
+deux erreurs se compensaient : le décompte incluait 27 marqueurs de mise en
+scène jamais prononcés, et la constante était gonflée d'autant.
+
+Les vrais chiffres : **231 mots réellement dits, 82,5 s, soit 2,80 mots/s
+exactement**. La constante de `generer_storyboard.py` est passée de 2,5 à
+3,2 puis à **2,8**, et le « 264 » a survécu trois jours dans le docstring de
+l'outil qui fait la mesure.
 
 ## E6 — Les composants, repris
 
@@ -441,6 +450,7 @@ Vérifié sur le dossier reconstitué de `2026-09-11_v01` : l'écart de
 | 10 | E7 : les statuts de fin appartiennent à E7, abandon d'une vidéo, `programmee` → `publiee` sans `--force` | ✅ fait |
 | 11 | Recalage son/image : les scènes déclarent les phrases qu'elles couvrent + convertisseur de rattrapage | ✅ fait |
 | 12 | Rapport de checkpoint : trois rangs de sections, les liens cèdent le budget aux faits | ✅ fait |
+| 13 | CP2 : le budget a une section obligatoire et passe en tête des priorités ; règle des sigles dans le SKILL d'A5 | ✅ fait |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer
@@ -783,6 +793,66 @@ La correction du 11/09 avait été validée par des tests qui passaient, sur
 un document synthétique où `Sources` arrivait en dernier. Le vrai fichier
 la met en premier. Le test mesurait ce qu'on avait imaginé, pas ce que le
 Chercheur écrit.
+
+## CP2 — le seul checkpoint jamais ouvert, et ce qu'il cachait
+
+Trou comblé par la session de diagnostic. Le défaut n'est pas celui de CP1 :
+les deux sources tiennent dans leur budget (1657 et 2311 pour 3000), rien
+n'est tronqué, Franco a bien reçu le script complet et les mesures.
+
+**Le rapport ne dit rien de la longueur.** Pas une ligne, alors que le
+script dépassait de 91 % — 258 mots pour un budget de 135, ratio 1,91,
+mesuré sur le fichier réel avec l'outil du dépôt. Deux causes, aux deux
+bouts :
+
+- le gabarit de sortie d'A5 n'exigeait **aucune section budget** dans
+  `03_rapport_metriques.md` ;
+- `RESUME_SOURCES["CP2"]` ne listait pas `Budget` dans ses priorités.
+
+Conséquence : un verdict `limite` qu'A5 resserre seul n'arrive jamais sous
+les yeux de Franco. Et surtout, le SKILL demande explicitement à A5, pour un
+format qui coûte plus de mots par idée, de « le signaler à Franco au CP2
+plutôt que de mutiler le script » — **ce signal n'avait nulle part où
+s'écrire**. Une consigne sans support est une consigne qui n'existe pas.
+
+La section `## Budget` est désormais obligatoire, **même quand le verdict
+est `ok`**, et passe en tête des priorités du CP2.
+
+### L'épellation n'est pas une négligence, c'est une décision validée
+
+Le `rapport_CP2.md` réel donne l'origine de la violation du §7.4. A5 y
+propose `Git Hub`, `V S Code`, `M C P`, précise qu'elles sont **déjà
+appliquées** au fichier TTS « pour ne pas bloquer la suite », et Franco
+valide : *« Script et prononciations proposées validés tels quels. »* Le
+§7.4 qui l'interdit a été écrit **après**.
+
+Nettoyer le fichier lexique est donc juste mais insuffisant : le levier est
+le SKILL d'A5. Tant qu'il ne porte pas la règle, le prochain A5 reproposera
+des épellations au prochain CP2. Elle y est maintenant, avec son coût
+mesuré.
+
+### Un second défaut trouvé en écrivant le test
+
+`Hors cible` précède `Budget` dans le rapport, et les deux sont
+prioritaires. Le correctif de la veille classait en trois rangs mais, **à
+l'intérieur d'un rang, c'était encore l'ordre du document qui tranchait** :
+`Hors cible` prenait tout le budget avant que `Budget` n'existe. Même
+défaut qu'à CP1, un rang plus haut, et il n'était visible qu'au CP2 parce
+qu'au CP1 les sections prioritaires étaient courtes.
+
+L'ordre dans lequel `sections_prioritaires` est écrit fait désormais foi —
+ce qu'un lecteur suppose de toute façon en lisant la liste.
+
+### Le débit, et le chiffre qui a survécu trois jours
+
+Le script réel confirme la constante à la décimale : **231 mots prononcés
+pour 82,5 s, soit 2,80 mots/s**.
+
+Trois fichiers annonçaient encore **264 mots** — dont le docstring de
+`metriques.py`, l'outil qui fait la mesure. Ce 264 est le décompte brut,
+marqueurs de mise en scène compris ; c'est lui qui avait servi à fabriquer
+le 3,2 (264 ÷ 82,5), lequel avait ensuite été « validé » en redivisant 258
+par 3,2. Le même chiffre des deux côtés de la vérification.
 
 ## En attente de Franco
 
