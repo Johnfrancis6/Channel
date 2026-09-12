@@ -197,6 +197,16 @@ def rassembler(root, jours=7):
                 if chemin.is_file() and _modifie_recemment(chemin, seuil):
                     resultat[cle].append(str(chemin))
 
+            # Les tentatives archivees : `04_rapport_audio.md` ne garde que
+            # la derniere, et une tentative reussie ne contient aucun diff.
+            # Les runs en echec — ceux qui ont quelque chose a apprendre —
+            # ne vivaient nulle part.
+            audio_archive = video_dir / "audio"
+            if audio_archive.is_dir():
+                resultat["rapports_audio"] += [
+                    str(p) for p in sorted(audio_archive.glob("rapport_tentative_*.md"))
+                    if _modifie_recemment(p, seuil)]
+
     analytics_dir = root / "03_Amelioration" / "analytics"
     if analytics_dir.is_dir():
         resultat["analytics_csv"] = [str(p) for p in sorted(analytics_dir.glob("*.csv"))]

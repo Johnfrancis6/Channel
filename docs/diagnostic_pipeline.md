@@ -451,6 +451,7 @@ Vérifié sur le dossier reconstitué de `2026-09-11_v01` : l'écart de
 | 11 | Recalage son/image : les scènes déclarent les phrases qu'elles couvrent + convertisseur de rattrapage | ✅ fait |
 | 12 | Rapport de checkpoint : trois rangs de sections, les liens cèdent le budget aux faits | ✅ fait |
 | 13 | CP2 : le budget a une section obligatoire et passe en tête des priorités ; règle des sigles dans le SKILL d'A5 | ✅ fait |
+| 14 | E4 : rapport audio archivé par tentative, `FORCER_RELANCE` lève aussi le contrôle de statut | ✅ fait |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer
@@ -853,6 +854,59 @@ Trois fichiers annonçaient encore **264 mots** — dont le docstring de
 marqueurs de mise en scène compris ; c'est lui qui avait servi à fabriquer
 le 3,2 (264 ÷ 82,5), lequel avait ensuite été « validé » en redivisant 258
 par 3,2. Le même chiffre des deux côtés de la vérification.
+
+## E4 — le contrôle qualité rejetait du bon travail
+
+Le meilleur résultat de la revue, et il ne vient pas de l'audio.
+
+La session de diagnostic a rejoué les quatre configurations sur les données
+réelles — la vraie transcription Whisper contre le script, avec et sans les
+deux défauts — en utilisant l'audio Qwen3 dont on sait que le WER réel est
+de 0,87 % :
+
+| Configuration | WER mesuré |
+|---|---|
+| script actuel + normalisation (aujourd'hui) | **0,87 %** |
+| script actuel, sans normalisation | 4,33 % |
+| script épelé + normalisation | 6,28 % |
+| script épelé, sans normalisation — **les runs F5-TTS** | **9,62 %** |
+
+**La chaîne de mesure fabriquait 9,62 % de WER sur un audio propre.**
++3,46 points de ponctuation et casse, +5,41 points d'épellation, quasi
+additifs.
+
+Or les quatre runs du régime marginal étaient à 9,21 — 15,06 — 8,40 —
+18,49 %. **Deux sont sous le seuil de fabrication.** Ces audios-là étaient
+plausiblement aussi bons que celui qui a fini par passer ; ils ont été
+rejetés par la mesure, et le rapport a conseillé de relancer avec une autre
+graine. Les deux autres gardent 5 à 9 points de résidu réel.
+
+La leçon dépasse E4 : **un contrôle qualité qui n'est pas lui-même vérifié
+rejette du bon travail en silence.** Le seuil de 3 % était juste ; c'est
+l'instrument qui mesurait faux. Et rien dans le pipeline ne pouvait le
+dire, puisque le contrôle était son propre juge.
+
+### Pourquoi le résidu restera inexpliqué
+
+`04_rapport_audio.md` était écrasé à chaque tentative. Huit runs, un seul
+fichier : celui du succès — et un rapport de succès ne contient aucun diff.
+Le diff référence/transcrit est pourtant le seul input de H1 sur l'audio
+(§7.2), et le diagnostic structurel dit explicitement d'aller le lire. La
+donnée était détruite par la tentative suivante, toujours avant que H1 ne
+tourne.
+
+Les checkpoints archivent leurs refus dans `checkpoints/refuses/` depuis la
+v1.2. L'audio ne le faisait pas. C'est réparé : `audio/rapport_tentative_NN.md`,
+une copie par tentative, ramassée par H1.
+
+### Les deux blocages n'étaient pas symétriques
+
+`FORCER_RELANCE` levait le plafond de tentatives, mais le contrôle de
+statut passe **avant** et n'avait aucune échappatoire. Pour une vidéo dont
+l'audio est `termine` mais à refaire — script corrigé, phrase changée — il
+n'existait aucun chemin outillé : il fallait éditer `state.json` à la main,
+ce que le §5.5 interdit partout ailleurs. Le drapeau « en connaissance de
+cause » lève désormais les deux.
 
 ## En attente de Franco
 

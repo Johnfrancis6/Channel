@@ -205,3 +205,43 @@ class TestIndicateurs(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRapportsAudioArchives(unittest.TestCase):
+    """
+    `04_rapport_audio.md` ne garde que la derniere tentative, et une
+    tentative reussie ne contient aucun diff. Sur 2026-09-11_v01, huit runs
+    n'ont laisse qu'un fichier : celui du succes. H1 n'avait donc jamais
+    acces aux echecs, qui sont precisement ce qu'il y a a apprendre.
+    """
+
+    def setUp(self):
+        self.root = tempfile.mkdtemp(prefix="h1_audio_")
+        self.video = os.path.join(self.root, "videos", "2026-09-11_v01")
+        os.makedirs(os.path.join(self.video, "audio"))
+
+    def tearDown(self):
+        shutil.rmtree(self.root, ignore_errors=True)
+
+    def _creer(self, relatif, ancien=False):
+        chemin = os.path.join(self.video, *relatif.split("/"))
+        with open(chemin, "w", encoding="utf-8") as f:
+            f.write("# Rapport Audio E4\n")
+        if ancien:
+            vieux = time.time() - 30 * 86400
+            os.utime(chemin, (vieux, vieux))
+
+    def test_les_tentatives_archivees_sont_ramassees(self):
+        self._creer("04_rapport_audio.md")
+        self._creer("audio/rapport_tentative_01.md")
+        self._creer("audio/rapport_tentative_08.md")
+
+        rapports = rassembler_inputs.rassembler(self.root, jours=7)["rapports_audio"]
+
+        self.assertEqual(len(rapports), 3)
+        self.assertTrue(any("rapport_tentative_01" in r for r in rapports))
+        self.assertTrue(any("rapport_tentative_08" in r for r in rapports))
+
+    def test_les_archives_anciennes_sont_ignorees(self):
+        self._creer("audio/rapport_tentative_01.md", ancien=True)
+        self.assertEqual(rassembler_inputs.rassembler(self.root, jours=7)["rapports_audio"], [])

@@ -31,7 +31,8 @@ automatique. `MODE` :
 | `04_voixoff.wav` | le montage (E6) |
 | `04_timestamps.json` | les sous-titres, mot par mot |
 | `04_phrases.json` | les **durées de scènes**, bornes début/fin par phrase (§8) |
-| `04_rapport_audio.md` | Franco, et H1 pour le bilan hebdo |
+| `04_rapport_audio.md` | Franco, et H1 pour le bilan hebdo — la **dernière** tentative |
+| `audio/rapport_tentative_NN.md` | une copie par tentative, que la suivante n'écrase pas |
 
 `04_phrases.json` est ce qui relie la voix au montage : c'est la seule étape
 qui connaisse exactement les bornes de chaque phrase. Après coup, on ne peut

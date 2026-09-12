@@ -422,7 +422,7 @@ Le notebook est **modulaire** : Franco ne modifie que la Cell 1, où `MODE` déc
 | 4. Synthèse | Lecture de `03_script_tts.txt`, génération phrase par phrase, reprise sur OOM GPU |
 | 5. Assemblage + Timestamps | Concaténation avec pauses calibrées, normalisation LUFS, puis faster-whisper `word_timestamps=True` → `04_timestamps.json`. Écrit aussi **`04_phrases.json`** : les bornes début/fin de chaque phrase dans l'audio assemblé |
 | 6. Contrôle qualité | **WER global** sur l'audio assemblé (transcription vs `03_script_tts.txt`), ponctuation et casse normalisées. Sous le seuil : l'étape passe `termine`. Au-dessus : `echec`, avec un **diagnostic gradué** — voir ci-dessous |
-| 7. Rapport + State | `04_rapport_audio.md` et mise à jour de `state.json` (§4.2) |
+| 7. Rapport + State | `04_rapport_audio.md`, sa copie dans `audio/rapport_tentative_NN.md`, et mise à jour de `state.json` (§4.2) |
 | 8. Bilan | Résumé console et prochaines actions |
 
 **`04_phrases.json` est ce qui relie la voix au montage.** C'est la seule étape du pipeline qui connaisse exactement où commence et finit chaque phrase : après coup, on ne peut que le deviner en réalignant les mots transcrits sur le script, ce que le WER non nul rend fragile. A6 faisant une scène par phrase, ces bornes permettent à A7 de caler les durées de scènes sur la voix off (§8).
@@ -440,6 +440,23 @@ Le notebook est **modulaire** : Franco ne modifie que la Cell 1, où `MODE` déc
 Les quatre premiers runs de `2026-09-11_v01` étaient à 93-98 % (fuite de référence F5-TTS) et le notebook a répondu quatre fois « re-synthèse avec une autre graine ». Ce conseil suivi quatre fois a coûté 2 h 20.
 
 **Écart assumé avec la v1.1** : le contrôle qualité est **global** et non par phrase, et la régénération est relancée par Franco (`MODE = 'resume_after_fail'`) plutôt qu'automatiquement, 3 fois. C'est plus simple, mais ça a un coût : une seule phrase mal prononcée fait échouer tout le run, et le rapport ne signale plus *quelle* phrase a raté. Le §4.3 ne demande plus à H1 « les phrases signalées par le contrôle qualité » — cet input n'existe pas ; H1 travaille sur le diff référence/transcrit, présent uniquement quand le WER échoue. À reprendre quand les runs réels diront si le cas est fréquent (§12).
+
+**Ce que la chaîne de mesure fabriquait.** Mesuré le 12/09 sur les données réelles de `2026-09-11_v01`, en rejouant les quatre configurations contre la vraie transcription Whisper d'un audio dont le WER réel est de 0,87 % :
+
+| Configuration | WER mesuré |
+|---|---|
+| script actuel + normalisation (le code d'aujourd'hui) | **0,87 %** |
+| script actuel, sans normalisation | 4,33 % |
+| script épelé + normalisation | 6,28 % |
+| script épelé, sans normalisation — **ce que mesuraient les runs F5-TTS** | **9,62 %** |
+
+Deux défauts quasi additifs — **+3,46 points** de ponctuation/casse, **+5,41 points** d'épellation — fabriquaient près de 9 points de WER sur un audio propre. Deux des quatre runs « marginaux » (9,21 % et 8,40 %) sont **sous ce seuil de fabrication** : ils ont été rejetés par la mesure, pas par la synthèse, et le rapport conseillait de relancer avec une autre graine. Les deux autres (15,06 %, 18,49 %) gardent un résidu réel de 5 à 9 points, qu'on ne saura pas expliquer — leur rapport a été écrasé par la tentative suivante.
+
+Les deux portes sont fermées : normalisation `jiwer` dans la cellule 6, règle des sigles au §7.4. La leçon dépasse E4 : **un contrôle qualité qui n'est pas lui-même vérifié rejette du bon travail en silence.**
+
+**Chaque tentative garde son rapport** — `audio/rapport_tentative_NN.md`. `04_rapport_audio.md` ne porte que la dernière, et une tentative réussie ne contient aucun diff : sur `2026-09-11_v01`, huit runs n'ont laissé qu'un fichier, celui du succès. Le diff référence/transcrit est pourtant le seul input de H1 sur l'audio, et le diagnostic structurel dit d'aller le lire. La preuve était détruite avant examen. Les checkpoints archivent leurs refus depuis la v1.2 ; l'audio ne le faisait pas.
+
+**Re-synthétiser une vidéo déjà `termine`** : `FORCER_RELANCE = True` lève désormais **les deux** blocages — le plafond de tentatives et le contrôle de statut. Le second passait avant le premier, si bien qu'une vidéo dont le script a été corrigé après coup n'avait aucun chemin outillé : il fallait éditer `state.json` à la main, ce que le §5.5 interdit partout ailleurs.
 
 **Rattraper une vidéo sans `04_phrases.json`.** Les bornes de phrases ne sont écrites que lors d'une **synthèse complète** : le notebook les connaît exactement, puisqu'il assemble lui-même les clips. Les vidéos antérieures à cette révision n'en ont pas, et les relancer coûte une re-synthèse entière (sur `2026-09-11_v01`, bloquée de surcroît par le plafond de tentatives). `outils/phrases_depuis_timestamps.py` les **reconstruit** en réalignant les mots transcrits sur `03_script_tts.txt` :
 
@@ -614,6 +631,7 @@ Avant de clore E6, A7 rend quelques images fixes (`remotion still` sur le hook, 
         ├── 04_timestamps.json       # mot par mot, pour les sous-titres
         ├── 04_phrases.json          # bornes par phrase, pour les durées de scènes (§8)
         ├── 04_rapport_audio.md
+        ├── audio/                   # une copie du rapport par tentative (§7.2)
         ├── 05_cadrage.md            # intention visuelle, discutée avec Franco avant le storyboard
         ├── 05_storyboard.md         # lecture humaine, revu au CP3
         ├── 05_storyboard.json       # lu par le Monteur
