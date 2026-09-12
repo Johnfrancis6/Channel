@@ -90,7 +90,12 @@ const Maillon: React.FC<{
           fontSize: 46,
           fontWeight: 700,
           minWidth: 520,
-          backgroundColor: `${bord}14`,
+          // Fond **opaque**, plus une teinte par-dessus. A 8 % d'alpha, le
+          // rail du chemin fixe se voyait au travers et barrait le texte :
+          // le z-index etait pourtant correct (rail 0 sous maillon 1), ce
+          // n'etait pas un probleme d'empilement mais de transparence.
+          backgroundColor: charte.couleurs.fond,
+          backgroundImage: `linear-gradient(${bord}14, ${bord}14)`,
         }}
       >
         {item.texte}
@@ -106,11 +111,21 @@ const Boucle: React.FC<{charte: CharteTokens; progression: number; rotation: num
   progression,
   rotation,
 }) => {
-  const R = 300;
-  const C = 380;
+  // Geometrie derivee, pas recopiee. Le defaut precedent vient exactement
+  // de la : passer le rayon des noeuds de 72 a 88 pour que « OBSERVE »
+  // tienne dans son cercle a fait sortir le cercle du cadre, parce que le
+  // rayon de la boucle etait un nombre ecrit a la main. 380 + 300 + 88 +
+  // 2,5 = 770,5 pour un viewBox de 760 : les quatre noeuds etaient rognes
+  // de 10,5 px. Ici, changer un rayon recalcule l'autre.
+  const TAILLE = 760;
+  const RAYON_NOEUD = 88;
+  const TRAIT_NOEUD = 5;
+  const MARGE = 6;
+  const C = TAILLE / 2;
+  const R = C - RAYON_NOEUD - TRAIT_NOEUD / 2 - MARGE;
   const famille = charte.typographie.sous_titres.famille;
   return (
-    <svg width={760} height={760} viewBox="0 0 760 760">
+    <svg width={TAILLE} height={TAILLE} viewBox={`0 0 ${TAILLE} ${TAILLE}`}>
       <circle
         cx={C}
         cy={C}
@@ -133,7 +148,14 @@ const Boucle: React.FC<{charte: CharteTokens; progression: number; rotation: num
         return (
           <g key={nom} opacity={apparu}>
             {/* r=88 et non 72 : "OBSERVE" debordait de son cercle. */}
-            <circle cx={x} cy={y} r={88} fill={charte.couleurs.fond} stroke={charte.couleurs.accent} strokeWidth={5} />
+            <circle
+              cx={x}
+              cy={y}
+              r={RAYON_NOEUD}
+              fill={charte.couleurs.fond}
+              stroke={charte.couleurs.accent}
+              strokeWidth={TRAIT_NOEUD}
+            />
             <text
               x={x}
               y={y + 10}
@@ -213,7 +235,11 @@ export const ConceptCutaway: React.FC<Props> = ({scene, label, charte, da}) => {
                     width: 10,
                     marginLeft: -5,
                     borderRadius: 5,
-                    backgroundColor: `${charte.couleurs.accent_secondaire}55`,
+                    // Un rail rigide se lit comme une barre, pas comme une
+                    // salissure : a 33 % sur un fond quasi noir, il rendait
+                    // un khaki terne. Il n'est plus filtre par les maillons,
+                    // il peut donc etre franc.
+                    backgroundColor: `${charte.couleurs.accent_secondaire}99`,
                     opacity: progression,
                     // Derriere les maillons : au-dessus, le rail barrait le
                     // texte de chaque etape.

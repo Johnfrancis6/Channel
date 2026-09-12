@@ -26,6 +26,27 @@ sync_skills = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(sync_skills)
 
 
+class TestSousTitresDansLApercu(unittest.TestCase):
+    """
+    Le catalogue passait `mots: []`, donc Subtitles ne rendait rien et la
+    bande basse qu'il occupe (paddingBottom: 220) n'apparaissait jamais.
+    Or « un element du composant passe sous les sous-titres » est exactement
+    le genre de defaut qu'un apercu doit attraper, et le docstring promettait
+    « exactement ce que la video montrera ».
+    """
+
+    def test_les_props_portent_des_mots_horodates(self):
+        props = generer_apercus.props_pour(
+            "TitleCard", {"texte": "Un titre"},
+            {"mouvement": "fondu", "rythme": "standard", "technique": "spring"},
+            {"couleurs": {}, "typographie": {}})
+
+        self.assertTrue(props["mots"], "sans mots, l'apercu cache les sous-titres")
+        for mot in props["mots"]:
+            self.assertEqual(set(mot) >= {"mot", "debut_s", "fin_s"}, True)
+            self.assertLess(mot["debut_s"], mot["fin_s"])
+
+
 class TestDeclaration(unittest.TestCase):
     def test_apercus_json_couvre_le_registre(self):
         """Un composant du registre sans variante declaree n'aurait pas d'apercu."""
@@ -60,10 +81,13 @@ class TestProps(unittest.TestCase):
         self.assertEqual(props["scenes"][0]["composant"], "TitleCard")
         self.assertIn("charte", props)
 
-    def test_aucun_mot_donc_pas_de_sous_titres(self):
+    def test_des_mots_donc_la_bande_de_sous_titres_est_visible(self):
+        # Ce test exigeait l'inverse (`mots == []`) : il figeait en exigence
+        # le fait que le catalogue ne montre pas les sous-titres, alors que
+        # les composants leur reservent 220 px en bas de cadre.
         props = generer_apercus.props_pour("TitleCard", {}, None,
                                            generer_apercus.charte_par_defaut())
-        self.assertEqual(props["mots"], [])
+        self.assertEqual(len(props["mots"]), 2)
 
     def test_la_da_est_transmise_si_declaree(self):
         props = generer_apercus.props_pour(

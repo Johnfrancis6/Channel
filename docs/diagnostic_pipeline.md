@@ -452,6 +452,7 @@ Vérifié sur le dossier reconstitué de `2026-09-11_v01` : l'écart de
 | 12 | Rapport de checkpoint : trois rangs de sections, les liens cèdent le budget aux faits | ✅ fait |
 | 13 | CP2 : le budget a une section obligatoire et passe en tête des priorités ; règle des sigles dans le SKILL d'A5 | ✅ fait |
 | 14 | E4 : rapport audio archivé par tentative, `FORCER_RELANCE` lève aussi le contrôle de statut | ✅ fait |
+| 15 | Composants : boucle rognée, rail à travers le texte, `lean_in` sans inclinaison, sous-titres absents du catalogue | ✅ fait |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer
@@ -907,6 +908,69 @@ l'audio est `termine` mais à refaire — script corrigé, phrase changée — i
 n'existait aucun chemin outillé : il fallait éditer `state.json` à la main,
 ce que le §5.5 interdit partout ailleurs. Le drapeau « en connaissance de
 cause » lève désormais les deux.
+
+## E5/E6 — quatre défauts, dont un introduit par un correctif
+
+Aperçus rendus et **regardés**, deux fois : avant, par la session de
+diagnostic ; après, ici.
+
+**1. Les quatre nœuds de `agent_loop` étaient rognés de 10,5 px.** Et le
+correctif précédent est le coupable : passer le rayon des nœuds de 72 à 88
+pour que « OBSERVE » tienne dans son cercle a fait sortir le cercle du
+cadre. `380 + 300 + 88 + 2,5 = 770,5` pour un viewBox de 760. Le rayon de la
+boucle était un nombre écrit à la main ; il se **dérive** désormais du reste,
+et un test vérifie l'inégalité. C'est le premier défaut de dessin de cette
+revue qu'un test peut attraper.
+
+**2. Le rail du « chemin fixe » barrait encore le texte** — alors que le
+commentaire du code annonce l'avoir corrigé. La cause donnée par le
+diagnostic (un `zIndex: 0` qui passerait au-dessus des frères) ne
+s'applique pas ici : les maillons portent `zIndex: 1`, l'empilement était
+correct. La vraie cause est la seconde qu'il cite : le fond des boîtes est à
+**8 % d'opacité**, le rail se voyait au travers. Fond opaque, teinte
+par-dessus en dégradé — le rail ne passe plus que dans les intervalles, où
+il a sa place, et peut donc être franc plutôt que khaki terne.
+
+**3. `lean_in` ne se penchait pas.** Mappé sur `'point'` (bras tendu à
+l'horizontale), quand la pose `'lean'` — la seule qui incline le buste de
+7° — n'était atteignable par personne. **Exactement le défaut corrigé dix
+lignes plus haut dans le même fichier** (`intro` et `outro` rendaient la
+même image). Deux fois la même erreur : une API qui annonce un choix que le
+rendu ne fait pas. Un test vérifie maintenant que deux poses ne rendent
+jamais la même image, et que la pose qui incline est utilisée par quelqu'un.
+
+**4. Le catalogue ne montrait jamais les sous-titres** : `mots: []`, donc
+`Subtitles` renvoie `null`. Or les composants leur réservent 220 px en bas
+de cadre, et « un élément passe sous les sous-titres » est précisément le
+genre de défaut qu'un aperçu doit attraper. Le docstring promettait
+« exactement ce que la vidéo montrera » ; c'était faux sur la seule bande
+que le catalogue ne montrait pas. Deux mots horodatés factices suffisaient.
+
+Un test existant exigeait l'inverse — `mots == []`. Il figeait le défaut en
+exigence. C'est la deuxième fois en deux jours.
+
+### Ce que la session a écarté, et pourquoi c'est utile
+
+Trois candidats abandonnés après lecture du code : la boucle sans flèches
+(le cercle se **trace**, le sens est dans l'animation), le tiers bas vide
+(c'est la place des sous-titres), les bras partant d'épaules différentes
+(même point `EPAULE`, mauvaise lecture). D'où la règle : **sur une image
+fixe, une propriété animée se lit comme absente.** Le catalogue est
+indispensable et il ne dit pas tout.
+
+### L'anatomie des 16,4 s, enfin complète
+
+24 phrases recollées aux 11 scènes, `construire_props` valide à 82,12 s
+sans un avertissement. Deux choses que le total cachait :
+
+- **neuf scènes trop longues, mais deux trop courtes.** Ce n'est pas une
+  surestimation uniforme qu'un facteur correctif aurait réglée : A6 se
+  trompe dans les deux sens et l'erreur s'accumule ;
+- **le débit faux n'explique que les deux tiers.** 231 mots font 82,5 s à
+  2,8 et 92,4 s à 2,5 — or le plan d'A6 fait 98,8 s. Donc ≈ 9,9 s viennent
+  de la constante, et **≈ 6,4 s d'un surplus qu'A6 a ajouté par-dessus son
+  propre débit**. Le recalage corrige les deux, puisqu'il ne repose sur
+  aucun débit.
 
 ## En attente de Franco
 

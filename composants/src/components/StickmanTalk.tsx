@@ -17,7 +17,12 @@ type Props = StickmanTalkParams & {charte: CharteTokens; da?: DirectionArtistiqu
 // pas le choix.
 const POSE_VERS_STICKMAN: Record<StickmanTalkParams['pose'], StickmanPose> = {
   intro: 'wave',
-  lean_in: 'point',
+  // `lean_in` pointait sur 'point' (bras tendu a l'horizontale), et la pose
+  // 'lean' — la seule qui porte un vrai basculement du buste, 7 degres —
+  // n'etait atteignable par personne. Meme defaut que `intro`/`outro`
+  // corrige juste au-dessus : A6 croyait choisir une pose la ou il n'avait
+  // pas le choix. Le storyboard de 2026-09-11_v01 demande `lean_in` sur s9.
+  lean_in: 'lean',
   outro: 'open',
 };
 

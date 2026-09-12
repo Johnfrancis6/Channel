@@ -579,6 +579,15 @@ Avant `animation.ts`, les trois composants faisaient **exactement le même geste
 
 Ce n'était pas une limite de Remotion mais de ce qui en était utilisé. Un agent optimise ce qu'on peut lui reprocher : le code compilait, les props étaient typées, aucune couleur n'était en dur — tous les critères vérifiables étaient au vert, et personne ne regardait le reste.
 
+### Géométrie dérivée, poses distinctes
+
+Deux règles nées de défauts réels, tenues par des tests :
+
+- **une dimension ne se recopie pas, elle se dérive.** Le rayon de la boucle de `agent_loop` était écrit à la main ; augmenter le rayon des nœuds pour que leur texte tienne a fait sortir les nœuds du cadre — `380 + 300 + 88 + 2,5 = 770,5` pour un viewBox de 760. Un correctif en a introduit un autre parce que deux constantes liées vivaient séparément.
+- **deux paramètres distincts doivent rendre deux images distinctes.** `intro` et `outro` pointaient tous deux sur `wave` ; corrigé, puis `lean_in` pointait sur `point` et la pose `lean` n'était atteignable par personne. Une API qui annonce un choix que le rendu ne fait pas est pire qu'une API qui n'offre pas le choix : A6 croit décider.
+
+Et un rappel que le catalogue ne remplace pas : **sur une image fixe, une propriété animée se lit comme absente.** Le tracé progressif d'un cercle, un wobble, un décalage d'entrée — rien de tout ça n'est visible sur un PNG. Le catalogue attrape les défauts de composition, pas ceux de mouvement.
+
 ### Vérification visuelle
 
 Avant de clore E6, A7 rend quelques images fixes (`remotion still` sur le hook, un milieu, une fin) et les regarde. Rien n'arrive au CP3 sans avoir été vu : corriger sur une image coûte bien moins qu'un rendu complet.

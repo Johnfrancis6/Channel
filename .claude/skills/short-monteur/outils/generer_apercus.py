@@ -95,8 +95,15 @@ def props_pour(composant, params, da, charte):
     scene = {"id": "apercu", "composant": composant, "duree_s": DUREE_SCENE_S, "params": params}
     if da:
         scene["da"] = da
-    # `mots` vide : Subtitles ne rend rien, l'apercu montre le composant seul.
-    return {"charte": charte, "scenes": [scene], "mots": []}
+    # Deux mots horodates factices, et non `mots: []`. Avec une liste vide
+    # Subtitles ne rend rien, et le catalogue ne montrait jamais la bande
+    # basse qu'il occupe (`paddingBottom: 220`) — alors que « un element du
+    # composant passe sous les sous-titres » est precisement le genre de
+    # defaut qu'un apercu doit attraper. Le docstring promettait « exactement
+    # ce que la video montrera » : ce n'etait pas vrai sur ce point.
+    mots = [{"mot": "apercu", "debut_s": 0.0, "fin_s": 0.6},
+            {"mot": "sous-titre", "debut_s": 0.6, "fin_s": 1.4}]
+    return {"charte": charte, "scenes": [scene], "mots": mots}
 
 
 def rendre(composant, nom, params, da, charte, frame, browser):
