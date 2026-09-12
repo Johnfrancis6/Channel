@@ -25,6 +25,7 @@ Relecture du pipeline étape par étape sur les artefacts réellement produits. 
 - **Consignes structurées à la création** : `format`, `reference` et `idees_max` remplacent le fourre-tout de `note_franco`, et sont lues par le Chercheur **et** le Designer.
 - **Le rapport de checkpoint ne perd plus sa partie décisionnelle** : l'extrait préserve d'abord les sections qui portent la décision (§5.5).
 - **Titre de travail borné à 80 caractères** : un sujet d'une phrase entière ne fait pas un titre.
+- **H1 mesure au lieu de relire** : `rassembler_inputs.py` agrège les `state.json` (tentatives, alertes, refus, boucles, durées) et expose le suivi `recommandations.jsonl`. Le signal le plus fort de la semaine — huit tentatives sur `E4_audio` — vivait dans des fichiers que H1 n'ouvrait pas (§4.3).
 
 ### v1.2 (création des skills)
 
@@ -189,14 +190,11 @@ Il produit :
 - Le rendu passe par `rendre_video.py`, qui vérifie les prérequis avant et le MP4 produit après.
 
 **H1 — Amélioration continue (hebdo)**
-- Inputs :
-  - logs et rapports de checkpoint ;
-  - métriques du Filtre TTS ;
-  - rapports audio (phrases signalées par le contrôle qualité) ;
-  - notes de Franco ;
-  - **performances YouTube** : rétention, taux de swipe, vues. Au démarrage, via un export CSV manuel ; ensuite, via l'API YouTube Analytics.
+- Inputs mesurés — `rassembler_inputs.py` lit tous les `state.json` et en tire des **indicateurs** agrégés : tentatives par étape, alertes, refus de checkpoint avec leur motif, boucles A4↔A5, durée de production jusqu'au CP3. Ce sont les faits ; le jugement reste à l'agent, comme `metriques.py` pour A5. Les événements se lisent **dans l'étape et dans l'historique** : un refus repris remet le checkpoint à `a_venir` et une alerte traitée disparaît de l'étape, si bien que la semaine où le problème est corrigé serait sinon celle où il devient invisible. Une vidéo figée est listée avec ses jours d'inactivité mais ne compte pas dans les statistiques de production.
+- Inputs à lire — rapports de checkpoint, **y compris les rapports refusés archivés** dans `checkpoints/refuses/` (la trace la plus directe de ce que Franco a rejeté) ; métriques du Filtre TTS ; rapports audio ; corpus `02_Veille_hebdo/corpus_structures.jsonl`, à croiser avec la structure mesurée de nos propres scripts ; notes de Franco ; **performances YouTube** : rétention, taux de swipe, vues. Au démarrage, via un export CSV manuel ; ensuite, via l'API YouTube Analytics.
 - Il fait une analyse ouverte du workflow et identifie lui-même les points faibles.
 - Il produit un rapport hebdomadaire avec des recommandations : ajustement des prompts de A4 et A5, des seuils de calibrage des phrases, et des composants à refondre. Chaque recommandation est validée par Franco avant d'être appliquée.
+- Chaque recommandation est tracée dans `03_Amelioration/recommandations.jsonl` (**append-only**, statut `proposee` → `acceptee` / `refusee` / `appliquee`), et H1 relit ce suivi avant d'écrire : sans lui, il repropose chaque semaine ce que Franco a refusé la semaine précédente.
 
 ---
 
@@ -385,7 +383,7 @@ Le notebook est **modulaire** : Franco ne modifie que la Cell 1, où `MODE` déc
 
 Les quatre premiers runs de `2026-09-11_v01` étaient à 93-98 % (fuite de référence F5-TTS) et le notebook a répondu quatre fois « re-synthèse avec une autre graine ». Ce conseil suivi quatre fois a coûté 2 h 20.
 
-**Écart assumé avec la v1.1** : le contrôle qualité est **global** et non par phrase, et la régénération est relancée par Franco (`MODE = 'resume_after_fail'`) plutôt qu'automatiquement, 3 fois. C'est plus simple, mais ça a un coût : une seule phrase mal prononcée fait échouer tout le run, et le rapport ne signale plus *quelle* phrase a raté. Or le §4.3 donne « les phrases signalées par le contrôle qualité » comme input de H1 : cet input n'existe plus. À reprendre quand les runs réels diront si le cas est fréquent (§12).
+**Écart assumé avec la v1.1** : le contrôle qualité est **global** et non par phrase, et la régénération est relancée par Franco (`MODE = 'resume_after_fail'`) plutôt qu'automatiquement, 3 fois. C'est plus simple, mais ça a un coût : une seule phrase mal prononcée fait échouer tout le run, et le rapport ne signale plus *quelle* phrase a raté. Le §4.3 ne demande plus à H1 « les phrases signalées par le contrôle qualité » — cet input n'existe pas ; H1 travaille sur le diff référence/transcrit, présent uniquement quand le WER échoue. À reprendre quand les runs réels diront si le cas est fréquent (§12).
 
 ### 7.3 Budget et calibrage des phrases (appliqués par A5)
 
@@ -534,6 +532,7 @@ Avant de clore E6, A7 rend quelques images fixes (`remotion still` sur le hook, 
 │   └── backlog_sujets.json         # sujets validés en lot (sujet_id, sujet, angle, pilier, semaine, valide_le)
 ├── 03_Amelioration/
 │   ├── rapport_hebdo_{AAAA-Sxx}.md
+│   ├── recommandations.jsonl       # suivi des recommandations H1 (append-only)
 │   └── analytics/                  # exports YouTube Analytics
 ├── 04_Architecture_technique/
 └── videos/
@@ -655,7 +654,7 @@ Publiées : 4 — Abandonnées : 1 — Prochain cycle hebdo : dimanche
   - ~~**Lottie** pour les composants où une vraie qualité d'animation compte~~ → **écarté le 11/09/2026**. Un fichier pré-rendu ne peut pas illustrer un schéma dont le contenu change d'une vidéo à l'autre : chaque variante serait devenue une dépendance humaine. Tout est codé en Remotion, et la fluidité se code — huit règles en §8. Le style visé reste le **sticker animé**. La contrepartie est assumée : **raffiner les composants existants** devient le chantier, à la place de l'intégration de fichiers.
   - ~~**Boucle de vérification visuelle**~~ → **faite le 11/09/2026** : étape 5 du skill `short-monteur` (`remotion still` sur le hook, un milieu, une fin), documentée en §8.
   - Pistes évoquées, non actées : **Rive** (`@remotion/rive`), **d3-ease** pour des courbes de mouvement plus naturelles, **rough.js** pour un rendu « tracé à la main » si Franco veut cette esthétique, **`@remotion/noise`** pour le wobble (la règle du wobble est posée en charte, son implémentation reste au choix de A7).
-- **Contrôle qualité audio par phrase** : le notebook fait un WER **global** ; une seule phrase ratée fait échouer tout le run, et le rapport ne dit pas laquelle. Le §4.3 donne pourtant « les phrases signalées par le contrôle qualité » comme input de H1 : cet input n'existe pas. À reprendre si les runs réels montrent que le cas est fréquent (§7.2).
+- **Contrôle qualité audio par phrase** : le notebook fait un WER **global** ; une seule phrase ratée fait échouer tout le run, et le rapport ne dit pas laquelle. H1 se rabat sur le diff référence/transcrit, qui n'est écrit que si le WER échoue et tronqué à 200 caractères. À reprendre si les runs réels montrent que le cas est fréquent (§7.2).
 - **Statut `attente_franco` au niveau global** : `statut_global` ne prend jamais cette valeur, alors que §5.3 la prévoit. En pratique le blocage est visible étape par étape, donc ce n'est pas urgent — mais soit on l'écrit, soit on le retire du §5.3.
 - **Seuil de blocage et runs longs** : le tableau de bord signale `[BLOQUE]` une étape `en_cours` depuis plus de `seuil_blocage_heures` (2 h par défaut). Un run Colab long déclencherait une fausse alerte. À ajuster après la semaine de test.
 

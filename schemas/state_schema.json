@@ -37,6 +37,11 @@
       "enum": ["idee", "sujet_valide", "en_production", "prete", "programmee", "publiee", "abandonnee", "attente_franco"]
     },
     "etape_actuelle": { "type": "string" },
+    "boucle_A4_A5": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tours de revision redaction<->filtre (§4.3). Ecrit par engine._gerer_boucle_redaction_filtre, remis a zero par un refus CP2, lu par H1. Absent tant qu'aucune boucle n'a eu lieu."
+    },
     "etapes": {
       "type": "object",
       "properties": {

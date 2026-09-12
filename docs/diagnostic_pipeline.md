@@ -436,13 +436,14 @@ Vérifié sur le dossier reconstitué de `2026-09-11_v01` : l'écart de
 | 6 | Réajustement complet d'A2 (branche `sujet_impose`, gabarit 7 sections) | ✅ fait |
 | 6b | Budget en idées appliqué par A4 et mesuré par A5 | ✅ fait |
 | 7 | Constante 2,5 → 3,2 mots/s dans `generer_storyboard.py` | ✅ fait |
+| 8 | H1 : indicateurs tirés des `state.json`, rapports refusés lus, suivi des recommandations | ✅ fait |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer
 
-CP2 sur fichier réel, H1 (jamais tourné, et son input « phrases signalées
-par le contrôle qualité » n'existe plus depuis que le WER est global), E7
-(neuf, jamais exercé).
+CP2 sur fichier réel, E7 (neuf, jamais exercé). H1 a été réajusté (voir
+plus bas) mais n'a toujours **jamais tourné** : il ne le pourra utilement
+qu'une fois deux ou trois vidéos passées de bout en bout.
 
 Et une question transverse qui remonte d'E4 : **le déclenchement de
 l'Orchestrateur**, non tranché depuis le §12. Tant qu'il ne tourne pas, tout
@@ -523,6 +524,59 @@ ML qui decode et **teste** ». Un sujet tendance traite sans vecu s'aligne
 sur la niche mais affaiblit l'angle. Les deux se concilient — prendre un
 sujet qui marche et l'ancrer dans un test reel — mais ca suppose de
 remplir `projets_franco.md` a un moment.
+
+## H1 — Le bilan hebdomadaire cherchait des motifs sans avoir les faits
+
+`rassembler_inputs.py` listait des chemins de fichiers. Tout le reste —
+lire, compter, comparer — était laissé à l'agent. Quatre conséquences :
+
+**1. Les données d'exécution n'étaient pas lues.** Le signal le plus fort
+de la semaine du 11/09 — huit tentatives sur `E4_audio`, 2 h 20 perdues —
+vit dans les `state.json`, qu'aucune ligne n'ouvrait. H1 était chargé de
+trouver des motifs sans avoir les événements. C'est le même défaut qu'à
+E4 : la règle existait, rien ne la faisait tourner.
+
+**2. Rien n'était agrégé.** À trois vidéos, relire tous les rapports est
+faisable ; à vingt, non. Le script calcule donc `tentatives_par_etape`,
+`alertes`, `refus_checkpoints`, `boucles_redaction_filtre`,
+`durees_production_h` — et s'arrête là. Il compte, il ne juge pas : même
+partage que `metriques.py` pour A5, et que le LLM/script d'A3.
+
+**3. Les traces résolues étaient invisibles.** Un refus repris remet le
+checkpoint à `a_venir` (`engine._reagir_au_refus`) et une alerte traitée
+disparaît de l'étape. En ne lisant que l'état courant, la semaine où un
+problème est **corrigé** est aussi celle où il devient invisible — donc
+celle où il n'entre jamais au bilan. Les deux sources sont désormais lues,
+étape et historique, dédoublonnées sur le commentaire. Même raison pour
+les tours A4↔A5 : un refus CP2 remet le compteur à zéro, seul l'historique
+garde les tours perdus.
+
+**4. Rien ne retenait ce qui avait déjà été proposé.** Sans mémoire des
+semaines passées, H1 repropose chaque dimanche ce que Franco a refusé le
+dimanche précédent, et le bilan perd sa crédibilité en trois semaines.
+`03_Amelioration/recommandations.jsonl` (append-only, statut `proposee` →
+`acceptee` / `refusee` / `appliquee`) est relu avant l'écriture du rapport.
+
+Deux corrections plus petites : les **rapports refusés archivés** dans
+`checkpoints/refuses/` — la trace la plus directe de ce que Franco rejette
+— n'étaient pas ramassés ; et le corpus de structures n'était cité nulle
+part dans le skill, alors que c'est lui qui permet de comparer nos vidéos
+aux chaînes qui marchent.
+
+**Une vidéo figée ne compte pas comme une vidéo produite.** Elle apparaît
+dans `videos_actives` avec ses `jours_sans_activite` — être immobile est
+un signal — mais ses compteurs n'entrent pas dans les indicateurs de la
+semaine, sinon une vidéo abandonnée en mars fausserait tous les bilans
+suivants.
+
+**Input fantôme retiré.** Le §4.3 demandait à H1 « les phrases signalées
+par le contrôle qualité » : le WER est global depuis la v1.1, cette liste
+n'existe pas. Le skill dit maintenant ce qui existe vraiment — le diff
+référence/transcrit, écrit **uniquement quand le WER échoue** et tronqué à
+200 caractères — et c'est de là qu'un candidat au lexique se déduit.
+
+Au passage, `boucle_A4_A5` est entré au schéma : le champ était écrit par
+l'orchestrateur et lu par H1, mais absent du contrat documenté.
 
 ## En attente de Franco
 
