@@ -30,11 +30,34 @@ checkpoints où Franco valide.
 - **Ne jamais éditer `.claude/skills/`** : c'est un miroir généré. On modifie
   `agents/short-*/`, `skills/*/` ou `outils/`, puis on relance
   `python3 agents/_synchroniser_vers_claude_skills.py`.
-- Tests : `python3 -m unittest discover -s tests` (283 au vert au 12/09).
+- Tests : `python3 -m unittest discover -s tests` (304 au vert au 12/09).
 - Composants : `cd composants && npm run typecheck`.
 - **`git fetch` avant chaque push** — Franco pousse depuis plusieurs
   sessions. On résout en gardant les deux côtés, jamais en écrasant.
-- Branche de travail : `claude/practical-hamilton-37892t`.
+
+### La branche, avant toute chose
+
+**`main` ne contient pas le projet.** Il porte deux fichiers : `CLAUDE.md`
+et le document d'architecture. Tout le reste — orchestrateur, agents,
+skills, composants, tests, journal : 155 fichiers — vit sur
+`claude/practical-hamilton-37892t`, qui n'a jamais été fusionnée.
+
+Une session qui démarre sur une branche tirée de `main` ne voit donc rien
+du pipeline, et croira légitimement que le dépôt est vide. Si c'est le cas,
+repars de la branche de travail **en gardant ton nom de branche assigné** :
+
+```bash
+git fetch origin
+git log origin/main..HEAD          # d'abord : as-tu des commits a garder ?
+git checkout -B <ta-branche> origin/claude/practical-hamilton-37892t
+```
+
+`main` est un ancêtre direct de la branche de travail : il n'y a aucune
+divergence à résoudre.
+
+**Cette anomalie est elle-même un point de diagnostic** (bloc 6) : tant que
+le travail n'est pas fusionné dans `main`, chaque nouvelle session repart
+de deux fichiers. La fusion appartient à Franco.
 
 ### La méthode, et pourquoi elle compte
 
@@ -60,8 +83,8 @@ n'a pas été vérifiée sur un fichier réel se dit comme une hypothèse.
 
 ### Ce qui a déjà été diagnostiqué (ne pas refaire)
 
-E1, CP1, E2+E3, E4, E5, E6, CP3, E7, A3, H1 et le déclenchement ont été
-repris entre le 11 et le 12/09. Le journal `docs/diagnostic_pipeline.md`
+E1, CP1, E2+E3, E4, E5, E6, CP3, E7, A3, H1, le déclenchement et le
+recalage son/image ont été repris entre le 11 et le 12/09. Le journal `docs/diagnostic_pipeline.md`
 dit pour chacun ce qui a été corrigé et pourquoi. **Le rôle de cette
 session n'est pas de refaire ce travail, mais de le vérifier sur les
 artefacts réels et de traiter ce qui reste.**
