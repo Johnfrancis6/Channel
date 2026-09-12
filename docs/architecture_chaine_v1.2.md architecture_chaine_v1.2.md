@@ -23,7 +23,7 @@ Relecture du pipeline étape par étape sur les artefacts réellement produits. 
 
 - **La durée se calibre en idées, pas en secondes** : 3 idées maximum, le coût en mots d'une idée dépend du **format**. Une interview fictive dépasse 60 s sans déroger à la règle (§9.1, §14).
 - **Consignes structurées à la création** : `format`, `reference` et `idees_max` remplacent le fourre-tout de `note_franco`, et sont lues par le Chercheur **et** le Designer.
-- **Le rapport de checkpoint ne perd plus sa partie décisionnelle** : l'extrait préserve d'abord les sections qui portent la décision (§5.5).
+- **Le rapport de checkpoint ne perd plus sa partie décisionnelle** : l'extrait classe les sections en trois rangs — ce qui porte la décision, ce qui l'informe, ce qui ne fait que la documenter (§5.5). Mesuré sur le rapport réel : `## Sources` gardait 506 caractères de liens pendant que `## Faits verifies` tombait à 622 sur 2151.
 - **Titre de travail borné à 80 caractères** : un sujet d'une phrase entière ne fait pas un titre.
 - **Le recalage son/image était inopérant** : il exigeait une scène par phrase, or A6 fusionne (11 scènes pour 24 phrases sur la vidéo 1, d'où 16,4 s d'écart). Chaque scène déclare désormais les **phrases qu'elle couvre** (§8). Et `outils/phrases_depuis_timestamps.py` reconstruit `04_phrases.json` pour les vidéos dont l'audio est antérieur au changement (§7.2).
 - **A3 écrit la liste de chaînes concurrentes** que Franco lui donne en conversation, en ajout seul (§4.3).

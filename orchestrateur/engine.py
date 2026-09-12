@@ -115,33 +115,53 @@ def _tronquer(bloc, budget):
     return bloc[:max(budget, 0)].rstrip() + "\n\n[...]"
 
 
+# Sections qui ne portent jamais la decision, a aucun checkpoint : une
+# liste de liens se verifie en ouvrant le fichier, elle ne se lit pas au
+# telephone. Servies en dernier, elles ne prennent que ce qui reste.
+SECTIONS_RELEGUEES = ("Sources",)
+
+
+def _rang_section(titre, motifs_prioritaires):
+    """0 porte la decision, 1 l'informe, 2 ne fait que la documenter."""
+    if not titre:
+        return 1
+    normalise = _normaliser_titre(titre)
+    if any(motif in normalise for motif in motifs_prioritaires):
+        return 0
+    if any(_normaliser_titre(r) in normalise for r in SECTIONS_RELEGUEES):
+        return 2
+    return 1
+
+
 def _extraire_sections(contenu, max_chars, sections_prioritaires):
     """
-    Reduit `contenu` a `max_chars`, en gardant d'abord les sections dont le
-    titre correspond a `sections_prioritaires`.
+    Reduit `contenu` a `max_chars` en trois rangs : ce qui porte la
+    decision, ce qui l'informe, ce qui ne fait que la documenter.
 
     Une troncature naive par le debut coupait le rapport de CP1 en plein
     milieu d'une phrase, et jetait precisement la section "Points a trancher
     par Franco" — c'est-a-dire les questions sur lesquelles il doit decider.
-    Restaient les sources, qui ne servent pas a decider. Le rapport de
-    checkpoint est fait pour etre lu au telephone sans ouvrir les sorties
-    (§5.5) : ce qui porte la decision doit survivre a la coupe.
+    Le rapport de checkpoint est fait pour etre lu au telephone sans ouvrir
+    les sorties (§5.5) : ce qui porte la decision doit survivre a la coupe.
+
+    Les deux rangs ont d'abord suffi, mais le reste du budget se servait
+    dans l'ordre du document — et `## Sources` est la premiere section de
+    `01_recherche.md`. Mesure sur le rapport reel de 2026-09-11_v01 (4538
+    caracteres pour 3000) : 506 caracteres de liens gardes entiers pendant
+    que `## Faits verifies` — le coeur de la recherche — tombait a 622 sur
+    2151. Le troisieme rang lui rend exactement ces 506 caracteres : 1128.
     """
     if len(contenu) <= max_chars:
         return contenu
 
     sections = _decouper_sections(contenu)
     motifs = [_normaliser_titre(p) for p in sections_prioritaires if p]
-    est_prio = [
-        bool(titre) and any(motif in _normaliser_titre(titre) for motif in motifs)
-        for titre, _ in sections
-    ]
+    rangs = [_rang_section(titre, motifs) for titre, _ in sections]
 
     budget = max_chars
     gardees = {}
-    for indices in ([i for i, p in enumerate(est_prio) if p],
-                    [i for i, p in enumerate(est_prio) if not p]):
-        for i in indices:
+    for rang in (0, 1, 2):
+        for i in [j for j, r in enumerate(rangs) if r == rang]:
             if budget <= 0:
                 break
             bloc = sections[i][1]
@@ -179,8 +199,11 @@ def _lire_extrait(video_dir, nom_fichier, max_chars=3000, sections_prioritaires=
 RESUME_SOURCES = {
     "CP1": [("01_recherche.md", "Recherche",
              # "Angle confirme" en mode sujet_impose, "Angle propose" sinon.
+             # "Matiere a hook" est dans le gabarit d'A2 mais n'etait pas
+             # prioritaire : c'est pourtant ce qui dit si le sujet accrochera,
+             # donc ce sur quoi Franco tranche au CP1.
              ("Points a trancher", "Angle confirme", "Angle propose",
-              "Incertitudes"))],
+              "Incertitudes", "Matiere a hook"))],
     "CP2": [("03_script_final.md", "Script final", ()),
             ("03_rapport_metriques.md", "Rapport metriques (nouveaux termes de lexique)",
              ("Nouveaux termes", "Lexique", "A corriger", "Hors cible"))],

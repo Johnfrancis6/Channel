@@ -440,6 +440,7 @@ Vérifié sur le dossier reconstitué de `2026-09-11_v01` : l'écart de
 | 9 | Déclenchement : lanceur cron `outils/lancer_orchestrateur.py` | ✅ fait — reste à installer la crontab chez Franco |
 | 10 | E7 : les statuts de fin appartiennent à E7, abandon d'une vidéo, `programmee` → `publiee` sans `--force` | ✅ fait |
 | 11 | Recalage son/image : les scènes déclarent les phrases qu'elles couvrent + convertisseur de rattrapage | ✅ fait |
+| 12 | Rapport de checkpoint : trois rangs de sections, les liens cèdent le budget aux faits | ✅ fait |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer
@@ -745,6 +746,43 @@ les résout et les écrit. `--fusionner` **ajoute sans jamais retirer** : le
 fichier reste celui de Franco, et une chaîne ajoutée à la main entre deux
 analyses n'est pas effacée — même principe que le corpus. L'agent écrit la
 liste, il ne choisit pas les concurrents.
+
+## CP1 — la troncature gardait les liens et jetait les faits
+
+Trouvé par la session de diagnostic au bloc 2, mesuré ici sur le rapport
+réel de `2026-09-11_v01` (4538 caractères pour un budget de 3000) :
+
+| Section | Avant | Après |
+|---|---|---|
+| `## Sources` (liens) | **506, entière** | 0 |
+| `## Faits verifies` (2151) | **622** | **1128** |
+| `## Angle propose` | 980 | 980 |
+| `## Points a trancher` | 735 | 735 |
+
+Le correctif du 11/09 avait réglé le vrai problème — les sections qui
+portent la décision survivent à la coupe — mais le **reste** du budget se
+servait encore dans l'ordre du document. Or `## Sources` est la **première
+section** de `01_recherche.md`. Franco recevait donc 506 caractères d'URL
+entières et perdait les trois quarts des faits vérifiés.
+
+L'ironie est dans le docstring de la fonction, écrit le 11/09 : *« Restaient
+les sources, qui ne servent pas à décider. »* La phrase décrivait le bug
+qu'on venait de corriger, et le code en laissait vivre une variante.
+
+Trois rangs désormais : ce qui **porte** la décision, ce qui l'**informe**,
+ce qui ne fait que la **documenter**. Reléguer n'est pas supprimer — les
+sources prennent ce qui reste, et passent entières quand le budget suffit.
+
+Second point du même bloc : **`Matiere a hook` est au gabarit d'A2 mais
+n'était pas prioritaire au CP1.** C'est pourtant ce qui dit si le sujet
+accrochera, donc exactement ce sur quoi Franco tranche. Ajoutée.
+
+### Ce que ça dit, encore
+
+La correction du 11/09 avait été validée par des tests qui passaient, sur
+un document synthétique où `Sources` arrivait en dernier. Le vrai fichier
+la met en premier. Le test mesurait ce qu'on avait imaginé, pas ce que le
+Chercheur écrit.
 
 ## En attente de Franco
 

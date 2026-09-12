@@ -14,6 +14,7 @@ import shutil
 import tempfile
 import unittest
 
+from orchestrateur import engine
 from orchestrateur.checkpoints import chemin_rapport
 from orchestrateur.engine import _construire_resume_checkpoint, _extraire_sections
 
@@ -71,7 +72,9 @@ class TestExtraireSections(unittest.TestCase):
     def test_sans_section_prioritaire_on_tronque_sans_planter(self):
         extrait = _extraire_sections(recherche_longue(), 3000, ())
         self.assertTrue(extrait)
-        self.assertIn("## Sources", extrait)
+        # Meme sans priorite declaree, une liste de liens passe apres le
+        # contenu : elle ne porte la decision d'aucun checkpoint.
+        self.assertIn("## Faits verifies", extrait)
 
     def test_fichier_sans_titre_markdown(self):
         contenu = "du texte brut " * 500
@@ -239,3 +242,56 @@ class TestResumeCP3(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRangsDeSections(unittest.TestCase):
+    """
+    Le budget restant se servait dans l'ordre du document, et `## Sources`
+    est la premiere section de `01_recherche.md`. Sur le rapport reel de
+    2026-09-11_v01 (4538 caracteres pour 3000), Franco recevait 506
+    caracteres de liens entiers et perdait les trois quarts des faits
+    verifies (622 sur 2151).
+    """
+
+    PRIO = ("Points a trancher", "Angle propose")
+
+    def _document(self):
+        return (
+            "# Titre\n\n"
+            "## Sources\n\n" + "lien. " * 100 + "\n\n"
+            "## Faits verifies\n\n" + "fait. " * 400 + "\n\n"
+            "## Angle propose\n\n" + "angle. " * 30 + "\n\n"
+            "## Points a trancher par Franco au CP1\n\n" + "question. " * 30 + "\n"
+        )
+
+    def test_les_liens_cedent_le_budget_aux_faits(self):
+        extrait = engine._extraire_sections(self._document(), 1500, self.PRIO)
+
+        self.assertIn("Points a trancher", extrait)
+        self.assertIn("Angle propose", extrait)
+        self.assertIn("Faits verifies", extrait)
+        # Une liste de liens se verifie en ouvrant le fichier ; elle ne se
+        # lit pas au telephone. Elle part la premiere.
+        self.assertNotIn("## Sources", extrait)
+
+    def test_les_sources_restent_quand_le_budget_suffit(self):
+        # Releguees ne veut pas dire supprimees : elles degradent en dernier.
+        document = self._document()
+        extrait = engine._extraire_sections(document, len(document) - 10, self.PRIO)
+        self.assertIn("## Sources", extrait)
+
+    def test_la_matiere_a_hook_est_prioritaire_au_cp1(self):
+        # Elle est au gabarit d'A2 depuis la revue, mais n'etait pas
+        # prioritaire : c'est pourtant ce qui dit si le sujet accrochera.
+        prioritaires = engine.RESUME_SOURCES["CP1"][0][2]
+        self.assertIn("Matiere a hook", prioritaires)
+
+        accroche = "accroche. " * 20
+        document = ("# Titre\n\n## Sources\n\n" + "lien. " * 200 + "\n\n"
+                    "## Matiere a hook\n\n" + accroche + "\n")
+        extrait = engine._extraire_sections(document, 400, prioritaires)
+
+        # L'accroche passe entiere ; les liens ne prennent que le reste.
+        self.assertIn(accroche.strip(), extrait)
+        self.assertLess(extrait.index("Matiere a hook"), len(extrait))
+        self.assertNotIn("lien. " * 200, extrait)
