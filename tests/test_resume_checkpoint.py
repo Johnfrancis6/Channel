@@ -217,6 +217,47 @@ class TestResumeCP3(unittest.TestCase):
         self.ecrire_phrases(30.0)
         self.assertIn("s'arrete avant la fin", self.resume())
 
+    def ecrire_mp4(self, duree_s, timescale=600):
+        """Un MP4 minimal : juste la boite moov/mvhd qui porte la duree."""
+        def boite(nom, charge):
+            return (8 + len(charge)).to_bytes(4, "big") + nom + charge
+
+        mvhd = (b"\0\0\0\0"                                   # version 0 + flags
+                + b"\0" * 8                                   # creation + modification
+                + timescale.to_bytes(4, "big")
+                + int(duree_s * timescale).to_bytes(4, "big")
+                + b"\0" * 80)                                 # le reste, non lu
+        with open(os.path.join(self.dir, "06_video_finale.mp4"), "wb") as f:
+            f.write(boite(b"moov", boite(b"mvhd", mvhd)))
+
+    def test_la_duree_vient_du_mp4_pas_du_storyboard(self):
+        # Le cas de 2026-09-12_v01 : le storyboard estime 85,3 s, le montage
+        # recale sur la voix off et rend 93,2 s. Sommer le storyboard faisait
+        # annoncer un ecart de 7,9 s — et « le recalage n'a pas eu lieu » —
+        # sur le seul montage parfaitement cale.
+        self.ecrire_storyboard([("s1", 40.0), ("s2", 45.3)])
+        self.ecrire_phrases(93.199)
+        self.ecrire_mp4(93.2)
+        r = self.resume()
+        self.assertIn("93.2 s", r)
+        self.assertNotIn("85.3", r)
+        self.assertNotIn("Ecart de", r)
+
+    def test_un_vrai_ecart_reste_signale_sur_la_duree_mesuree(self):
+        self.ecrire_storyboard([("s1", 82.0)])
+        self.ecrire_phrases(82.5)
+        self.ecrire_mp4(98.8)
+        r = self.resume()
+        self.assertIn("Ecart de 16.3 s", r)
+        self.assertIn("recalage sur `04_phrases.json` n'a pas eu lieu", r)
+
+    def test_un_mp4_illisible_le_dit_au_lieu_d_accuser_le_recalage(self):
+        self.ecrire_storyboard([("s1", 40.0), ("s2", 45.3)])
+        self.ecrire_phrases(93.199)  # le mp4 de setUp n'est que des zeros
+        r = self.resume()
+        self.assertIn("estimation du storyboard", r)
+        self.assertIn("peut n'etre que celui du storyboard", r)
+
     def test_mp4_manquant_est_dit(self):
         os.remove(os.path.join(self.dir, "06_video_finale.mp4"))
         self.assertIn("introuvable", self.resume())

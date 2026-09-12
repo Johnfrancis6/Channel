@@ -10,7 +10,8 @@ import re
 import unicodedata
 
 from .agents_registry import obtenir_agent
-from .checkpoints import archiver_rapport_refuse, generer_rapport_si_absent, lire_decision
+from .checkpoints import (archiver_rapport_refuse, chemin_rapport, generer_rapport_si_absent,
+                          lire_decision)
 from .constants import DEPENDANCES, ORDRE_IDS, PIPELINE_PAR_ID, STATUTS_CLOS, STATUTS_E7
 from .state_store import ajouter_historique, now_iso
 
@@ -238,6 +239,60 @@ def _lire_json(video_dir, nom_fichier):
         return None
 
 
+def _duree_mp4_s(chemin):
+    """
+    Duree reelle d'un MP4, lue dans la boite `mvhd` (timescale + duree).
+
+    Sans outil externe : le rapport de checkpoint doit pouvoir se generer
+    partout ou tourne l'Orchestrateur, y compris sur un poste sans ffprobe.
+    Retourne None si le fichier n'est pas un MP4 lisible — l'appelant retombe
+    alors sur l'estimation du storyboard, en le disant.
+    """
+    def boites(f, fin):
+        while f.tell() < fin - 8:
+            debut = f.tell()
+            entete = f.read(8)
+            if len(entete) < 8:
+                return
+            taille = int.from_bytes(entete[:4], "big")
+            nom = entete[4:8]
+            if taille == 1:
+                etendue = f.read(8)
+                if len(etendue) < 8:
+                    return
+                taille = int.from_bytes(etendue, "big")
+            elif taille == 0:
+                taille = fin - debut
+            if taille < 8:
+                return
+            yield nom, f.tell(), debut + taille
+            f.seek(debut + taille)
+
+    try:
+        taille_fichier = os.path.getsize(chemin)
+        with open(chemin, "rb") as f:
+            for nom, contenu, fin in boites(f, taille_fichier):
+                if nom != b"moov":
+                    continue
+                f.seek(contenu)
+                for sous_nom, sous_contenu, _ in boites(f, fin):
+                    if sous_nom != b"mvhd":
+                        continue
+                    f.seek(sous_contenu)
+                    version = f.read(4)[:1]
+                    # v0 : dates sur 32 bits ; v1 : sur 64. Le timescale suit
+                    # les deux dates, la duree le timescale.
+                    f.read(16 if version == b"\x01" else 8)
+                    timescale = int.from_bytes(f.read(4), "big")
+                    duree = int.from_bytes(f.read(8 if version == b"\x01" else 4), "big")
+                    if timescale and duree:
+                        return round(duree / timescale, 1)
+                    return None
+    except (OSError, ValueError):
+        return None
+    return None
+
+
 def _resume_video_finale(video_dir, state):
     """
     Ce qu'il faut pour decider au CP3 : le fichier a regarder, sa duree face
@@ -262,21 +317,37 @@ def _resume_video_finale(video_dir, state):
 
     storyboard = _lire_json(video_dir, "05_storyboard.json") or {}
     scenes = storyboard.get("scenes") or []
-    duree_rendu = round(sum(float(sc.get("duree_s") or 0) for sc in scenes), 1) if scenes else None
+
+    # La duree vient du MP4, pas du storyboard. Les durees du storyboard sont
+    # des **estimations** : A7 les recale sur 04_phrases.json au moment de
+    # construire les props, et ce recalage n'est jamais reecrit dans
+    # 05_storyboard.json. Les sommer revient donc a mesurer le plan de
+    # tournage et a en conclure quelque chose sur le rendu. Sur
+    # 2026-09-12_v01, le rapport annoncait « 85,3 s, ecart de 7,9 s, le
+    # recalage n'a pas eu lieu » pour un MP4 de 93,2 s cale au centieme sur
+    # une voix off de 93,199 s : le controle censé attraper la derive
+    # accusait le seul montage qui n'en avait pas.
+    duree_mesuree = _duree_mp4_s(chemin_mp4) if os.path.isfile(chemin_mp4) else None
+    duree_estimee = round(sum(float(sc.get("duree_s") or 0) for sc in scenes), 1) if scenes else None
+    duree_rendu = duree_mesuree if duree_mesuree else duree_estimee
 
     phrases = _lire_json(video_dir, "04_phrases.json") or {}
     duree_audio = phrases.get("duree_totale_s")
 
     if duree_rendu:
-        lignes.append(f"- **Duree du rendu** : {duree_rendu} s, sur {len(scenes)} scenes")
+        origine = "" if duree_mesuree else " — *estimation du storyboard, le MP4 n'a pas pu etre mesure*"
+        lignes.append(f"- **Duree du rendu** : {duree_rendu} s, sur {len(scenes)} scenes{origine}")
     if duree_audio:
         lignes.append(f"- **Duree de la voix off** : {duree_audio} s")
     if duree_rendu and duree_audio:
         ecart = round(duree_rendu - duree_audio, 1)
         if abs(ecart) > 1:
             sens = "depasse la voix off" if ecart > 0 else "s'arrete avant la fin de la voix off"
-            lignes.append(f"- ⚠️ **Ecart de {abs(ecart)} s** : le visuel {sens}. "
-                           f"Le recalage sur `04_phrases.json` n'a pas eu lieu.")
+            cause = ("Le recalage sur `04_phrases.json` n'a pas eu lieu."
+                     if duree_mesuree else
+                     "A verifier en regardant la video : cet ecart peut n'etre que celui du "
+                     "storyboard, que le recalage sur `04_phrases.json` corrige au montage.")
+            lignes.append(f"- ⚠️ **Ecart de {abs(ecart)} s** : le visuel {sens}. {cause}")
 
     a_completer = [sc.get("id") for sc in scenes if sc.get("a_completer")]
     if a_completer:
@@ -338,6 +409,16 @@ def _ouvrir_checkpoint_si_pret(video_dir, state, etape_id):
     etape = state["etapes"][etape_id]
     if etape["statut"] == "a_venir" and _pret(state, etape_id):
         etape["statut"] = "attente_validation"
+        resume = _construire_resume_checkpoint(video_dir, state, etape_id)
+        generer_rapport_si_absent(video_dir, etape_id, resume=resume)
+    elif etape["statut"] == "attente_validation" and not os.path.isfile(
+        chemin_rapport(video_dir, etape_id)
+    ):
+        # Un checkpoint en attente dont le rapport a disparu ne se rouvre
+        # jamais : la generation etait accrochee a la seule transition
+        # `a_venir` -> `attente_validation`. Franco se retrouvait avec une
+        # video bloquee sur une decision qu'aucun fichier ne lui permettait
+        # de prendre, et le tableau de bord la reclamait a chaque passage.
         resume = _construire_resume_checkpoint(video_dir, state, etape_id)
         generer_rapport_si_absent(video_dir, etape_id, resume=resume)
 

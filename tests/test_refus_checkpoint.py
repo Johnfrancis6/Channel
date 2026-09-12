@@ -86,6 +86,23 @@ class TestRefusCheckpoint(unittest.TestCase):
         self.assertIn("EN_ATTENTE", courant)
         self.assertIn("Refus precedent : Angle trop vague", courant)
 
+    def test_un_rapport_disparu_est_regenere_au_passage_suivant(self):
+        # La generation etait accrochee a la seule transition `a_venir` ->
+        # `attente_validation`. Un rapport perdu ensuite ne revenait jamais :
+        # la video restait en attente d'une decision que Franco n'avait aucun
+        # fichier pour prendre, et le tableau de bord la reclamait a chaque
+        # passage.
+        video_dir = self._creer_video("2026-09-10_v06")
+        self._amener_a(video_dir, "CP1")
+
+        os.remove(chemin_rapport(video_dir, "CP1"))
+        run_once(self.root)
+
+        self.assertTrue(os.path.isfile(chemin_rapport(video_dir, "CP1")))
+        self.assertIn("EN_ATTENTE", open(chemin_rapport(video_dir, "CP1"),
+                                          encoding="utf-8").read())
+        self.assertEqual(load_state(video_dir)["etapes"]["CP1"]["statut"], "attente_validation")
+
     def test_refus_puis_validation_laisse_le_pipeline_repartir(self):
         video_dir = self._creer_video("2026-09-10_v03")
         self._amener_a(video_dir, "CP1")
