@@ -48,6 +48,36 @@ python3 outils/generer_apercus.py
 
 - Parametres : `scene` = `github_demo`, `label` = `CLAUDE + GITHUB`
 
+### context7-demo
+
+![ConceptCutaway — context7-demo](ConceptCutaway-context7-demo.png)
+
+- Parametres : `scene` = `context7_demo`, `label` = `CONTEXT7 MCP`, `compteur` = `1/5`
+
+### playwright-demo
+
+![ConceptCutaway — playwright-demo](ConceptCutaway-playwright-demo.png)
+
+- Parametres : `scene` = `playwright_demo`, `label` = `PLAYWRIGHT MCP`, `compteur` = `2/5`
+
+### firecrawl-demo
+
+![ConceptCutaway — firecrawl-demo](ConceptCutaway-firecrawl-demo.png)
+
+- Parametres : `scene` = `firecrawl_demo`, `label` = `FIRECRAWL MCP`, `compteur` = `3/5`
+
+### higgsfield-demo
+
+![ConceptCutaway — higgsfield-demo](ConceptCutaway-higgsfield-demo.png)
+
+- Parametres : `scene` = `higgsfield_demo`, `label` = `HIGGSFIELD MCP`, `compteur` = `4/5`
+
+### github-mcp-demo
+
+![ConceptCutaway — github-mcp-demo](ConceptCutaway-github-mcp-demo.png)
+
+- Parametres : `scene` = `github_mcp_demo`, `label` = `GITHUB MCP`, `compteur` = `5/5`
+
 ## StickmanTalk
 
 ### intro

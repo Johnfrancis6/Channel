@@ -34,7 +34,25 @@ import sys
 import tempfile
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+def trouver_repo_root():
+    """
+    Racine du depot, trouvee en remontant jusqu'au dossier qui contient la
+    bibliotheque de composants.
+
+    `parents[1]` marche depuis outils/ mais pas depuis la copie deployee
+    dans .claude/skills/short-monteur/outils/, ou il designe le dossier du
+    skill — sans composants/ dedans. Le skill du Monteur documente pourtant
+    l'appel par le chemin du skill : la commande de la doc echouait sur
+    « Declaration introuvable » alors que tout etait en place.
+    """
+    depart = Path(__file__).resolve()
+    for candidat in depart.parents:
+        if (candidat / "composants" / "src" / "components" / "registry.ts").is_file():
+            return candidat
+    return depart.parents[1]
+
+
+REPO_ROOT = trouver_repo_root()
 COMPOSANTS = REPO_ROOT / "composants"
 DECLARATION = COMPOSANTS / "apercus.json"
 SORTIE_DIR = COMPOSANTS / "apercus"

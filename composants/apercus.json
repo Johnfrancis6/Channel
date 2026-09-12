@@ -13,6 +13,11 @@
     {"nom": "workflow-tools", "params": {"scene": "workflow_tools", "label": "STEP 2 — AI WORKFLOW"}},
     {"nom": "workflow-fixed-path", "params": {"scene": "workflow_fixed_path", "label": "FIXED PATH"}},
     {"nom": "agent-loop", "params": {"scene": "agent_loop", "label": "STEP 3 — AI AGENT"}},
-    {"nom": "github-demo", "params": {"scene": "github_demo", "label": "CLAUDE + GITHUB"}}
+    {"nom": "github-demo", "params": {"scene": "github_demo", "label": "CLAUDE + GITHUB"}},
+    {"nom": "context7-demo", "params": {"scene": "context7_demo", "label": "CONTEXT7 MCP", "compteur": "1/5"}},
+    {"nom": "playwright-demo", "params": {"scene": "playwright_demo", "label": "PLAYWRIGHT MCP", "compteur": "2/5"}},
+    {"nom": "firecrawl-demo", "params": {"scene": "firecrawl_demo", "label": "FIRECRAWL MCP", "compteur": "3/5"}},
+    {"nom": "higgsfield-demo", "params": {"scene": "higgsfield_demo", "label": "HIGGSFIELD MCP", "compteur": "4/5"}},
+    {"nom": "github-mcp-demo", "params": {"scene": "github_mcp_demo", "label": "GITHUB MCP", "compteur": "5/5"}}
   ]
 }

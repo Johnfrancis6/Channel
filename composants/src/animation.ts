@@ -134,12 +134,19 @@ export function styleContinu(
   fps: number,
   charte: CharteTokens,
   da?: DirectionArtistique,
+  // Attenuation 0..1 du mouvement de fond. Sert la premiere regle de
+  // `charte.json > animation.regles` : **un seul mouvement dominant par
+  // scene**. Quand un element prend la main (une pulsation d'accent, par
+  // exemple), le reste se calme au lieu de continuer a deriver — sinon deux
+  // mouvements se disputent l'oeil et l'accent ne se lit plus.
+  attenuation = 1,
 ): React.CSSProperties {
+  const k = Math.max(0, Math.min(1, attenuation));
   const t = frame / fps;
   if (da?.mouvement === 'zoom_lent') {
     // Derive lente sur toute la scene : imperceptible image par image,
     // evidente a la lecture.
-    return {transform: `scale(${1 + t * 0.012})`};
+    return {transform: `scale(${1 + t * 0.012 * k})`};
   }
   const w = charte.animation?.wobble;
   if (!w?.actif) {
@@ -148,10 +155,52 @@ export function styleContinu(
   // Deux sinusoides de periodes premieres entre elles : le mouvement ne se
   // repete pas a l'identique, contrairement a une oscillation d'exactement
   // une seconde, qui s'entend comme un metronome.
-  const a = w.amplitude_px * 0.35;
+  const a = w.amplitude_px * 0.35 * k;
   const x = Math.sin((t / w.periode_s) * Math.PI * 2) * a;
   const y = Math.sin((t / (w.periode_s * 1.618)) * Math.PI * 2) * a * 0.6;
   return {transform: `translate(${x}px, ${y}px)`};
+}
+
+/**
+ * Pulsation ponctuelle, declenchee a une frame precise : 0 -> 1 -> 0.
+ *
+ * C'est une **echelle**, pas un wobble : `charte.json > animation.wobble`
+ * reserve l'oscillation aux traces a la main (`cible: "trace_main"`), jamais
+ * au texte ni aux boites. Et c'est un ressort, pas une rampe (regle 1) qui
+ * repart en douceur au lieu de s'arreter net (regle 2).
+ *
+ * `frameDeclenchement` est resolu au montage a partir du timestamp reel de
+ * la phrase designee par `da.accent` (04_phrases.json) : l'accent tombe sur
+ * le mot prononce, pas au milieu chronometrique de la scene.
+ */
+export function pulsation(frame: number, fps: number, frameDeclenchement?: number): number {
+  if (frameDeclenchement === undefined || frameDeclenchement === null) {
+    return 0;
+  }
+  const local = frame - frameDeclenchement;
+  if (local < 0) {
+    return 0;
+  }
+  const montee = Math.max(1, Math.round(fps * 0.22));
+  const retour = Math.max(1, Math.round(fps * 0.5));
+  const monte = spring({
+    frame: local,
+    fps,
+    config: {damping: 12, mass: 0.5, stiffness: 200},
+    durationInFrames: montee,
+  });
+  // Le retour est plus long et plus amorti que la montee : un accent frappe
+  // vite et se repose lentement. Symetrique, il ressemblerait a un clignotement.
+  const descend =
+    local < montee
+      ? 0
+      : spring({
+          frame: local - montee,
+          fps,
+          config: {damping: 18, mass: 0.9, stiffness: 90},
+          durationInFrames: retour,
+        });
+  return Math.max(0, monte - descend);
 }
 
 /** Profondeur (regle 7) : le fond suit le premier plan, en retrait. */

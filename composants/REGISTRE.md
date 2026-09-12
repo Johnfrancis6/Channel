@@ -27,7 +27,7 @@ pareil : c'est le style qui redevient improvise.
 |---|---|---|---|---|
 | `TitleCard` | `texte` (string), `sousTitre` (string, optionnel) | 1 | valide | — |
 | `StickmanTalk` | `pose` (`"intro"` \| `"lean_in"` \| `"outro"`), `label` (string, optionnel) | 1 | nouveau | 2026-09-11_v01 |
-| `ConceptCutaway` | `scene` (`"llm_single_turn"` \| `"workflow_tools"` \| `"workflow_fixed_path"` \| `"agent_loop"` \| `"github_demo"`), `label` (string, optionnel) | 1 | nouveau | 2026-09-11_v01 |
+| `ConceptCutaway` | `scene` (`"llm_single_turn"` \| `"workflow_tools"` \| `"workflow_fixed_path"` \| `"agent_loop"` \| `"github_demo"` \| `"context7_demo"` \| `"playwright_demo"` \| `"firecrawl_demo"` \| `"higgsfield_demo"` \| `"github_mcp_demo"`), `label` (string, optionnel), `compteur` (string, optionnel, ex. `"1/5"`) | 2 | nouveau | 2026-09-11_v01, 2026-09-12_v01 |
 | `Subtitles`* | `mots` (MotHorodate[]) | 1 | valide | — |
 
 Colonne `DA` : `oui` si le composant applique `da`, `partiel` s'il n'en
@@ -38,6 +38,42 @@ suit qu'une partie, `non` s'il l'ignore encore.
 | `TitleCard` | oui |
 | `StickmanTalk` | oui |
 | `ConceptCutaway` | oui |
+
+### `ConceptCutaway` v2 — famille « serveur MCP » (2026-09-12_v01)
+
+Cinq valeurs de `scene` de plus, sur la grammaire deja validee de
+`github_demo` : trois boites verticales reliees par des fleches, la
+troisieme accentuee parce qu'elle porte le benefice.
+
+| `scene` | Boite 1 | Boite 2 | Boite 3 (accentuee) |
+|---|---|---|---|
+| `context7_demo` | CLAUDE | CONTEXT7 MCP | REAL DOCS |
+| `playwright_demo` | CLAUDE | PLAYWRIGHT MCP | REAL BROWSER |
+| `firecrawl_demo` | CLAUDE | FIRECRAWL MCP | CLEAN TEXT |
+| `higgsfield_demo` | CLAUDE | HIGGSFIELD MCP | IMAGE OR VIDEO |
+| `github_mcp_demo` | CLAUDE | GITHUB MCP | PULL REQUEST |
+
+`github_mcp_demo` ne remplace pas `github_demo` : la boite centrale de ce
+dernier dit « VS CODE (MCP) », ce qui ne convient qu'a un script qui parle
+de VS Code.
+
+Deux ajouts transverses vont avec :
+
+- **`compteur`** (string, optionnel) : badge en coin haut droit pour les
+  formats listicle (`"1/5"`). Place hors de la zone des sous-titres
+  (220 px du bas, cf. `Subtitles`) et hors des boites centrales.
+- **Accent ponctuel sur la boite 3** : une pulsation d'echelle — pas un
+  wobble, que la charte reserve a `trace_main` — declenchee au timestamp
+  **reel** de la phrase que `da.accent` designe. A6 ecrit « boite 3 pulse
+  au debut de la phrase 7 » ; `construire_props.py` resout cet index via
+  `04_phrases.json` en `scene.pulsation_s`, et `Video.tsx` le convertit en
+  frame en rattrapant le chevauchement inter-scenes. Le milieu
+  chronometrique d'une scene qui couvre quatre phrases ne tombe sur aucun
+  mot ; l'accent doit tomber sur celui qui porte le benefice.
+
+Pendant la pulsation, le mouvement continu du schema s'efface
+(`styleContinu(..., 1 - pulse)`) : un seul mouvement dominant par scene,
+premiere regle de `charte.json > animation.regles`.
 
 Tous passent par `src/animation.ts`, qui implemente les huit regles du §8
 une fois pour toutes. Un composant qui refait ses `interpolate()` a la main

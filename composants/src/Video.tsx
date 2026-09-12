@@ -66,6 +66,14 @@ export const Video: React.FC<VideoProps> = ({charte, scenes, mots, audioSrc}) =>
         const Composant = REGISTRE[scene.composant];
         // La premiere scene n'a rien sur quoi deborder.
         const avance = i === 0 ? 0 : chevauchement;
+        // `pulsation_s` est compte depuis le debut *audio* de la scene, alors
+        // que useCurrentFrame() repart a zero `avance` frames plus tot a cause
+        // du chevauchement. Sans ce rattrapage, l'accent tomberait 0,25 s trop
+        // tard sur chaque scene sauf la premiere.
+        const pulsationFrame =
+          scene.pulsation_s === undefined || scene.pulsation_s === null
+            ? undefined
+            : Math.round(scene.pulsation_s * fps) + avance;
 
         return (
           <Sequence
@@ -75,7 +83,7 @@ export const Video: React.FC<VideoProps> = ({charte, scenes, mots, audioSrc}) =>
             name={scene.id}
           >
             {Composant ? (
-              <Composant charte={charte} da={scene.da} {...scene.params} />
+              <Composant charte={charte} da={scene.da} pulsationFrame={pulsationFrame} {...scene.params} />
             ) : (
               <ComposantInconnu nom={scene.composant} />
             )}

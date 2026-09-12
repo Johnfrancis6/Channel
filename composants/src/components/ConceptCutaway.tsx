@@ -2,21 +2,43 @@ import React from 'react';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
 import type {CharteTokens, DirectionArtistique} from '../types';
 import {Stickman} from './Stickman';
-import {progressionEntree, retardSecondaireFrames, styleContinu, styleEntree} from '../animation';
+import {progressionEntree, pulsation, retardSecondaireFrames, styleContinu, styleEntree} from '../animation';
 
 export type ConceptScene =
   | 'llm_single_turn'
   | 'workflow_tools'
   | 'workflow_fixed_path'
   | 'agent_loop'
-  | 'github_demo';
+  | 'github_demo'
+  // Famille « un serveur MCP branche a Claude » (2026-09-12_v01) : meme
+  // grammaire que github_demo — trois boites verticales reliees par des
+  // fleches, la derniere accentuee parce qu'elle porte le benefice. Une
+  // valeur par outil plutot qu'un libelle passe en parametre : c'est ce qui
+  // rend la variante visible au catalogue, donc choisissable par A6.
+  | 'context7_demo'
+  | 'playwright_demo'
+  | 'firecrawl_demo'
+  | 'higgsfield_demo'
+  | 'github_mcp_demo';
 
 export type ConceptCutawayParams = {
   scene: ConceptScene;
   label?: string;
+  // Position dans une liste ("1/5"). Badge discret en coin haut : hors de la
+  // zone des sous-titres (220 px du bas, cf. Subtitles) et hors des boites
+  // centrales. Optionnel — les scenes hors listicle n'en ont pas.
+  compteur?: string;
 };
 
-type Props = ConceptCutawayParams & {charte: CharteTokens; da?: DirectionArtistique};
+type Props = ConceptCutawayParams & {
+  charte: CharteTokens;
+  da?: DirectionArtistique;
+  // Frame de declenchement de la pulsation de la boite accentuee, resolue au
+  // montage depuis le timestamp reel de la phrase designee par `da.accent`
+  // (04_phrases.json). Passee par Video.tsx, jamais ecrite dans le storyboard :
+  // A6 designe une phrase, A7 en fait un instant.
+  pulsationFrame?: number;
+};
 
 type ElementChaine = {texte: string; tag?: string};
 
@@ -32,6 +54,16 @@ const CHAINES: Partial<Record<ConceptScene, ElementChaine[]>> = {
   ],
   workflow_fixed_path: [{texte: 'STEP 1'}, {texte: 'STEP 2'}, {texte: 'STEP 3'}, {texte: 'DONE'}],
   github_demo: [{texte: 'CLAUDE'}, {texte: 'VS CODE (MCP)'}, {texte: 'GITHUB REPO'}],
+  // Claude -> le serveur MCP -> ce qu'il rapporte. La troisieme boite est le
+  // benefice, et c'est elle qui est accentuee puis pulsee.
+  context7_demo: [{texte: 'CLAUDE'}, {texte: 'CONTEXT7 MCP'}, {texte: 'REAL DOCS'}],
+  playwright_demo: [{texte: 'CLAUDE'}, {texte: 'PLAYWRIGHT MCP'}, {texte: 'REAL BROWSER'}],
+  firecrawl_demo: [{texte: 'CLAUDE'}, {texte: 'FIRECRAWL MCP'}, {texte: 'CLEAN TEXT'}],
+  higgsfield_demo: [{texte: 'CLAUDE'}, {texte: 'HIGGSFIELD MCP'}, {texte: 'IMAGE OR VIDEO'}],
+  // Distinct de github_demo, dont la boite centrale dit « VS CODE (MCP) » :
+  // VS Code n'est jamais mentionne dans ce script, et montrer ce qu'on ne dit
+  // pas est un decalage que le spectateur voit.
+  github_mcp_demo: [{texte: 'CLAUDE'}, {texte: 'GITHUB MCP'}, {texte: 'PULL REQUEST'}],
 };
 
 const NOEUDS_BOUCLE = ['PLAN', 'ACT', 'OBSERVE', 'DECIDE'];
@@ -61,7 +93,11 @@ const Maillon: React.FC<{
   style: React.CSSProperties;
   charte: CharteTokens;
   accentue: boolean;
-}> = ({item, style, charte, accentue}) => {
+  // Amplitude 0..1 de la pulsation d'accent. Portee par la boite elle-meme et
+  // non par son conteneur : celui-ci porte deja la transformation d'entree,
+  // et deux transform sur le meme noeud s'ecrasent.
+  pulse?: number;
+}> = ({item, style, charte, accentue, pulse = 0}) => {
   const famille = charte.typographie.sous_titres.famille;
   const bord = accentue ? charte.couleurs.accent_secondaire : charte.couleurs.accent;
   return (
@@ -96,6 +132,12 @@ const Maillon: React.FC<{
           // n'etait pas un probleme d'empilement mais de transparence.
           backgroundColor: charte.couleurs.fond,
           backgroundImage: `linear-gradient(${bord}14, ${bord}14)`,
+          // 8 % suffisent a faire lire l'accent sur une boite de 520 px de
+          // large ; au-dela, la boite cogne ses voisines.
+          transform: `scale(${1 + pulse * 0.08})`,
+          // La lueur accompagne l'echelle au lieu de la remplacer : elle
+          // disparait entierement quand pulse revient a 0.
+          boxShadow: pulse > 0 ? `0 0 ${Math.round(pulse * 46)}px ${bord}${pulse > 0.5 ? '66' : '33'}` : undefined,
         }}
       >
         {item.texte}
@@ -178,13 +220,17 @@ const Boucle: React.FC<{charte: CharteTokens; progression: number; rotation: num
 // (§8). Le composant laissait environ les trois quarts du cadre vides et
 // ses schemas etaient generiques ; il occupe desormais le 1080x1920 et le
 // schema porte la distinction qu'il illustre.
-export const ConceptCutaway: React.FC<Props> = ({scene, label, charte, da}) => {
+export const ConceptCutaway: React.FC<Props> = ({scene, label, compteur, charte, da, pulsationFrame}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const famille = charte.typographie.sous_titres.famille;
   const chaine = CHAINES[scene];
   const retard = retardSecondaireFrames(charte, fps);
   const progression = progressionEntree(frame, fps, charte, da, 1);
+  // Accent : la derniere boite pulse au moment ou la phrase qui porte le
+  // benefice est prononcee. Pendant ce temps, le mouvement continu du schema
+  // s'efface — un seul mouvement dominant par scene (charte, regle 1).
+  const pulse = pulsation(frame, fps, pulsationFrame);
 
   return (
     <AbsoluteFill style={{backgroundColor: charte.couleurs.fond, overflow: 'hidden'}}>
@@ -214,6 +260,29 @@ export const ConceptCutaway: React.FC<Props> = ({scene, label, charte, da}) => {
         </div>
       ) : null}
 
+      {compteur ? (
+        <div
+          style={{
+            ...styleEntree(frame, fps, charte, da, 6),
+            position: 'absolute',
+            top: 108,
+            right: 56,
+            zIndex: 2,
+            padding: '10px 24px',
+            borderRadius: 999,
+            border: `4px solid ${charte.couleurs.accent_secondaire}`,
+            backgroundColor: charte.couleurs.fond,
+            color: charte.couleurs.accent_secondaire,
+            fontFamily: famille,
+            fontSize: 38,
+            fontWeight: 800,
+            letterSpacing: 2,
+          }}
+        >
+          {compteur}
+        </div>
+      ) : null}
+
       <AbsoluteFill
         style={{
           alignItems: 'center',
@@ -222,7 +291,7 @@ export const ConceptCutaway: React.FC<Props> = ({scene, label, charte, da}) => {
           paddingBottom: 420,
         }}
       >
-        <div style={styleContinu(frame, fps, charte, da)}>
+        <div style={styleContinu(frame, fps, charte, da, 1 - pulse)}>
           {chaine ? (
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative'}}>
               {AVEC_RAIL.includes(scene) ? (
@@ -262,6 +331,7 @@ export const ConceptCutaway: React.FC<Props> = ({scene, label, charte, da}) => {
                     style={styleEntree(frame, fps, charte, da, i * 2 + 1)}
                     charte={charte}
                     accentue={i === chaine.length - 1}
+                    pulse={i === chaine.length - 1 ? pulse : 0}
                   />
                 </React.Fragment>
               ))}

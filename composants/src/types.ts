@@ -74,8 +74,17 @@ export type Scene = {
   // sequences dans Remotion Studio ; jamais affichee a l'ecran, les
   // sous-titres la portent deja.
   phrase?: string;
+  // Numeros de ligne de 03_script_tts.txt couvertes par la scene (§8). A6
+  // fusionne ces listes quand il fusionne des scenes ; c'est ce qui permet le
+  // recalage sur 04_phrases.json sans exiger une scene par phrase.
+  phrases?: number[];
   // Duree estimee par A6 avant recalage sur l'audio, gardee pour comparer.
   duree_s_storyboard?: number;
+  // Instant de l'accent demande par `da.accent`, en secondes depuis le debut
+  // de la scene. Resolu au montage par construire_props.py : A6 designe une
+  // phrase, le timestamp reel vient de 04_phrases.json. Absent quand la DA ne
+  // demande pas d'accent ponctuel.
+  pulsation_s?: number;
   // A6 n'a pas encore tranche le composant / les params / la DA.
   a_completer?: boolean;
   // Direction artistique de la scene, decidee par A6 (§8). Optionnelle :

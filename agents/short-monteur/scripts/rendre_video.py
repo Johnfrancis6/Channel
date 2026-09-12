@@ -19,7 +19,26 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+def trouver_repo_root():
+    """
+    Racine du depot, trouvee en remontant jusqu'au dossier qui contient la
+    bibliotheque de composants.
+
+    Un simple `parents[3]` marche depuis agents/short-monteur/scripts/ mais
+    pas depuis la copie deployee dans .claude/skills/short-monteur/scripts/,
+    qui n'a pas la meme profondeur : il y designait `.claude/`, ou il n'y a
+    pas de composants/. Le skill documente pourtant l'appel par le chemin du
+    skill — la commande de la doc etait donc la seule a ne pas marcher. On
+    cherche le repere plutot que de compter les niveaux.
+    """
+    depart = Path(__file__).resolve()
+    for candidat in depart.parents:
+        if (candidat / "composants" / "src" / "components" / "registry.ts").is_file():
+            return candidat
+    return depart.parents[3]
+
+
+REPO_ROOT = trouver_repo_root()
 COMPOSANTS = REPO_ROOT / "composants"
 REGISTRY_TS = COMPOSANTS / "src" / "components" / "registry.ts"
 
