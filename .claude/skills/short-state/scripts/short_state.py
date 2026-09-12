@@ -276,7 +276,14 @@ def main():
     derniere, source = None, None
     ex, _ = lire_json(racine / "01_Orchestrateur" / "derniere_execution.json")
     if isinstance(ex, dict):
-        derniere, source = parse_iso(ex.get("fin") or ex.get("debut")), "derniere_execution.json"
+        # `horodatage` est ce que l'Orchestrateur ecrit
+        # (dashboard.ecrire_derniere_execution) ; `fin`/`debut` etaient lus
+        # ici et n'ont jamais existe. La date declarée n'etait donc jamais
+        # trouvee, et on retombait en silence sur la mtime du tableau de
+        # bord — un repli qui marche par accident et que n'importe quel
+        # outil touchant le fichier fausserait.
+        derniere = parse_iso(ex.get("horodatage") or ex.get("fin") or ex.get("debut"))
+        source = "derniere_execution.json"
     if derniere is None and (racine / "TABLEAU_DE_BORD.md").exists():
         derniere = datetime.fromtimestamp((racine / "TABLEAU_DE_BORD.md").stat().st_mtime, timezone.utc)
         source = "date de TABLEAU_DE_BORD.md"

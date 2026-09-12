@@ -133,3 +133,50 @@ class TestValidationSchema(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestGrapheDeDependances(unittest.TestCase):
+    """
+    Le graphe vivait a deux endroits : `depend_de` dans constants.PIPELINE,
+    que personne ne lisait, et un dictionnaire ecrit a la main dans
+    engine.py. Ils concordaient ; rien ne l'imposait. Meme motif que la
+    geometrie des composants — deux constantes liees qui vivent separement.
+    """
+
+    # Le graphe attendu, ecrit une fois ici pour epingler la derivation.
+    ATTENDU = {
+        "E1_recherche": [],
+        "CP1": ["E1_recherche"],
+        "E2_redaction": ["CP1"],
+        "E3_filtre": ["E2_redaction"],
+        "CP2": ["E3_filtre"],
+        "E4_audio": ["CP2"],
+        "E5_storyboard": ["CP2"],
+        "E6_montage": ["E4_audio", "E5_storyboard"],
+        "CP3": ["E6_montage"],
+        "E7_publication": ["CP3"],
+    }
+
+    def test_le_graphe_derive_est_celui_attendu(self):
+        from orchestrateur.constants import DEPENDANCES
+        self.assertEqual(DEPENDANCES, self.ATTENDU)
+
+    def test_engine_ne_redeclare_pas_le_graphe(self):
+        from orchestrateur import constants, engine
+        self.assertIs(engine.DEPENDANCES, constants.DEPENDANCES)
+
+    def test_chaque_prealable_existe_et_precede(self):
+        from orchestrateur.constants import DEPENDANCES, ORDRE_IDS
+        for etape, prealables in DEPENDANCES.items():
+            for prealable in prealables:
+                self.assertIn(prealable, ORDRE_IDS, f"{etape} depend de {prealable}, inconnu")
+                self.assertLess(ORDRE_IDS.index(prealable), ORDRE_IDS.index(etape),
+                                f"{etape} depend de {prealable}, qui vient apres")
+
+    def test_le_parallelisme_du_cp2_est_declare_explicitement(self):
+        # E5 ne depend pas de E4 : les deux partent du CP2. Sans `depend_de`,
+        # la derivation par position les mettrait en serie.
+        from orchestrateur.constants import PIPELINE_PAR_ID
+        self.assertEqual(PIPELINE_PAR_ID["E5_storyboard"]["depend_de"], ["CP2"])
+        self.assertEqual(PIPELINE_PAR_ID["E6_montage"]["depend_de"],
+                         ["E4_audio", "E5_storyboard"])

@@ -453,6 +453,7 @@ Vérifié sur le dossier reconstitué de `2026-09-11_v01` : l'écart de
 | 13 | CP2 : le budget a une section obligatoire et passe en tête des priorités ; règle des sigles dans le SKILL d'A5 | ✅ fait |
 | 14 | E4 : rapport audio archivé par tentative, `FORCER_RELANCE` lève aussi le contrôle de statut | ✅ fait |
 | 15 | Composants : boucle rognée, rail à travers le texte, `lean_in` sans inclinaison, sous-titres absents du catalogue | ✅ fait |
+| 16 | Graphe de dépendances dérivé de `PIPELINE` ; `short-state` lisait une clé que personne n'écrit | ✅ fait |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer
@@ -971,6 +972,58 @@ sans un avertissement. Deux choses que le total cachait :
   de la constante, et **≈ 6,4 s d'un surplus qu'A6 a ajouté par-dessus son
   propre débit**. Le recalage corrige les deux, puisqu'il ne repose sur
   aucun débit.
+
+## E7 et le déclenchement — la fin tient, le départ n'existe pas
+
+**La fin du pipeline tient.** Les quatre chemins vérifiés un par un :
+`publiee` n'est plus réécrit en `prete`, une vidéo close n'est plus avancée,
+`abandonnee` pose `etape_actuelle = "termine"` par ceinture autant que par
+bretelle, et `programmee` garde E7 ouvert au tableau de bord.
+
+**Le cron n'a jamais tourné, et c'est prouvé plutôt que supposé.** Le
+lanceur écrit une ligne de journal à *chaque* passage, y compris quand il ne
+fait rien. `01_Orchestrateur/journal_cron.log` est **absent du Drive** :
+zéro exécution, jamais. `orchestrateur_cmd` est toujours `null`,
+`derniere_execution.json` dit `11/09 16:24:06`.
+
+**Les deux mécanismes d'avancement sont coupés par la même cause.** Chaque
+SKILL d'agent termine par « si `orchestrateur_cmd` est renseigné,
+exécute-le ; sinon, ce sera pris au prochain passage ». Il n'y a pas de
+prochain passage. Donc rien n'avance le pipeline — ni après un agent, ni
+périodiquement. Le seul chemin restant est Franco, à la main.
+
+**Et le tableau de bord ne peut pas le dire** : il n'est régénéré que *par*
+l'Orchestrateur. Un moniteur qui ne se rafraîchit que quand tourne la chose
+qu'il surveille ne peut pas signaler qu'elle ne tourne pas. C'est
+`short-state` qui le dit — il calcule en direct depuis les `state.json` et
+lève une action `ORCHESTRATEUR` au-delà de 6 h. La séparation des deux
+outils n'était pas un luxe.
+
+### Le défaut trouvé sur ce chemin-là
+
+`short-state` lisait `ex.get("fin") or ex.get("debut")` dans
+`derniere_execution.json`. L'Orchestrateur y écrit `{"horodatage": ...}` :
+**aucune de ces deux clés n'a jamais existé.** La date déclarée n'était donc
+jamais trouvée, et le code retombait en silence sur la **mtime de
+`TABLEAU_DE_BORD.md`** — un repli qui marche par accident et que n'importe
+quel outil touchant le fichier fausserait. L'alerte fonctionnait pour la
+mauvaise raison.
+
+### Deux sources pour un graphe, dont une morte
+
+`constants.PIPELINE` déclarait `depend_de` sur `E6_montage` ; **personne ne
+la lisait**. Le graphe réellement utilisé était un second dictionnaire écrit
+à la main dans `engine.py`. Les deux concordaient, rien ne l'imposait.
+
+C'est exactement le motif nommé la veille sur la géométrie des composants —
+deux constantes liées qui vivent séparément — et il se règle pareil : le
+graphe se **dérive** de `PIPELINE`. Une étape dépend de celle qui la
+précède, sauf `depend_de` explicite : `E5_storyboard` part du CP2 en
+parallèle d'E4, `E6_montage` attend les deux. Le graphe attendu est épinglé
+par un test, et un autre vérifie que tout préalable existe et précède.
+
+Au passage : `ORDRE_IDS` existait pour ça et n'était pas utilisé — trois
+boucles s'appuyaient sur l'ordre d'insertion d'un dict.
 
 ## En attente de Franco
 

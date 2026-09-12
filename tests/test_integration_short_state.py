@@ -13,6 +13,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timezone
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NEW_SHORT = os.path.join(REPO_ROOT, "skills", "new-short", "scripts", "new_short.py")
@@ -111,3 +112,51 @@ class TestIntegrationShortState(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestDateDuDernierPassage(unittest.TestCase):
+    """
+    L'Orchestrateur ecrit `{"horodatage": ...}` ; short-state lisait
+    `fin`/`debut`, qui n'ont jamais existe. La date declaree n'etait donc
+    jamais trouvee et on retombait en silence sur la mtime du tableau de
+    bord — un repli qui marche par accident.
+    """
+
+    def setUp(self):
+        self.root = tempfile.mkdtemp(prefix="etat_horodatage_")
+        os.makedirs(os.path.join(self.root, "00_Profil"))
+        os.makedirs(os.path.join(self.root, "01_Orchestrateur"))
+        os.makedirs(os.path.join(self.root, "videos"))
+
+    def tearDown(self):
+        shutil.rmtree(self.root, ignore_errors=True)
+
+    def _ecrire_execution(self, contenu):
+        chemin = os.path.join(self.root, "01_Orchestrateur", "derniere_execution.json")
+        with open(chemin, "w", encoding="utf-8") as f:
+            json.dump(contenu, f)
+
+    def _lancer(self):
+        proc = subprocess.run(
+            [sys.executable,
+             os.path.join(REPO_ROOT, "skills", "short-state", "scripts", "short_state.py"),
+             "--root", self.root],
+            capture_output=True, text=True)
+        return json.loads(proc.stdout)
+
+    def test_la_cle_horodatage_est_lue(self):
+        maintenant = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        self._ecrire_execution({"horodatage": maintenant})
+
+        sortie = self._lancer()
+
+        systeme = sortie.get("systeme") or {}
+        self.assertEqual(systeme.get("source"), "derniere_execution.json")
+        self.assertIsNotNone(systeme.get("orchestrateur_dernier_passage"))
+
+    def test_sans_tableau_de_bord_ni_horodatage_lisible(self):
+        # Le repli sur la mtime n'existe pas ici : il faut que l'absence se
+        # dise, pas qu'elle se devine.
+        self._ecrire_execution({"fin": None})
+        sortie = self._lancer()
+        self.assertIsNone((sortie.get("systeme") or {}).get("orchestrateur_dernier_passage"))

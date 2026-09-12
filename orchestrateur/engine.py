@@ -11,22 +11,8 @@ import unicodedata
 
 from .agents_registry import obtenir_agent
 from .checkpoints import archiver_rapport_refuse, generer_rapport_si_absent, lire_decision
-from .constants import PIPELINE_PAR_ID, STATUTS_CLOS, STATUTS_E7
+from .constants import DEPENDANCES, ORDRE_IDS, PIPELINE_PAR_ID, STATUTS_CLOS, STATUTS_E7
 from .state_store import ajouter_historique, now_iso
-
-DEPENDANCES = {
-    "E1_recherche": [],
-    "CP1": ["E1_recherche"],
-    "E2_redaction": ["CP1"],
-    "E3_filtre": ["E2_redaction"],
-    "CP2": ["E3_filtre"],
-    "E4_audio": ["CP2"],
-    "E5_storyboard": ["CP2"],
-    "E6_montage": ["E4_audio", "E5_storyboard"],
-    "CP3": ["E6_montage"],
-    "E7_publication": ["CP3"],
-}
-
 
 def _pret(state, etape_id):
     for dep_id in DEPENDANCES[etape_id]:
@@ -424,7 +410,7 @@ def _mettre_a_jour_statut_global(state):
 
 
 def _mettre_a_jour_etape_actuelle(state):
-    for etape_id in PIPELINE_PAR_ID:
+    for etape_id in ORDRE_IDS:
         etape = state["etapes"].get(etape_id)
         if etape is None:
             continue
@@ -488,10 +474,10 @@ def _traiter_echec_etape_manuelle(state, etape_id, max_tentatives):
 def etapes_agent_actionnables(state):
     """Etapes 'agent' (a_venir ou echec) pretes a etre lancees par un agent reel."""
     resultat = []
-    for etape_def in PIPELINE_PAR_ID.values():
+    for etape_id in ORDRE_IDS:
+        etape_def = PIPELINE_PAR_ID[etape_id]
         if etape_def["kind"] != "agent":
             continue
-        etape_id = etape_def["id"]
         etape = state["etapes"].get(etape_id)
         if etape is None or etape["statut"] not in ("a_venir", "echec"):
             continue
@@ -519,8 +505,10 @@ def traiter_video(video_dir, state, config):
 
     _transcrire_decisions_franco(video_dir, state)
 
-    for etape_def in PIPELINE_PAR_ID.values():
-        etape_id = etape_def["id"]
+    # ORDRE_IDS plutot que l'ordre d'insertion du dict : il existe pour ca,
+    # et l'ordre du sequencement ne doit pas dependre d'un detail de Python.
+    for etape_id in ORDRE_IDS:
+        etape_def = PIPELINE_PAR_ID[etape_id]
         etape = state["etapes"].get(etape_id)
         if etape is None:
             continue
