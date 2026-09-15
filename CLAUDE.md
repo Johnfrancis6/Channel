@@ -10,6 +10,9 @@ Lire ce document en priorité avant chaque session.
 Revue de fond la plus récente, qui explique le **pourquoi** des décisions
 en place : [docs/revue_architecture_2026-09-11.md](docs/revue_architecture_2026-09-11.md).
 
+Revue de la **chaîne de conception visuelle** (Remotion), la plus récente :
+[docs/revue_conception_video_2026-09-15.md](docs/revue_conception_video_2026-09-15.md).
+
 Diagnostic du pipeline **étape par étape**, en cours — décisions transverses,
 file d'attente, ce qui reste à examiner :
 [docs/diagnostic_pipeline.md](docs/diagnostic_pipeline.md).

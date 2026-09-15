@@ -573,6 +573,9 @@ demandent une premiere execution reelle sur le poste de Franco.
 | 20 | Transitions a la demande : `transition_sortie` par scene via `TransitionSeries`, jamais deux fois la meme d'affilee | ⬜ |
 | 21 | Passe de critique visuelle : une image fixe **par scene** de la vraie video, regardee avant le CP3 | ⬜ |
 | 22 | Sous-titres animes (ressort par mot) et hierarchie typographique par ligne | ⬜ |
+| 23 | Typographie : `@remotion/google-fonts`, deux niveaux hierarchiques dans `charte.json` | ⬜ |
+| 24 | Passe « formes pleines » : `ConceptCutaway`, `StickmanTalk`, `Cadre` — remplissages, ombres, epaisseurs variables | ⬜ |
+| 25 | Remotion Studio (`npm run preview`) inscrit a l'etape 5 du SKILL du Monteur | ⬜ |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer
