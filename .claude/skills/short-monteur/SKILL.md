@@ -53,70 +53,104 @@ echoue l'etape avec la liste des scenes concernees, pour que le storyboard
 soit repris. Une video montee sur un squelette arrive au CP3 sans avoir
 jamais ete concue.
 
+### La regle ne porte pas sur ce que tu montres
+
+**« Reutiliser, sinon etendre, sinon creer » gouverne le STYLE, jamais le
+SUJET.** Le but est d'empecher la derive stylistique : que deux videos ne
+se ressemblent plus parce que chacune a invente sa facon de dessiner une
+boite. Ce n'est pas un but d'economie.
+
+Reutiliser `ConceptCutaway` pour cinq serveurs MCP differents, ce n'est pas
+reutiliser un composant : c'est **rendre cinq fois la meme image**. C'est
+exactement ce qui est arrive sur `2026-09-11_v01`, et c'est la faute que
+cette regle est censee empecher, pas celle qu'elle doit produire.
+
+**Contrainte dure, verifiable au catalogue :**
+
+> Deux scenes d'une meme video ne peuvent pas produire la meme image.
+
+Si deux scenes appellent le meme composant, elles doivent differer par la
+**donnee** — une ressource differente, un nombre d'elements different, une
+mise en scene differente. Deux scenes qui ne different que par leur texte
+ne sont pas deux scenes : c'est une scene, et il faut soit les fusionner,
+soit en trouver une seconde image. Un `label` qui change ne compte pas.
+
 Pour chaque scene :
 
 1. Si `composant` existe deja dans `composants/src/components/registry.ts`
-   avec les bons parametres : rien a faire.
+   avec les bons parametres **et que la contrainte ci-dessus est tenue** :
+   rien a faire.
 2. Sinon, regarde si un composant existant peut etre etendu (nouveaux
-   parametres optionnels, retro-compatibles).
+   parametres optionnels, retro-compatibles). C'est le cas le plus frequent
+   et le moins cher : un parametre de plus suffit souvent a faire une image
+   qui ne ressemble pas a la precedente.
 3. Sinon, cree un nouveau composant Remotion dans
    `composants/src/components/<Nom>.tsx` (suis le style de `TitleCard.tsx` :
-   props typees, tokens de charte en entree, pas de couleur en dur),
-   ajoute-le a `REGISTRE` dans `registry.ts`, et documente-le dans
+   props typees, tokens de charte en entree, pas de couleur en dur, **pas de
+   fond** — `Fond.tsx` est rendu une fois pour toute la video), ajoute-le a
+   `REGISTRE` dans `registry.ts`, et documente-le dans
    `composants/REGISTRE.md` avec le statut `nouveau` (revu de fait au
    CP3, §8).
 
+**Ce que creer coute reellement.** Un `.tsx`, un typecheck et une ligne dans
+`REGISTRE.md` : c'est du travail, assume-le. Mais deux des quatre couts
+qu'on croyait payer n'en sont pas. Les **images du catalogue** sont
+generees par `python3 outils/generer_apercus.py`, tu n'as aucune image a
+produire a la main. Et la **relecture au CP3** a lieu de toute facon, que le
+composant soit neuf ou non : elle ne coute rien de plus.
+
+Reste donc un fichier et une ligne de tableau. Ne renonce pas a une image
+pour ca.
+
 **Appliquer la DA.** Chaque composant recoit `da` en prop, en plus de
-`charte`. Traduis-la ainsi, en te servant de `charte.json > animation` pour
-les valeurs par defaut :
+`charte`. **Tu n'implementes pas la DA : tu appelles `src/animation.ts`, qui
+l'implemente deja.** Ce module tient les huit regles du §8 pour tous les
+composants a la fois. Reecrire un `interpolate()` a la main dans un composant,
+c'est refabriquer une version approximative de ce qui existe — et c'est ainsi
+qu'on se retrouve avec trois composants qui bougent chacun un peu autrement.
 
-| `da.mouvement` | Implementation attendue |
+| Ce que tu veux | Ce que tu appelles |
 |---|---|
-| `entree_par_le_bas` | translation Y depuis ~24px + opacite 0→1 sur `duree_entree_s` |
-| `fondu` | opacite seule |
-| `zoom_lent` | `scale` qui derive lentement sur toute la scene |
-| `glissement_lateral` | translation X, sens alterne d'une scene a l'autre |
-| `apparition_sequencee` | les elements entrent l'un apres l'autre, ~80ms d'ecart |
-| `aucun` | pas d'animation d'entree |
+| L'entree d'un element, selon `da.mouvement` et `da.rythme` | `styleEntree(frame, fps, charte, da, index)` |
+| La progression 0→1 de cette entree, pour animer autre chose (un trace SVG) | `progressionEntree(frame, fps, charte, da, index)` |
+| Le mouvement continu de la scene (regle 8) | `styleContinu(frame, fps, charte, da, attenuation)` |
+| L'accent sur le mot prononce | `pulsation(frame, fps, pulsationFrame)` |
+| Un mouvement de plan sur une capture ou un b-roll | `punchIn(frame, fps, dureeScene, da, index)` |
+| Le retard du mouvement secondaire (regle 5) | `retardSecondaireFrames(charte, fps)` |
 
-| `da.technique` | Implementation attendue |
-|---|---|
-| `spring` | `spring()` de Remotion |
-| `interpolate` | `interpolate()` + easing de `charte.animation.easing_entree` |
-| `statique` | aucune interpolation |
-
-`da.rythme` module la duree d'entree : `pose` l'allonge (~1.5x),
-`standard` la laisse, `punch` la raccourcit (~0.5x) et coupe sec.
+L'`index` que prennent plusieurs de ces fonctions est le **rang de l'element
+dans son groupe** : c'est lui qui produit le decalage de 80 ms, la variation
+de vitesse et l'alternance des sens. Passer 0 partout annule trois des huit
+regles d'un coup.
 
 La **regle du wobble** (`charte.animation.wobble`) s'applique aux elements
 dessines a la main (stickman, traits), jamais au texte.
 
 **Tout est code en Remotion.** Lottie a ete envisage puis ecarte : la
-fluidite ne vient pas d'un fichier pre-rendu, elle se code — et c'est ton
-travail. Les huit regles ci-dessous separent une animation vivante d'une
-animation mecanique ; leurs valeurs sont dans `charte.json >
-animation.naturel`.
+fluidite ne vient pas d'un fichier pre-rendu, elle se code. Les huit regles
+ci-dessous separent une animation vivante d'une animation mecanique ; leurs
+valeurs sont dans `charte.json > animation.naturel`.
 
-1. **Ressort plutot que rampe** : `spring()` par defaut. Un mouvement reel
-   accelere puis se pose ; une rampe lineaire se voit immediatement.
-2. **Rien ne s'arrete net.** Une fin brutale est le signe le plus sur d'une
-   animation bâclee. Laisse le mouvement se poser.
-3. **Decalage** (`decalage_entree_ms`, 80 ms) : quand plusieurs elements
-   entrent, espace-les. Tout ce qui entre ensemble parait mecanique.
-4. **Jamais deux elements exactement a la meme vitesse**
-   (`variation_vitesse`, 15 %) — c'est ce qui separe un groupe d'objets
-   d'un bloc rigide.
-5. **Mouvement secondaire** (`mouvement_secondaire_retard_ms`, 120 ms) :
-   quand l'element principal bouge, quelque chose le suit avec du retard.
-6. **Anticipation** (`anticipation_px`, 10 px) sur les gestes marques : un
-   leger recul avant le mouvement.
-7. **Parallaxe** (`parallaxe_fond`, 0.4) : le fond bouge moins vite que le
-   premier plan. C'est ce qui fait l'immersion, bien plus que le detail du
-   dessin.
-8. **Rien n'est jamais totalement immobile** : le wobble garde l'image
-   vivante ; une image figee parait morte.
+**Chaque regle est nommee avec la fonction qui la porte.** C'est deliberé :
+une regle « appliquee » doit se verifier par un `grep`, pas par une
+declaration. Les regles 2 et 7 sont restees ecrites, documentees et fausses
+pendant cinq jours parce que leur fonction n'avait aucun appelant.
 
-Applique-les a **tous** les composants, pas seulement au personnage.
+| # | Regle | Qui la porte |
+|---|---|---|
+| 1 | **Ressort plutot que rampe.** Un mouvement reel accelere puis se pose ; une rampe lineaire se voit immediatement. | `progressionEntree` (`spring()` par defaut) |
+| 2 | **Rien ne s'arrete net.** Une fin brutale est le signe le plus sur d'une animation bâclee. | `opaciteSortie` pour la derniere scene ; `TransitionSeries` pour toutes les autres |
+| 3 | **Decalage** (80 ms) : ce qui entre ensemble parait mecanique. | `decalageFrames`, via l'`index` de `styleEntree` |
+| 4 | **Jamais deux elements exactement a la meme vitesse** (15 %). | `facteurVitesse`, via le meme `index` |
+| 5 | **Mouvement secondaire** (120 ms) : quelque chose suit l'element principal. | `retardSecondaireFrames` |
+| 6 | **Anticipation** (10 px) sur les gestes marques. | `styleEntree` (`anticipation_px`) |
+| 7 | **Parallaxe** (0,4) : le fond bouge moins vite que le premier plan. | `parallaxe`, applique par `Fond.tsx` |
+| 8 | **Rien n'est jamais totalement immobile.** Une image figee parait morte. | `styleContinu` |
+
+Applique-les a **tous** les composants, pas seulement au personnage. Si un
+composant que tu ecris n'appelle aucune de ces fonctions, il ne respecte
+aucune des huit regles — c'est vrai par construction, verifie-le avant de
+rendre.
 
 Verifie que ca compile : `cd composants && npm run typecheck`.
 
@@ -170,23 +204,56 @@ revue du 11/09/2026), relancer le notebook en `MODE='full'` le produit.
 
 ## Etape 5 — Verification visuelle avant de rendre
 
-Ne livre pas un rendu que tu n'as jamais regarde (§12). Sors quelques
-images fixes et regarde-les :
+Ne livre pas un rendu que tu n'as jamais regarde (§12). Deux images fixes
+sur onze scenes, c'est 18 % de la video : c'est ce qui a laisse passer les
+defauts de `2026-09-11_v01`.
+
+### Une image par scene, pas deux par video
 
 ```bash
 cd composants
-npx remotion still src/index.ts Video /tmp/<video_id>_f0.png \
-  --props=/tmp/<video_id>_props.json --frame=0
-npx remotion still src/index.ts Video /tmp/<video_id>_mid.png \
-  --props=/tmp/<video_id>_props.json --frame=<moitie de la duree en frames>
+python3 - <<'EOF'
+import json, subprocess
+props = json.load(open("/tmp/<video_id>_props.json"))
+fps = props["charte"]["format"]["fps"]
+debut = 0.0
+for i, sc in enumerate(props["scenes"]):
+    milieu = round((debut + sc["duree_s"] / 2) * fps)
+    subprocess.run(["npx", "remotion", "still", "src/index.ts", "Video",
+                    f"/tmp/<video_id>_s{i+1}.png",
+                    "--props=/tmp/<video_id>_props.json", f"--frame={milieu}"])
+    debut += sc["duree_s"]
+EOF
 ```
 
-Prends au moins la premiere frame du hook, une frame de milieu de video et
-une frame de fin. Verifie : le texte tient dans le cadre en 1080x1920, les
-sous-titres ne recouvrent pas l'element principal, les couleurs viennent
-bien de la charte, et la scene correspond a la DA demandee. Si quelque
-chose ne va pas, corrige le composant et refais des images fixes — c'est
+**Regarde-les toutes**, puis verifie :
+
+- le texte tient dans le cadre en 1080x1920 ;
+- les sous-titres ne recouvrent pas l'element principal ;
+- les couleurs viennent de la charte, aucune n'est ecrite en dur ;
+- la scene correspond a la DA demandee ;
+- **aucune image ne ressemble a une autre.** C'est la contrainte de
+  l'etape 3, et c'est ici qu'elle se verifie. Deux images qui ne different
+  que par leur texte sont un defaut, pas une variante.
+
+Si quelque chose ne va pas, corrige le composant et refais l'image — c'est
 beaucoup moins cher qu'un rendu complet.
+
+### Ce que les images fixes ne peuvent pas montrer
+
+Un saut d'opacite a un raccord, une entree qui arrive trop tard, un element
+qui se fige apres 0,3 s : **rien de tout cela n'existe sur une image fixe**,
+par construction. C'est un angle mort du controle, pas un oubli.
+
+Tu ne peux pas le lever toi-meme — Remotion Studio est une interface
+navigateur, elle se regarde. **Donne donc la commande a Franco dans ton
+message de cloture**, pour qu'il puisse parcourir la timeline avant de
+valider le CP3 :
+
+```bash
+cd composants && npx remotion studio src/index.ts
+# puis, dans le Studio : charger /tmp/<video_id>_props.json
+```
 
 ## Etape 6 — Rendre
 
@@ -211,11 +278,30 @@ normalement pas necessaire.
 
 ## Etape 7 — Cloturer
 
+**Avant de cloturer : rien de mort.** Tout ce que tu as ajoute — une
+fonction exportee dans `animation.ts`, un champ dans `types.ts`, un
+parametre de composant — doit avoir **au moins un appelant dans le meme
+commit**. Verifie-le, litteralement :
+
+```bash
+cd composants && grep -rn "<nom_de_ce_que_tu_as_ajoute>" src/ | grep -v "export"
+```
+
+Ce n'est pas une regle de proprete. `opaciteSortie`, `parallaxe` et
+`transition_sortie` ont ete ecrits le 11/09, typecheck au vert, documentes
+comme faits — et sont restes a zero appelant pendant cinq jours. Pendant ce
+temps aucun element ne sortait jamais de l'ecran, et la revue les comptait
+comme livres. **Un export qui compile passe pour du travail fait.** Si tu ne
+peux pas l'appeler maintenant, ne l'ajoute pas.
+
 Succes :
 
 ```bash
 python3 <chemin-du-skill>/scripts/etape.py terminer --video <video_id> --etape E6_montage \
-  --sorties 06_video_finale.mp4 --message "Resume : N scenes, nouveaux composants : ..."
+  --sorties 06_video_finale.mp4 --message "Resume : N scenes, nouveaux composants : ..."""
+
+# Le message de cloture porte aussi la commande du Studio (etape 5) :
+# c'est le seul moyen pour Franco de voir bouger la video avant le CP3.
 ```
 
 Echec (composant impossible a rendre, props invalides, rendu qui plante) :

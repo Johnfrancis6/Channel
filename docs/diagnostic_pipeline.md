@@ -70,14 +70,32 @@ clairs, on continue à en essayer.
 
 Si la qualité visuelle varie au hasard d'une vidéo à l'autre, l'étude des
 formats est polluée : impossible de savoir si un format retient mieux, ou si
-le rendu était plus réussi ce jour-là. L'objectif avant les 6 vidéos n'est
-pas la beauté, c'est la **constance** — pour que la seule variable qui bouge
-soit le format.
+le rendu était plus réussi ce jour-là. La seule variable qui doit bouger,
+c'est le format.
 
-D'où la séparation : **catalogue d'aperçus et cadrage du Designer
-maintenant** ; les outils qui rendraient Remotion plus organique (d3-ease,
-`@remotion/noise`, rough.js) **après l'étude**, quand on saura quel style
-on vise. Lottie, lui, a été écarté — voir plus bas.
+**Corrigé le 16/09/2026 — ce que « constance » autorisait.** La formulation
+d'origine disait : *« l'objectif avant les 6 vidéos n'est pas la beauté,
+c'est la constance »*. Elle a été lue par les agents comme une permission de
+ne pas travailler la surface, et c'est un contresens sur son propre
+raisonnement : le facteur de confusion de l'étude est la **variance entre
+vidéos**, jamais le **niveau**. Une barre haute et fixe est exactement aussi
+constante qu'une barre basse — et même davantage, parce qu'une barre basse
+laisse chaque agent improviser, donc varier.
+
+La règle est donc : **une barre, écrite, tenue à l'identique sur les six
+vidéos.** Elle peut être haute. Ce qui est interdit, ce n'est pas de bien
+faire, c'est de faire différemment d'une vidéo à l'autre.
+
+**Où passe la ligne de partage.** Pas entre « l'outillage » et « la
+beauté », mais entre deux natures de travail :
+
+| Maintenant | Après l'étude |
+|---|---|
+| Ce qui **fixe une règle** : typographie, fond, grille et marges, vocabulaire de transitions, formes des composants. Une fois écrit, ça ne varie plus. | Ce qui **ajoute un style** : d3-ease, `@remotion/noise`, rough.js. Chaque ajout est un choix esthétique qui n'a de sens qu'une fois qu'on sait quel style on vise. |
+
+Un token de charte appliqué partout augmente la constance ; un effet
+organique appliqué au jugement la diminue. C'est ça, le critère — pas
+l'ambition du résultat. Lottie, lui, a été écarté — voir plus bas.
 
 ### Analyse de structure : le vocabulaire est fermé, la narration est libre
 
@@ -633,6 +651,64 @@ python3 outils/generer_apercus.py \
 
 Sur le poste de Franco, Remotion telecharge le sien et l'option est inutile.
 
+
+## Le barème, corrige a la source (16/09/2026)
+
+Le lot E6b a change ce que le systeme **peut** rendre. Sans toucher aux
+instructions, l'agent l'aurait defait a la vidéo suivante : il optimise ce
+qu'on lui demande d'optimiser, et on lui demandait autre chose.
+
+Quatre corrections, toutes minimales — aucune reecriture.
+
+### 1. « Constance » disait de ne pas bien faire
+
+La phrase *« l'objectif avant les 6 vidéos n'est pas la beauté, c'est la
+constance »* est un contresens sur son propre raisonnement. Le facteur de
+confusion de l'étude des six formats est la **variance entre vidéos**, pas
+le **niveau** : une barre haute et fixe est aussi constante qu'une barre
+basse, et même davantage, parce qu'une barre basse laisse chaque agent
+improviser. La ligne de partage ne passe donc plus entre « outillage » et
+« beauté », mais entre **ce qui fixe une règle** (maintenant) et **ce qui
+ajoute un style** (après l'étude).
+
+### 2. La Règle du Monteur portait sur le mauvais axe
+
+« Réutiliser, sinon étendre, sinon créer » est un bon garde-fou
+**stylistique**, appliqué par erreur au **sujet**. Réutiliser
+`ConceptCutaway` pour cinq serveurs MCP n'est pas réutiliser un composant :
+c'est rendre cinq fois la même image. La règle gouverne désormais le style,
+et une contrainte dure s'y ajoute : *deux scènes d'une même vidéo ne peuvent
+pas produire la même image* — vérifiable à l'étape 5, sur les images fixes.
+
+Deux des quatre coûts de création n'en étaient pas : les images du catalogue
+sont générées, et la relecture au CP3 a lieu de toute façon. Restent un
+`.tsx` et une ligne de tableau.
+
+### 3. La spécification d'animation était périmée
+
+Le SKILL décrivait `entree_par_le_bas` comme « translation Y depuis ~24 px +
+opacité » ; `animation.ts` fait 56 px, plus 10 px d'anticipation, sur un
+ressort. Le SKILL décrivait donc une implémentation que le code ne fait
+plus, **et invitait à la refaire à la main**. Il donne maintenant la table
+des fonctions à appeler, et les huit règles sont chacune nommées avec la
+fonction qui la porte — pour qu'« appliquée » se vérifie par un `grep`.
+
+### 4. Rien n'interdisait de livrer un export mort
+
+Le motif s'est répété trois fois en cinq jours (`opaciteSortie`,
+`parallaxe`, `transition_sortie`). L'étape de clôture porte désormais la
+règle : tout ce qui est ajouté doit avoir au moins un appelant dans le même
+commit. **Un export qui compile passe pour du travail fait** — c'est
+exactement ce qui a permis à la revue du 11/09 de compter la règle 7 comme
+livrée alors qu'aucune ligne ne l'exécutait.
+
+### Ce qui n'a pas été touché
+
+Le vocabulaire fermé de la DA, les huit règles elles-mêmes, le cadrage d'A6
+et la structure en huit étapes. Chaque ligne y porte un défaut constaté en
+quatre jours de diagnostic ; les rouvrir coûterait plus que ça ne
+rapporterait.
+
 ## File d'attente
 
 | # | Chantier | État |
@@ -660,11 +736,11 @@ Sur le poste de Franco, Remotion telecharge le sien et l'option est inutile.
 | 18 | Agent A8 (Documentaliste) : lit les `besoins`, ecrit `05b_ressources.json`, alimente la banque partagee | ⬜ |
 | 19 | B-roll : `outils/chercher_broll.py` (Pexels/Pixabay) | ⬜ |
 | 20 | Transitions a la demande : `transition_sortie` par scene via `TransitionSeries`, jamais deux fois la meme d'affilee | ✅ fait |
-| 21 | Passe de critique visuelle : une image fixe **par scene** de la vraie video, regardee avant le CP3 | ⬜ |
+| 21 | Passe de critique visuelle : une image fixe **par scene** de la vraie video, regardee avant le CP3 | ✅ fait — inscrite a l'etape 5 du SKILL du Monteur |
 | 22 | Sous-titres animes (ressort par mot) et hierarchie typographique par ligne | ⬜ |
 | 23 | Typographie : polices embarquees (`@remotion/fonts`), trois niveaux dans `typographie.ts` | ✅ fait |
 | 24 | Passe « formes pleines » : `ConceptCutaway`, `StickmanTalk`, `Cadre` — remplissages, ombres, epaisseurs variables | ⬜ |
-| 25 | Remotion Studio (`npm run preview`) inscrit a l'etape 5 du SKILL du Monteur | ⬜ |
+| 25 | Remotion Studio : la commande passe a Franco au message de cloture (A7 ne peut pas regarder une interface) | ✅ fait |
 | 26 | `Fond` unique (aplat + halo en parallaxe + vignette + grain), rendu une fois hors de la `TransitionSeries` | ✅ fait |
 | 27 | Frames en PNG : le JPEG a 80 par defaut fabriquait le banding des noirs | ✅ fait |
 | 28 | Fallback de `recaler_scenes` fatal, avec renvoi vers le convertisseur de rattrapage | ⬜ |
