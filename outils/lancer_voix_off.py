@@ -91,6 +91,21 @@ RACINE_VM = "/content/drive/MyDrive/ChaineYouTube"
 TIMEOUT_PREAMBULE = 120
 
 
+def attendre_miroir_local(racine, video_id, delai_s, journal):
+    """Le montage (E6) lit le disque local, pas la VM : il faut que le miroir
+    Drive ait redescendu les fichiers. Ce n'est PAS un critere de succes du
+    run — seulement une commodite pour l'etape suivante."""
+    fin = time.monotonic() + delai_s
+    while True:
+        ok, message = verifier_sorties(racine, video_id)
+        if ok:
+            return True, "miroir local a jour"
+        if time.monotonic() >= fin:
+            return False, message
+        journal("miroir local pas encore a jour, nouvelle verification dans 15 s")
+        time.sleep(15)
+
+
 def _horodatage():
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -182,6 +197,63 @@ def verifier_sorties(racine, video_id):
     if statut != "termine":
         message = (state.get("etapes", {}).get("E4_audio", {}) or {}).get("message") or "(sans message)"
         return False, f"E4_audio = '{statut}' apres le run — {message}"
+    return True, "audio produit, quatre sorties presentes, E4_audio = termine"
+
+
+MARQUEUR_VERDICT = "RESULTAT_E4"
+
+
+def code_verification(racine_vm, video_id):
+    """Le code qui juge le run, execute **sur la VM**.
+
+    C'est la ou l'ecriture a eu lieu. Juger depuis la machine de Franco
+    revenait a interroger un miroir Drive asynchrone : le 16/09/2026, un run
+    parfaitement reussi — WER 1,47 %, `E4_audio = termine`, quatre fichiers
+    ecrits — a ete declare en echec parce que les fichiers n'etaient pas
+    encore redescendus dans `/mnt/g`.
+
+    La sortie est une ligne machine prefixee par MARQUEUR_VERDICT. Son
+    **absence** vaut echec : si le snippet n'a pas pu s'executer, on ne
+    conclut pas au succes.
+    """
+    return (
+        "import json, os\n"
+        f"_d = {racine_vm + '/videos/' + video_id!r}\n"
+        f"_attendues = {list(SORTIES_ATTENDUES)!r}\n"
+        "_f = {}\n"
+        "for _n in _attendues:\n"
+        "    _p = os.path.join(_d, _n)\n"
+        "    _f[_n] = os.path.getsize(_p) if os.path.isfile(_p) else None\n"
+        "try:\n"
+        "    _s = json.load(open(os.path.join(_d, 'state.json'), encoding='utf-8-sig'))\n"
+        "    _e = (_s.get('etapes', {}).get('E4_audio', {}) or {})\n"
+        "    _st, _msg = _e.get('statut'), _e.get('message')\n"
+        "except Exception as _ex:\n"
+        "    _st, _msg = None, f'state.json illisible : {_ex}'\n"
+        f"print({MARQUEUR_VERDICT!r}, json.dumps("
+        "{'statut': _st, 'message': _msg, 'fichiers': _f}))\n"
+    )
+
+
+def juger_verdict(sortie):
+    """(ok, message) depuis la sortie brute du snippet. Fonction pure."""
+    ligne = next((l for l in (sortie or "").splitlines()
+                  if l.startswith(MARQUEUR_VERDICT)), None)
+    if ligne is None:
+        return False, ("verdict introuvable dans la sortie de la VM — le controle "
+                       "n'a pas pu s'executer, on ne conclut pas au succes")
+    try:
+        d = json.loads(ligne[len(MARQUEUR_VERDICT):].strip())
+    except json.JSONDecodeError as e:
+        return False, f"verdict illisible : {e}"
+
+    manquants = [f"{n} ({'vide' if t == 0 else 'absent'})"
+                 for n, t in d.get("fichiers", {}).items() if not t]
+    if manquants:
+        return False, "sorties manquantes sur le Drive : " + ", ".join(manquants)
+    statut = d.get("statut")
+    if statut != "termine":
+        return False, f"E4_audio = '{statut}' apres le run — {d.get('message') or '(sans message)'}"
     return True, "audio produit, quatre sorties presentes, E4_audio = termine"
 
 
@@ -279,6 +351,7 @@ def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
                  chemin_journal, timeout_exec, journal, reprendre=False):
     """Enchaine les commandes du CLI. Leve ErreurColab si l'outil echoue."""
     journal(f"session={session} gpu={gpu} mode={mode} video={video_id} reprendre={reprendre}")
+    verdict = (False, "le run ne s'est pas rendu jusqu'au controle")
 
     if reprendre:
         # La session existe deja et son Drive est monte a la main. On ne la
@@ -347,6 +420,13 @@ def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
                         timeout=300, journal=journal)
             if rl.returncode != 0:
                 journal(f"⚠️ export du journal Colab impossible : {(rl.stderr or rl.stdout).strip()[-200:]}")
+
+        # Le verdict, pris sur la VM et AVANT l'arret de la session : une fois
+        # la machine liberee, plus rien ne peut lire ce qu'elle a ecrit.
+        rv = _colab(["exec", "-s", session, "--timeout", str(TIMEOUT_PREAMBULE)],
+                    entree=code_verification(racine_vm, video_id),
+                    timeout=300, journal=journal)
+        verdict = juger_verdict((rv.stdout or "") + (rv.stderr or ""))
     finally:
         if garder:
             journal(f"session {session} laissee ouverte")
@@ -356,6 +436,8 @@ def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
                 # Une session qui survit coute du quota, mais le run, lui, a
                 # peut-etre reussi : on le signale sans faire echouer.
                 journal(f"⚠️ `colab stop` a echoue, session {session} peut-etre encore active")
+
+    return verdict
 
 
 def main(argv=None):
@@ -388,6 +470,9 @@ def main(argv=None):
                          "le silence maximal tolere entre deux sorties de cellule ; en local, "
                          "c'est la duree totale du processus, bornee 120 s plus haut pour que le "
                          "cote distant echoue le premier et laisse un message exploitable.")
+    ap.add_argument("--attente-miroir", type=int, default=180, dest="attente_miroir",
+                    help="Secondes d'attente pour que le miroir Drive local redescende les "
+                         "sorties (defaut : 180). N'influe pas sur le code de sortie.")
     ap.add_argument("--verifier", action="store_true",
                     help="Dit ce qui serait lance, sans rien lancer.")
     a = ap.parse_args(argv)
@@ -427,13 +512,13 @@ def main(argv=None):
         # Une session reprise garde par defaut le consentement Drive qu'elle
         # porte : c'est la seule chose du run qui ait coute un geste humain.
         garder = (a.garder or a.reprendre) and not a.arreter
-        executer_run(video_id, session, a.gpu, a.mode, a.racine_vm, a.forcer,
-                     garder, chemin_journal, a.timeout, journal, a.reprendre)
+        ok, message = executer_run(video_id, session, a.gpu, a.mode, a.racine_vm,
+                                   a.forcer, garder, chemin_journal, a.timeout,
+                                   journal, a.reprendre)
     except ErreurColab as e:
         print(f"❌ {e}", file=sys.stderr)
         return 4
 
-    ok, message = verifier_sorties(a.root, video_id)
     if not ok:
         print(f"❌ {message}", file=sys.stderr)
         if chemin_journal.is_file():
@@ -443,6 +528,16 @@ def main(argv=None):
 
     print(f"✅ {message}")
     print(f"   journal du run : {chemin_journal}")
+
+    # Le run est reussi ; reste a ce que le miroir Drive local redescende les
+    # fichiers, parce que c'est lui que lira le montage. Un retard de
+    # synchronisation n'est pas un echec du run et ne change pas le code de
+    # sortie — le dire autrement ferait chercher un bug qui n'existe pas.
+    a_jour, detail = attendre_miroir_local(a.root, video_id, a.attente_miroir, journal)
+    if not a_jour:
+        print(f"⚠️  Produit sur Drive, pas encore redescendu en local apres "
+              f"{a.attente_miroir} s : {detail}")
+        print("   → le montage (E6) lit le disque local : attends la synchronisation.")
     return 0
 
 

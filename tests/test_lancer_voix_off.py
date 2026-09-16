@@ -161,6 +161,66 @@ class TestVerificationDuResultat(unittest.TestCase):
             self.assertIn("WER 18 %", message)
 
 
+class TestVerdictSurLaVM(unittest.TestCase):
+    """Le controle qui decide vraiment, execute la ou l'ecriture a eu lieu.
+
+    Le 16/09/2026, un run reussi — WER 1,47 %, E4_audio = termine, quatre
+    fichiers ecrits — a ete declare en echec parce que le controle lisait le
+    miroir Drive local, qui n'avait pas encore synchronise. Juger depuis le
+    mauvais cote du reseau, c'est le meme defaut que capturer_web.py sous une
+    autre forme.
+    """
+
+    def _executer_sur(self, racine, video_id):
+        """Execute LE code reel envoye a la VM, ici, contre un dossier temoin.
+
+        Ce n'est pas un faux `colab` : c'est le snippet lui-meme, tel qu'il
+        partira, joue sur un vrai systeme de fichiers.
+        """
+        import io as _io, contextlib
+        code = lvo.code_verification(str(racine), video_id)
+        tampon = _io.StringIO()
+        with contextlib.redirect_stdout(tampon):
+            exec(compile(code, "verification", "exec"), {})  # noqa: S102
+        return tampon.getvalue()
+
+    def test_succes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dossier = _ecrire_video(tmp, "2026-09-16_v01", "termine")
+            _ecrire_sorties(dossier)
+            ok, _ = lvo.juger_verdict(self._executer_sur(tmp, "2026-09-16_v01"))
+            self.assertTrue(ok)
+
+    def test_sortie_manquante(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dossier = _ecrire_video(tmp, "2026-09-16_v01", "termine")
+            _ecrire_sorties(dossier, absents=("04_phrases.json",))
+            ok, message = lvo.juger_verdict(self._executer_sur(tmp, "2026-09-16_v01"))
+            self.assertFalse(ok)
+            self.assertIn("04_phrases.json", message)
+
+    def test_statut_echec_remonte_son_message(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dossier = _ecrire_video(tmp, "2026-09-16_v01", "echec", message="WER 18 %")
+            _ecrire_sorties(dossier)
+            ok, message = lvo.juger_verdict(self._executer_sur(tmp, "2026-09-16_v01"))
+            self.assertFalse(ok)
+            self.assertIn("WER 18 %", message)
+
+    def test_verdict_absent_ne_vaut_pas_succes(self):
+        """Si le snippet n'a pas pu tourner, on ne conclut pas — c'est tout le
+        point d'un marqueur explicite plutot qu'un code de retour."""
+        for sortie in ("", "Traceback (most recent call last):\n  ...", None):
+            ok, message = lvo.juger_verdict(sortie)
+            self.assertFalse(ok)
+            self.assertIn("verdict introuvable", message)
+
+    def test_verdict_illisible_ne_vaut_pas_succes(self):
+        ok, message = lvo.juger_verdict("RESULTAT_E4 {pas du json")
+        self.assertFalse(ok)
+        self.assertIn("illisible", message)
+
+
 class TestParametresDistants(unittest.TestCase):
     def test_preambule_est_du_python_valide(self):
         code = lvo._preambule("2026-09-11_v01", "full", "/content/drive/MyDrive/ChaineYouTube", False)

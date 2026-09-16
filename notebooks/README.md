@@ -111,11 +111,25 @@ exploitable, `2` racine inutilisable (Drive non monté, rien n'a été lancé),
 **Ce qui décide du succès n'est pas le code de retour de `colab exec`.** Le
 notebook signale ses échecs par `SystemExit` depuis une cellule, et rien ne
 garantit qu'un noyau Jupyter distant traduise cela en code de sortie non nul
-— la documentation du CLI ne dit rien des codes de retour. Le lanceur conclut
-donc en **relisant le Drive** : statut de `E4_audio` dans `state.json`, et les
-quatre sorties présentes et non vides. C'est la leçon de `capturer_web.py`,
-qui a validé trois fois une capture fausse parce que le contrôle regardait
-la mauvaise chose.
+— la documentation du CLI ne dit rien des codes de retour. Le premier run réel
+l'a confirmé : `colab exec` a rendu `0` sur un run dont il ne savait rien.
+
+Le lanceur conclut donc en relisant le résultat — **sur la VM, et avant
+d'arrêter la session**. C'est là que l'écriture a eu lieu. Juger depuis la
+machine de Franco revenait à interroger un miroir Drive asynchrone : le
+16/09/2026, un run parfaitement réussi — WER 1,47 %, `E4_audio = termine`,
+quatre fichiers écrits — a été déclaré en échec parce que les fichiers
+n'étaient pas encore redescendus dans `/mnt/g`. Le contrôle était au bon
+endroit logique et du mauvais côté du réseau.
+
+Le snippet de vérification imprime une ligne préfixée `RESULTAT_E4`. Son
+**absence vaut échec** : si le contrôle n'a pas pu s'exécuter, on ne conclut
+pas au succès.
+
+Une fois le run validé, le lanceur attend que le miroir local redescende les
+fichiers (`--attente-miroir`, 180 s par défaut), parce que c'est lui que lira
+le montage. Ce retard **n'est pas un échec** et ne change pas le code de
+sortie : le dire autrement ferait chercher un bug qui n'existe pas.
 
 ### Trois changements dans le notebook, qui ne changent rien à l'usage manuel
 
