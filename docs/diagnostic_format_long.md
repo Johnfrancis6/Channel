@@ -144,3 +144,325 @@ Ne pas coder avant l'étape 5. Le risque identifié dans cette séance est le
 même que celui déjà écrit au §12 pour le multi-chaînes : préparer le
 terrain avant d'avoir produit une seule vidéo dans le nouveau format,
 c'est généraliser sur zéro exemple.
+
+---
+
+# Diagnostic de faisabilité (session du 16/09/2026)
+
+Établi en lisant le code, pas la description ci-dessus. Quatre constats
+transverses d'abord : ils déplacent trois des dix points, et le dernier
+remet en cause l'ordre dans lequel ce chantier doit être pris.
+
+## A. Le point 4 n'a pas de producteur — et ça, ce n'est pas un détail de cadrage
+
+Le briefing traite la question des rushes comme une précision à obtenir.
+C'est en fait un chantier entier, **déjà dans la file, déjà ouvert** :
+
+| Maillon | État réel |
+|---|---|
+| `PlanBroll` lit `ressources?.[broll]` | ✅ existe |
+| `construire_props.preparer_ressources()` résout `05b_ressources.json` | ✅ existe |
+| Contrat `Besoin` / `Ressource` dans `types.ts` | ✅ existe |
+| **Quelque chose qui écrit `05b_ressources.json`** | ❌ **A8, file #18, ⬜** |
+| **Quelque chose qui trouve un clip** | ❌ `chercher_broll.py`, file #19, ⬜ |
+
+Le tuyau footage → écran est complet et ses **deux bouts sont ouverts**.
+Aucune vidéo réelle n'est jamais passée par `PlanBroll` : il a été écrit,
+mis au registre, et jamais alimenté. Le format long n'ajoute pas ce
+problème, il en hérite — et il ne peut pas le contourner, puisque son
+pilier visuel *est* l'insert de footage.
+
+**Conséquence sur l'ordre** : #18 et #19 ne sont pas des prérequis du
+format long qu'on découvre ici, ce sont des chantiers qui bloquent déjà
+`PlanBroll` sur les Shorts. Les faire sert les deux formats.
+
+## B. Point 6 (WER) — le blocage n'est pas le seuil, c'est l'absence de cache
+
+Le briefing dit : « le WER global fait échouer tout le run sur une seule
+phrase ratée ». Exact, mais ce n'est pas le coût dominant. Le vrai défaut
+est dans la Cell 4 :
+
+```python
+clips_bruts = []      # liste de (audio_np, taux) — une entrée par phrase
+for i, phrase in enumerate(phrases):
+    audio_np, taux = synthetiser_phrase(phrase, GRAINE + i)
+    clips_bruts.append((audio_np, taux))
+```
+
+Les clips vivent **en RAM uniquement**. Rien n'est écrit sur disque avant
+l'assemblage de la Cell 5. `MODE="resume_after_fail"` re-synthétise donc
+l'intégralité du script depuis zéro.
+
+Sur 24 phrases (vidéo 1), c'est quelques minutes. Sur les 150-300 phrases
+d'un format long, c'est une session Colab complète perdue à chaque échec
+— et une session Colab a un timeout, donc l'échec peut devenir
+structurel : un run trop long n'atteint jamais la Cell 5, et il n'en
+reste rien.
+
+La synthèse est déjà **phrase par phrase** avec une graine par phrase
+(`GRAINE + i`), donc déterministe et reprenable : le cache manquant est
+une trentaine de lignes, pas une refonte. C'est un correctif qui a de la
+valeur **dès maintenant**, format long ou pas.
+
+Le WER par phrase, lui, devient effectivement nécessaire — mais il n'a
+d'intérêt qu'une fois le cache en place : re-synthétiser trois phrases sur
+trois cents ne sert à rien si le run repart de la phrase 1.
+
+## C. Point 7 — le rendu a exactement le même défaut, et le briefing ne le voit pas
+
+`rendre_video.py` lance un `remotion render` monolithique :
+
+```python
+cmd = ["npx", "remotion", "render", "src/index.ts", "Video",
+       str(sortie_path), f"--props={props_path}"]
+```
+
+Pas de `--concurrency`, pas de découpage, pas de reprise. 10-20 min à
+30 fps = 18 000 à 36 000 frames, rendues en PNG (file #27). Un échec à
+80 % perd tout.
+
+C'est le même défaut de forme que la voix off : **le pipeline n'a aucun
+mécanisme de reprise partielle, ni sur l'audio ni sur l'image**. Tant que
+les vidéos durent 50 s, ça ne se voit pas. Le format long ne crée pas ce
+défaut, il le rend bloquant aux deux endroits à la fois. Le point 7 parle
+de « temps de rendu » et du protocole d'images fixes ; il passe à côté du
+point de rupture.
+
+## D. Point 8 — le rapport CP3 casse avant d'atteindre le budget de 1200
+
+Le briefing accuse la troncature à 1200 caractères. Mais cette borne ne
+s'applique qu'à `_lire_extrait(05_storyboard.md)`. Ce qui déborde d'abord
+est dans `_resume_video_finale`, **hors budget** :
+
+```python
+a_completer = [sc.get("id") for sc in scenes if sc.get("a_completer")]
+lignes.append(f"- ⚠️ **Scenes non tranchees par le Designer** : {', '.join(...)}")
+```
+
+Sur 200 scènes, c'est une ligne de 200 identifiants, en tête du rapport,
+que rien ne tronque. Idem pour `nouveaux_composants_necessaires`. Le
+résumé par segment reste à concevoir — mais le premier correctif est de
+plafonner ces énumérations, ce qui est petit et utile tout de suite.
+
+---
+
+## Point par point
+
+**1. Schéma et état — faisable tel quel.**
+Le schéma n'a pas `additionalProperties: false` au niveau racine (il ne
+l'a que sur `etapes`) : ajouter un champ ne casse aucune validation
+existante. Trois fichiers à toucher ensemble — `state_template.json`
+(source de vérité, §13), `schemas/state_schema.json`, `new_short.py`.
+
+**Nom recommandé : `format_video`, au niveau racine, à côté de `pilier`
+et `voie` — pas dans `consignes`.** La raison n'est pas seulement la
+collision de nom. `consignes` porte ce que Franco demande *à un agent*
+(`mode_recherche`, `note_franco`, `reference`) ; court/long change le
+pipeline lui-même — le budget, la charte, la stratégie de rendu — au même
+titre que `voie`, qui est bien à la racine. Enum fermé
+`"short" | "long"`, défaut `"short"` pour que toutes les vidéos
+existantes restent valides sans migration.
+
+**2. Budget / calibrage — faisable, mais le modèle n'est pas mesuré.**
+`evaluer_budget()` est de l'arithmétique pure et accepte déjà
+`--budget-mots`, qui court-circuite `--idees × --mots-par-idee`. Aucun
+code à changer pour qu'un format long ait son budget.
+
+Ce qui manque est en amont : `MOTS_PAR_SECONDE = 2.8` est calibré sur
+**une seule vidéo de 82,5 s**. L'extrapoler à 20 min est une hypothèse.
+Un débit moyen sur 20 min intègre des respirations, des changements de
+rythme et des pauses de section qu'un Short de 50 s n'a pas — il sera
+plus bas, d'un montant que personne ne connaît. Et la décision transverse
+« les formats se découvrent sur les 6 premières vidéos » donne déjà n=1
+par format : un format long serait un 7ᵉ format à n=0.
+
+**Ce que le briefing a mal cadré** : il demande si le modèle
+`idées × mots/idée ÷ 2,8` « tient encore ». La bonne question est
+antérieure — le modèle n'a jamais été validé sur *quoi que ce soit*
+d'autre que la vidéo 1. Il ne s'agit pas de l'étendre, il s'agit de ne
+pas confondre une constante mesurée une fois avec une loi.
+
+**3. Charte / tokens — faisable, avec un piège de déploiement.**
+`init_structure.py` écrit `charte.json` via `_ecrire_si_absent` :
+**changer `CHARTE_JSON` dans le code ne met pas à jour la charte déjà
+posée sur le Drive de Franco.** Toute évolution de structure demande soit
+une migration explicite, soit une lecture tolérante côté composants (ce
+que `types.ts` fait déjà pour `animation` et les niveaux typographiques,
+avec le bon commentaire à l'appui).
+
+Passer `format: {...}` à `formats: {short: {...}, long: {...}}` casserait
+`Root.tsx`, `generer_apercus.py` (1080×1920 en dur ligne 104) et toute
+charte antérieure. **Chemin moins cher** : garder `charte.format` et
+remarquer que `Root.tsx` a déjà la primitive nécessaire —
+`calculateMetadata` reçoit les props et peut retourner `width`/`height`
+autant que `durationInFrames` :
+
+```tsx
+width={1080} height={1920}          // en dur sur <Composition>
+calculateMetadata={async ({props}) => ({
+  durationInFrames: dureeTotaleFrames(props.scenes, FPS, props.duree_audio_s),
+})}
+```
+
+Les dimensions en dur sont donc un **défaut**, pas un verrou : elles
+peuvent venir de `props.charte.format` sans rien changer d'autre. C'est
+le correctif à faire, et il est petit.
+
+**4. Remotion — faisable, mais pas sous la forme proposée. Voir la
+section dédiée plus bas.**
+
+**5. Storyboard / cadrage — le recalage n'est pas le problème.**
+Le briefing craint pour le recalage audio/image. Vérification faite,
+**c'est déjà réglé** : `_fins_par_scene()` accepte depuis la file #11 que
+chaque scène déclare `phrases: [...]` et n'exige plus 1:1. Regrouper
+30 phrases dans une scène de segment marche tel quel.
+
+Ce qui casse vraiment est ailleurs : `construire_scenes()` produit
+littéralement une scène par ligne, toutes marquées `a_completer`, sans
+plafond. Sur 300 phrases, le squelette livré à A6 fait 300 scènes à
+trancher une par une — ce n'est pas une charge de travail, c'est un
+livrable indéfendable, et A6 le rendra en sautant des scènes. Le
+découpage par segment doit être fait **par le générateur de squelette**,
+pas laissé à A6.
+
+**6. Voix off — bloquant. Voir B ci-dessus.** Le point est correctement
+identifié comme nécessaire, mais pour la mauvaise raison, et le correctif
+qu'il suggère (WER par phrase) n'a d'effet qu'après celui qu'il ne
+mentionne pas (cache par phrase).
+
+**7. Monteur — bloquant. Voir C ci-dessus.** Le protocole « images fixes
+avant CP3 » est le moindre des sujets : sur 200 scènes, une image par
+scène n'est plus une passe de critique, c'est une planche-contact que
+personne ne regarde. À repenser en échantillonnage, mais après le
+problème de rendu.
+
+**8. Checkpoints — faisable. Voir D ci-dessus.**
+
+**9. Tests — faisables, avec une réserve.** `test_render_remotion.py` se
+saute déjà sans `node_modules`, et un test de rendu long serait de toute
+façon trop lent pour la suite. Ce qui doit être testé à l'échelle du
+format long, c'est `construire_props.recaler_scenes()` et
+`dureeTotaleFrames()` sur 200-300 scènes — du Python et de
+l'arithmétique, rapides — pas le rendu lui-même.
+
+**10. Doc — d'accord, après les décisions.** À ajouter à la liste du
+briefing : §5 (le champ `format_video` dans le `state.json` d'exemple) et
+§12, où ce chantier a sa place dans les décisions ouvertes.
+
+---
+
+## Point 4 en détail — la vraie question n'est pas quel composant
+
+Le briefing pose l'alternative « nouveau composant `ZoomFootage` vs
+variante de `PlanBroll` ». Le code dit que les deux branches sont
+fausses, pour la même raison.
+
+`Video.tsx` associe **un composant du registre à une scène entière** :
+
+```tsx
+const Composant = REGISTRE[scene.composant];
+```
+
+Un insert de footage ponctuel *pendant qu'une scène animée est en cours*
+n'est donc pas un composant de scène du tout — quel que soit son nom.
+S'il en devenait un, il redeviendrait exactement ce que la contrainte
+actée interdit : un plan qui occupe le cadre, comme `PlanBroll`.
+
+Il y a déjà un précédent pour ce qu'il faut, et un seul : **`Subtitles`**,
+surimprimé au-dessus de la `TransitionSeries`, hors du registre, avec le
+commentaire qui l'explique dans `registry.ts` (« ce n'est pas un choix
+par scène »). L'insert de footage est de cette famille-là : une **surcouche
+bornée dans le temps**, déclarée sur la scène, rendue par-dessus elle.
+
+Trois vérifications faites sur le code, qui rendent ça peu coûteux :
+
+- **Le modèle de scène supporte déjà un sous-élément temporel.**
+  `pulsation_s` est exactement ça : un instant *dans* une scène, désigné
+  par A6 en clair (`da.accent` = « …phrase 7 »), résolu en secondes au
+  montage par `_pulsation_s()` depuis `04_phrases.json`, et converti en
+  frame par `Video.tsx`. Un insert demande un **intervalle** au lieu d'un
+  instant — même mécanique, une borne de plus. La crainte du briefing
+  (« sans tout redessiner ») est levée : le précédent existe et il
+  fonctionne.
+- **Le mécanisme de ressources est réutilisable tel quel**, comme le
+  briefing le dit. `asset.src`, `asset.duree_s`, la table `Ressources`
+  passée à tous les composants — rien à refaire.
+- **Le recalage n'est pas menacé.** Un insert interne ne change ni
+  `duree_s` ni `phrases`, donc `recaler_scenes()` n'en sait rien et n'a
+  pas à en savoir quelque chose.
+
+Ce qu'il faut réellement écrire : un type `Insert` sur `Scene` (clé de
+ressource, borne de début désignée comme `da.accent` le fait, durée), sa
+résolution dans `construire_props.py` sur le modèle de `_pulsation_s()`,
+et une surcouche de rendu dans `Video.tsx` sur le modèle de `Subtitles`.
+Pas de nouveau composant au registre. `PlanBroll` reste ce qu'il est —
+un plan de liaison plein cadre — et n'a pas à être tordu.
+
+**Réserve, qui domine tout le reste** : cette conception ne peut pas être
+validée sans un vrai clip à l'écran, et rien n'en produit aujourd'hui
+(voir A).
+
+---
+
+## La question des rushes — tranchée le 16/09/2026
+
+**Franco dépose ses propres rushes dans `videos/<id>/assets/`**, avec une
+description (durée, ce qu'on voit). Pas de banque libre pour ce rôle, pas
+d'étape de sélection en plus.
+
+Le raisonnement : la contrainte actée est un zoom **sur un point précis**.
+Un clip de banque illustre une ambiance ; il ne montre presque jamais le
+point exact dont parle le script. Les rushes qui le montrent sont ceux que
+Franco produit lui-même — une capture de démo, un enregistrement d'écran.
+
+**Ce que ça change dans le code :**
+
+- **Pas d'étape ni d'agent en plus.** C'est une extension du chantier #18
+  (A8) : au lieu d'aller chercher, A8 indexe ce qui est déjà là et écrit
+  `05b_ressources.json` comme prévu. Le point 4 reste donc bien un
+  travail de composant, pas un travail de pipeline.
+- **`assets/` change de nature.** Le §9.1 le documente comme « images
+  d'inspiration déposées par Franco », lu par A6 et A7 pour cadrer. Il
+  devient aussi un dépôt de matière montée, avec des métadonnées
+  (`duree_s` au minimum, que `Ressource` porte déjà). Les deux usages
+  cohabitent ; le §9.1 est à reformuler.
+- **Il faut un format de description.** `Ressource` a déjà `duree_s`,
+  `provenance` et `licence` ; ce qui manque est ce qu'A6 lit pour décider
+  *où* poser le zoom — une phrase en clair par rush. Le plus petit chemin
+  est un `assets/rushes.json` (ou des sidecars `<fichier>.json`), écrit
+  par Franco ou par A8 à partir du nom de fichier.
+- **#19 (banques libres) n'est pas annulé** : il garde son rôle pour les
+  plans de liaison de `PlanBroll` sur les Shorts. Il n'est simplement plus
+  sur le chemin critique du format long.
+
+---
+
+## Recommandation d'ordre — et la réserve du §12
+
+Le briefing se termine en nommant le risque : « préparer le terrain avant
+d'avoir produit une seule vidéo dans le nouveau format, c'est généraliser
+sur zéro exemple ». La lecture du code le confirme et l'aggrave — la
+chaîne n'a **aucune vidéo publiée** ; la vidéo 1 est au CP3, E7 n'a jamais
+tourné, H1 non plus. Et la décision transverse « stabiliser le visuel
+avant les 6 formats » dit que la seule variable qui doit bouger est le
+format narratif : ajouter court/long en introduit une seconde, qui
+polluera l'étude de la 6ᵉ vidéo exactement comme la variance visuelle
+l'aurait fait.
+
+Ordre proposé, du plus utile au moins urgent :
+
+1. **#18** (A8), étendu aux rushes d'`assets/` selon la décision
+   ci-dessus. Déjà dans la file, il débloque `PlanBroll` sur les Shorts
+   *et* tout le point 4. Sans lui, le format long n'a pas de pilier
+   visuel. #19 (banques libres) peut suivre à son rythme.
+2. **Cache des clips par phrase** dans le notebook (B). Petit, sans
+   rapport avec le format long, et il supprime le mode d'échec qui rend
+   un long run impossible.
+3. **Dimensions depuis `props.charte.format`** dans `Root.tsx` (point 3).
+   Petit, et c'est le seul verrou dur du paysage.
+4. **Plafonner les énumérations du rapport CP3** (D). Petit.
+5. Le format long lui-même — champ `format_video`, découpage par segment,
+   `Insert` — **après une deuxième vidéo publiée**, pas avant.
+
+Les points 1 à 4 ont de la valeur sur les Shorts tels quels. Aucun n'est
+un investissement à fonds perdus si le format long est repoussé.
