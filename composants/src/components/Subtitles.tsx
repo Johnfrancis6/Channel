@@ -1,5 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import {niveaux, style} from '../typographie';
 import type {CharteTokens, MotHorodate} from '../types';
 
 type Props = {
@@ -56,9 +57,7 @@ export const Subtitles: React.FC<Props> = ({mots, charte, fenetre = 5}) => {
           justifyContent: 'center',
           maxWidth: '85%',
           gap: '0 0.4em',
-          fontFamily: charte.typographie.sous_titres.famille,
-          fontSize: charte.typographie.sous_titres.taille_px,
-          fontWeight: charte.typographie.sous_titres.graisse === 'bold' ? 700 : 400,
+          ...style(niveaux(charte).sous_titres),
           textShadow: '0 4px 16px rgba(0,0,0,0.6)',
         }}
       >

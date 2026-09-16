@@ -6,7 +6,15 @@ export type CharteTokens = {
     accent_secondaire: string;
   };
   typographie: {
+    // Niveau historique, garde pour les chartes anterieures au 16/09/2026.
+    // Il servait a TOUT — titres, labels, sous-titres — ce qui revenait a
+    // n'avoir aucune hierarchie typographique : une seule valeur decidait de
+    // l'identite de la chaine entiere, et cette valeur etait "Arial".
     sous_titres: {famille: string; taille_px: number; graisse: string};
+    // Trois niveaux distincts (16/09/2026). Absents d'une charte ancienne :
+    // les valeurs par defaut de `typographie.ts` prennent alors la main.
+    titre?: NiveauTypo;
+    label?: NiveauTypo;
   };
   rythme: {
     duree_transition_s: number;
@@ -17,6 +25,20 @@ export type CharteTokens = {
   // ce bloc, et les composants doivent continuer a rendre sans lui.
   animation?: AnimationTokens;
   format: {largeur_px: number; hauteur_px: number; fps: number};
+};
+
+/**
+ * Un niveau de la hierarchie typographique.
+ *
+ * `interlettrage` est en pixels, comme `letter-spacing` : negatif pour un
+ * grand titre, qui respire trop a taille reelle, positif pour un petit label
+ * en capitales, qui se serre.
+ */
+export type NiveauTypo = {
+  famille?: string;
+  taille_px?: number;
+  graisse?: number;
+  interlettrage?: number;
 };
 
 export type AnimationTokens = {

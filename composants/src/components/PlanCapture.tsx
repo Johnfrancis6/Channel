@@ -1,5 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, Img, useCurrentFrame, useVideoConfig} from 'remotion';
+import {niveaux} from '../typographie';
 import type {CharteTokens, DirectionArtistique, Ressources} from '../types';
 import {punchIn, styleEntree} from '../animation';
 import {Cadre} from './Cadre';
@@ -58,7 +59,7 @@ export const PlanCapture: React.FC<Props> = ({
 }) => {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
-  const famille = charte.typographie.sous_titres.famille;
+  const famille = niveaux(charte).label.famille;
 
   const asset = ressources?.[capture];
   const assetLogo = logo ? ressources?.[logo] : undefined;
@@ -73,15 +74,7 @@ export const PlanCapture: React.FC<Props> = ({
     cadrage === 'haut' ? 'flex-start' : cadrage === 'bas' ? 'flex-end' : 'center';
 
   return (
-    <AbsoluteFill style={{backgroundColor: charte.couleurs.fond, overflow: 'hidden'}}>
-      {/* Halo derriere le cadre : donne une profondeur que l'aplat seul n'a
-          pas, et evite que le mockup flotte dans le vide. */}
-      <AbsoluteFill
-        style={{
-          ...styleEntree(frame, fps, charte, da, 3),
-          background: `radial-gradient(circle at 50% 42%, ${charte.couleurs.accent}24 0%, transparent 62%)`,
-        }}
-      />
+    <AbsoluteFill style={{overflow: 'hidden'}}>
 
       <AbsoluteFill
         style={{

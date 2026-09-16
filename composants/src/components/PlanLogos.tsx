@@ -1,5 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, Img, useCurrentFrame, useVideoConfig} from 'remotion';
+import {niveaux} from '../typographie';
 import type {CharteTokens, DirectionArtistique, Ressources} from '../types';
 import {progressionEntree, pulsation, styleContinu, styleEntree} from '../animation';
 
@@ -54,7 +55,7 @@ export const PlanLogos: React.FC<Props> = ({
 }) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const famille = charte.typographie.sous_titres.famille;
+  const famille = niveaux(charte).label.famille;
 
   // Le trait se trace au lieu d'apparaitre : un lien qui existe deja quand
   // les pastilles arrivent ne raconte pas qu'elles se connectent.
@@ -64,13 +65,7 @@ export const PlanLogos: React.FC<Props> = ({
   const pulse = pulsation(frame, fps, pulsationFrame);
 
   return (
-    <AbsoluteFill style={{backgroundColor: charte.couleurs.fond, overflow: 'hidden'}}>
-      <AbsoluteFill
-        style={{
-          ...styleEntree(frame, fps, charte, da, 4),
-          background: `radial-gradient(circle at 50% 44%, ${charte.couleurs.accent}24 0%, transparent 60%)`,
-        }}
-      />
+    <AbsoluteFill style={{overflow: 'hidden'}}>
 
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', padding: 70, paddingBottom: 300}}>
         {compteur ? (

@@ -45,6 +45,40 @@ suit qu'une partie, `non` s'il l'ignore encore.
 | `PlanBroll` | oui |
 | `PlanLogos` | oui |
 
+### Le fond, la typographie et les raccords (16/09/2026)
+
+Trois choses ne sont plus l'affaire des composants.
+
+**Le fond.** `Fond.tsx` est rendu **une fois** par `Video.tsx`, derriere
+tout, hors de la `TransitionSeries`. Aucun composant ne peint plus son
+propre fond : ils sont transparents. Avant, six composants recopiaient le
+meme bloc « aplat + halo radial » avec trois alphas differents, et le fond
+repartait de zero a chaque scene — onze fonds identiques mais discontinus.
+`Fond` ajoute une **vignette** et un **grain** : le grain n'est pas
+decoratif, il dissout le banding que les degrades produisaient dans les
+noirs.
+
+**La typographie.** `typographie.ts` porte trois niveaux — `titre`, `label`,
+`sous_titres` — et embarque les polices depuis `public/fonts/` (Outfit pour
+les titres et les labels, Inter pour le texte). Un composant lit
+`niveaux(charte)`, jamais `charte.typographie.sous_titres.famille`
+directement : cette cle unique servait a **tout**, titres compris, et sa
+valeur etait `Arial`. Une charte peut declarer `typographie.titre` et
+`typographie.label` pour surcharger ; sans elles, les defauts du module
+s'appliquent.
+
+Les `.woff2` sont versionnes (exception explicite dans `.gitignore`) : un
+rendu ne doit pas dependre du reseau au moment ou il tourne. Si le
+chargement echoue, le rendu continue en police de repli avec un
+avertissement — une fonte ne fait pas echouer un montage.
+
+**Les raccords.** `Video.tsx` utilise `TransitionSeries`. Chaque scene peut
+declarer `transition_sortie` (`fondu`, `glissement`, `balayage`, `iris`,
+`coupe`) ; sans elle, une rotation garde le fondu majoritaire et n'emploie
+jamais deux fois le meme raccord d'affilee. La duree de la transition est
+**ajoutee** a la scene puis reprise par le chevauchement : le total de la
+composition ne bouge pas, donc le calage sur la voix off non plus.
+
 ### Les composants « contenants » (E5b, 12/09/2026)
 
 `PlanCapture`, `PlanBroll` et `PlanLogos` ne dessinent rien. Ils mettent en

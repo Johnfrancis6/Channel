@@ -544,6 +544,95 @@ valide de bout en bout sur une page **locale** (`file://`), et
 `recuperer_logo.py` n'a pu etre eprouve que sur ses chemins d'echec. Les deux
 demandent une premiere execution reelle sur le poste de Franco.
 
+
+## E6b — La surface manquait, pas le mouvement (16/09/2026)
+
+Point de depart : « Remotion peut produire de la qualite production, mon
+setup n'en est rien. » Un audit de 55 questions a mesure l'usage reel plutot
+que l'intention. Le resultat contredit la moitie du diagnostic de depart.
+
+**Le mouvement n'etait pas le probleme.** `animation.ts` tient les huit
+regles du §8 : ressort amorti, decalage de 80 ms, variation de vitesse de
+±15 %, anticipation de 10 px, et une asymetrie montee/retour sur l'accent
+(0,22 s pour frapper, 0,5 s pour se reposer). Ce sont des choix d'animateur.
+
+Ce qui manquait etait **autour** du mouvement, et ca tient en un chiffre :
+les 3 `spring()` et 5 `interpolate()` du projet sont tous dans un seul
+fichier, et **zero** composant en appelle un directement. La couche de
+mouvement etait finie ; la couche de surface n'avait jamais ete ecrite.
+
+### Trois contrats ecrits, testes, documentes — et sans un seul appelant
+
+C'est le motif le plus couteux de la seance, et il s'est repete trois fois :
+
+| Ecrit le | Quoi | Appelants |
+|---|---|---|
+| 11/09 | `opaciteSortie` — regle 2, « rien ne s'arrete net » | 0 |
+| 11/09 | `parallaxe` — regle 7, « le fond suit le premier plan, en retrait » | 0 |
+| 11/09 | `Scene.transition_sortie` — vocabulaire ferme de cinq raccords | 0 |
+
+Conséquence a l'ecran : **aucun element ne sortait jamais**. Tout entrait
+avec une courbe soignee et disparaissait par coupure de `Sequence`. C'est la
+moitie manquante de chaque geste. Et le raccord entre deux scenes etait un
+recouvrement de 0,25 s repete dix fois — plus court que l'entree de 0,45 s
+au rythme `pose`, donc la scene sortante etait coupee quand l'entrante
+plafonnait encore vers 80 % d'opacite. Ce n'etait pas un fondu, c'etait un
+a-coup.
+
+**La leçon n'est pas « ecrire moins ».** C'est qu'un helper exporte qui
+typecheck passe pour du travail livre. Rien dans le depot ne distinguait
+`styleEntree` (29 appels) de `parallaxe` (0), et la revue du 11/09 a decrit
+la regle 7 comme faite parce que la fonction existait.
+
+### Ce qui a ete fait
+
+- **Typographie en trois niveaux** (`typographie.ts`). Avant, toute la chaine
+  lisait `charte.typographie.sous_titres.famille` — titres compris — et
+  cette valeur etait `Arial`. Outfit porte les titres et les labels, Inter le
+  texte. Les `.woff2` sont **embarques** dans `public/fonts/` : un rendu ne
+  doit pas dependre du reseau. Echec de chargement = avertissement et police
+  de repli, jamais un montage qui echoue.
+- **Un `Fond` unique**, rendu une fois hors de la `TransitionSeries`. Six
+  composants recopiaient le meme bloc avec trois alphas differents, et le
+  fond repartait de zero a chaque scene. Il porte le halo (en parallaxe :
+  c'est ce qui branche enfin `parallaxe()`), une vignette, et un grain.
+- **`TransitionSeries`**, avec `transition_sortie` honore et une rotation par
+  defaut qui garde le fondu majoritaire sans jamais repeter un raccord.
+- **`opaciteSortie` branche sur la derniere scene**, la seule qui n'a pas de
+  transition apres elle : la video se terminait sur une coupure a l'image
+  pleine.
+- **Frames en PNG.** Le CRF par defaut du h264 est 18, donc l'encodage etait
+  quasi transparent : la seule perte de la chaine etait **avant** lui, chaque
+  frame ecrasee en JPEG a 80 (`DEFAULT_JPEG_QUALITY`). Sur `#0B0F14` avec
+  degrades, ca fabriquait des paliers dans les noirs. Le grain et le PNG
+  corrigent le meme defaut par les deux bouts.
+
+### Le calage sur la voix off, et pourquoi il ne bouge pas
+
+`TransitionSeries` fait se **chevaucher** les scenes : un montage naif y perd
+la duree de chaque transition, et la video se decale de plus en plus tot par
+rapport a la voix off. La correction est arithmetique : chaque scene se voit
+allonger de la duree de la transition qui la suit, que le chevauchement
+reprend exactement. Le total reste `sum(durees de scenes)`.
+
+Verifie sur un rendu reel : quatre scenes de 2 s ont produit **240 frames a
+30 fps, soit 8,000 s**. Le rattrapage de 0,25 s qu'exigeait l'ancien
+chevauchement manuel sur `pulsation_s` disparait du meme coup — la frame 0
+d'une scene est de nouveau son debut audio.
+
+### Note d'environnement
+
+Le catalogue ne se regenere plus avec le Chromium complet du bac a sable :
+Chrome a retire l'ancien mode headless, que Remotion utilise. Il faut lui
+passer le **headless shell** :
+
+```bash
+python3 outils/generer_apercus.py \
+  --browser /opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell
+```
+
+Sur le poste de Franco, Remotion telecharge le sien et l'option est inutile.
+
 ## File d'attente
 
 | # | Chantier | État |
@@ -570,12 +659,17 @@ demandent une premiere execution reelle sur le poste de Franco.
 | 17 | E5b : tuyau d'assets generalise, contrat `Besoin`/`Ressource`, `PlanCapture`/`PlanBroll`/`PlanLogos`, `capturer_web.py`, `recuperer_logo.py` | ✅ fait |
 | 18 | Agent A8 (Documentaliste) : lit les `besoins`, ecrit `05b_ressources.json`, alimente la banque partagee | ⬜ |
 | 19 | B-roll : `outils/chercher_broll.py` (Pexels/Pixabay) | ⬜ |
-| 20 | Transitions a la demande : `transition_sortie` par scene via `TransitionSeries`, jamais deux fois la meme d'affilee | ⬜ |
+| 20 | Transitions a la demande : `transition_sortie` par scene via `TransitionSeries`, jamais deux fois la meme d'affilee | ✅ fait |
 | 21 | Passe de critique visuelle : une image fixe **par scene** de la vraie video, regardee avant le CP3 | ⬜ |
 | 22 | Sous-titres animes (ressort par mot) et hierarchie typographique par ligne | ⬜ |
-| 23 | Typographie : `@remotion/google-fonts`, deux niveaux hierarchiques dans `charte.json` | ⬜ |
+| 23 | Typographie : polices embarquees (`@remotion/fonts`), trois niveaux dans `typographie.ts` | ✅ fait |
 | 24 | Passe « formes pleines » : `ConceptCutaway`, `StickmanTalk`, `Cadre` — remplissages, ombres, epaisseurs variables | ⬜ |
 | 25 | Remotion Studio (`npm run preview`) inscrit a l'etape 5 du SKILL du Monteur | ⬜ |
+| 26 | `Fond` unique (aplat + halo en parallaxe + vignette + grain), rendu une fois hors de la `TransitionSeries` | ✅ fait |
+| 27 | Frames en PNG : le JPEG a 80 par defaut fabriquait le banding des noirs | ✅ fait |
+| 28 | Fallback de `recaler_scenes` fatal, avec renvoi vers le convertisseur de rattrapage | ⬜ |
+| 29 | Une seule constante de marge basse partagee (aujourd'hui 300, 320, 420 et 220 selon le fichier) | ⬜ |
+| 30 | Wrapper `Camera` au niveau scene, avec `transformOrigin` sur un point d'interet declare au storyboard | ⬜ |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer

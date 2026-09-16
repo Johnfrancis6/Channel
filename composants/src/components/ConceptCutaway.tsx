@@ -1,5 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import {niveaux} from '../typographie';
 import type {CharteTokens, DirectionArtistique} from '../types';
 import {Stickman} from './Stickman';
 import {progressionEntree, pulsation, retardSecondaireFrames, styleContinu, styleEntree} from '../animation';
@@ -98,7 +99,7 @@ const Maillon: React.FC<{
   // et deux transform sur le meme noeud s'ecrasent.
   pulse?: number;
 }> = ({item, style, charte, accentue, pulse = 0}) => {
-  const famille = charte.typographie.sous_titres.famille;
+  const famille = niveaux(charte).label.famille;
   const bord = accentue ? charte.couleurs.accent_secondaire : charte.couleurs.accent;
   return (
     <div style={{...style, textAlign: 'center', position: 'relative', zIndex: 1}}>
@@ -165,7 +166,7 @@ const Boucle: React.FC<{charte: CharteTokens; progression: number; rotation: num
   const MARGE = 6;
   const C = TAILLE / 2;
   const R = C - RAYON_NOEUD - TRAIT_NOEUD / 2 - MARGE;
-  const famille = charte.typographie.sous_titres.famille;
+  const famille = niveaux(charte).label.famille;
   return (
     <svg width={TAILLE} height={TAILLE} viewBox={`0 0 ${TAILLE} ${TAILLE}`}>
       <circle
@@ -223,7 +224,7 @@ const Boucle: React.FC<{charte: CharteTokens; progression: number; rotation: num
 export const ConceptCutaway: React.FC<Props> = ({scene, label, compteur, charte, da, pulsationFrame}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const famille = charte.typographie.sous_titres.famille;
+  const famille = niveaux(charte).label.famille;
   const chaine = CHAINES[scene];
   const retard = retardSecondaireFrames(charte, fps);
   const progression = progressionEntree(frame, fps, charte, da, 1);
@@ -233,13 +234,7 @@ export const ConceptCutaway: React.FC<Props> = ({scene, label, compteur, charte,
   const pulse = pulsation(frame, fps, pulsationFrame);
 
   return (
-    <AbsoluteFill style={{backgroundColor: charte.couleurs.fond, overflow: 'hidden'}}>
-      <AbsoluteFill
-        style={{
-          ...styleEntree(frame, fps, charte, da, 4),
-          background: `radial-gradient(ellipse at 50% 42%, ${charte.couleurs.accent}1a 0%, transparent 62%)`,
-        }}
-      />
+    <AbsoluteFill style={{overflow: 'hidden'}}>
 
       {label ? (
         <div

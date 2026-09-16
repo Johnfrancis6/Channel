@@ -1,5 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, Img, Loop, OffthreadVideo, useCurrentFrame, useVideoConfig} from 'remotion';
+import {niveaux} from '../typographie';
 import type {CharteTokens, DirectionArtistique, Ressources} from '../types';
 import {punchIn, styleEntree} from '../animation';
 
@@ -45,7 +46,7 @@ export const PlanBroll: React.FC<Props> = ({
 }) => {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
-  const famille = charte.typographie.sous_titres.famille;
+  const famille = niveaux(charte).label.famille;
   const asset = ressources?.[broll];
 
   // `loop` n'existe pas sur <OffthreadVideo> : on reboucle par <Loop>, qui
@@ -63,7 +64,7 @@ export const PlanBroll: React.FC<Props> = ({
   ) : null;
 
   return (
-    <AbsoluteFill style={{backgroundColor: charte.couleurs.fond, overflow: 'hidden'}}>
+    <AbsoluteFill style={{overflow: 'hidden'}}>
       {asset ? (
         <AbsoluteFill style={punchIn(frame, fps, durationInFrames, da, indexScene)}>
           {estVideo && framesClip !== undefined && framesClip < durationInFrames ? (

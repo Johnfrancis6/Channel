@@ -1,5 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import {niveaux} from '../typographie';
 import type {CharteTokens, DirectionArtistique} from '../types';
 import {Stickman} from './Stickman';
 import type {StickmanPose} from './Stickman';
@@ -36,17 +37,10 @@ export const StickmanTalk: React.FC<Props> = ({pose, label, charte, da}) => {
   const entree = styleEntree(frame, fps, charte, da);
   const continu = styleContinu(frame, fps, charte, da);
   // Le halo suit le personnage en retrait (parallaxe, regle 7).
-  const haloEntree = styleEntree(frame, fps, charte, da, 1);
   const retard = retardSecondaireFrames(charte, fps);
 
   return (
-    <AbsoluteFill style={{backgroundColor: charte.couleurs.fond, overflow: 'hidden'}}>
-      <AbsoluteFill
-        style={{
-          ...haloEntree,
-          background: `radial-gradient(circle at 50% 46%, ${charte.couleurs.accent}22 0%, transparent 62%)`,
-        }}
-      />
+    <AbsoluteFill style={{overflow: 'hidden'}}>
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', paddingBottom: 260}}>
         <div style={{...entree, textAlign: 'center'}}>
           <div style={continu}>
@@ -64,7 +58,7 @@ export const StickmanTalk: React.FC<Props> = ({pose, label, charte, da}) => {
                 ...styleEntree(frame, fps, charte, da, 2),
                 marginTop: 56,
                 color: charte.couleurs.texte_principal,
-                fontFamily: charte.typographie.sous_titres.famille,
+                fontFamily: niveaux(charte).label.famille,
                 fontSize: 54,
                 fontWeight: 700,
                 letterSpacing: 3,

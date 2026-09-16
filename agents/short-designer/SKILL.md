@@ -268,6 +268,27 @@ Exemple de ce qu'il ne faut pas faire — c'est ce qui a ete livre sur
 Monteur a invente le visuel seul, et le resultat est deux rectangles
 generiques dans un ecran aux trois quarts vide.
 
+### Le raccord entre deux scenes
+
+Chaque scene peut declarer `transition_sortie`, qui dit **comment on passe a
+la suivante**. Le vocabulaire est ferme :
+
+| Valeur | Ce que ca fait | Quand |
+|---|---|---|
+| `fondu` | Fondu enchaine | Le repos. Deux scenes qui se suivent dans la meme idee. |
+| `glissement` | La scene entre par le cote | Changement de sujet, enumeration. |
+| `balayage` | La nouvelle scene balaie l'ancienne | Un avant/apres, une revelation. |
+| `iris` | Ouverture circulaire depuis le centre | Un zoom sur un detail, un focus. |
+| `coupe` | Aucune transition | Un choc volontaire. Rare. |
+
+La cle est **facultative** : sans elle, le Monteur applique une rotation qui
+garde le fondu majoritaire et n'emploie jamais deux fois le meme raccord
+d'affilee. Ne la remplis que quand le raccord dit quelque chose — une video
+qui balaie a chaque coupe fatigue autant qu'une video qui coupe sec.
+
+La transition ne mange **pas** de temps a la scene : le montage l'ajoute
+par-dessus et le calage sur la voix off est preserve.
+
 ## Etape 6 — Cloturer
 
 Succes :

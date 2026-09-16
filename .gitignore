@@ -2,7 +2,12 @@ __pycache__/
 *.pyc
 node_modules/
 composants/out/
-composants/public/
+composants/public/*
+# ...sauf les polices de la charte : elles sont embarquees pour qu'un rendu ne
+# depende pas du reseau au moment ou il tourne. (On exclut le contenu de
+# public/ et non le dossier lui-meme : git refuse de reinclure un fichier dont
+# un dossier parent est exclu.)
+!composants/public/fonts/
 *.tsbuildinfo
 01_Orchestrateur/verrou.json
 01_Orchestrateur/derniere_execution.json
