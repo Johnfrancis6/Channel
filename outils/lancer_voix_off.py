@@ -52,15 +52,18 @@ C'est la seule preuve qui ne depende pas d'une API non documentee.
 Usage :
   python3 outils/lancer_voix_off.py --root /chemin/ChaineYouTube
   python3 outils/lancer_voix_off.py --root ... --video 2026-09-11_v01 --gpu L4
+  python3 outils/lancer_voix_off.py --root ... --sans-drive   # sans aucun humain
   python3 outils/lancer_voix_off.py --root ... --reprendre --session voixoff
   python3 outils/lancer_voix_off.py --root ... --garder   # laisse la session ouverte
 """
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -198,6 +201,93 @@ def verifier_sorties(racine, video_id):
         message = (state.get("etapes", {}).get("E4_audio", {}) or {}).get("message") or "(sans message)"
         return False, f"E4_audio = '{statut}' apres le run — {message}"
     return True, "audio produit, quatre sorties presentes, E4_audio = termine"
+
+
+# Racine de travail sur le disque de la VM, quand on n'utilise pas Drive.
+RACINE_VM_LOCALE = "/content/ChaineYouTube"
+
+# Ce que le notebook LIT. Etabli en relisant ses cellules, pas en supposant :
+# 03_script_tts.txt (Cell 4), state.json (Cell 0), et le profil de voix
+# ref.wav + ref.txt (Cell 2, branche « voix existante »).
+ENTREES_VIDEO = ("state.json", "03_script_tts.txt")
+ENTREES_VOIX = ("ref.wav", "ref.txt")
+
+# Ce qu'il ECRIT, en plus des quatre sorties : le rapport par tentative, et
+# state.json qu'il met a jour.
+NOM_DOSSIER_AUDIO = "audio"
+
+
+def version_voix(racine, nom_voix):
+    """Derniere version vN/ du profil de voix, ou None. Meme regle que la
+    Cell 2 du notebook : les dossiers `v<entier>`, le plus grand gagne."""
+    dossier = Path(racine) / "00_Profil" / "voix" / nom_voix
+    if not dossier.is_dir():
+        return None
+    versions = [int(p.name[1:]) for p in dossier.iterdir()
+                if p.is_dir() and p.name.startswith("v") and p.name[1:].isdigit()]
+    return max(versions) if versions else None
+
+
+def plan_transfert(racine, video_id, nom_voix, racine_vm):
+    """(entrees, manquants) — les fichiers a televerser, en (local, distant).
+
+    Fonction pure : c'est elle qui decide de ce que la VM verra, donc c'est
+    elle qu'on teste. Un fichier oublie ici ne se verrait qu'au milieu d'un
+    run, dans un message de cellule.
+    """
+    racine = Path(racine)
+    entrees, manquants = [], []
+
+    for nom in ENTREES_VIDEO:
+        local = racine / "videos" / video_id / nom
+        if local.is_file():
+            entrees.append((local, f"{racine_vm}/videos/{video_id}/{nom}"))
+        else:
+            manquants.append(str(local))
+
+    v = version_voix(racine, nom_voix)
+    if v is None:
+        manquants.append(f"{racine}/00_Profil/voix/{nom_voix}/v*/ (aucun profil de voix)")
+    else:
+        for nom in ENTREES_VOIX:
+            local = racine / "00_Profil" / "voix" / nom_voix / f"v{v}" / nom
+            if local.is_file():
+                entrees.append((local, f"{racine_vm}/00_Profil/voix/{nom_voix}/v{v}/{nom}"))
+            else:
+                manquants.append(str(local))
+
+    return entrees, manquants
+
+
+def fusionner_state(local_path, distant_path):
+    """Recopie E4_audio et l'historique neuf, sans toucher au reste.
+
+    Rapatrier le state.json de la VM tel quel ecraserait ce que
+    l'Orchestrateur aurait ecrit pendant le run. Le §4.2 est explicite : une
+    etape ne touche qu'a elle-meme. On respecte la meme regle ici, du cote
+    du transfert.
+    """
+    distant = json.loads(Path(distant_path).read_text(encoding="utf-8-sig"))
+    if not Path(local_path).is_file():
+        Path(local_path).write_text(json.dumps(distant, ensure_ascii=False, indent=2),
+                                    encoding="utf-8")
+        return "state.json cree depuis la VM (absent en local)"
+
+    local = json.loads(Path(local_path).read_text(encoding="utf-8-sig"))
+    local.setdefault("etapes", {})["E4_audio"] = distant.get("etapes", {}).get("E4_audio", {})
+
+    # L'historique est append-only des deux cotes : on ajoute ce que la VM a
+    # ecrit en plus, dans l'ordre, sans dedoublonner sur l'horodatage seul —
+    # deux evenements peuvent tomber dans la meme seconde.
+    h_local = local.get("historique", [])
+    h_distant = distant.get("historique", [])
+    nouveaux = h_distant[len(h_local):] if len(h_distant) > len(h_local) else []
+    if nouveaux:
+        local.setdefault("historique", []).extend(nouveaux)
+
+    Path(local_path).write_text(json.dumps(local, ensure_ascii=False, indent=2),
+                                encoding="utf-8")
+    return f"state.json fusionne : E4_audio + {len(nouveaux)} evenement(s)"
 
 
 MARQUEUR_VERDICT = "RESULTAT_E4"
@@ -347,8 +437,80 @@ def _monter_drive(session, journal):
         time.sleep(15)
 
 
+def televerser_entrees(session, entrees, journal):
+    """Cree l'arborescence sur la VM, puis y pousse les fichiers."""
+    dossiers = sorted({d.rsplit("/", 1)[0] for _, d in entrees})
+    code = "import os\n" + "".join(f"os.makedirs({d!r}, exist_ok=True)\n" for d in dossiers)
+    r = _colab(["exec", "-s", session, "--timeout", str(TIMEOUT_PREAMBULE)],
+               entree=code, timeout=300, journal=journal)
+    if r.returncode != 0:
+        raise ErreurColab(f"creation de l'arborescence impossible : {(r.stderr or r.stdout).strip()[-300:]}")
+
+    for local, distant in entrees:
+        r = _colab(["upload", "-s", session, str(local), distant],
+                   timeout=900, journal=journal)
+        if r.returncode != 0:
+            raise ErreurColab(f"televersement de {local.name} impossible : "
+                              f"{(r.stderr or r.stdout).strip()[-300:]}")
+    journal(f"{len(entrees)} fichier(s) televerse(s) vers {dossiers[0].rsplit('/videos', 1)[0]}")
+
+
+def rapatrier_sorties(session, racine, video_id, racine_vm, journal):
+    """Ramene les sorties sur le disque de Franco. (ramenes, avertissements).
+
+    `state.json` passe par un fichier temporaire puis une fusion : le
+    recopier tel quel ecraserait ce que l'Orchestrateur aurait ecrit pendant
+    le run.
+    """
+    dossier = Path(racine) / "videos" / video_id
+    dossier.mkdir(parents=True, exist_ok=True)
+    ramenes, avertissements = [], []
+
+    for nom in SORTIES_ATTENDUES:
+        r = _colab(["download", "-s", session,
+                    f"{racine_vm}/videos/{video_id}/{nom}", str(dossier / nom)],
+                   timeout=900, journal=journal)
+        if r.returncode == 0:
+            ramenes.append(nom)
+        else:
+            avertissements.append(f"{nom} : {(r.stderr or r.stdout).strip()[-200:]}")
+
+    # Le rapport de tentative : son numero n'est pas connu d'avance, on
+    # demande a la VM lequel elle vient d'ecrire.
+    r = _colab(["exec", "-s", session, "--timeout", str(TIMEOUT_PREAMBULE)],
+               entree=("import os\n"
+                       f"_d = {racine_vm + '/videos/' + video_id + '/' + NOM_DOSSIER_AUDIO!r}\n"
+                       "print('RAPPORTS', sorted(os.listdir(_d)) if os.path.isdir(_d) else [])\n"),
+               timeout=300, journal=journal)
+    ligne = next((l for l in (r.stdout or "").splitlines() if l.startswith("RAPPORTS")), "")
+    for nom in re.findall(r"'([^']+\.md)'", ligne):
+        cible = dossier / NOM_DOSSIER_AUDIO / nom
+        cible.parent.mkdir(parents=True, exist_ok=True)
+        rr = _colab(["download", "-s", session,
+                     f"{racine_vm}/videos/{video_id}/{NOM_DOSSIER_AUDIO}/{nom}", str(cible)],
+                    timeout=300, journal=journal)
+        if rr.returncode == 0:
+            ramenes.append(f"{NOM_DOSSIER_AUDIO}/{nom}")
+
+    # state.json en dernier : c'est lui qui fait foi pour l'aval, et on ne le
+    # touche qu'une fois les sorties bien arrivees.
+    with tempfile.TemporaryDirectory() as tmp:
+        provisoire = Path(tmp) / "state.json"
+        r = _colab(["download", "-s", session,
+                    f"{racine_vm}/videos/{video_id}/state.json", str(provisoire)],
+                   timeout=300, journal=journal)
+        if r.returncode != 0:
+            avertissements.append(f"state.json non rapatrie : {(r.stderr or r.stdout).strip()[-200:]}")
+        else:
+            journal(fusionner_state(dossier / "state.json", provisoire))
+            ramenes.append("state.json")
+
+    return ramenes, avertissements
+
+
 def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
-                 chemin_journal, timeout_exec, journal, reprendre=False):
+                 chemin_journal, timeout_exec, journal, reprendre=False,
+                 entrees=None, racine_locale=None):
     """Enchaine les commandes du CLI. Leve ErreurColab si l'outil echoue."""
     journal(f"session={session} gpu={gpu} mode={mode} video={video_id} reprendre={reprendre}")
     verdict = (False, "le run ne s'est pas rendu jusqu'au controle")
@@ -388,7 +550,13 @@ def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
             raise ErreurColab(f"`colab new` a echoue : {sortie.strip()[-400:]}{indice}")
 
     try:
-        if not reprendre:
+        if entrees is not None:
+            # Sans Drive : les entrees montent par `colab upload`, les sorties
+            # redescendent par `colab download`. Aucun consentement, donc
+            # aucun humain — et le notebook tourne inchange, parce que sa
+            # racine est deja un parametre.
+            televerser_entrees(session, entrees, journal)
+        elif not reprendre:
             _monter_drive(session, journal)
 
         r = _colab(["exec", "-s", session, "--timeout", str(TIMEOUT_PREAMBULE)],
@@ -427,6 +595,15 @@ def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
                     entree=code_verification(racine_vm, video_id),
                     timeout=300, journal=journal)
         verdict = juger_verdict((rv.stdout or "") + (rv.stderr or ""))
+
+        if entrees is not None:
+            # On rapatrie meme quand le verdict est negatif : le rapport audio
+            # est precisement ce qui dit pourquoi, et il partirait avec la VM.
+            ramenes, avertissements = rapatrier_sorties(
+                session, racine_locale, video_id, racine_vm, journal)
+            journal(f"rapatriement : {len(ramenes)} fichier(s) — {', '.join(ramenes) or 'aucun'}")
+            for a in avertissements:
+                journal(f"⚠️ {a}")
     finally:
         if garder:
             journal(f"session {session} laissee ouverte")
@@ -454,6 +631,12 @@ def main(argv=None):
                     help=f"Racine vue depuis la VM Colab. Defaut : {RACINE_VM}")
     ap.add_argument("--forcer", action="store_true",
                     help="Passe outre le plafond de tentatives et un statut deja 'termine'.")
+    ap.add_argument("--sans-drive", action="store_true", dest="sans_drive",
+                    help="Ne monte pas Drive : televerse les entrees sur la VM et rapatrie les "
+                         "sorties. C'est le SEUL mode qui tourne sans humain, le montage de "
+                         "Drive redemandant un consentement a chaque session.")
+    ap.add_argument("--nom-voix", default="voix_principale", dest="nom_voix",
+                    help="Profil de voix dans 00_Profil/voix/. Defaut : voix_principale.")
     ap.add_argument("--reprendre", action="store_true",
                     help="Reprendre une session deja creee et dont Drive est deja monte a la "
                          "main, au lieu d'en creer une. Seul mode qui fonctionne tant que le "
@@ -493,6 +676,28 @@ def main(argv=None):
     if video_id is None:
         return 3
 
+    if a.sans_drive and a.reprendre:
+        print("❌ --sans-drive et --reprendre s'excluent : le premier n'a pas besoin de la "
+              "session preparee a la main que le second reprend.", file=sys.stderr)
+        return 2
+
+    # Sans Drive, la racine vue par la VM est un dossier de son disque, pas le
+    # point de montage. L'option --racine-vm reste utilisable pour l'imposer.
+    racine_vm = a.racine_vm
+    if a.sans_drive and racine_vm == RACINE_VM:
+        racine_vm = RACINE_VM_LOCALE
+
+    entrees = None
+    if a.sans_drive:
+        entrees, manquants = plan_transfert(a.root, video_id, a.nom_voix, racine_vm)
+        if manquants:
+            print("❌ entrees introuvables, rien n'a ete lance :", file=sys.stderr)
+            for m in manquants:
+                print(f"   - {m}", file=sys.stderr)
+            print("   → un profil de voix manquant s'enregistre une fois depuis Colab,\n"
+                  "     avec MODE='voice_only'.", file=sys.stderr)
+            return 2
+
     session = a.session or f"voixoff-{video_id}"
     dossier_video = Path(a.root) / "videos" / video_id
     chemin_journal = dossier_video / "audio" / f"journal_colab_{_horodatage().replace(':', '')}.md"
@@ -502,9 +707,16 @@ def main(argv=None):
         print(f"   gpu          : {a.gpu}")
         print(f"   mode         : {a.mode}")
         print(f"   notebook     : {NOTEBOOK}")
-        print(f"   racine VM    : {a.racine_vm}")
+        print(f"   racine VM    : {racine_vm}")
+        print(f"   sans Drive   : {'oui — ' + str(len(entrees)) + ' entrees a televerser' if a.sans_drive else 'non — Drive monte sur la VM'}")
         print(f"   journal      : {chemin_journal}")
-        print(f"   reprendre    : {'oui — session existante, Drive deja monte' if a.reprendre else 'non — session creee, drivemount tente'}")
+        if a.sans_drive:
+            demarrage = "session creee, entrees televersees, aucun montage"
+        elif a.reprendre:
+            demarrage = "session existante reprise, Drive deja monte"
+        else:
+            demarrage = "session creee, drivemount tente (consentement attendu)"
+        print(f"   demarrage    : {demarrage}")
         print(f"   colab present: {'oui' if shutil.which('colab') else 'NON — uv tool install google-colab-cli'}")
         return 0
 
@@ -512,9 +724,9 @@ def main(argv=None):
         # Une session reprise garde par defaut le consentement Drive qu'elle
         # porte : c'est la seule chose du run qui ait coute un geste humain.
         garder = (a.garder or a.reprendre) and not a.arreter
-        ok, message = executer_run(video_id, session, a.gpu, a.mode, a.racine_vm,
+        ok, message = executer_run(video_id, session, a.gpu, a.mode, racine_vm,
                                    a.forcer, garder, chemin_journal, a.timeout,
-                                   journal, a.reprendre)
+                                   journal, a.reprendre, entrees, a.root)
     except ErreurColab as e:
         print(f"❌ {e}", file=sys.stderr)
         return 4
@@ -533,6 +745,11 @@ def main(argv=None):
     # fichiers, parce que c'est lui que lira le montage. Un retard de
     # synchronisation n'est pas un echec du run et ne change pas le code de
     # sortie — le dire autrement ferait chercher un bug qui n'existe pas.
+    if a.sans_drive:
+        # Rien a attendre : les sorties ont ete ecrites directement sur le
+        # disque local par `colab download`.
+        return 0
+
     a_jour, detail = attendre_miroir_local(a.root, video_id, a.attente_miroir, journal)
     if not a_jour:
         print(f"⚠️  Produit sur Drive, pas encore redescendu en local apres "

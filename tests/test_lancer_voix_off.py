@@ -221,6 +221,109 @@ class TestVerdictSurLaVM(unittest.TestCase):
         self.assertIn("illisible", message)
 
 
+class TestTransfertSansDrive(unittest.TestCase):
+    """Le mode qui supprime le consentement Drive, donc l'humain.
+
+    Ce qui est teste ici, c'est ce qui decide de ce que la VM verra : un
+    fichier oublie par `plan_transfert` ne se verrait qu'au milieu d'un run,
+    dans un message de cellule, apres plusieurs minutes de GPU.
+    """
+
+    def _profil_voix(self, racine, nom="voix_principale", versions=(1,)):
+        for v in versions:
+            d = Path(racine) / "00_Profil" / "voix" / nom / f"v{v}"
+            d.mkdir(parents=True, exist_ok=True)
+            (d / "ref.wav").write_bytes(b"RIFF")
+            (d / "ref.txt").write_text("texte lu", encoding="utf-8")
+
+    def test_plan_complet(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dossier = _ecrire_video(tmp, "2026-09-16_v01", "attente_franco")
+            (dossier / "03_script_tts.txt").write_text("phrase", encoding="utf-8")
+            self._profil_voix(tmp)
+            entrees, manquants = lvo.plan_transfert(tmp, "2026-09-16_v01",
+                                                    "voix_principale", "/content/CY")
+            self.assertEqual(manquants, [])
+            distants = [d for _, d in entrees]
+            self.assertIn("/content/CY/videos/2026-09-16_v01/state.json", distants)
+            self.assertIn("/content/CY/videos/2026-09-16_v01/03_script_tts.txt", distants)
+            self.assertIn("/content/CY/00_Profil/voix/voix_principale/v1/ref.wav", distants)
+            self.assertIn("/content/CY/00_Profil/voix/voix_principale/v1/ref.txt", distants)
+
+    def test_derniere_version_de_voix_choisie(self):
+        """Meme regle que la Cell 2 du notebook : le plus grand vN gagne."""
+        with tempfile.TemporaryDirectory() as tmp:
+            dossier = _ecrire_video(tmp, "v1", "attente_franco")
+            (dossier / "03_script_tts.txt").write_text("x", encoding="utf-8")
+            self._profil_voix(tmp, versions=(1, 2, 10))
+            self.assertEqual(lvo.version_voix(tmp, "voix_principale"), 10)
+            entrees, _ = lvo.plan_transfert(tmp, "v1", "voix_principale", "/r")
+            self.assertTrue(any("/v10/ref.wav" in d for _, d in entrees))
+
+    def test_script_manquant_refuse_avant_tout_gpu(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            _ecrire_video(tmp, "v1", "attente_franco")
+            self._profil_voix(tmp)
+            _, manquants = lvo.plan_transfert(tmp, "v1", "voix_principale", "/r")
+            self.assertTrue(any("03_script_tts.txt" in m for m in manquants))
+
+    def test_profil_de_voix_absent_refuse(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dossier = _ecrire_video(tmp, "v1", "attente_franco")
+            (dossier / "03_script_tts.txt").write_text("x", encoding="utf-8")
+            _, manquants = lvo.plan_transfert(tmp, "v1", "voix_principale", "/r")
+            self.assertTrue(any("aucun profil de voix" in m for m in manquants))
+
+    def test_sans_drive_et_reprendre_s_excluent(self):
+        """`main` rend un code, il ne leve pas : c'est `sys.exit(main())` qui
+        sort. Le refus doit arriver avant toute allocation de GPU."""
+        self.assertEqual(lvo.main(["--root", "/x", "--sans-drive", "--reprendre"]), 2)
+
+
+class TestFusionState(unittest.TestCase):
+    """Rapatrier le state.json de la VM tel quel ecraserait ce que
+    l'Orchestrateur aurait ecrit pendant le run. Le §4.2 dit qu'une etape ne
+    touche qu'a elle-meme ; la regle vaut aussi pour le transfert."""
+
+    def _ecrire(self, chemin, etapes, historique=()):
+        Path(chemin).write_text(json.dumps(
+            {"video_id": "v1", "etapes": etapes, "historique": list(historique)}),
+            encoding="utf-8")
+
+    def test_les_autres_etapes_survivent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            local, distant = Path(tmp) / "local.json", Path(tmp) / "vm.json"
+            # L'Orchestrateur a fait avancer E5 pendant le run audio.
+            self._ecrire(local, {"E4_audio": {"statut": "en_cours"},
+                                 "E5_storyboard": {"statut": "termine"}})
+            # La VM ne connait que l'etat d'avant pour E5.
+            self._ecrire(distant, {"E4_audio": {"statut": "termine"},
+                                   "E5_storyboard": {"statut": "a_venir"}})
+            lvo.fusionner_state(local, distant)
+            fusionne = json.loads(local.read_text(encoding="utf-8"))
+            self.assertEqual(fusionne["etapes"]["E4_audio"]["statut"], "termine")
+            self.assertEqual(fusionne["etapes"]["E5_storyboard"]["statut"], "termine")
+
+    def test_historique_neuf_ajoute_sans_doublon(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            local, distant = Path(tmp) / "local.json", Path(tmp) / "vm.json"
+            self._ecrire(local, {"E4_audio": {}}, [{"evenement": "cree"}])
+            self._ecrire(distant, {"E4_audio": {}},
+                         [{"evenement": "cree"}, {"evenement": "en_cours"},
+                          {"evenement": "termine"}])
+            lvo.fusionner_state(local, distant)
+            h = json.loads(local.read_text(encoding="utf-8"))["historique"]
+            self.assertEqual([e["evenement"] for e in h], ["cree", "en_cours", "termine"])
+
+    def test_state_local_absent_recopie(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            local, distant = Path(tmp) / "local.json", Path(tmp) / "vm.json"
+            self._ecrire(distant, {"E4_audio": {"statut": "termine"}})
+            lvo.fusionner_state(local, distant)
+            self.assertEqual(json.loads(local.read_text(encoding="utf-8"))
+                             ["etapes"]["E4_audio"]["statut"], "termine")
+
+
 class TestParametresDistants(unittest.TestCase):
     def test_preambule_est_du_python_valide(self):
         code = lvo._preambule("2026-09-11_v01", "full", "/content/drive/MyDrive/ChaineYouTube", False)

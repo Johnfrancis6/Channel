@@ -811,7 +811,8 @@ place. Ce qui change, c'est que l'action attendue de Franco est désormais
 | 28 | Fallback de `recaler_scenes` fatal, avec renvoi vers le convertisseur de rattrapage | ⬜ |
 | 29 | Une seule constante de marge basse partagee (aujourd'hui 300, 320, 420 et 220 selon le fichier) | ⬜ |
 | 30 | Wrapper `Camera` au niveau scene, avec `transformOrigin` sur un point d'interet declare au storyboard | ⬜ |
-| 31 | E4 sans navigateur : `outils/lancer_voix_off.py` via le Colab CLI officiel | ✅ fait — reste le premier run reel chez Franco |
+| 31 | E4 sans navigateur : `outils/lancer_voix_off.py` via le Colab CLI officiel | ✅ fait — premier run reel valide le 16/09 (WER 1,47 %) |
+| 32 | E4 sans humain : `--sans-drive`, le notebook tourne sur le disque de la VM | ✅ fait — reste le premier run reel |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer

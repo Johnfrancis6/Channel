@@ -81,12 +81,64 @@ Pense à libérer la machine ensuite, elle consomme du quota :
 colab stop -s voixoff
 ```
 
-**Le seul chemin vers un run réellement sans humain** serait de ne pas monter
-Drive du tout : pousser le script et la référence avec `colab upload`,
-récupérer les quatre sorties avec `colab download`, écrire `state.json`
-localement. Il demande de sortir la synthèse du notebook, donc de maintenir
-deux implémentations — pas fait, et à ne faire que si le clic par run devient
-gênant.
+### `--sans-drive` : le run sans humain (16/09/2026)
+
+```bash
+python3 outils/lancer_voix_off.py --root "$CHAINE_YT_ROOT" --sans-drive
+```
+
+Aucun consentement, aucun clic, aucune session à préparer. Le principe : **ne
+pas monter Drive du tout.**
+
+```
+colab new -s voixoff-<id> --gpu T4
+colab exec    ← crée l'arborescence sur le disque de la VM
+colab upload  ← state.json, 03_script_tts.txt, ref.wav, ref.txt
+colab exec    ← pose VOIX_RACINE=/content/ChaineYouTube
+colab exec -f notebooks/voix_off.ipynb
+colab exec    ← le verdict, RESULTAT_E4
+colab download ← les quatre sorties, les rapports de tentative, state.json
+colab stop
+```
+
+**Le notebook n'est pas dupliqué.** J'avais annoncé qu'il faudrait en sortir
+la synthèse et maintenir deux implémentations : c'était faux. Sa racine est
+déjà un paramètre (`VOIX_RACINE`), donc il suffit de la pointer vers un
+dossier du disque de la VM. La seule modification a été de rendre le montage
+de Drive **conditionnel** : la Cell 0 ne monte plus rien quand la racine est
+hors de `/content/drive`.
+
+Ce que le notebook lit, et donc ce qui est téléversé — établi en relisant ses
+cellules, pas en supposant :
+
+| Fichier | Lu par |
+|---|---|
+| `videos/<id>/state.json` | Cell 0 (contrat d'étape) |
+| `videos/<id>/03_script_tts.txt` | Cell 1 et Cell 4 |
+| `00_Profil/voix/<nom>/v<N>/ref.wav` + `ref.txt` | Cell 2, branche « voix existante » |
+
+La version `vN` retenue est la plus grande, comme le fait la Cell 2. Les
+entrées manquantes sont **refusées avant l'allocation du GPU** (code `2`) :
+découvrir un script absent au milieu d'un run coûte plusieurs minutes de
+machine pour rien.
+
+**Le retour de `state.json` est une fusion, pas une copie.** Le recopier tel
+quel écraserait ce que l'Orchestrateur aurait écrit pendant le run. Seuls
+`etapes.E4_audio` et les nouveaux événements d'historique sont repris — le
+§4.2 dit qu'une étape ne touche qu'à elle-même, et la règle vaut aussi pour
+le transfert.
+
+Les sorties sont rapatriées **même quand le verdict est négatif** :
+`04_rapport_audio.md` est précisément ce qui dit pourquoi, et il partirait
+avec la VM.
+
+### Les trois modes, et quand les utiliser
+
+| Mode | Humain | Quand |
+|---|---|---|
+| `--sans-drive` | aucun | **Par défaut.** Le seul qui puisse tourner depuis cron. |
+| `--reprendre --session <nom>` | un consentement par session | Quand tu veux garder la VM chaude pour enchaîner plusieurs synthèses, ou inspecter le Drive depuis la VM. |
+| (défaut historique) | un consentement par run | Ne sert plus guère : `drivemount` demande son autorisation à chaque fois. |
 
 ### Installation du CLI
 
