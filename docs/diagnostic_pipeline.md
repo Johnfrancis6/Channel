@@ -709,6 +709,71 @@ et la structure en huit étapes. Chaque ligne y porte un défaut constaté en
 quatre jours de diagnostic ; les rouvrir coûterait plus que ça ne
 rapporterait.
 
+
+## E4 — La voix off sans navigateur (16/09/2026)
+
+Google a publié un **Colab CLI officiel** le 16 juin 2026 (`pip install
+google-colab-cli`, Linux et macOS). Il permet ce qui manquait : allouer un
+GPU, monter le Drive, exécuter un `.ipynb` et récupérer le journal, depuis un
+terminal. E4 était la dernière étape du pipeline qui exigeait qu'un humain
+ouvre un onglet.
+
+### Trois blocages dans le notebook, dont un qui était déjà un défaut
+
+- **`drive.mount()`** en Cell 0, inconditionnel. Avec `colab drivemount` en
+  amont, le Drive est déjà là ; rappeler `drive.mount()` ouvrirait un
+  consentement OAuth que personne ne regarde. La cellule resterait suspendue
+  jusqu'au timeout de la session, **sans un message** — le pire mode d'échec.
+- **`RUN_VOICE_UPLOAD = MODE in ('full', 'voice_only')`.** `full` ouvrait le
+  sélecteur de fichiers de Colab à **chaque vidéo**, alors que le profil de
+  voix existe depuis la première. Ce n'était pas seulement un obstacle à
+  l'automatisation : c'était une corvée à chaque run, et personne ne l'avait
+  relevée parce qu'elle faisait partie du geste habituel.
+- **Les paramètres s'éditaient à la main** en Cell 1. Ils se lisent
+  maintenant dans l'environnement quand il les porte ; sans ces variables, le
+  notebook se comporte exactement comme avant.
+
+### Ce qui décide du succès, et pourquoi ce n'est pas le code de retour
+
+Le notebook signale ses échecs par `SystemExit` depuis une cellule. Rien ne
+garantit qu'un noyau Jupyter distant traduise cela en code de sortie non nul,
+et la documentation du CLI **ne dit rien des codes de retour**.
+
+Conclure sur `colab exec` reviendrait donc à faire confiance à une API non
+documentée pour un verdict — exactement le défaut de `capturer_web.py`, qui a
+validé trois fois une capture fausse parce que le contrôle regardait la
+mauvaise chose. `lancer_voix_off.py` conclut en **relisant le Drive** : le
+statut de `E4_audio`, et les quatre sorties présentes et non vides.
+
+Le cas qui justifie ce choix est figé en test : un `state.json` qui dit
+`termine` alors que `04_phrases.json` manque. Le montage repartirait sur les
+estimations du storyboard, et les 16,4 s de décalage son/image
+réapparaîtraient sans que rien ne l'ait signalé.
+
+### Ce qui n'est pas testé, et pourquoi
+
+Aucun faux binaire `colab`. Simuler un outil dont on ne connaît ni les codes
+de retour ni le format de sortie ne teste que la simulation — et donnerait la
+fausse assurance que le plus incertain du chantier est couvert. Les 16 tests
+portent sur le choix de la vidéo, le garde-fou de racine, les paramètres
+distants et la vérification du résultat : le contrôle dont dépend le verdict.
+L'enchaînement `new / drivemount / exec / log / stop` se constatera au premier
+run réel.
+
+**Ce qui reste inconnu** : si `colab drivemount` réclame un consentement
+navigateur au premier appel. Si c'est le cas, le repli est l'échange par
+fichiers (`colab upload` du script et de la référence, `colab download` des
+quatre sorties, `state.json` écrit localement par `etape.py`) — plus robuste,
+mais il faudrait sortir la synthèse du notebook, avec un risque de divergence
+entre les deux.
+
+### E4 reste `attente_franco`
+
+L'Orchestrateur fait avancer les statuts, il n'exécute aucun agent (§6.4) :
+brancher E4 dessus est un autre chantier, qui contredirait une décision en
+place. Ce qui change, c'est que l'action attendue de Franco est désormais
+**une commande** — donc quelque chose qu'une entrée de crontab peut faire.
+
 ## File d'attente
 
 | # | Chantier | État |
@@ -746,6 +811,7 @@ rapporterait.
 | 28 | Fallback de `recaler_scenes` fatal, avec renvoi vers le convertisseur de rattrapage | ⬜ |
 | 29 | Une seule constante de marge basse partagee (aujourd'hui 300, 320, 420 et 220 selon le fichier) | ⬜ |
 | 30 | Wrapper `Camera` au niveau scene, avec `transformOrigin` sur un point d'interet declare au storyboard | ⬜ |
+| 31 | E4 sans navigateur : `outils/lancer_voix_off.py` via le Colab CLI officiel | ✅ fait — reste le premier run reel chez Franco |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 
 ## Reste à diagnostiquer

@@ -405,7 +405,9 @@ Sur Windows, le lanceur ne change pas ; seul le planificateur diffère
 ### 7.1 Workflow
 
 1. Après le CP2, l'Orchestrateur passe `E4_audio` en `attente_franco` et affiche dans le tableau de bord : « Lancer l'audio pour `2026-09-10_v01` ».
-2. Franco ouvre le notebook, saisit `video_id` et le modèle, puis lance le run.
+2. Franco lance le run, de l'une des deux façons :
+   - **en ligne de commande** (16/09/2026) — `python3 outils/lancer_voix_off.py --root /chemin/ChaineYouTube`, qui exécute le même notebook sur un runtime Colab via le [Colab CLI officiel](https://github.com/googlecolab/google-colab-cli) (`colab new / drivemount / exec / log / stop`). Aucun navigateur. Le succès se conclut en relisant le Drive, jamais sur le code de retour du CLI ;
+   - **dans Colab**, comme avant : il ouvre le notebook, saisit `VIDEO_ID` et `MODE` en Cell 1, puis lance le run. C'est le chemin obligatoire une fois, pour enregistrer la voix de référence (`MODE='voice_only'`), qui demande un upload interactif.
 3. Le notebook lit `03_script_tts.txt`, génère l'audio, écrit ses sorties dans le dossier de la vidéo et passe `E4_audio` à `termine`.
 4. À l'exécution suivante, l'Orchestrateur voit l'étape terminée et le workflow continue.
 
