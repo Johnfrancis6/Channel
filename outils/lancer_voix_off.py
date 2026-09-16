@@ -176,7 +176,12 @@ def _colab(args, entree=None, timeout=None, journal=None):
     except FileNotFoundError:
         raise ErreurColab(
             "`colab` introuvable dans le PATH.\n"
-            "   → pip install google-colab-cli  (Linux et macOS uniquement)\n"
+            "   → uv tool install google-colab-cli\n"
+            "     (le paquet exige Python >= 3.12 ; `pip install` sous un Python\n"
+            "      plus ancien repond « No matching distribution found », ce qui\n"
+            "      ressemble a tort a un paquet inexistant. `uv` recupere lui-meme\n"
+            "      un interprete compatible.)\n"
+            "   → Linux et macOS uniquement — sous Windows, passer par WSL.\n"
             "   → puis une premiere authentification interactive : colab new"
         )
     except subprocess.TimeoutExpired:

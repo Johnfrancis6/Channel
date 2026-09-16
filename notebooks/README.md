@@ -28,8 +28,8 @@ automatique. `MODE` :
 
 `python3 outils/lancer_voix_off.py --root /chemin/ChaineYouTube` exécute ce
 même notebook sur un runtime Colab, depuis un terminal. Il s'appuie sur le
-**Colab CLI officiel** de Google (`pip install google-colab-cli`, Linux et
-macOS uniquement), et enchaîne ce que Franco faisait à la main :
+**Colab CLI officiel** de Google, et enchaîne ce que Franco faisait à la
+main :
 
 ```
 colab new -s voixoff-<video_id> --gpu T4
@@ -49,6 +49,22 @@ colab stop -s ...
 | `--timeout` | 5400 s | durée maximale du run du notebook |
 | `--garder` | non | laisse la session Colab ouverte, pour diagnostiquer |
 | `--verifier` | — | dit ce qui serait lancé, sans rien lancer |
+
+### Installation du CLI
+
+```bash
+uv tool install google-colab-cli
+colab new -s test-auth && colab stop -s test-auth   # authentification, une fois
+```
+
+**Pas `pip install`.** Le paquet exige Python >= 3.12 ; sous un interpréteur
+plus ancien, pip répond `No matching distribution found`, ce qui ressemble à
+tort à un paquet qui n'existe pas. `uv` récupère lui-même un interpréteur
+compatible, sans toucher au Python du système. Linux et macOS uniquement —
+sous Windows, WSL.
+
+Le lanceur, lui, tourne sous le Python du dépôt : il n'appelle `colab` qu'en
+sous-processus, il n'a donc pas besoin de 3.12.
 
 Codes de sortie : `0` audio produit et vérifié, `1` run sans résultat
 exploitable, `2` racine inutilisable (Drive non monté, rien n'a été lancé),
