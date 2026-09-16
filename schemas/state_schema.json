@@ -22,6 +22,12 @@
       "enum": ["actu_ia", "avis_outil", "concept", "projet_perso", "tuto", "a_determiner", null]
     },
     "voie": { "type": ["string", "null"], "enum": ["tampon", "rapide", null] },
+    "format_video": {
+      "type": "string",
+      "enum": ["short", "long"],
+      "default": "short",
+      "description": "Format de la video : court (vertical, quelques idees) ou long (paysage, decoupe en segments). A la racine et non dans `consignes` parce qu'il change le pipeline lui-meme — budget, charte, storyboard, strategie de rendu — au meme titre que `voie`. Absent des videos anterieures au 16/09/2026 : tout lecteur retombe sur \"short\" (orchestrateur.formats.format_video)."
+    },
     "consignes": {
       "type": "object",
       "properties": {

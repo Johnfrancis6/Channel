@@ -165,5 +165,41 @@ class TestE6DansOrchestateur(unittest.TestCase):
         self.assertIn("Storyboard", contenu)
 
 
+sys.path.insert(0, os.path.dirname(SCRIPT))
+import rendre_video  # noqa: E402
+
+
+class TestDecoupageEnTranches(unittest.TestCase):
+    """Arithmetique du decoupage. Rapide, sans Node : le rendu reel est
+    couvert par test_render_remotion.py."""
+
+    def test_les_bornes_couvrent_tout_sans_trou_ni_recouvrement(self):
+        for total, taille in ((120, 30), (100, 30), (1, 30), (27000, 3600)):
+            bornes = rendre_video.decouper(total, taille)
+            self.assertEqual(bornes[0][0], 0)
+            self.assertEqual(bornes[-1][1], total - 1, (total, taille))
+            for (_, fin), (debut_suivant, _) in zip(bornes, bornes[1:]):
+                # Bornes incluses, comme `--frames=a-b` : la tranche suivante
+                # commence a la frame d'apres, pas a la meme. Un recouvrement
+                # d'une frame se verrait comme un hoquet a chaque jointure.
+                self.assertEqual(debut_suivant, fin + 1)
+
+    def test_la_derniere_tranche_absorbe_le_reste(self):
+        bornes = rendre_video.decouper(100, 30)
+        self.assertEqual(bornes, [(0, 29), (30, 59), (60, 89), (90, 99)])
+
+    def test_un_total_plus_court_qu_une_tranche_tient_en_une(self):
+        self.assertEqual(rendre_video.decouper(45, 3600), [(0, 44)])
+
+    def test_l_audio_se_retrouve_depuis_l_url_du_bundle(self):
+        # `audioSrc` est une URL servie par le bundle, pas un chemin disque :
+        # c'est ce detour qui permet de remonter la voix off d'un seul bloc
+        # au lieu de la recoller tranche par tranche.
+        self.assertIsNone(rendre_video.chemin_audio({}))
+        self.assertIsNone(rendre_video.chemin_audio({"audioSrc": "/tmp/voix.wav"}))
+        self.assertIsNone(rendre_video.chemin_audio(
+            {"audioSrc": "/public/audio/2026-01-01_v01/inexistant.wav"}))
+
+
 if __name__ == "__main__":
     unittest.main()

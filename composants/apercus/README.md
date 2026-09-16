@@ -106,6 +106,34 @@ python3 outils/generer_apercus.py
 
 - Parametres : `capture` = `page_absente`, `label` = `REPLI VISIBLE`
 
+## PlanDeuxTerminaux
+
+### une-heure-contre-dix
+
+![PlanDeuxTerminaux — une-heure-contre-dix](PlanDeuxTerminaux-une-heure-contre-dix.png)
+
+- Parametres : `gauche` = `{'titre': '1 HOUR', 'lignes': 6}`, `droite` = `{'titre': '10 HOURS', 'lignes': 34}`, `fond_flou` = `three settings`
+
+## PlanListeSequencee
+
+### echelle-effort
+
+![PlanListeSequencee — echelle-effort](PlanListeSequencee-echelle-effort.png)
+
+- Parametres : `titre` = `REASONING EFFORT`, `disposition` = `echelle`, `entrees` = `['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max']`, `barree` = `none`, `mention_barree` = `HTTP 400`, `accentuee` = `medium`
+
+### liste-contrat
+
+![PlanListeSequencee — liste-contrat](PlanListeSequencee-liste-contrat.png)
+
+- Parametres : `titre` = `THE CONTRACT`, `disposition` = `liste`, `entrees` = `['ACHIEVE', 'LEAVE ALONE', 'CHECK', 'STOP']`, `cadre` = `True`, `tampon` = `DONE`
+
+### deux-colonnes
+
+![PlanListeSequencee — deux-colonnes](PlanListeSequencee-deux-colonnes.png)
+
+- Parametres : `disposition` = `deux_colonnes`, `colonne_gauche` = `{'titre': 'THE STEPS', 'entrees': ['1.', '2.', '3.', '4.'], 'effacee': True}`, `colonne_droite` = `{'titre': 'THE FINISH LINE', 'entrees': ['done']}`
+
 ## PlanLogos
 
 ### trois-logos-relies
@@ -113,6 +141,34 @@ python3 outils/generer_apercus.py
 ![PlanLogos — trois-logos-relies](PlanLogos-trois-logos-relies.png)
 
 - Parametres : `label` = `CE QUI SE BRANCHE`, `logos` = `[{'cle': 'a', 'libelle': 'CLAUDE'}, {'cle': 'b', 'libelle': 'MCP'}, {'cle': 'c', 'libelle': 'GITHUB'}]`
+
+## PlanNavigateurCurseur
+
+### ouverture-liste
+
+![PlanNavigateurCurseur — ouverture-liste](PlanNavigateurCurseur-ouverture-liste.png)
+
+- Parametres : `etat` = `ouverture_liste`, `label` = `WHERE IS IT?`, `marqueur` = `question`, `zoom` = `liste`
+
+### ligne-surlignee
+
+![PlanNavigateurCurseur — ligne-surlignee](PlanNavigateurCurseur-ligne-surlignee.png)
+
+- Parametres : `etat` = `ligne_surlignee`, `surligne` = `GPT-6 Pro`, `marqueur` = `coche`
+
+## PlanTerminalFrappe
+
+### frappe-goal
+
+![PlanTerminalFrappe — frappe-goal](PlanTerminalFrappe-frappe-goal.png)
+
+- Parametres : `invite` = `codex`, `frappe` = `/goal ship the migration and keep tests green`, `label` = `THE GOAL COMMAND`
+
+### defilement-horloge
+
+![PlanTerminalFrappe — defilement-horloge](PlanTerminalFrappe-defilement-horloge.png)
+
+- Parametres : `invite` = `codex`, `defilement_auto` = `True`, `horloge` = `00:00 -> 06:00`, `label` = `HOURS, NOT ONE REPLY`
 
 ## StickmanTalk
 

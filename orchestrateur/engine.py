@@ -15,6 +15,30 @@ from .checkpoints import (archiver_rapport_refuse, chemin_rapport, generer_rappo
 from .constants import DEPENDANCES, ORDRE_IDS, PIPELINE_PAR_ID, STATUTS_CLOS, STATUTS_E7
 from .state_store import ajouter_historique, now_iso
 
+
+def _charger_formats_video():
+    """Importe outils/formats_video.py, source unique des valeurs de format.
+
+    Meme bootstrap que dans les scripts d'agent : on cherche le repere plutot
+    que de compter les niveaux ou de supposer que la racine du depot est sur
+    `sys.path` (elle ne l'est pas quand l'Orchestrateur est lance par le cron
+    depuis un autre dossier).
+    """
+    import importlib.util
+    chemin = os.path.abspath(__file__)
+    for _ in range(6):
+        chemin = os.path.dirname(chemin)
+        candidat = os.path.join(chemin, "outils", "formats_video.py")
+        if os.path.isfile(candidat):
+            spec = importlib.util.spec_from_file_location("formats_video", candidat)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+    raise ImportError("outils/formats_video.py introuvable depuis " + os.path.abspath(__file__))
+
+
+formats_video = _charger_formats_video()
+
 def _pret(state, etape_id):
     for dep_id in DEPENDANCES[etape_id]:
         dep = state["etapes"].get(dep_id)
@@ -310,6 +334,57 @@ def _enumeration_bornee(items, maximum=MAX_ENUMERATION):
     return f"{', '.join(items[:maximum])} (+ {reste} autres, sur {len(items)} au total)"
 
 
+def _horodatage(secondes):
+    minutes, reste = divmod(int(secondes), 60)
+    return f"{minutes:02d}:{reste:02d}"
+
+
+# Nombre de reperes proposes dans le rapport CP3 d'un format long. Huit tient
+# dans un ecran de telephone — c'est la ou Franco lit ses checkpoints.
+REPERES_MAX = 8
+
+
+def _reperes_temporels(scenes, phrases, maximum=REPERES_MAX):
+    """Points d'entree horodates dans une video longue.
+
+    Sur un Short, « regarde la video » est une consigne complete : elle dure
+    50 secondes. Sur quinze minutes, ce n'en est plus une — et lister les
+    quatre-vingts scenes n'en fait pas une non plus, ca fait une
+    planche-contact que personne ne regarde. Ce qu'il faut a Franco, ce sont
+    quelques endroits ou aller voir.
+
+    Les instants viennent de `04_phrases.json`, donc de l'audio reellement
+    synthetise : ce sont les memes bornes que celles sur lesquelles le montage
+    a recale les scenes. Les durees du storyboard, elles, sont des estimations
+    — s'en servir pour fabriquer des minutages donnerait a Franco des reperes
+    qui ne tombent pas au bon endroit.
+    """
+    if not scenes or not phrases:
+        return []
+    pas = max(1, len(scenes) // maximum)
+    reperes = []
+    for index in range(0, len(scenes), pas):
+        scene = scenes[index]
+        couvertes = scene.get("phrases") or []
+        if not couvertes:
+            continue
+        premiere = min(int(x) for x in couvertes)
+        if not 1 <= premiere <= len(phrases):
+            continue
+        texte = " ".join((scene.get("phrase") or "").split())
+        if len(texte) > 70:
+            texte = texte[:70].rsplit(" ", 1)[0] + "…"
+        reperes.append({
+            "debut_s": float(phrases[premiere - 1]["debut_s"]),
+            "id": scene.get("id"),
+            "texte": texte,
+            "a_completer": bool(scene.get("a_completer")),
+        })
+        if len(reperes) >= maximum:
+            break
+    return reperes
+
+
 def _resume_video_finale(video_dir, state):
     """
     Ce qu'il faut pour decider au CP3 : le fichier a regarder, sa duree face
@@ -385,6 +460,18 @@ def _resume_video_finale(video_dir, state):
         "tournage, pas le resultat : il ne dit pas ce qui est reellement a "
         "l'ecran.",
     ]
+
+    # Sur un format long, « regarde la video » ne suffit pas : on donne des
+    # endroits ou aller voir. Rien de tel sur un Short, ou les reperes
+    # feraient plus de lignes que la video ne dure de secondes.
+    if formats_video.format_de(state) == formats_video.LONG:
+        reperes = _reperes_temporels(scenes, (phrases.get("phrases") or []))
+        if reperes:
+            lignes += ["", "### Ou regarder", ""]
+            for r in reperes:
+                marque = " — ⚠️ scene non tranchee" if r["a_completer"] else ""
+                lignes.append(f"- `{_horodatage(r['debut_s'])}` ({r['id']}) {r['texte']}{marque}")
+
     return "\n".join(lignes)
 
 

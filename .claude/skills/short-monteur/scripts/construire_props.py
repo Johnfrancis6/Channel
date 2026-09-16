@@ -37,6 +37,80 @@ import sys
 from pathlib import Path
 
 
+def _charger_formats_video():
+    """Importe outils/formats_video.py, source unique des valeurs de format.
+
+    On cherche le repere plutot que de compter les niveaux : le fichier vit a
+    `outils/` a la racine du depot et a `<skill>/outils/` une fois le skill
+    deploye (§9.2), deux profondeurs differentes — le defaut deja corrige
+    dans `rendre_video.py`.
+    """
+    import importlib.util
+    for base in Path(__file__).resolve().parents:
+        candidat = base / "outils" / "formats_video.py"
+        if candidat.is_file():
+            spec = importlib.util.spec_from_file_location("formats_video", candidat)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+    raise ImportError("outils/formats_video.py introuvable depuis " + str(Path(__file__).resolve()))
+
+
+formats_video = _charger_formats_video()
+
+
+def appliquer_format(charte, format_video):
+    """Ecrit dans `charte.format` les dimensions du format de la video.
+
+    `Root.tsx` lit `props.charte.format` dans `calculateMetadata` depuis le
+    16/09/2026 : c'est le seul endroit ou la composition apprend ses
+    dimensions. Un format long rendu avec la charte telle quelle sortirait
+    donc en 1080x1920 — du paysage compose dans un cadre vertical.
+
+    Trois sources, de la plus explicite a la plus implicite :
+
+    1. `charte.formats[<format>]`, si Franco l'a renseigne. C'est la seule
+       facon pour lui de choisir autre chose que du 16/9 sans toucher au code ;
+    2. pour un Short sans ce bloc, `charte.format` **tel quel** : le champ
+       historique *est* le format court, et l'ecraser avec une valeur par
+       defaut effacerait une resolution ou un fps que Franco aurait regles ;
+    3. pour un long sans ce bloc, la rotation de `charte.format` — on garde sa
+       resolution et son fps, on echange largeur et hauteur. Imposer 1920x1080
+       jetterait ses reglages au passage.
+
+    Retourne (charte, avertissements). La charte d'entree n'est pas modifiee.
+    """
+    formats_charte = charte.get("formats") or {}
+    avertissements = []
+
+    declare = formats_charte.get(format_video)
+    if isinstance(declare, dict) and declare.get("largeur_px") and declare.get("hauteur_px"):
+        return {**charte, "format": dict(declare)}, avertissements
+
+    actuel = charte.get("format") or {}
+    if format_video == formats_video.SHORT:
+        # Sans avertissement : une charte anterieure au 16/09/2026 n'a pas de
+        # bloc `format`, et `Root.tsx` retombe de toute facon sur la meme
+        # amorce verticale. Il n'y a rien a corriger, donc rien a signaler.
+        return ({**charte, "format": formats_video.dimensions(format_video)}
+                if not actuel else charte), avertissements
+
+    largeur, hauteur = actuel.get("largeur_px"), actuel.get("hauteur_px")
+    if not largeur or not hauteur:
+        return {**charte, "format": formats_video.dimensions(format_video)}, [
+            "charte.json sans bloc `format` — dimensions par defaut du format long utilisees."]
+
+    tourne = {"largeur_px": max(largeur, hauteur), "hauteur_px": min(largeur, hauteur)}
+    if actuel.get("fps"):
+        tourne["fps"] = actuel["fps"]
+    if (tourne["largeur_px"], tourne["hauteur_px"]) != (largeur, hauteur):
+        avertissements.append(
+            f"Format long sans `charte.formats.long` : dimensions deduites de charte.format "
+            f"par rotation ({largeur}x{hauteur} -> {tourne['largeur_px']}x{tourne['hauteur_px']}). "
+            "Ajoute le bloc `formats` a charte.json pour le choisir explicitement.")
+    return {**charte, "format": tourne}, avertissements
+
+
 # A6 designe la phrase qui porte l'accent en clair dans `da.accent` ("boite 3
 # pulse au debut de la phrase 7"). Le vocabulaire de la DA est ferme, mais
 # `accent` est du texte libre par construction (§8) : c'est la seule facon
@@ -118,6 +192,111 @@ def _pulsation_s(scene, debut_scene_s, phrases):
     return round(max(float(phrases[index - 1]["debut_s"]) - debut_scene_s, 0.0), 3), None
 
 
+# Duree d'un insert quand ni le storyboard ni la ressource ne la disent. Un
+# zoom sur un point precis se regarde et se quitte : au-dela, ce n'est plus
+# un insert, c'est un plan — et le format long a `PlanBroll` pour ca.
+DUREE_INSERT_DEFAUT_S = 3.0
+
+
+def resoudre_inserts(scenes, phrases, ressources):
+    """Resout les inserts de footage declares sur les scenes (§8).
+
+    Un insert est un **detail dans une scene**, pas une scene de plus : la
+    scene animee continue, et un clip reel apparait par-dessus pendant
+    quelques secondes, sur le point precis dont parle le script. C'est la
+    meme famille que `Subtitles` — une surcouche bornee, hors du registre —
+    et pas un composant de scene, qui occuperait tout le cadre et redeviendrait
+    le plan de liaison que la contrainte interdit.
+
+    A6 designe le debut en clair (`"phrase 7"`), exactement comme `da.accent`,
+    parce que c'est la seule chose qu'il connaisse au moment du storyboard :
+    les secondes n'existent qu'apres la voix off. La conversion se fait ici,
+    seul endroit ou 04_phrases.json est connu.
+
+    Retourne (scenes, avertissements). Un insert dont la ressource manque est
+    **retire** : la scene animee reste valide sans lui, alors qu'une URL vide
+    produirait un trou noir au milieu du cadre.
+    """
+    avertissements = []
+    sorties = []
+    debut_scene = 0.0
+    for scene in scenes:
+        inserts = scene.get("inserts")
+        duree_scene = float(scene.get("duree_s") or 0.0)
+        if not isinstance(inserts, list) or not inserts:
+            sorties.append(scene)
+            debut_scene += duree_scene
+            continue
+
+        resolus = []
+        for position, insert in enumerate(inserts):
+            ref = f"scene {scene.get('id')}, insert {position + 1}"
+            cle = insert.get("cle")
+            if not cle:
+                avertissements.append(f"{ref} : sans `cle` de ressource — ignore.")
+                continue
+            if ressources is not None and cle not in ressources:
+                avertissements.append(
+                    f"{ref} : ressource « {cle} » absente de 05b_ressources.json — insert "
+                    "retire. La scene animee est rendue sans lui.")
+                continue
+
+            debut_s = insert.get("debut_s")
+            if debut_s is None:
+                m = MOTIF_PHRASE_ACCENT.search(insert.get("debut") or "")
+                if not m:
+                    avertissements.append(
+                        f"{ref} : ni `debut_s` ni `debut` designant une phrase "
+                        "(ex. « phrase 7 ») — insert retire.")
+                    continue
+                index = int(m.group(1))
+                if not phrases or not 1 <= index <= len(phrases):
+                    avertissements.append(
+                        f"{ref} : phrase {index} introuvable dans 04_phrases.json — "
+                        "insert retire.")
+                    continue
+                couvertes = scene.get("phrases")
+                if isinstance(couvertes, list) and couvertes and index not in [int(x) for x in couvertes]:
+                    # Une phrase hors de la scene placerait l'insert pendant
+                    # une autre scene, ou hors du cadre temporel : il ne
+                    # serait jamais vu, ou vu au mauvais moment.
+                    avertissements.append(
+                        f"{ref} : phrase {index} hors des phrases couvertes {couvertes} "
+                        "— insert retire.")
+                    continue
+                debut_s = float(phrases[index - 1]["debut_s"]) - debut_scene
+
+            debut_s = max(0.0, float(debut_s))
+            if duree_scene and debut_s >= duree_scene:
+                avertissements.append(
+                    f"{ref} : commence a {debut_s:.1f}s alors que la scene dure "
+                    f"{duree_scene:.1f}s — insert retire.")
+                continue
+
+            duree = insert.get("duree_s")
+            if duree is None and ressources:
+                duree = (ressources.get(cle) or {}).get("duree_s")
+            duree = float(duree or DUREE_INSERT_DEFAUT_S)
+            # Un insert ne deborde jamais de sa scene : au montage, la scene
+            # suivante le couperait de toute facon, mais la duree ecrite dans
+            # les props doit dire la verite — c'est elle qu'on relit au CP3.
+            if duree_scene:
+                restant = duree_scene - debut_s
+                if duree > restant:
+                    avertissements.append(
+                        f"{ref} : raccourci de {duree:.1f}s a {restant:.1f}s pour tenir "
+                        "dans la scene.")
+                    duree = restant
+            resolus.append({**insert, "cle": cle,
+                            "debut_s": round(debut_s, 3),
+                            "duree_s": round(duree, 3)})
+
+        sorties.append({**scene, "inserts": resolus} if resolus
+                       else {k: v for k, v in scene.items() if k != "inserts"})
+        debut_scene += duree_scene
+    return sorties, avertissements
+
+
 def recaler_scenes(scenes, phrases_json):
     """
     Cale les durees de scenes sur les bornes reelles des phrases.
@@ -162,20 +341,35 @@ def recaler_scenes(scenes, phrases_json):
     return scenes_recalees, fin_audio, avertissements
 
 
-def construire(charte, storyboard, timestamps_bruts, audio=None, phrases_json=None, ressources=None):
+def construire(charte, storyboard, timestamps_bruts, audio=None, phrases_json=None,
+               ressources=None, format_video=None):
     scenes = storyboard.get("scenes", [])
     if not scenes:
         raise ValueError("Aucune scene dans le storyboard.")
-    avertissements = []
+    # Le format du storyboard fait foi quand l'appelant n'en impose pas :
+    # c'est A6 qui a decoupe les scenes, et une video decoupee en segments
+    # longs rendue au format Short serait cadree pour le mauvais ecran.
+    if format_video is None:
+        format_video = storyboard.get("format_video") or formats_video.FORMAT_DEFAUT
+    charte, avertissements = appliquer_format(charte, format_video)
     duree_audio_s = None
     if phrases_json is not None:
-        scenes, duree_audio_s, avertissements = recaler_scenes(scenes, phrases_json)
+        scenes, duree_audio_s, avert_recalage = recaler_scenes(scenes, phrases_json)
+        avertissements += avert_recalage
     else:
         avertissements.append(
             "Aucun 04_phrases.json : les durees de scenes restent des estimations "
             "(~2.5 mots/s) et ne suivent pas la voix off."
         )
-    props = {"charte": charte, "scenes": scenes, "mots": normaliser_mots(timestamps_bruts)}
+    # Apres le recalage : les durees de scenes sont alors definitives, donc
+    # le debut de chaque scene aussi — et c'est de lui que se compte le
+    # debut d'un insert.
+    scenes, avert_inserts = resoudre_inserts(
+        scenes, (phrases_json or {}).get("phrases") or [], ressources)
+    avertissements += avert_inserts
+
+    props = {"charte": charte, "scenes": scenes, "mots": normaliser_mots(timestamps_bruts),
+             "format_video": format_video}
     if ressources:
         props["ressources"] = ressources
     if duree_audio_s is not None:
@@ -270,6 +464,11 @@ def main():
     ap.add_argument("--timestamps", required=True)
     ap.add_argument("--phrases", help="04_phrases.json (bornes par phrase) — recale les durees de scenes.")
     ap.add_argument("--audio")
+    ap.add_argument("--format-video", dest="format_video",
+                    choices=list(formats_video.FORMATS),
+                    help="state.json > format_video. Choisit les dimensions de composition "
+                         "(charte.formats, sinon rotation de charte.format). Defaut : "
+                         "ce que declare le storyboard, sinon short.")
     ap.add_argument("--ressources",
                     help="05b_ressources.json (ecrit par A8, E5b) — captures, logos, images, b-roll.")
     ap.add_argument("--sortie", required=True)
@@ -297,7 +496,7 @@ def main():
 
     try:
         props, avertissements = construire(charte, storyboard, timestamps_bruts, audio_src,
-                                           phrases_json, ressources)
+                                           phrases_json, ressources, a.format_video)
     except ValueError as e:
         print(json.dumps({"ok": False, "message": str(e)}, ensure_ascii=False))
         sys.exit(2)
@@ -313,10 +512,13 @@ def main():
     pulsations = {s["id"]: s["pulsation_s"] for s in props["scenes"] if "pulsation_s" in s}
     print(json.dumps({"ok": True, "sortie": a.sortie, "nb_scenes": len(props["scenes"]),
                       "nb_mots": len(props["mots"]),
+                      "format_video": props["format_video"],
+                      "dimensions": props["charte"].get("format"),
                       "nb_ressources": len(ressources),
                       "duree_audio_s": props.get("duree_audio_s"),
                       "scenes_recalees": len(recalees) == len(props["scenes"]) and bool(recalees),
                       "pulsations_s": pulsations,
+                      "nb_inserts": sum(len(s.get("inserts") or []) for s in props["scenes"]),
                       "avertissements": avertissements}, ensure_ascii=False))
 
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Audio, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import {TransitionSeries, springTiming} from '@remotion/transitions';
 import type {TransitionPresentation} from '@remotion/transitions';
 import {fade} from '@remotion/transitions/fade';
@@ -9,6 +9,7 @@ import {iris} from '@remotion/transitions/iris';
 import {opaciteSortie} from './animation';
 import {REGISTRE} from './components/registry';
 import {Fond} from './components/Fond';
+import {InsertFootage} from './components/InsertFootage';
 import {Subtitles} from './components/Subtitles';
 import type {Scene, TransitionSortie, VideoProps} from './types';
 
@@ -153,12 +154,39 @@ export const Video: React.FC<VideoProps> = ({charte, scenes, mots, ressources, a
       <ComposantInconnu nom={scene.composant} />
     );
 
+    // Les inserts de footage se posent **par-dessus** la scene, bornes dans
+    // le temps par leur propre <Sequence>. La scene animee continue de
+    // tourner dessous : c'est ce qui distingue un insert d'un plan, et c'est
+    // pour ca qu'ils ne sont pas au registre — le registre associe un
+    // composant a une scene entiere.
+    //
+    // La frame 0 de cette sequence est aussi l'origine de `debut_s` : la
+    // transition deborde sur la scene precedente, pas sur celle-ci, comme
+    // pour `pulsation_s`.
+    const avecInserts = (scene.inserts ?? []).length > 0 ? (
+      <>
+        {contenu}
+        {(scene.inserts ?? []).map((insert, n) => (
+          <Sequence
+            key={`${scene.id}-insert-${n}`}
+            from={Math.round((insert.debut_s ?? 0) * fps)}
+            durationInFrames={Math.max(1, Math.round((insert.duree_s ?? 3) * fps))}
+            layout="none"
+          >
+            <InsertFootage insert={insert} charte={charte} ressources={ressources} />
+          </Sequence>
+        ))}
+      </>
+    ) : (
+      contenu
+    );
+
     elements.push(
       <TransitionSeries.Sequence
         key={scene.id}
         durationInFrames={dureesScenes[i] + transitions[i]}
       >
-        {dernier ? <SortieFinale duree={dureesScenes[i]}>{contenu}</SortieFinale> : contenu}
+        {dernier ? <SortieFinale duree={dureesScenes[i]}>{avecInserts}</SortieFinale> : avecInserts}
       </TransitionSeries.Sequence>,
     );
 

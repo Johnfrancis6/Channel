@@ -35,13 +35,20 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
 - `state.json` : `sujet`, `angle`, `pilier`, `voie`, `etapes.CP1.commentaire`
   (retour de Franco au CP1 — a respecter en priorite)
 - **`state.json` > `consignes`** — ton cadre d'ecriture :
-  - `idees_max` (3 par defaut) : **le budget du Short**. Tu ecris ce nombre
-    d'idees porteuses, pas une de plus. Compte environ **45 mots par idee**,
-    soit ~135 mots pour trois — hook et cloture compris ;
+  - `idees_max` (3 par defaut en court, 8 en long) : **le budget de la
+    video**. Tu ecris ce nombre d'idees porteuses, pas une de plus. Compte
+    environ **45 mots par idee** en format court, soit ~135 mots pour trois —
+    hook et cloture compris ;
   - `format` : le format narratif vise. Un dialogue coute plus de mots par
     idee qu'une explication : c'est legitime, mais dis-le dans ton message
     de cloture pour que le Filtre TTS ne le prenne pas pour du gras ;
   - `note_franco` et `reference` : contraintes de Franco, pas suggestions
+- **`state.json` > `format_video`** — `short` ou `long` (absent = `short`).
+  Un format long n'est pas un Short etire : c'est la meme enveloppe
+  narrative appliquee a chaque **segment**. Compte alors **~300 mots par
+  idee** : une mise en place, l'idee deroulee, un exemple, une transition.
+  Un segment qui tient en 45 mots n'est pas un segment, c'est une phrase de
+  transition — et huit d'affilee font une liste, pas une video.
 - `00_Profil/profil_chaine.md`, `00_Profil/conventions.md`
 - **`00_Profil/projets_franco.md`** — ce que Franco a reellement teste et
   peut montrer a l'ecran. Quand tu ancres une idee dans un exemple, prends-le
@@ -57,14 +64,25 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
 ## Etape 4 — Ecrire le script
 
 **Le budget d'abord.** `idees_max` idees porteuses, environ 45 mots
-chacune. Une idee de plus, et c'est tout l'aval qui derape : sur
-`2026-09-11_v01`, le script faisait 258 mots pour un budget de 135 — 92,1 s
-de voix off au lieu de ~42 s, et le probleme n'a ete vu qu'au montage,
-quand l'audio etait deja enregistre.
+chacune en format court (300 en format long). Une idee de plus, et c'est
+tout l'aval qui derape : sur `2026-09-11_v01`, le script faisait 258 mots
+pour un budget de 135 — 92,1 s de voix off au lieu de ~42 s, et le probleme
+n'a ete vu qu'au montage, quand l'audio etait deja enregistre.
 
 Concretement : si la recherche te donne six faits, tu en gardes **trois**.
 Les autres ne sont pas mauvais, ils sont pour une autre video. Un Short qui
 essaie de tout dire ne dit rien.
+
+En format long, la contrainte ne disparait pas, elle change d'echelle : le
+budget en mots est large, le nombre d'idees reste ferme. Donne a chaque
+segment un titre de section dans le script brut — c'est ce qui rend le
+decoupage lisible au Filtre TTS puis au Designer, qui grouperont les phrases
+en scenes de segment.
+
+**Le cout du format long n'a jamais ete mesure** : 300 mots par idee et
+2,8 mots/s viennent d'une seule video de 82,5 s. Si ton script sort loin du
+budget sans que tu aies ajoute d'idee, dis-le dans ton message de cloture
+plutot que de tailler — c'est le modele qu'il faudra recalibrer.
 
 
 La chaine est en anglais (§14, new-short). Structure attendue dans

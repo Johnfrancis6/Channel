@@ -15,42 +15,56 @@ off — et le depassement n'a ete constate qu'a E5, quand tout etait deja
 ecrit et enregistre. Le Designer l'a signale sans pouvoir rien faire, en le
 repoussant au CP3.
 
+Le budget depend du **format de la video** (`state.json > format_video`) :
+un Short compte en dizaines de mots par idee, un format long en centaines.
+`--format-video long` bascule le modele. Les valeurs, elles, vivent dans
+`outils/formats_video.py` — et pas ici — parce qu'A6 doit les lire aussi.
+
 Usage :
   python3 metriques.py --fichier 02_script_brut.md [--idees 3]
+                       [--format-video short|long]
                        [--mots-par-idee 45] [--budget-mots 135]
 Sortie : JSON (resume + budget + detail par phrase).
 """
 import argparse
 import json
 import re
+from pathlib import Path
+
+
+def _charger_formats_video():
+    """Importe outils/formats_video.py, source unique des valeurs de format.
+
+    On cherche le repere plutot que de compter les niveaux : le fichier vit a
+    `outils/` a la racine du depot et a `<skill>/outils/` une fois le skill
+    deploye (§9.2), deux profondeurs differentes.
+    """
+    import importlib.util
+    for base in Path(__file__).resolve().parents:
+        candidat = base / "outils" / "formats_video.py"
+        if candidat.is_file():
+            spec = importlib.util.spec_from_file_location("formats_video", candidat)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+    raise ImportError("outils/formats_video.py introuvable depuis " + str(Path(__file__).resolve()))
+
+
+formats_video = _charger_formats_video()
 
 
 # Seuils du §7.3 : cible 8-18 mots, decoupe au-dessus de 22, fusion en dessous de 4.
 CIBLE_MIN, CIBLE_MAX = 8, 18
 SEUIL_DECOUPE, SEUIL_FUSION = 22, 4
 
-# Debit mesure sur 2026-09-11_v01 : 231 mots reellement prononces
-# (03_script_tts.txt) pour 82,5 s de voix off, pauses inter-phrases
-# comprises. La premiere estimation (3,2) partait du script BRUT, marqueurs
-# de mise en scene compris — 27 mots jamais dits, soit 14 % d'erreur.
-# A recalibrer quand le corpus aura plusieurs voix.
-MOTS_PAR_SECONDE = 2.8
-
-# Cout en mots d'une idee, **tout compris** : l'idee elle-meme plus sa part
-# de hook, de promesse, d'exemple et de CTA. Ce n'est pas un detail — mesure
-# sur 2026-09-11_v01, les trois idees ne pesent que 115 mots sur 231, le
-# reste etant l'enveloppe narrative. Un budget qui ne compterait que les
-# idees serait faux de moitie.
-#
-# 45 mots x 3 idees = 135 mots, soit ~48 s a 2,8 mots/s. Valeur de depart :
-# les formats se decouvrent au fil des premieres videos, et chacun a son
-# cout — un dialogue en consomme bien plus qu'une explication. A surcharger
-# avec --mots-par-idee, et a recalibrer sur `cout_total_par_idee` du corpus.
-MOTS_PAR_IDEE_DEFAUT = 45
-
-# Au-dela de quel depassement on parle. Sous +20 %, un script se resserre au
-# calibrage ; au-dela, c'est une idee de trop, et ca se regle en reecrivant.
-TOLERANCE_BUDGET = 0.20
+# Le debit, le cout par idee et la tolerance vivent dans
+# `outils/formats_video.py` : ils dependent du format, et A6 les lit aussi
+# pour decouper le storyboard. Les alias ci-dessous gardent la surface
+# historique du module (H1 propose des reglages en les nommant), mais il n'y
+# a plus qu'une valeur a corriger pour recalibrer la chaine entiere.
+MOTS_PAR_SECONDE = formats_video.MOTS_PAR_SECONDE
+MOTS_PAR_IDEE_DEFAUT = formats_video.MOTS_PAR_IDEE[formats_video.SHORT]
+TOLERANCE_BUDGET = formats_video.TOLERANCE_BUDGET
 
 # Marqueur de mise en scene en debut de ligne : "[intro — stickman face
 # camera]". A4 en pose dans le script brut ; ils ne sont jamais prononces.
@@ -150,15 +164,23 @@ def analyser(phrase, section=None):
     }
 
 
-def evaluer_budget(mots_total, idees=None, mots_par_idee=None, budget_mots=None):
-    """Compare la longueur reelle au budget. None si aucun budget n'est donne."""
+def evaluer_budget(mots_total, idees=None, mots_par_idee=None, budget_mots=None,
+                   format_video=formats_video.SHORT):
+    """Compare la longueur reelle au budget. None si aucun budget n'est donne.
+
+    `format_video` choisit le cout par idee : 45 mots en short, 300 en long.
+    Appliquer le modele du Short a un script long le declarerait « depasse »
+    des la premiere minute — et A5 le renverrait a A4 pour le couper, ce qui
+    est exactement l'inverse du travail demande.
+    """
     if budget_mots is None:
         if not idees:
             return None
-        budget_mots = int(idees) * int(mots_par_idee or MOTS_PAR_IDEE_DEFAUT)
+        budget_mots = int(idees) * formats_video.mots_par_idee(format_video, mots_par_idee)
     if budget_mots <= 0:
         return None
 
+    calibrage, note_calibrage = formats_video.calibrage(format_video)
     ratio = mots_total / budget_mots
     if ratio <= 1.0:
         verdict = "ok"
@@ -170,21 +192,33 @@ def evaluer_budget(mots_total, idees=None, mots_par_idee=None, budget_mots=None)
         "mots_total": mots_total,
         "budget_mots": budget_mots,
         "idees_max": idees,
-        "mots_par_idee": int(mots_par_idee or MOTS_PAR_IDEE_DEFAUT) if idees else None,
+        "format_video": format_video,
+        "mots_par_idee": formats_video.mots_par_idee(format_video, mots_par_idee) if idees else None,
         "ratio": round(ratio, 2),
         "depassement_mots": max(0, mots_total - budget_mots),
         "duree_estimee_s": round(mots_total / MOTS_PAR_SECONDE, 1),
         "duree_budget_s": round(budget_mots / MOTS_PAR_SECONDE, 1),
         "verdict": verdict,
+        # D'ou vient le modele, en clair. Un seuil sans sa provenance se lit
+        # comme une loi : celui du Short a ete mesure une fois, celui du long
+        # est une hypothese de depart, et A5 doit pouvoir faire la difference
+        # avant de renvoyer un script a la reecriture.
+        "calibrage": calibrage,
+        "calibrage_note": note_calibrage,
     }
 
 
 def main():
     ap = argparse.ArgumentParser(description="Metriques de calibrage des phrases (§7.3).")
     ap.add_argument("--fichier", required=True)
-    ap.add_argument("--idees", type=int, help="consignes.idees_max — budget du Short")
+    ap.add_argument("--idees", type=int, help="consignes.idees_max — budget de la video")
+    ap.add_argument("--format-video", dest="format_video", choices=list(formats_video.FORMATS),
+                    default=formats_video.FORMAT_DEFAUT,
+                    help="state.json > format_video. Choisit le cout par idee "
+                         f"({formats_video.MOTS_PAR_IDEE[formats_video.SHORT]} mots en short, "
+                         f"{formats_video.MOTS_PAR_IDEE[formats_video.LONG]} en long).")
     ap.add_argument("--mots-par-idee", type=int, dest="mots_par_idee",
-                    help=f"cout en mots d'une idee pour ce format (defaut {MOTS_PAR_IDEE_DEFAUT})")
+                    help="cout en mots d'une idee, s'il faut surcharger le defaut du format")
     ap.add_argument("--budget-mots", type=int, dest="budget_mots",
                     help="budget en mots impose directement (court-circuite --idees)")
     a = ap.parse_args()
@@ -208,7 +242,8 @@ def main():
         "parentheses_ou_url": sum(1 for p in phrases if p["contient_parenthese_ou_url"]),
     }
     sortie = {"resume": resume, "phrases": phrases}
-    budget = evaluer_budget(mots_total, a.idees, a.mots_par_idee, a.budget_mots)
+    budget = evaluer_budget(mots_total, a.idees, a.mots_par_idee, a.budget_mots,
+                            format_video=a.format_video)
     if budget:
         sortie["budget"] = budget
     print(json.dumps(sortie, ensure_ascii=False, indent=2))

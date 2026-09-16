@@ -10,6 +10,35 @@ type Props = {
   fenetre?: number;
 };
 
+/**
+ * Recolle les morceaux d'un meme mot avant l'affichage.
+ *
+ * La transcription decoupe « GPT-6-Astra » en trois jetons horodates :
+ * `GPT`, `-6`, `-Astra.`. Chacun a son propre debut et sa propre fin, ce qui
+ * est exactement ce qu'il faut pour surligner la syllabe prononcee — mais
+ * poses cote a cote avec l'espacement du conteneur, ils s'affichent
+ * « GPT -6 -Astra ». Le defaut se voit sur n'importe quel nom de modele, et
+ * il tombait ici sur les trois premieres secondes de la video.
+ *
+ * On ne fusionne donc pas les jetons : on les groupe. Le surlignage reste
+ * mot a mot, seul l'espace saute.
+ */
+function souder(
+  groupe: MotHorodate[],
+  decalage: number,
+): {mot: string; index: number}[][] {
+  const blocs: {mot: string; index: number}[][] = [];
+  groupe.forEach((m, i) => {
+    const suite = /^[-'’]/.test(m.mot);
+    if (suite && blocs.length > 0) {
+      blocs[blocs.length - 1].push({mot: m.mot, index: decalage + i});
+    } else {
+      blocs.push([{mot: m.mot, index: decalage + i}]);
+    }
+  });
+  return blocs;
+}
+
 // Sous-titres dynamiques cales sur 04_timestamps.json (§7.2, §8). Affiche
 // une petite fenetre de mots autour de l'instant courant, avec le mot en
 // cours de prononciation mis en avant.
@@ -61,17 +90,21 @@ export const Subtitles: React.FC<Props> = ({mots, charte, fenetre = 5}) => {
           textShadow: '0 4px 16px rgba(0,0,0,0.6)',
         }}
       >
-        {groupe.map((m, i) => (
-          <span
-            key={debut + i}
-            style={{
-              color:
-                debut + i === indexActif && enCoursDePrononciation
-                  ? charte.couleurs.accent
-                  : charte.couleurs.texte_principal,
-            }}
-          >
-            {m.mot}
+        {souder(groupe, debut).map((bloc) => (
+          <span key={bloc[0].index} style={{whiteSpace: 'nowrap'}}>
+            {bloc.map((j) => (
+              <span
+                key={j.index}
+                style={{
+                  color:
+                    j.index === indexActif && enCoursDePrononciation
+                      ? charte.couleurs.accent
+                      : charte.couleurs.texte_principal,
+                }}
+              >
+                {j.mot}
+              </span>
+            ))}
           </span>
         ))}
       </div>

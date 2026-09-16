@@ -42,9 +42,19 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
     decoupage doit le suivre scene par scene ;
   - `reference` : video de reference. Tu t'en inspires pour le **gabarit
     narratif** (ordre, rythme, mise en scene), pas pour copier son contenu ;
-  - `format` et `idees_max` : le format vise et le nombre d'idees. Une
-    scene par phrase reste la regle, mais le decoupage doit laisser lire
-    les `idees_max` idees comme des blocs distincts.
+  - `format` et `idees_max` : le format narratif vise et le nombre d'idees.
+    Une scene par phrase reste la regle **en format court**, mais le
+    decoupage doit laisser lire les `idees_max` idees comme des blocs
+    distincts.
+- **`state.json` > `format_video`** — `short` ou `long` (absent = `short`).
+  Ce n'est pas une consigne de mise en scene, c'est ce qu'est la video :
+  - **`short`** : une scene par phrase, cadre vertical 1080x1920 ;
+  - **`long`** : le squelette groupe les phrases en **scenes de segment**
+    d'une douzaine de secondes, dans un cadre **paysage**. Une scene par
+    phrase y produirait 150 a 300 scenes a trancher une par une — tu les
+    sauterais, et le Monteur monterait a l'aveugle. Tu peux redecouper une
+    scene de segment, a condition de **reporter les listes `phrases`** :
+    c'est elles qui portent le recalage sur l'audio.
 
   Avant, rien de tout ca ne t'etait adresse : `note_franco` ne figurait pas
   dans tes inputs, et l'intention de Franco ne t'arrivait que si le
@@ -151,8 +161,11 @@ python3 <chemin-du-skill>/scripts/generer_storyboard.py --video <video_id> --roo
   --sortie-json videos/<video_id>/05_storyboard.json
 ```
 
-Ce script pose la structure : une scene par phrase au depart, les ids, les durees
-estimees, la DA par defaut de la charte. Il marque chaque scene
+Ce script pose la structure : les ids, les durees estimees, la DA par defaut
+de la charte, et le decoupage — une scene par phrase en format court, des
+scenes de segment en format long. Il lit `format_video` dans le `state.json`
+tout seul ; `--format-video short|long` n'existe que pour rejouer un
+squelette sans toucher au state. Il marque chaque scene
 `"a_completer": true`.
 
 **Le vrai travail commence ici.** Reprends le `.json` scene par scene et
@@ -169,7 +182,9 @@ tranche :
      quinze secondes de doublon. Le texte a l'ecran est un **mot-cle**, un
      **chiffre** ou un **titre court** — jamais la phrase. Le champ `phrase`
      est un repere pour toi, pas un parametre.
-   - **Remplis le cadre.** On est en 1080x1920. Aucun composant actuel ne
+   - **Remplis le cadre.** On est en 1080x1920 (en format long, en
+     1920x1080 : les composants actuels sont tous composes pour le
+     vertical, dis-le au Monteur quand un plan ne tient pas). Aucun composant actuel ne
      remplit ce format : le personnage fait un cinquieme de la hauteur, le
      reste est noir. Si ta scene laisse les trois quarts de l'ecran vides,
      c'est qu'il manque quelque chose.
@@ -214,6 +229,36 @@ et le visuel derive de la voix. C'est exactement ce qui s'est passe sur
 enregistree, **16,4 s d'ecart** entre 82,5 s de voix et 98,9 s d'image.
 Fusionner des scenes est legitime ; ne pas dire ce qu'elles couvrent ne
 l'est pas.
+
+### Les inserts de footage (format long surtout)
+
+Une scene animee peut recevoir un **insert** : quelques secondes de video
+reelle posees par-dessus, sur le point precis dont parle le script. C'est le
+pilier visuel du format long — l'animation domine, le rush n'intervient qu'a
+de courts instants.
+
+```json
+"inserts": [
+  {"cle": "demo_terminal", "debut": "phrase 34", "duree_s": 4, "legende": "1 commande"}
+]
+```
+
+- **`cle`** : une cle de ressource, comme dans `besoins`. Declare le `besoin`
+  correspondant sur la meme scene, sinon rien ne sera resolu.
+- **`debut`** : la phrase ou l'insert apparait, **en clair**, comme
+  `da.accent`. Elle doit faire partie des `phrases` de la scene. Le Monteur
+  la convertit en secondes depuis `04_phrases.json` — tu n'as pas a
+  connaitre les timestamps, ils n'existent pas encore quand tu ecris.
+- **`duree_s`** : a defaut, la duree du clip, puis 3 s. Toujours ramenee dans
+  les bornes de la scene.
+- **`legende`** : un mot ou un chiffre, jamais la phrase prononcee.
+
+Un insert **ne remplace pas la scene** : le composant continue de tourner
+dessous, et l'insert s'efface. Si tu veux un plan de video plein cadre, ce
+n'est pas un insert — c'est une scene `PlanBroll`.
+
+Un insert dont la ressource n'a pas ete resolue est **retire** au montage,
+avec un avertissement : la scene animee reste valide sans lui.
 
 Ecris **deux fichiers**, toujours coherents entre eux :
 

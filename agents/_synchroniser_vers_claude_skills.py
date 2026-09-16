@@ -47,13 +47,20 @@ CIBLE_DIR = RACINE_DEPOT / ".claude" / "skills"
 # mieux vaut un echec bruyant qu'un skill deploye sans son outil — c'est
 # exactement la derive silencieuse que --verifier existe pour attraper.
 OUTILS_PAR_SKILL = {
-    "short-designer": ["generer_apercus.py"],
+    # `formats_video.py` est la source unique de ce qui change entre un Short
+    # et un format long (budget, dimensions, decoupage). Tous ceux qui en
+    # dependent l'embarquent : le format se decide a la creation (new-short),
+    # se mesure au calibrage (filtre-tts), se decoupe au storyboard
+    # (designer) et se rend au montage (monteur).
+    "new-short": ["formats_video.py"],
+    "short-filtre-tts": ["formats_video.py"],
+    "short-designer": ["generer_apercus.py", "formats_video.py"],
     # Le Monteur resout les `besoins` du storyboard juste avant de construire
     # ses props (E5b) : `resoudre_ressources.py` appelle les deux autres, donc
     # ils voyagent ensemble. Sans ce deploiement, les trois composants `Plan*`
     # restent ce qu'ils etaient — ecrits, au registre, et alimentes par rien.
     "short-monteur": ["generer_apercus.py", "resoudre_ressources.py",
-                      "capturer_web.py", "recuperer_logo.py"],
+                      "capturer_web.py", "recuperer_logo.py", "formats_video.py"],
     "short-analyse-chaines": ["analyser_transcription.py"],
     "short-amelioration": ["analyser_transcription.py"],
 }

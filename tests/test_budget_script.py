@@ -120,5 +120,55 @@ A workflow adds tools but follows a fixed path.
         self.assertGreater(metriques.TOLERANCE_BUDGET, 0)
 
 
+class TestBudgetFormatLong(unittest.TestCase):
+    """Le format long n'est pas un Short etire : c'est un autre modele de cout.
+
+    Sans ce basculement, A5 mesurait un script de 2400 mots contre un budget
+    de 135 et rendait « depasse » a 18x — un verdict que personne ne peut
+    utiliser, et qui renvoie A4 couper un script dont la longueur est le
+    cahier des charges.
+    """
+
+    def test_le_cout_par_idee_change_avec_le_format(self):
+        court = metriques.evaluer_budget(1500, idees=5, format_video="short")
+        long_ = metriques.evaluer_budget(1500, idees=5, format_video="long")
+        self.assertEqual(court["verdict"], "depasse")
+        self.assertEqual(long_["verdict"], "ok")
+        self.assertGreater(long_["budget_mots"], court["budget_mots"])
+
+    def test_un_script_long_tient_dans_son_budget(self):
+        # 8 idees x 300 mots = 2400 mots, ~14 min a 2,8 mots/s.
+        b = metriques.evaluer_budget(2400, idees=8, format_video="long")
+        self.assertEqual(b["verdict"], "ok")
+        self.assertEqual(b["format_video"], "long")
+        self.assertGreater(b["duree_budget_s"], 600)
+
+    def test_le_depassement_reste_detecte_en_long(self):
+        # Le modele change, pas la regle : un long format peut deborder.
+        b = metriques.evaluer_budget(4000, idees=8, format_video="long")
+        self.assertEqual(b["verdict"], "depasse")
+
+    def test_le_calibrage_dit_d_ou_vient_le_seuil(self):
+        # Un chiffre sans sa provenance se lit comme une loi. Le modele long
+        # n'a jamais ete mesure : le dire fait partie de la sortie, pas des
+        # commentaires du code.
+        court = metriques.evaluer_budget(100, idees=3, format_video="short")
+        long_ = metriques.evaluer_budget(2000, idees=8, format_video="long")
+        self.assertEqual(court["calibrage"], "mesure_n1")
+        self.assertEqual(long_["calibrage"], "non_mesure")
+        self.assertIn("hypothese", long_["calibrage_note"])
+
+    def test_mots_par_idee_explicite_prime_sur_le_format(self):
+        b = metriques.evaluer_budget(1000, idees=5, mots_par_idee=100, format_video="long")
+        self.assertEqual(b["budget_mots"], 500)
+
+    def test_le_format_par_defaut_reste_le_short(self):
+        # Toute video anterieure au 16/09/2026 est un Short et n'a pas le
+        # champ : l'appel sans format doit continuer a rendre exactement ce
+        # qu'il rendait avant.
+        self.assertEqual(metriques.evaluer_budget(120, idees=3)["budget_mots"],
+                         metriques.evaluer_budget(120, idees=3, format_video="short")["budget_mots"])
+
+
 if __name__ == "__main__":
     unittest.main()

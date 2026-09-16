@@ -309,6 +309,81 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class TestReperesFormatLong(unittest.TestCase):
+    """Sur quinze minutes, « regarde la video » n'est plus une consigne.
+
+    Et lister les quatre-vingts scenes n'en fait pas une : ca fait une
+    planche-contact que personne ne regarde. Le rapport donne quelques
+    endroits ou aller voir, horodates sur l'audio reel.
+    """
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp(prefix="chaine_yt_cp3_long_")
+        os.makedirs(os.path.join(self.dir, "checkpoints"), exist_ok=True)
+        import json as j
+        # 60 scenes de 3 phrases : le format long tel que le squelette le rend.
+        scenes = [{"id": f"s{i + 1}", "composant": "TitleCard", "duree_s": 15.0,
+                   "params": {}, "phrases": [3 * i + 1, 3 * i + 2, 3 * i + 3],
+                   "phrase": f"Segment numero {i + 1} " + "avec du texte " * 8}
+                  for i in range(60)]
+        with open(os.path.join(self.dir, "05_storyboard.json"), "w", encoding="utf-8") as f:
+            j.dump({"format_video": "long", "scenes": scenes,
+                    "nouveaux_composants_necessaires": []}, f)
+        phrases = [{"debut_s": float(5 * i), "fin_s": float(5 * i + 5)} for i in range(180)]
+        with open(os.path.join(self.dir, "04_phrases.json"), "w", encoding="utf-8") as f:
+            j.dump({"phrases": phrases, "duree_totale_s": 900.0}, f)
+        with open(os.path.join(self.dir, "06_video_finale.mp4"), "wb") as f:
+            f.write(b"\0" * 2048)
+        self.state = {
+            "format_video": "long",
+            "etapes": {"CP3": {"statut": "a_venir", "commentaire": None},
+                       "E6_montage": {"statut": "termine",
+                                      "sorties": ["06_video_finale.mp4"], "message": None}},
+        }
+
+    def tearDown(self):
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def resume(self):
+        return _construire_resume_checkpoint(self.dir, self.state, "CP3")
+
+    def test_des_reperes_horodates_sont_proposes(self):
+        r = self.resume()
+        self.assertIn("### Ou regarder", r)
+        # Bornes sur l'audio reel : la scene 8 commence a la phrase 22, donc
+        # a 105 s, donc a 01:45.
+        self.assertIn("`00:00`", r)
+        self.assertIn("`01:45`", r)
+
+    def test_les_reperes_tiennent_dans_un_ecran(self):
+        lignes = [l for l in self.resume().splitlines() if l.startswith("- `")]
+        self.assertLessEqual(len(lignes), engine.REPERES_MAX)
+        self.assertGreater(len(lignes), 1)
+
+    def test_un_short_n_a_pas_de_reperes(self):
+        # 50 secondes se regardent en entier : des reperes y feraient plus de
+        # lignes que la video ne dure de secondes.
+        self.state["format_video"] = "short"
+        self.assertNotIn("### Ou regarder", self.resume())
+
+    def test_une_video_sans_le_champ_est_traitee_comme_un_short(self):
+        # Les videos anterieures au 16/09/2026 n'ont pas `format_video`.
+        del self.state["format_video"]
+        self.assertNotIn("### Ou regarder", self.resume())
+
+    def test_les_scenes_non_tranchees_sont_reperees_dans_le_temps(self):
+        import json as j
+        chemin = os.path.join(self.dir, "05_storyboard.json")
+        with open(chemin, encoding="utf-8") as f:
+            data = j.load(f)
+        data["scenes"][0]["a_completer"] = True
+        with open(chemin, "w", encoding="utf-8") as f:
+            j.dump(data, f)
+        # Un identifiant de scene ne dit pas ou regarder dans un MP4 de
+        # quinze minutes ; un minutage, si.
+        self.assertIn("⚠️ scene non tranchee", self.resume())
+
+
 class TestRangsDeSections(unittest.TestCase):
     """
     Le budget restant se servait dans l'ordre du document, et `## Sources`

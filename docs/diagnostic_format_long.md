@@ -559,3 +559,134 @@ vivaient hors du budget de caractères du §5.5 : sur 200 scènes, c'était
   GPU. Ce qui est testé ici, c'est la fonction de nommage, extraite du
   notebook et exécutée pour de vrai — l'invalidation est exactement la
   règle qu'un test par sous-chaîne aurait déclarée verte en se trompant.
+
+---
+
+# Mise en place — point 5, le format long lui-même (16/09/2026)
+
+Fait **contre la recommandation d'ordre ci-dessus**, sur décision explicite
+de Franco en séance : il veut le format long avant d'avoir publié une
+deuxième vidéo. La réserve n'est pas levée pour autant — elle est reportée
+au §12 de l'architecture, avec les trois chiffres qu'elle vise.
+
+## Ce qui a été construit
+
+**1. `format_video` à la racine du state**, enum fermé `short | long`, défaut
+`short`. Les trois fichiers qui portent le schéma ont bougé ensemble
+(`state_template.json` en source de vérité, `schemas/state_schema.json`,
+`new_short.py`). Le champ n'est **pas** dans `required` : les trois vidéos
+existantes n'en ont pas et restent valides, et `format_de()` les lit comme
+des Shorts.
+
+`--format` (format narratif) et `--format-video` (court/long) coexistent
+sans se recouvrir, et un test le verrouille : la collision de nom relevée au
+diagnostic était le vrai risque, puisque les deux champs auraient fini au
+même endroit.
+
+**2. `outils/formats_video.py`**, source unique de ce qui change entre les
+deux formats. Ce n'était pas prévu par le briefing : en le construisant, on
+a trouvé `MOTS_PAR_SECONDE = 2.8` recopié à l'identique dans `metriques.py`
+(A5) et `generer_storyboard.py` (A6) — deux copies d'un débit mesuré une
+fois, qu'il faudra recalibrer. Ajouter des constantes de format par script
+aurait doublé la dette au lieu de l'éteindre. Le module est déployé sous
+`<skill>/outils/` chez les quatre skills qui en dépendent, par le mécanisme
+d'outils partagés qui existait déjà (§9.2).
+
+**3. Budget par format** (A5). 300 mots par idée en long contre 45, 8 idées
+par défaut contre 3. Aucune de ces valeurs n'a été mesurée, et c'est le
+point important : `evaluer_budget()` rend désormais un champ `calibrage`
+(`mesure_n1` / `non_mesure`) avec sa note en clair. Sans lui, A5 aurait
+renvoyé à A4 un script long « dépassé de 1700 % » — un verdict que personne
+ne peut utiliser, rendu au nom d'un seuil que personne n'a établi.
+
+**4. Découpage par segment** (A6). `grouper_phrases()` groupe vers une durée
+cible de 12 s, avec un plafond dur de 120 scènes : au-delà, on élargit les
+scènes, **on ne tronque jamais** — un storyboard qui ne couvre pas tout
+l'audio, c'est un écran figé pendant la fin de la voix off. Vérifié sur 280
+phrases : 92 scènes, toutes les phrases couvertes une fois et une seule, dans
+l'ordre. Le `.md` liste les phrases numérotées de chaque scène, parce que
+c'est par un numéro de phrase qu'A6 désigne un accent ou un insert.
+
+Le briefing craignait pour le recalage : il n'a jamais été menacé,
+`_fins_par_scene()` accepte les scènes multi-phrases depuis la file #11.
+
+**5. Cadre paysage** (A7). `appliquer_format()` écrit `charte.format` depuis
+`charte.formats[<format>]`, sinon — en long — par **rotation** de la charte
+existante. Le choix de la rotation plutôt que d'une valeur par défaut n'est
+pas cosmétique : une charte réglée en 1440×2560 à 60 fps garde sa résolution
+et son fps, là où imposer 1920×1080 les aurait jetés en silence.
+
+**6. L'insert de footage.** Conçu comme le diagnostic le recommandait —
+surcouche hors registre, de la famille de `Subtitles` — et pas comme le
+briefing le proposait. Type `Insert` sur `Scene`, résolution dans
+`construire_props.py` sur le modèle de `_pulsation_s()`, rendu par
+`InsertFootage` sous un `<Sequence>` posé par `Video.tsx`.
+
+**Vérifié par un rendu réel**, pas par le typecheck : un asset d'une couleur
+pleine, trois images fixes rendues à 1,0 s / 3,0 s / 5,3 s, et les pixels
+comptés. L'insert est absent avant et après sa fenêtre, occupe entre 5 % et
+75 % du cadre pendant — la borne haute est ce qui vérifie qu'il n'est pas
+redevenu un plan. Le décodeur PNG du test est écrit à la main : Pillow n'est
+pas une dépendance du dépôt, et vérifier un rendu sur autre chose que les
+pixels revient à vérifier le typecheck une deuxième fois.
+
+**7. Rendu par tranches reprenables** (A7). C'est le point C du diagnostic,
+que le briefing ne voyait pas. Trois décisions prises en écrivant :
+
+- **le nombre de frames est demandé à `remotion compositions`**, jamais
+  recalculé en Python. `calculateMetadata` peut dériver la durée de l'audio
+  autant que des scènes ; deux formules pour une même durée auraient
+  divergé ;
+- **les tranches sont rendues muettes**, et la voix off remontée d'un seul
+  bloc au recollage. Mesuré ici : recoller deux tranches sonores donne
+  4,096 s là où le rendu monolithique donne 4,054 s — l'AAC ne se coupe pas à
+  la frame, et chaque jointure ajoute une vingtaine de millisecondes. Sur
+  huit tranches, la voix finirait ~150 ms derrière l'image, avec un décalage
+  qui grandit jusqu'à la fin : exactement le défaut que le recalage sur
+  `04_phrases.json` existe pour éliminer ;
+- **écriture en deux temps** (`.tmp.mp4` puis `os.replace`), comme le cache
+  TTS, pour qu'une tranche interrompue ne soit jamais relue comme terminée.
+
+`npx remotion ffmpeg` sert au recollage : Remotion embarque son ffmpeg, donc
+aucune dépendance système n'est ajoutée. (C'est aussi la réponse au « ffprobe
+n'est pas installé » noté à la séance précédente.)
+
+**8. Repères horodatés au CP3** (§5.5). Le diagnostic demandait un « résumé
+par segment ». Ce qui manque réellement à Franco sur quinze minutes, ce n'est
+pas un résumé : c'est **où aller regarder**. Le rapport donne huit points
+d'entrée horodatés sur l'audio réel (`04_phrases.json`), avec les scènes non
+tranchées signalées **à leur minutage** plutôt que par leur identifiant — un
+`s47` ne dit rien dans un MP4 de quinze minutes. Rien de tel sur un Short,
+où les repères feraient plus de lignes que la vidéo ne dure de secondes.
+
+## Deux défauts préexistants trouvés en chemin
+
+Aucun des deux n'a de rapport avec le format long ; tous deux étaient sur le
+chemin du premier rendu long.
+
+- **`rendre_video.py` plantait au lieu de rendre son erreur.**
+  `sortir(6, message=..., code=resultat.returncode)` entre en collision avec
+  le paramètre positionnel `code` de `sortir(code, **data)` : `TypeError`, au
+  lieu du JSON promis par le skill. Le seul chemin où ça se voyait était
+  celui d'un rendu qui échoue — donc jamais dans un test vert.
+- **Un `--root` relatif cassait le rendu.** Les sous-processus `remotion`
+  tournent avec `cwd=composants/`, où un chemin encore relatif désigne autre
+  chose : `--props` échouait sur « neither valid JSON nor a file path », sans
+  que rien ne dise que le problème était le chemin. Les deux chemins sont
+  maintenant résolus avant tout appel.
+
+## Ce qui n'a pas été fait, et pourquoi
+
+- **Les composants ne sont pas recomposés pour le paysage.** Le verrou du
+  cadre est levé, la mise en page ne l'est pas : une vidéo longue les
+  montrera cadrés au milieu d'un écran large. Les reprendre un par un sans
+  avoir vu une seule vidéo longue à l'écran, ce serait refaire l'erreur que
+  ce document nomme depuis le début.
+- **Le point 6 (WER par phrase) reste ouvert.** Le cache par phrase, qui le
+  conditionne, a été fait à la séance précédente ; le WER par phrase lui-même
+  n'a d'intérêt qu'une fois qu'un long run aura réellement échoué quelque
+  part, et on saura alors où.
+- **Aucun rush réel n'est passé par un insert.** `resoudre_ressources.py`
+  existe depuis la séance précédente et sait indexer `assets/`, mais le
+  premier vrai clip reste à voir. C'est la réserve qui domine la conception
+  de l'insert, et elle n'est pas levée.

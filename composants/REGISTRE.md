@@ -31,7 +31,12 @@ pareil : c'est le style qui redevient improvise.
 | `PlanCapture` | `capture` (cle de ressource), `logo` (cle, optionnel), `label` (string, optionnel), `cadrage` (`"haut"` \| `"centre"` \| `"bas"`), `hauteur` (px, defaut 980), `compteur` (string, optionnel) | 1 | nouveau | — |
 | `PlanBroll` | `broll` (cle de ressource : clip **ou** photo), `accroche` (string, optionnel), `compteur` (string, optionnel) | 1 | nouveau | — |
 | `PlanLogos` | `logos` (`{cle, libelle?}[]`), `label` (string, optionnel), `relier` (bool, defaut vrai), `compteur` (string, optionnel) | 1 | nouveau | — |
+| `PlanNavigateurCurseur` | `etat` (`"ouverture_liste"` \| `"parcours_liste"` \| `"ligne_surlignee"`), `modeles` (string[], optionnel), `surligne` (string, optionnel), `marqueur` (`"question"` \| `"coche"` \| `"aucun"`), `zoom` (`"liste"` \| `"aucun"`), `label` (optionnel), `logo` (cle de ressource, optionnel), `domaine` (defaut `chatgpt.com`) | 1 | nouveau | 2026-09-16_v01 |
+| `PlanDeuxTerminaux` | `gauche` / `droite` (`{titre, lignes}`), `fond_flou` (string, optionnel), `label` (optionnel) | 1 | nouveau | 2026-09-16_v01 |
+| `PlanTerminalFrappe` | `invite` (defaut `codex`), `frappe` (string, optionnel), `defilement_auto` (bool), `horloge` (string, optionnel), `label` (optionnel) | 1 | nouveau | 2026-09-16_v01 |
+| `PlanListeSequencee` | `titre` (optionnel), `disposition` (`"echelle"` \| `"liste"` \| `"deux_colonnes"`), `entrees` (string[]), `barree` + `mention_barree`, `accentuee`, `cadre` (bool), `tampon` (string), `colonne_gauche` / `colonne_droite` (`{titre, entrees, effacee?}`) | 1 | nouveau | 2026-09-16_v01 |
 | `Subtitles`* | `mots` (MotHorodate[]) | 1 | valide | — |
+| `InsertFootage`* | `insert` (`{cle, debut_s, duree_s, zoom?, part?, legende?}`), `ressources` | 1 | nouveau | — |
 
 Colonne `DA` : `oui` si le composant applique `da`, `partiel` s'il n'en
 suit qu'une partie, `non` s'il l'ignore encore.
@@ -44,6 +49,10 @@ suit qu'une partie, `non` s'il l'ignore encore.
 | `PlanCapture` | oui |
 | `PlanBroll` | oui |
 | `PlanLogos` | oui |
+| `PlanNavigateurCurseur` | oui |
+| `PlanDeuxTerminaux` | oui |
+| `PlanTerminalFrappe` | oui |
+| `PlanListeSequencee` | oui |
 
 ### Le fond, la typographie et les raccords (16/09/2026)
 
@@ -168,5 +177,38 @@ retombe dans le geste unique d'origine : opacite plus translation sur
 Aucun de ces defauts n'etait detectable par un test : il fallait regarder.
 C'est la raison d'etre du catalogue.
 
-\* `Subtitles` n'est pas choisi par scene : il est surimprime automatiquement
-sur toute la video par `src/Video.tsx`, cale sur `04_timestamps.json`.
+\* Les composants marques d'une etoile **ne sont pas choisis par scene** : ce
+sont des surcouches, posees par `src/Video.tsx` par-dessus la scene en cours.
+
+- `Subtitles` est surimprime sur toute la video, cale sur `04_timestamps.json`.
+- `InsertFootage` affiche quelques secondes de video reelle sur le point
+  precis dont parle le script — le pilier visuel du format long. A6 le
+  declare sur la scene (`inserts`), A7 le borne dans le temps. Ce n'est pas
+  un plan : la scene animee continue de tourner dessous, et l'insert
+  s'efface. Pour de la video plein cadre, c'est `PlanBroll`.
+
+### Les quatre plans « mis en scene » (16/09/2026)
+
+`PlanCapture`, `PlanBroll` et `PlanLogos` mettent en scene un **asset** :
+leur variete vient du fichier qu'on leur donne. Il manquait la famille d'en
+face — les plans dont le sujet est un **geste** ou une **gradation**, que
+personne ne peut aller telecharger.
+
+- `PlanNavigateurCurseur` montre quelqu'un qui cherche. L'absence d'un
+  element dans une liste ne se raconte pas avec une image fixe. L'interface
+  y est **recreee**, pas capturee : un selecteur de modeles est derriere une
+  authentification, `capturer_web.py` ne peut pas l'atteindre.
+- `PlanDeuxTerminaux` porte un avant/apres de duree. Le message est la
+  **difference de densite** entre les deux fenetres, pas le texte des
+  lignes — d'ou `lignes` en nombre plutot qu'en liste de chaines.
+- `PlanTerminalFrappe` montre une commande qui s'ecrit, puis la machine qui
+  continue seule. Le plus reutilisable des quatre.
+- `PlanListeSequencee` porte cinq des douze scenes de `2026-09-16_v01` sous
+  trois dispositions. La contrainte du §8 — deux scenes d'une meme video ne
+  peuvent pas produire la meme image — y est tenue par la donnee.
+
+**Piege verifie au catalogue.** `pulsation()` rend une **amplitude 0..1**,
+nulle hors de l'accent : ecrire `scale(pulsation(...))` fait disparaitre
+l'element. La forme juste est `scale(1 + pulsation(...) * 0.07)`. La
+premiere passe a efface le barreau `medium` de l'echelle, et seule l'image
+du catalogue l'a montre — aucun test ne l'aurait vu.

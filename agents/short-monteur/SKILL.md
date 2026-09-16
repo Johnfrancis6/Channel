@@ -215,7 +215,15 @@ python3 <chemin-du-skill>/scripts/construire_props.py \
   --sortie /tmp/<video_id>_props.json
 ```
 
-Ce script fait trois choses :
+Ce script fait quatre choses :
+
+- il **cadre la composition sur le format de la video**. Les dimensions
+  viennent de `charte.formats[<format>]` si la charte le declare, sinon —
+  en format long — d'une rotation de `charte.format`. Le format est lu dans
+  le storyboard (`format_video`), et `--format-video short|long` le
+  surcharge. `Root.tsx` ne lit que `charte.format` : sans ce cadrage, une
+  video longue sortirait en 1080x1920, c'est-a-dire du paysage compose dans
+  un cadre vertical ;
 
 - il normalise `04_timestamps.json` quel que soit son format exact (cles
   `word`/`start`/`end` ou `mot`/`debut_s`/`fin_s`) ;
@@ -226,6 +234,13 @@ Ce script fait trois choses :
   une URI `file://` echouent tous les deux. Une ressource dont le fichier
   manque est **omise** — le composant affiche « Ressource manquante » en
   clair, ce qui se voit, plutot qu'un cadre noir que personne ne remarque ;
+- il **resout les inserts de footage** declares par A6 (`scene.inserts`) :
+  `"debut": "phrase 34"` devient un instant en secondes depuis le debut de
+  la scene, comme `da.accent` devient `pulsation_s`. Un insert dont la
+  ressource manque est **retire**, avec un avertissement — la scene animee
+  reste valide sans lui, alors qu'une URL vide ferait un trou noir au milieu
+  du cadre. Un insert n'est pas un plan : il est rendu par-dessus la scene,
+  qui continue de tourner dessous ;
 - avec `--phrases`, il **recale les durees de scenes sur l'audio reel**.
   Sans ce recalage, les scenes gardent l'estimation a ~2.5 mots/s du
   storyboard : le visuel derive de la voix, et la video se termine avant ou
@@ -304,7 +319,25 @@ Ce script verifie les prerequis avant de lancer `remotion render`
 le MP4 produit n'est ni absent ni vide. Codes : `0` ok, `2` props
 absentes/invalides, `4` `node_modules` absent (`npm install` dans
 `composants/`), `5` registre inaccessible, `6` echec du rendu, `7` MP4
-absent ou vide. `--dry-run` verifie les prerequis sans rendre.
+absent ou vide, `8` echec du recollage des tranches. `--dry-run` verifie les
+prerequis sans rendre.
+
+**En format long, le rendu se fait par tranches reprenables** (2 minutes de
+video par tranche, reglable avec `--tranche-s`). Chaque tranche est rendue
+sans son dans son propre fichier, et **sautee si elle est deja la** : si le
+rendu echoue ou est interrompu, relancer exactement la meme commande reprend
+la ou il s'etait arrete. La voix off est remontee d'un seul bloc au
+recollage — recoller des tranches sonores ajouterait une vingtaine de
+millisecondes de silence par jointure, et la voix prendrait du retard sur
+l'image jusqu'a la fin de la video.
+
+Un Short reste rendu d'un seul bloc : un recollage inutile est un recollage
+a rater. `--concurrence N` passe `--concurrency` a Remotion, et
+`--garder-tranches` conserve les fichiers intermediaires (sinon ils sont
+effaces une fois le MP4 verifie).
+
+Si une tranche echoue, le JSON de sortie dit laquelle et combien avaient
+deja abouti : ne recommence pas de zero, relance la meme commande.
 
 Si l'environnement n'a pas de navigateur telechargeable (sandbox de dev),
 passe un Chromium deja installe via `--browser` (voir

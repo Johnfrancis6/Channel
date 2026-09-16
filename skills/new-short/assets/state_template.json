@@ -9,6 +9,7 @@
   "sujet_id": null,
   "pilier": null,
   "voie": null,
+  "format_video": "short",
   "consignes": {
     "mode_recherche": null,
     "note_franco": null,

@@ -212,5 +212,123 @@ class TestDesignerDansOrchestateur(unittest.TestCase):
         self.assertEqual(state["etapes"]["E6_montage"]["statut"], "a_venir")
 
 
+class TestDecoupageFormatLong(unittest.TestCase):
+    """Le squelette d'un format long groupe les phrases en scenes de segment.
+
+    « Une scene par phrase » tient sur 24 phrases et casse sur 280 : le
+    livrable remis a A6 serait 280 scenes `a_completer` a trancher une par
+    une. Il ne le ferait pas — il en sauterait — et A7 monterait a l'aveugle.
+    """
+
+    def phrases(self, n, mots=14):
+        return [" ".join(["mot"] * mots) + "." for _ in range(n)]
+
+    def test_le_short_garde_une_scene_par_phrase(self):
+        # Le format long est un ajout : la regle du Short ne bouge pas.
+        groupes = generer_storyboard.grouper_phrases(self.phrases(24), None)
+        self.assertEqual(groupes, [[i] for i in range(24)])
+
+    def test_le_long_groupe_vers_la_duree_cible(self):
+        # 14 mots a 2,8 mots/s = 5 s par phrase, cible 12 s -> 3 phrases.
+        groupes = generer_storyboard.grouper_phrases(self.phrases(30), 12.0)
+        self.assertLess(len(groupes), 30)
+        self.assertTrue(all(len(g) >= 2 for g in groupes[:-1]))
+
+    def test_toutes_les_phrases_sont_couvertes_une_seule_fois(self):
+        # La garantie qui compte : une phrase oubliee, c'est un trou a
+        # l'image pendant que la voix off continue ; une phrase en double,
+        # c'est un recalage incoherent au montage.
+        for n in (1, 2, 7, 53, 280):
+            groupes = generer_storyboard.grouper_phrases(self.phrases(n), 12.0)
+            couvertes = [i for g in groupes for i in g]
+            self.assertEqual(couvertes, list(range(n)), f"{n} phrases")
+
+    def test_le_plafond_de_scenes_est_tenu(self):
+        # Un script inattendu (600 phrases) ne doit pas franchir le plafond :
+        # on elargit les scenes, on ne tronque jamais.
+        groupes = generer_storyboard.grouper_phrases(self.phrases(600), 12.0, scenes_max=120)
+        self.assertLessEqual(len(groupes), 120)
+        self.assertEqual([i for g in groupes for i in g], list(range(600)))
+
+    def test_les_scenes_portent_les_numeros_de_phrases(self):
+        # C'est `phrases` qui permet le recalage sur 04_phrases.json quand
+        # une scene en couvre plusieurs (§8) — sans lui, pas de recalage.
+        scenes, _ = generer_storyboard.construire_scenes(
+            self.phrases(20), ["TitleCard"], {"mouvement": "fondu"}, "long")
+        self.assertLess(len(scenes), 20)
+        couvertes = [n for s in scenes for n in s["phrases"]]
+        self.assertEqual(couvertes, list(range(1, 21)))
+
+    def test_la_duree_d_une_scene_est_la_somme_de_ses_phrases(self):
+        scenes, _ = generer_storyboard.construire_scenes(
+            self.phrases(20), ["TitleCard"], {"mouvement": "fondu"}, "long")
+        attendue = _duree_attendue(14)
+        for s in scenes:
+            self.assertAlmostEqual(s["duree_s"], round(attendue * len(s["phrases"]), 1),
+                                   places=1)
+
+    def test_le_format_short_par_defaut_ne_change_rien(self):
+        # Toute video anterieure au 16/09/2026 passe par ce chemin.
+        avec, _ = generer_storyboard.construire_scenes(
+            self.phrases(10), ["TitleCard"], {"mouvement": "fondu"}, "short")
+        sans, _ = generer_storyboard.construire_scenes(
+            self.phrases(10), ["TitleCard"], {"mouvement": "fondu"})
+        self.assertEqual(avec, sans)
+        self.assertEqual(len(sans), 10)
+
+
+class TestStoryboardLongDeBoutEnBout(unittest.TestCase):
+    def setUp(self):
+        self.root = tempfile.mkdtemp(prefix="chaine_yt_sb_long_")
+        self.video = "2026-01-01_v01"
+        dossier = os.path.join(self.root, "videos", self.video)
+        os.makedirs(dossier)
+        phrases = [" ".join(["mot"] * 14) + "." for _ in range(150)]
+        with open(os.path.join(dossier, "03_script_tts.txt"), "w", encoding="utf-8") as f:
+            f.write("\n".join(phrases))
+        with open(os.path.join(dossier, "state.json"), "w", encoding="utf-8") as f:
+            json.dump({"video_id": self.video, "format_video": "long"}, f)
+
+    def tearDown(self):
+        shutil.rmtree(self.root, ignore_errors=True)
+
+    def lancer(self, *args):
+        proc = subprocess.run(
+            [sys.executable, SCRIPT, "--video", self.video, "--root", self.root,
+             "--sortie-md", f"videos/{self.video}/05_storyboard.md",
+             "--sortie-json", f"videos/{self.video}/05_storyboard.json", *args],
+            capture_output=True, text=True)
+        return proc.returncode, json.loads(proc.stdout)
+
+    def storyboard(self):
+        with open(os.path.join(self.root, "videos", self.video, "05_storyboard.json"),
+                  encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_le_format_est_lu_dans_le_state(self):
+        # Le Designer n'a rien a passer : le format appartient a la video.
+        code, out = self.lancer()
+        self.assertEqual(code, 0, out)
+        self.assertEqual(out["format_video"], "long")
+        self.assertLess(out["nb_scenes"], out["nb_phrases"])
+        self.assertEqual(self.storyboard()["format_video"], "long")
+
+    def test_l_option_surcharge_le_state(self):
+        code, out = self.lancer("--format-video", "short")
+        self.assertEqual(code, 0, out)
+        self.assertEqual(out["nb_scenes"], 150)
+
+    def test_le_md_liste_les_phrases_de_chaque_scene(self):
+        # A6 designe un accent par numero de phrase : le .md doit donc
+        # montrer ces numeros, sinon il ne peut en designer aucun.
+        self.lancer()
+        with open(os.path.join(self.root, "videos", self.video, "05_storyboard.md"),
+                  encoding="utf-8") as f:
+            md = f.read()
+        self.assertIn("Format : **long**", md)
+        self.assertIn("1. ", md)
+        self.assertRegex(md, r"phrases \d+ a \d+")
+
+
 if __name__ == "__main__":
     unittest.main()

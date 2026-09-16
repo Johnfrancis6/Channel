@@ -52,16 +52,22 @@ python3 <chemin-du-skill>/scripts/etape.py commencer --video <video_id> --etape 
 
 ```bash
 python3 <chemin-du-skill>/scripts/metriques.py --fichier videos/<video_id>/02_script_brut.md \
-  --idees <consignes.idees_max>
+  --idees <consignes.idees_max> --format-video <format_video>
 ```
 
 **Passe toujours `--idees`**, lu dans `state.json > consignes.idees_max`
 (3 par defaut). Sans lui, le script ne mesure pas le budget — et personne
 d'autre ne le mesure avant le montage.
 
+**Passe aussi `--format-video`**, lu dans `state.json > format_video`
+(`short` si le champ est absent). Une idee coute 45 mots en format court et
+300 en format long : mesurer un script long contre le budget d'un Short le
+declare « depasse » des la premiere minute, et te fait renvoyer a A4 un
+script dont la longueur est le cahier des charges.
+
 ### Le budget, avant tout le reste
 
-La duree d'un Short n'est pas fixee en secondes : c'est le **nombre
+La duree d'une video n'est pas fixee en secondes : c'est le **nombre
 d'idees** qui est plafonne, et le cout en mots d'une idee depend du format
 (§8). Le script te rend un bloc `budget` :
 

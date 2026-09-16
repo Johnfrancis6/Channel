@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-new_short.py — crée une nouvelle vidéo Short dans /ChaineYouTube/videos/.
+new_short.py — crée une nouvelle vidéo (Short ou format long) dans
+/ChaineYouTube/videos/.
 
 Il écrit UNIQUEMENT :
   - videos/{video_id}/            (nouveau dossier, création exclusive)
@@ -15,8 +16,14 @@ vidéos est une vue reconstruite à partir des state.json.
 Les consignes de Franco sont structurees plutot que deversees dans une note
 libre : `--format` (le format narratif, qui porte le budget en mots par
 idee), `--reference` (video de reference pour la mise en scene) et `--idees`
-(le budget du Short : un nombre d'idees, pas une duree). `--note` reste pour
-le reste.
+(le budget de la video : un nombre d'idees, pas une duree). `--note` reste
+pour le reste.
+
+`--format-video short|long` (ou `--long`) choisit le format de la video. Il
+est a la racine du state et non dans `consignes`, parce qu'il change le
+pipeline lui-meme — budget, dimensions de composition, decoupage du
+storyboard, strategie de rendu — au meme titre que `voie`. A ne pas
+confondre avec `--format`, qui est le format **narratif**.
 
 Sortie : un objet JSON sur stdout (toujours), avec "ok" et "code".
 Codes : 0 ok | 2 racine/config/argument | 3 backlog vide | 4 doublon | 5 sujet_id invalide
@@ -31,6 +38,31 @@ import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
+def _charger_formats_video():
+    """Importe outils/formats_video.py, source unique de ce qui change entre
+    un Short et un format long.
+
+    La recherche remonte les dossiers parents jusqu'a trouver
+    `outils/formats_video.py`, parce que le meme fichier vit a deux
+    profondeurs differentes : `outils/` a la racine du depot, et
+    `<skill>/outils/` une fois le skill deploye (§9.2, §14). Compter les
+    niveaux marchait donc a un seul des deux endroits — c'est le defaut deja
+    corrige dans `rendre_video.py`, on cherche le repere plutot que de
+    compter.
+    """
+    import importlib.util
+    for base in Path(__file__).resolve().parents:
+        candidat = base / "outils" / "formats_video.py"
+        if candidat.is_file():
+            spec = importlib.util.spec_from_file_location("formats_video", candidat)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+    raise ImportError("outils/formats_video.py introuvable depuis " + str(Path(__file__).resolve()))
+
+
+formats_video = _charger_formats_video()
+
 PILIERS = ["actu_ia", "avis_outil", "concept", "projet_perso", "tuto", "a_determiner"]
 
 # Le titre de travail sert d'etiquette : tableau de bord, registre, en-tete du
@@ -39,11 +71,14 @@ PILIERS = ["actu_ia", "avis_outil", "concept", "projet_perso", "tuto", "a_determ
 # premiere video, repris tel quel partout en aval.
 TITRE_MAX = 80
 
-# Nombre d'idees par defaut dans un Short. La duree n'est pas fixee en
-# secondes : c'est le nombre d'idees qui est plafonne, et le cout en mots
-# d'une idee depend du format (un dialogue coute plus qu'une explication).
-# Un format peut donc depasser 60 s sans deroger a la regle.
-IDEES_MAX_DEFAUT = 3
+# Nombre d'idees par defaut. La duree n'est pas fixee en secondes : c'est le
+# nombre d'idees qui est plafonne, et le cout en mots d'une idee depend du
+# format narratif (un dialogue coute plus qu'une explication). Un format peut
+# donc depasser 60 s sans deroger a la regle.
+#
+# Le defaut depend du format video : 3 idees pour un Short, 8 pour un long
+# (cf. outils/formats_video.py). Un long format n'est pas un Short etire —
+# c'est le meme contrat applique a des segments.
 STATUTS_INACTIFS = {"abandonnee"}
 TEMPLATE = Path(__file__).resolve().parent.parent / "assets" / "state_template.json"
 
@@ -194,17 +229,33 @@ def main():
     ap.add_argument("--sujet-id", help="Identifiant d'un sujet validé du backlog")
     ap.add_argument("--note", help="Consigne libre de Franco pour le Chercheur")
     ap.add_argument("--titre", help=f"Titre de travail court (defaut : derive du sujet, {TITRE_MAX} car. max)")
-    ap.add_argument("--format", dest="format_video",
+    # Deux « formats » coexistent et ne designent pas la meme chose. `--format`
+    # est le format **narratif** (comment la video raconte), champ libre et
+    # porte dans `consignes`. `--format-video` est le format **de la video**
+    # (court ou long), enum ferme et porte a la racine du state, parce qu'il
+    # change le pipeline : budget, dimensions, decoupage, rendu.
+    ap.add_argument("--format", dest="format_narratif",
                     help="Nom du format narratif (ex. interview_fictive, explication_progressive). "
                          "Champ libre : les formats se decouvrent au fil des premieres videos.")
+    ap.add_argument("--format-video", dest="format_video", choices=list(formats_video.FORMATS),
+                    default=formats_video.FORMAT_DEFAUT,
+                    help="Format de la video : short (vertical, quelques idees) ou long "
+                         "(paysage, decoupe en segments). Defaut : short.")
+    ap.add_argument("--long", dest="long", action="store_true",
+                    help="Raccourci de --format-video long.")
     ap.add_argument("--reference", help="URL ou chemin d'une video de reference pour le format / la mise en scene")
-    ap.add_argument("--idees", type=int, default=IDEES_MAX_DEFAUT,
-                    help=f"Nombre d'idees cible (defaut {IDEES_MAX_DEFAUT}). C'est le budget du Short, "
-                         "pas sa duree : le cout en mots d'une idee depend du format.")
+    ap.add_argument("--idees", type=int, default=None,
+                    help="Nombre d'idees cible (defaut : 3 en short, 8 en long). C'est le budget "
+                         "de la video, pas sa duree : le cout en mots d'une idee depend du format.")
     ap.add_argument("--date", help="Date de création AAAA-MM-JJ (défaut : aujourd'hui, heure locale)")
     ap.add_argument("--force", action="store_true", help="Créer même si un doublon est détecté")
     ap.add_argument("--dry-run", action="store_true", help="Tout calculer sans rien écrire")
     a = ap.parse_args()
+
+    if a.long:
+        a.format_video = formats_video.LONG
+    if a.idees is None:
+        a.idees = formats_video.idees_par_defaut(a.format_video)
 
     racine = trouver_racine(a.root)
     if racine is None:
@@ -296,6 +347,7 @@ def main():
         "sujet_id": sujet_id,
         "pilier": pilier,
         "voie": voie,
+        "format_video": a.format_video,
         "statut_global": "sujet_valide" if cp1_lot else "idee",
         "etape_actuelle": "E1_recherche",
     })
@@ -304,7 +356,7 @@ def main():
         "note_franco": a.note,
         # Le format porte le budget en mots par idee (§8) et sert de cle au
         # corpus : c'est lui qu'on compare d'une video a l'autre, pas la duree.
-        "format": a.format_video,
+        "format": a.format_narratif,
         # Reference de mise en scene fournie par Franco. Lue par le Chercheur
         # (A2) et le Designer (A6) : avant, une consigne de mise en scene
         # n'avait que `note_franco` comme porte d'entree, et n'atteignait le
@@ -347,7 +399,8 @@ def main():
                                                 f"videos/{video_id}/assets/"],
            voie=voie, mode_recherche=mode, pilier=pilier,
            titre_travail=st["titre_travail"],
-           format=a.format_video, reference=a.reference, idees_max=a.idees,
+           format=a.format_narratif, format_video=a.format_video,
+           reference=a.reference, idees_max=a.idees,
            sujet=sujet, angle=angle, sujet_id=sujet_id,
            cp1=st["etapes"]["CP1"]["statut"],
            prochaine_etape=prochaine,

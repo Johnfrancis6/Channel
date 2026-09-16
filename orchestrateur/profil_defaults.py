@@ -303,5 +303,18 @@ CHARTE_JSON = {
             "Pendant le hook, rien ne bouge au-dela de l'entree."
         ]
     },
-    "format": {"largeur_px": 1080, "hauteur_px": 1920, "fps": 30}
+    # Format actif de la video en cours de rendu. Reste le Short : c'est ce
+    # que `Root.tsx` lit, et une charte deja posee sur le Drive de Franco ne
+    # sera pas mise a jour par un changement de code (init_structure ecrit
+    # `_ecrire_si_absent`). Le remplacer par un dictionnaire a deux formats
+    # aurait donc casse les chartes existantes sans en reparer une seule.
+    "format": {"largeur_px": 1080, "hauteur_px": 1920, "fps": 30},
+    # Dimensions par format de video, lues par le Monteur (--format-video)
+    # qui recopie la bonne entree dans `format` avant le rendu. Bloc
+    # additionnel et optionnel : une charte anterieure au 16/09/2026 n'en a
+    # pas, et le Monteur retombe alors sur outils/formats_video.py.
+    "formats": {
+        "short": {"largeur_px": 1080, "hauteur_px": 1920, "fps": 30},
+        "long": {"largeur_px": 1920, "hauteur_px": 1080, "fps": 30}
+    }
 }

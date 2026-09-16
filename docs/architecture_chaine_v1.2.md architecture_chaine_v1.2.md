@@ -17,6 +17,46 @@ Relecture de fond du workflow, doc contre code. Le détail et le raisonnement so
 - **Règle des sigles** : écriture normale (`LLM`), pas d'épellation (`L L M`) — l'épellation casse le contrôle qualité WER (§7.4).
 - **Sections remises à jour sur le code réel** : §4.3 (A6/A7), §5.4 (`state.json`), §7.2 (notebook Qwen3-TTS et ses modes), §9.1 et §9.2 (arborescences), §12.
 
+### Format long — 16/09/2026
+
+Ajout d'un **deuxième format de vidéo**, en plus des Shorts, qui ne changent
+pas. Diagnostic de faisabilité, décisions et mise en place dans
+[diagnostic_format_long.md](diagnostic_format_long.md).
+
+- **`format_video` (`short` | `long`) à la racine du `state.json`** (§5). Pas
+  un 6ᵉ pilier : le pilier désigne le *sujet*, le format désigne le
+  *pipeline*. Absent des vidéos antérieures, qui sont toutes des Shorts — tout
+  lecteur retombe sur `short`.
+- **Le budget change d'échelle, pas de règle** (§7.3) : ~300 mots par idée en
+  long contre 45 en court, 8 idées par défaut contre 3. Les valeurs vivent
+  dans `outils/formats_video.py`, avec le débit de 2,8 mots/s qui y était
+  recopié en double. **Le modèle long n'a jamais été mesuré** : les rapports
+  de budget le disent (`calibrage: non_mesure`) au lieu de le présenter comme
+  un seuil.
+- **Le storyboard groupe les phrases en scènes de segment** (§8) : « une scène
+  par phrase » reste la règle du Short et produirait 150 à 300 scènes
+  `a_completer` sur un long — un livrable qu'A6 rendrait en sautant des
+  scènes. Le groupage est fait par le générateur de squelette, plafonné, et
+  toutes les phrases restent couvertes une fois et une seule.
+- **Cadre paysage** : `construire_props.py` écrit `charte.format` depuis
+  `charte.formats[<format>]`, sinon par rotation. `Root.tsx` ne lit que
+  `charte.format`.
+- **L'insert de footage** (§8) : quelques secondes de vidéo réelle par-dessus
+  une scène animée, sur le point précis dont parle le script. Déclaré sur la
+  scène (`inserts`), désigné par une phrase comme `da.accent`, résolu au
+  montage, rendu par `InsertFootage` — une surcouche de la famille de
+  `Subtitles`, **pas** un composant du registre. Un composant de scène
+  occuperait tout le cadre pendant toute la scène, c'est-à-dire redeviendrait
+  `PlanBroll`.
+- **Rendu par tranches reprenables** (§8) : un `remotion render` monolithique
+  de 15 minutes perd tout à la moindre erreur. Chaque tranche est rendue
+  muette dans son fichier et sautée si elle existe ; la voix off est remontée
+  d'un seul bloc, parce que recoller de l'AAC ajoute ~20 ms de silence par
+  jointure. Un Short reste rendu d'un seul bloc.
+- **Le rapport CP3 d'une vidéo longue donne des repères horodatés** (§5.5) :
+  « regarde la vidéo » n'est plus une consigne complète sur quinze minutes, et
+  lister quatre-vingts scènes n'en fait pas une non plus.
+
 ### Diagnostic étape par étape — à partir du 11/09/2026
 
 Relecture du pipeline étape par étape sur les artefacts réellement produits. Journal, décisions et file d'attente dans [diagnostic_pipeline.md](diagnostic_pipeline.md).
@@ -63,7 +103,10 @@ Relecture du pipeline étape par étape sur les artefacts réellement produits. 
 ## 1. Vision de la chaîne (inchangée)
 
 - **Type** : faceless total
-- **Format** : Shorts (vertical 1080×1920)
+- **Formats** : Shorts (vertical 1080×1920) et, depuis le 16/09/2026, format
+  long (paysage 1920×1080). Le format d'une vidéo est porté par
+  `state.json > format_video` ; les Shorts restent le format par défaut et
+  la seule chose produite à ce jour
 - **Langue** : anglais
 - **Niche** : tech / IA appliquée, actu IA décodée
 - **Audience** : débutants curieux
@@ -179,12 +222,12 @@ Il produit :
 - **Charte visuelle** (ponctuelle, validée en lot) : palette, typographie des sous-titres, rythme des transitions, frame d'accroche, style d'illustration. Elle est livrée en deux formats : `charte.md` pour l'humain et `charte.json` pour le code (design tokens).
 - **Cadrage** (par vidéo, avant le storyboard) : A6 analyse le script, élabore **ce qui est faisable** au vu du catalogue visuel et du jeu de base Lottie, et écrit `05_cadrage.md` — ce que chaque bloc doit montrer **à l'écran** (l'image, pas la clé), le coût de ce qui manque, et ses questions. Il le soumet à Franco et attend ses ajustements avant d'écrire le storyboard. C'est un dialogue, pas une étape de la machine d'états : rien ne change dans §6.2. Si Franco n'est pas disponible, A6 poursuit sur sa proposition et le signale à la clôture.
 - **Storyboard** (par vidéo, après le CP2, en parallèle de l'audio) :
-  - découpage du script en scènes — **une scène par phrase de `03_script_tts.txt`** (le recalage des durées sur l'audio en dépend, §8) ;
+  - découpage du script en scènes — **une scène par phrase de `03_script_tts.txt`** en format court ; en format long, des **scènes de segment** d'une douzaine de secondes qui couvrent plusieurs phrases. Dans les deux cas, chaque scène déclare les phrases qu'elle couvre : le recalage des durées sur l'audio en dépend (§8) ;
   - pour chaque scène, le composant de la bibliothèque à utiliser et ses paramètres ;
   - pour chaque scène, sa **direction artistique** : `mouvement`, `rythme`, `technique`, `accent` (vocabulaire fermé, §8) ;
   - la liste des **nouveaux composants nécessaires** s'il en manque.
 - Il produit **trois fichiers** : `05_cadrage.md` (l'intention, discutée avec Franco), `05_storyboard.md` (lecture humaine, revue au CP3) et `05_storyboard.json` (lu par le Monteur).
-- Le script `generer_storyboard.py` ne produit qu'un **squelette** (une scène par phrase, durées estimées, DA par défaut de la charte), marqué `a_completer`. Le choix du composant, des paramètres et de la direction artistique reste le travail de l'agent.
+- Le script `generer_storyboard.py` ne produit qu'un **squelette** (découpage selon `format_video`, durées estimées, DA par défaut de la charte), marqué `a_completer`. Le choix du composant, des paramètres et de la direction artistique reste le travail de l'agent. Le groupage du format long est fait par le générateur et pas laissé à A6 : une scène par phrase y donnerait 150 à 300 scènes à trancher une par une, c'est-à-dire un livrable qu'il rendrait en sautant des scènes.
 
 **A7 — Monteur vidéo**
 - Inputs : storyboard, `04_voixoff.wav`, `04_timestamps.json`, `04_phrases.json`, charte.
@@ -252,6 +295,7 @@ La forme qui fait foi est `skills/new-short/assets/state_template.json`, validé
   "sujet": "...", "angle": "...", "sujet_id": null,
   "pilier": "actu_ia",
   "voie": "rapide",
+  "format_video": "short",
   "consignes": {
     "mode_recherche": "sujet_impose",
     "note_franco": "Stickman en intro, puis cutaway par étape",
@@ -291,7 +335,8 @@ Quelques champs méritent un mot :
 
 - **`boucle_A4_A5`** : compteur de tours de révision rédaction ⇄ filtre, écrit par l'Orchestrateur. Au 3ᵉ tour, `E3_filtre` passe en `alerte` (§4.3, A5). Un refus au CP2 le remet à zéro : un refus n'est pas un échec technique.
 - **`etapes.CP3.seo`** : les champs SEO remplis par Franco au CP3 (§11).
-- **`consignes`** : ce que Franco impose à la création (§14). `format` porte le budget en mots par idée et sert de clé au corpus ; `reference` est une vidéo dont on reprend le gabarit narratif ; `idees_max` est le budget du Short — **un nombre d'idées, pas une durée**. Ces trois champs sont lus par le Chercheur (A2) **et** par le Designer (A6) : avant eux, une consigne de mise en scène n'avait que `note_franco` comme porte d'entrée et n'atteignait le Designer que par ricochet, recopiée dans la recherche puis dans le script.
+- **`format_video`** : `short` ou `long`. À la racine et non dans `consignes`, parce qu'il ne dit pas ce que Franco *demande à un agent* mais ce que la vidéo *est* : il change le budget (§7.3), les dimensions de composition, le découpage du storyboard et la stratégie de rendu (§8) — au même titre que `voie`. Absent des vidéos antérieures au 16/09/2026 : tout lecteur retombe sur `short`, et la valeur tolérante est lue par `outils/formats_video.py > format_de()`. Ce n'est **pas** un pilier de plus : le pilier désigne le sujet, le format désigne le pipeline.
+- **`consignes`** : ce que Franco impose à la création (§14). `format` porte le budget en mots par idée et sert de clé au corpus ; `reference` est une vidéo dont on reprend le gabarit narratif ; `idees_max` est le budget de la vidéo — **un nombre d'idées, pas une durée** (3 par défaut en court, 8 en long). Ces trois champs sont lus par le Chercheur (A2) **et** par le Designer (A6) : avant eux, une consigne de mise en scène n'avait que `note_franco` comme porte d'entrée et n'atteignait le Designer que par ricochet, recopiée dans la recherche puis dans le script.
 - **Toutes les étapes portent `agent`**, y compris `E4_audio` (`colab_voix`, le notebook) et `E7_publication` (`publication`, le skill `short-publier`) : les scripts d'étape s'en servent pour savoir à qui attribuer l'écriture.
 
 ### 5.5 Protocole de validation
@@ -427,7 +472,7 @@ Le notebook est **modulaire** : Franco ne modifie que la Cell 1, où `MODE` déc
 | 7. Rapport + State | `04_rapport_audio.md`, sa copie dans `audio/rapport_tentative_NN.md`, et mise à jour de `state.json` (§4.2) |
 | 8. Bilan | Résumé console et prochaines actions |
 
-**`04_phrases.json` est ce qui relie la voix au montage.** C'est la seule étape du pipeline qui connaisse exactement où commence et finit chaque phrase : après coup, on ne peut que le deviner en réalignant les mots transcrits sur le script, ce que le WER non nul rend fragile. A6 faisant une scène par phrase, ces bornes permettent à A7 de caler les durées de scènes sur la voix off (§8).
+**`04_phrases.json` est ce qui relie la voix au montage.** C'est la seule étape du pipeline qui connaisse exactement où commence et finit chaque phrase : après coup, on ne peut que le deviner en réalignant les mots transcrits sur le script, ce que le WER non nul rend fragile. Chaque scène déclarant les phrases qu'elle couvre, ces bornes permettent à A7 de caler les durées de scènes sur la voix off (§8) — et de convertir en secondes ce qu'A6 a désigné par un numéro de phrase : l'accent ponctuel (`pulsation_s`) et le début d'un insert de footage.
 
 **Le plafond de tentatives vit dans le notebook, pas dans l'Orchestrateur.** Le §2 fixe 3 essais par étape, puis alerte. Cette règle était appliquée par l'Orchestrateur seul — or entre deux runs audio, c'est le **notebook** qu'on relance, pas lui : en mode `reel`, rien ne déclenche l'Orchestrateur automatiquement (§12, déclenchement non tranché). Sur `2026-09-11_v01`, le compteur est monté à **8** sans qu'aucune alerte ne parte. `etape_commencer` refuse donc désormais de démarrer au-delà de `MAX_TENTATIVES`, avec `FORCER_RELANCE = True` comme porte de sortie explicite.
 
@@ -472,7 +517,7 @@ C'est une **approximation assumée** : l'alignement dépend du WER. Le script me
 
 ### 7.3 Budget et calibrage des phrases (appliqués par A5)
 
-**Le budget du Short, d'abord.** La durée n'est pas fixée en secondes : c'est le **nombre d'idées** qui est plafonné (`consignes.idees_max`, 3 par défaut), et le coût en mots d'une idée dépend du format (§8). A5 mesure le total avec `metriques.py --idees N` et tranche :
+**Le budget, d'abord.** La durée n'est pas fixée en secondes : c'est le **nombre d'idées** qui est plafonné (`consignes.idees_max`, 3 par défaut en court et 8 en long), et le coût en mots d'une idée dépend du format (§8). A5 mesure le total avec `metriques.py --idees N --format-video short|long` et tranche :
 
 | Verdict | Écart | Action |
 |---|---|---|
@@ -484,7 +529,11 @@ Vérifié sur `2026-09-11_v01` : 258 mots pour un budget de 135, ratio **1,91**,
 
 Le débit de référence est **2,8 mots/seconde**, mesuré sur cette même vidéo : **231 mots réellement prononcés** pour 82,5 s de voix off, pauses comprises. Une première estimation à 3,2 partait du script brut, marqueurs de mise en scène compris (`[intro — stickman face camera]`) — 27 mots jamais dits, soit 14 % d'erreur. `metriques.py` les retire désormais.
 
-Le budget compte **45 mots par idée, tout compris** : l'idée plus sa part de hook, de promesse, d'exemple et de CTA. Ce n'est pas un détail — sur `2026-09-11_v01`, les trois idées ne pèsent que 115 mots sur 231, l'autre moitié étant l'enveloppe narrative. Un budget qui ne compterait que les idées serait faux de moitié. Le corpus le recalibre via `cout_total_par_idee`.
+**En format long, une idée coûte ~300 mots** — la même enveloppe narrative appliquée à un segment entier : sa mise en place, l'idée déroulée, son exemple, sa transition. 8 × 300 = 2400 mots, soit ~14 min à 2,8 mots/s. Ce modèle **n'a jamais été mesuré** : aucun format long n'a encore été enregistré, et un débit moyen sur quinze minutes intègre des respirations qu'une vidéo de 50 s n'a pas — il sera plus bas, d'un montant que personne ne connaît. `metriques.py` rend donc un champ `calibrage` (`mesure_n1` en court, `non_mesure` en long) : un seuil sans sa provenance se lit comme une loi, et A5 refuserait un script long au nom d'un chiffre que personne n'a établi.
+
+Toutes ces valeurs — débit, coût par idée, tolérance, dimensions, découpage — vivent dans **`outils/formats_video.py`**, déployé sous `<skill>/outils/` chez les agents qui en dépendent. Le débit y était auparavant recopié à l'identique dans `metriques.py` (A5) et `generer_storyboard.py` (A6) : deux copies d'une constante mesurée une fois, qu'il faudra recalibrer.
+
+Le budget compte **45 mots par idée en format court, tout compris** : l'idée plus sa part de hook, de promesse, d'exemple et de CTA. Ce n'est pas un détail — sur `2026-09-11_v01`, les trois idées ne pèsent que 115 mots sur 231, l'autre moitié étant l'enveloppe narrative. Un budget qui ne compterait que les idées serait faux de moitié. Le corpus le recalibre via `cout_total_par_idee`.
 
 
 
@@ -530,7 +579,10 @@ Le dossier `/ChaineYouTube/` doit être partagé avec chaque compte Colab, et ch
 
   Un nouveau composant est de fait revu au CP3, puisque Franco le voit dans la vidéo.
 - **Évolution** : un composant modifié prend une nouvelle version. Les anciennes vidéos ne sont jamais re-rendues, et H1 peut recommander de refondre un composant.
-- **Format** : 1080×1920, 30 fps, sous-titres dynamiques calés sur `04_timestamps.json`.
+- **Format** : 1080×1920 pour un Short, 1920×1080 pour un format long, 30 fps, sous-titres dynamiques calés sur `04_timestamps.json`. Les dimensions viennent de `props.charte.format`, que `Root.tsx` lit dans `calculateMetadata` : `construire_props.py` y écrit le format de la vidéo, depuis `charte.formats[<format>]` si la charte le déclare, sinon par rotation. **Les composants actuels sont tous composés pour le vertical** — le cadre paysage est levé, leur composition ne l'est pas.
+- **Surcouches hors registre** : le registre associe un composant **à une scène entière**. Ce qui doit se poser *au-dessus* d'une scène n'y entre donc pas — `Subtitles` depuis l'origine, et `InsertFootage` depuis le 16/09/2026.
+- **L'insert de footage** : quelques secondes de vidéo réelle par-dessus une scène animée, sur le point précis dont parle le script. C'est le pilier visuel du format long, où l'animation domine et où le rush n'intervient jamais en plan de fond continu — ce rôle-là est celui de `PlanBroll`, qui reste ce qu'il est. A6 le déclare sur la scène (`inserts: [{cle, debut: "phrase 34", duree_s}]`) et désigne l'instant par une phrase, comme `da.accent` : les secondes n'existent pas encore quand il écrit. A7 le résout depuis `04_phrases.json`. Un insert ne change ni `duree_s` ni `phrases` — c'est un détail *dans* une scène, donc le recalage n'en sait rien et n'a pas à en savoir quelque chose.
+- **Rendu par tranches en format long** : `rendre_video.py` découpe le rendu en tranches de 2 minutes, rendues **muettes** dans leur propre fichier et **sautées si elles existent déjà** — écriture en deux temps (`.tmp.mp4` puis `os.replace`), comme le cache des clips TTS, et pour la même raison : un fichier tronqué ne doit jamais être relu comme terminé. La voix off est remontée d'un seul bloc au recollage, parce que l'AAC ne se coupe pas à la frame et qu'un recollage sonore ajoute ~20 ms de silence par jointure (mesuré : 4,096 s contre 4,054 s sur deux tranches). Le nombre de frames est demandé à `remotion compositions`, jamais recalculé en Python : `dureeTotaleFrames()` reste la seule formule de durée.
 - **Outil** : **Remotion** (React + TypeScript). Tranché en Session 2.
 - **Le code vit dans Git, pas dans Drive** (voir §9.2).
 
@@ -746,6 +798,12 @@ Publiées : 4 — Abandonnées : 1 — Prochain cycle hebdo : dimanche
 - **Déclenchement de l'Orchestrateur** : ~~cron local + Claude Code en mode headless, ou lancement manuel~~ → **tranché : cron** (§6.4). Reste ouvert : l'accès à Drive depuis la machine locale (Google Drive pour ordinateur ou rclone), et le lancement des agents eux-mêmes en mode headless — le cron fait avancer la machine à états, il n'exécute aucun skill.
 - **Outil d'animation** : ~~Manim, Motion Canvas ou Remotion~~ → **tranché : Remotion** (React + spring animations).
 - **Notebook voix** : ~~réduction de bruit~~ → **tranché : désactivée par défaut** (`DENOISE = False` dans `voix_off.ipynb`) — la référence de Franco (voix ElevenLabs) est déjà propre, `noisereduce` la dénaturait sans bruit réel à retirer. ~~version exacte et API de Qwen TTS~~ → **tranché : moteur de synthèse basculé sur Qwen3-TTS** (package `qwen-tts`, modèle `Qwen/Qwen3-TTS-12Hz-1.7B-Base`, `generate_voice_clone(text, language, ref_audio, ref_text)`) après que F5-TTS ait montré un défaut structurel (fuite du contenu de la référence dans la sortie, reproduit sur deux échantillons différents). Reste ouvert : durée idéale de l'extrait de référence (3-10s annoncé par Qwen3-TTS, à confirmer sur plusieurs voix).
+- **Format long** : le pipeline le supporte depuis le 16/09/2026 (§5, §7.3, §8), **aucune vidéo longue n'a encore été produite**. Ce qui reste ouvert tient en trois chiffres qui sont des hypothèses, pas des mesures :
+  - le **débit** (2,8 mots/s) et le **coût par idée** (300 mots) sont extrapolés d'une seule vidéo de 82,5 s. À recalibrer sur le premier script long enregistré, dans `outils/formats_video.py` ;
+  - la **durée de scène cible** (12 s) décide à elle seule du nombre de scènes remises à A6. À juger sur un storyboard long réel, pas dans l'abstrait ;
+  - **les composants sont composés pour le vertical.** Le cadre paysage est levé (`charte.format`), leur mise en page ne l'est pas : une première vidéo longue les montrera cadrés au milieu d'un écran large. C'est le vrai coût restant, et il ne se solde qu'en les reprenant un par un.
+
+  Le risque nommé lors du diagnostic tient toujours : la décision transverse « stabiliser le visuel sur les 6 premières vidéos » veut qu'une seule variable bouge à la fois. Une vidéo longue en introduit une seconde.
 - **Seuils** : métriques de style de A5, écart toléré par le contrôle qualité audio, cible du tampon.
 - **Quota Claude Pro** : partagé entre claude.ai et Claude Code, à mesurer pendant la semaine de test.
 - **Transcriptions des concurrents** : méthode de récupération et plan B quand elle casse.

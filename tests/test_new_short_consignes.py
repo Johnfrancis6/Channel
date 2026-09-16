@@ -95,7 +95,50 @@ class TestConsignesStructurees(unittest.TestCase):
         code, out = self.run_script("--sujet", "Un sujet quelconque")
         self.assertEqual(code, 0, out)
         self.assertEqual(self.lire_state(out["video_id"])["consignes"]["idees_max"],
-                         new_short.IDEES_MAX_DEFAUT)
+                         new_short.formats_video.idees_par_defaut("short"))
+
+    def test_le_format_video_par_defaut_est_short(self):
+        # Le champ est ecrit explicitement meme sur un Short : un lecteur ne
+        # doit pas avoir a distinguer « ancienne video » de « Short ».
+        code, out = self.run_script("--sujet", "Un sujet quelconque")
+        self.assertEqual(code, 0, out)
+        self.assertEqual(self.lire_state(out["video_id"])["format_video"], "short")
+
+    def test_format_long_et_son_budget_par_defaut(self):
+        code, out = self.run_script("--sujet", "Un sujet de fond", "--long")
+        self.assertEqual(code, 0, out)
+        state = self.lire_state(out["video_id"])
+        self.assertEqual(state["format_video"], "long")
+        # Un long format n'herite pas du budget du Short : 3 idees sur 15
+        # minutes serait un script de 135 mots pour une video de 2400.
+        self.assertEqual(state["consignes"]["idees_max"],
+                         new_short.formats_video.idees_par_defaut("long"))
+        self.assertGreater(state["consignes"]["idees_max"],
+                           new_short.formats_video.idees_par_defaut("short"))
+
+    def test_format_video_et_format_narratif_ne_se_melangent_pas(self):
+        # Deux champs, deux sens : `--format` dit comment la video raconte,
+        # `--format-video` dit ce qu'elle est. Les confondre remettrait le
+        # format long dans `consignes`, ou personne en aval ne le cherche.
+        code, out = self.run_script("--sujet", "Un sujet", "--long",
+                                    "--format", "explication_progressive")
+        self.assertEqual(code, 0, out)
+        state = self.lire_state(out["video_id"])
+        self.assertEqual(state["format_video"], "long")
+        self.assertEqual(state["consignes"]["format"], "explication_progressive")
+        self.assertNotIn("format_video", state["consignes"])
+
+    def test_format_video_inconnu_refuse(self):
+        # Enum ferme, a l'inverse du format narratif : une faute de frappe
+        # produirait un Short silencieux la ou Franco attend un long format.
+        # Le refus vient d'argparse (comme --voie et --pilier), donc sur
+        # stderr et sans JSON : on ne verifie que le rejet.
+        proc = subprocess.run(
+            [sys.executable, SCRIPT, "--root", self.root, "--sujet", "Un sujet",
+             "--format-video", "moyen"],
+            capture_output=True, text=True)
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertNotIn("moyen", os.listdir(os.path.join(self.root, "videos")))
 
     def test_idees_invalide_refuse(self):
         code, out = self.run_script("--sujet", "Un sujet", "--idees", "0")

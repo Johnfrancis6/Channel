@@ -30,6 +30,7 @@ Deux règles de la chaîne s'appliquent ici. Garde-les en tête, car elles prot�
 | « comme cette vidéo : <lien> », « même format que… » | `--reference "<lien>"` |
 | « deux idées seulement », « garde ça court » | `--idees 2` |
 | un titre court pour le tableau de bord | `--titre "…"` |
+| « une vidéo long format », « format long », « une vidéo de 10 minutes » | `--long` |
 
 ### Les consignes structurées
 
@@ -45,7 +46,27 @@ Franco donne l'information :
   (défaut 3). Le coût en mots d'une idée dépend du format : une interview
   fictive dépasse légitimement les 60 s sans déroger à la règle des 3 idées.
 
-`--note` reste pour tout le reste. Avant ces champs, c'était la seule porte
+`--note` reste pour tout le reste.
+
+### Court ou long
+
+**`--format-video short|long`** (ou le raccourci **`--long`**) dit ce qu'est
+la vidéo. À ne pas confondre avec `--format`, qui est le format *narratif* :
+`--format` décrit comment la vidéo raconte, `--format-video` décide du
+pipeline — budget en mots, cadre paysage ou vertical, découpage du
+storyboard en scènes de segment, rendu par tranches reprenables.
+
+C'est pour ça qu'il est à la racine du `state.json`, à côté de `voie`, et
+pas dans `consignes`. Défaut : `short`.
+
+Le budget par défaut suit le format : 3 idées en court, 8 en long. Une idée
+de format long coûte ~300 mots (contre 45) — c'est la même enveloppe
+narrative appliquée à un segment entier, pas une idée plus longue.
+
+**Le format long n'a encore jamais été produit de bout en bout.** Le débit
+de 2,8 mots/s et le coût par idée sont calibrés sur une seule vidéo de
+82,5 s : sur un long, ce sont des hypothèses, et le pipeline le dit dans ses
+rapports plutôt que de les présenter comme des seuils. Avant ces champs, c'était la seule porte
 d'entrée : une direction de mise en scène complète s'y retrouvait entassée,
 et n'atteignait le Designer que par ricochet.
 

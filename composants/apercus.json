@@ -222,5 +222,117 @@
         }
       }
     }
+  ],
+  "PlanNavigateurCurseur": [
+    {
+      "nom": "ouverture-liste",
+      "params": {
+        "etat": "ouverture_liste",
+        "label": "WHERE IS IT?",
+        "marqueur": "question",
+        "zoom": "liste"
+      }
+    },
+    {
+      "nom": "ligne-surlignee",
+      "params": {
+        "etat": "ligne_surlignee",
+        "surligne": "GPT-6 Pro",
+        "marqueur": "coche"
+      }
+    }
+  ],
+  "PlanDeuxTerminaux": [
+    {
+      "nom": "une-heure-contre-dix",
+      "params": {
+        "gauche": {
+          "titre": "1 HOUR",
+          "lignes": 6
+        },
+        "droite": {
+          "titre": "10 HOURS",
+          "lignes": 34
+        },
+        "fond_flou": "three settings"
+      }
+    }
+  ],
+  "PlanTerminalFrappe": [
+    {
+      "nom": "frappe-goal",
+      "params": {
+        "invite": "codex",
+        "frappe": "/goal ship the migration and keep tests green",
+        "label": "THE GOAL COMMAND"
+      }
+    },
+    {
+      "nom": "defilement-horloge",
+      "params": {
+        "invite": "codex",
+        "defilement_auto": true,
+        "horloge": "00:00 -> 06:00",
+        "label": "HOURS, NOT ONE REPLY"
+      }
+    }
+  ],
+  "PlanListeSequencee": [
+    {
+      "nom": "echelle-effort",
+      "params": {
+        "titre": "REASONING EFFORT",
+        "disposition": "echelle",
+        "entrees": [
+          "none",
+          "minimal",
+          "low",
+          "medium",
+          "high",
+          "xhigh",
+          "max"
+        ],
+        "barree": "none",
+        "mention_barree": "HTTP 400",
+        "accentuee": "medium"
+      }
+    },
+    {
+      "nom": "liste-contrat",
+      "params": {
+        "titre": "THE CONTRACT",
+        "disposition": "liste",
+        "entrees": [
+          "ACHIEVE",
+          "LEAVE ALONE",
+          "CHECK",
+          "STOP"
+        ],
+        "cadre": true,
+        "tampon": "DONE"
+      }
+    },
+    {
+      "nom": "deux-colonnes",
+      "params": {
+        "disposition": "deux_colonnes",
+        "colonne_gauche": {
+          "titre": "THE STEPS",
+          "entrees": [
+            "1.",
+            "2.",
+            "3.",
+            "4."
+          ],
+          "effacee": true
+        },
+        "colonne_droite": {
+          "titre": "THE FINISH LINE",
+          "entrees": [
+            "done"
+          ]
+        }
+      }
+    }
   ]
 }

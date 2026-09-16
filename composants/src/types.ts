@@ -95,6 +95,46 @@ export type DirectionArtistique = {
   accent?: string;
 };
 
+/**
+ * Un instant de video reelle pose **par-dessus** une scene animee, sur le
+ * point precis dont parle le script.
+ *
+ * Ce n'est pas un composant de scene : `Video.tsx` associe un composant du
+ * registre a une scene entiere, donc un insert qui en deviendrait un
+ * occuperait tout le cadre pendant toute la scene — c'est-a-dire qu'il
+ * redeviendrait `PlanBroll`, le plan de liaison que la contrainte du format
+ * long ecarte. C'est une surcouche bornee dans le temps, de la meme famille
+ * que `Subtitles`, rendue par `InsertFootage`.
+ *
+ * Le modele de scene supportait deja un sous-element temporel : `pulsation_s`
+ * designe un **instant** dans une scene. Un insert demande un **intervalle** —
+ * la meme mecanique, une borne de plus.
+ */
+export type Insert = {
+  // Cle de la table `Ressources`, resolue par A8 comme celles des `besoins`.
+  cle: string;
+  // Debut de l'insert, designe en clair par A6 : "phrase 7". Comme
+  // `da.accent`, c'est du texte libre parce que c'est la seule chose qu'A6
+  // connaisse — les secondes n'existent qu'apres la voix off.
+  debut?: string;
+  // Debut resolu en secondes depuis le debut de la scene, ecrit par
+  // construire_props.py. C'est ce que lit le rendu ; `debut` ne l'interesse pas.
+  debut_s?: number;
+  // Duree de l'insert. A defaut, la duree du clip, puis 3 s. Toujours bornee
+  // par la fin de la scene au montage.
+  duree_s?: number;
+  // Facteur de zoom atteint en fin d'insert (defaut 1.12). L'insert se
+  // rapproche : c'est sa raison d'etre, pas une decoration.
+  zoom?: number;
+  // Part de la largeur d'ecran occupee par le cadre (0 a 1). A defaut, 0,62
+  // en paysage et 0,86 en vertical — assez grand pour se lire, assez petit
+  // pour qu'on voie la scene continuer dessous.
+  part?: number;
+  // Mot ou chiffre sous le cadre. Jamais la phrase prononcee : les
+  // sous-titres la portent deja.
+  legende?: string;
+};
+
 // Une scene du storyboard (05_storyboard.md), telle que la produit le
 // Designer (A6) et que la consomme le Monteur (A7). `composant` doit
 // exister dans components/registry.ts, sinon c'est un nouveau composant a
@@ -122,6 +162,12 @@ export type Scene = {
   // Assets a aller chercher pour cette scene (E5b). Ecrits par A6, resolus
   // par A8 ; inertes au rendu, ou seule compte `Ressources`.
   besoins?: Besoin[];
+  // Instants de video reelle poses par-dessus la scene animee (§8). Declares
+  // par A6, resolus en secondes par construire_props.py, rendus par
+  // `InsertFootage`. Un insert ne change ni `duree_s` ni `phrases` : c'est un
+  // detail *dans* la scene, donc le recalage n'en sait rien et n'a pas a en
+  // savoir quelque chose.
+  inserts?: Insert[];
   // Transition vers la scene suivante. Absente = valeur par defaut de la
   // charte. Ignoree sur la derniere scene.
   transition_sortie?: TransitionSortie;
