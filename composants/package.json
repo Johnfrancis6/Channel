@@ -10,9 +10,8 @@
     "still": "remotion still src/index.ts Video"
   },
   "dependencies": {
-    "@remotion/fonts": "^4.0.523",
-    "@remotion/google-fonts": "^4.0.523",
-    "@remotion/transitions": "^4.0.523",
+    "@remotion/fonts": "4.0.523",
+    "@remotion/transitions": "4.0.523",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "remotion": "4.0.523"
