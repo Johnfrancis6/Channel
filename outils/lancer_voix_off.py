@@ -39,8 +39,8 @@ import json
 import os
 import shutil
 import subprocess
-import time
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -64,6 +64,10 @@ SORTIES_ATTENDUES = (
 # Le chemin du Drive **vu depuis la VM Colab**, qui n'est pas celui vu depuis
 # la machine de Franco (Google Drive pour ordinateur, rclone, chemin arbitraire).
 RACINE_VM = "/content/drive/MyDrive/ChaineYouTube"
+
+# Le preambule ne fait que poser des variables d'environnement : il repond en
+# une fraction de seconde. 120 s ne sert qu'a absorber une VM encore tiede.
+TIMEOUT_PREAMBULE = 120
 
 
 def _horodatage():
@@ -249,7 +253,7 @@ def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
             journal(f"drivemount : erreur reseau transitoire, nouvelle tentative dans 15 s ({tentative}/4)")
             time.sleep(15)
 
-        r = _colab(["exec", "-s", session, "--timeout", "120"],
+        r = _colab(["exec", "-s", session, "--timeout", str(TIMEOUT_PREAMBULE)],
                    entree=_preambule(video_id, mode, racine_vm, forcer),
                    timeout=300, journal=journal)
         if r.returncode != 0:
@@ -306,7 +310,11 @@ def main(argv=None):
     ap.add_argument("--garder", action="store_true",
                     help="Ne pas arreter la session Colab a la fin (diagnostic).")
     ap.add_argument("--timeout", type=int, default=5400,
-                    help="Delai maximal du run du notebook, en secondes. Defaut : 5400 (1 h 30).")
+                    help="Budget du run du notebook, en secondes (defaut : 5400, soit 1 h 30). "
+                         "Sert deux fois, avec deux sens : passe a `colab exec --timeout`, c'est "
+                         "le silence maximal tolere entre deux sorties de cellule ; en local, "
+                         "c'est la duree totale du processus, bornee 120 s plus haut pour que le "
+                         "cote distant echoue le premier et laisse un message exploitable.")
     ap.add_argument("--verifier", action="store_true",
                     help="Dit ce qui serait lance, sans rien lancer.")
     a = ap.parse_args(argv)
