@@ -329,6 +329,15 @@ class TestParametresDistants(unittest.TestCase):
         code = lvo._preambule("2026-09-11_v01", "full", "/content/drive/MyDrive/ChaineYouTube", False)
         compile(code, "preambule", "exec")
 
+    def test_nom_de_voix_transmis_au_notebook(self):
+        """--nom-voix televerse bien le bon profil, mais si le notebook ne
+        recoit pas VOIX_NOM il ira chercher `voix_principale` sur la VM et ne
+        le trouvera pas. Les deux cotes doivent bouger ensemble."""
+        code = lvo._preambule("v1", "full", "/r", False, "voix_grave")
+        espace = {}
+        exec(compile(code, "preambule", "exec"), espace)  # noqa: S102
+        self.assertEqual(espace["os"].environ["VOIX_NOM"], "voix_grave")
+
     def test_preambule_pose_les_variables(self):
         code = lvo._preambule("2026-09-11_v01", "full", "/racine/vm", True)
         espace = {}

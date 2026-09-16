@@ -132,6 +132,44 @@ Les sorties sont rapatriées **même quand le verdict est négatif** :
 `04_rapport_audio.md` est précisément ce qui dit pourquoi, et il partirait
 avec la VM.
 
+### Changer de voix
+
+Les profils vivent dans `00_Profil/voix/<nom>/v<N>/` et **coexistent** : rien
+n'est jamais écrasé. Deux gestes différents, à ne pas confondre.
+
+**Une nouvelle version de la même voix** — tu as réenregistré ta référence,
+tu veux la remplacer :
+
+```
+Colab, MODE='voice_only'   →  crée 00_Profil/voix/voix_principale/v2/
+```
+
+Les runs suivants prennent automatiquement le `vN` le plus grand. Rien
+d'autre à faire, et `v1` reste là si tu veux revenir en arrière.
+
+**Une voix entièrement différente** — tu veux essayer un autre timbre sans
+toucher à l'actuel :
+
+```bash
+# une fois, dans Colab : NOM_VOIX = "voix_grave" en Cell 1, MODE='voice_only'
+# ensuite, à chaque run :
+python3 outils/lancer_voix_off.py --root "$CHAINE_YT_ROOT" --sans-drive \
+  --nom-voix voix_grave
+```
+
+`--nom-voix` téléverse ce profil-là **et** le transmet au notebook
+(`VOIX_NOM`). Les deux doivent bouger ensemble : téléverser `voix_grave` en
+laissant le notebook chercher `voix_principale` produirait un échec au milieu
+du run, sur une machine déjà allouée.
+
+**L'enregistrement d'une voix reste manuel.** Choisir un fichier demande un
+sélecteur, et il n'y a pas de chemin non interactif pour ça. C'est une
+opération qui arrive une fois par voix, pas une fois par vidéo.
+
+**Après un changement de voix, réécoute avant de monter.** Le contrôle WER
+vérifie que le texte prononcé est le bon — il ne dit rien du timbre, du débit
+ni des liaisons. Une voix peut passer à 1 % de WER et sonner faux.
+
 ### Les trois modes, et quand les utiliser
 
 | Mode | Humain | Quand |

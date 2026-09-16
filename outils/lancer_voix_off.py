@@ -379,7 +379,7 @@ def _colab(args, entree=None, timeout=None, journal=None):
     return r
 
 
-def _preambule(video_id, mode, racine_vm, forcer):
+def _preambule(video_id, mode, racine_vm, forcer, nom_voix="voix_principale"):
     """Le code qui pose les parametres dans le noyau distant.
 
     La session Colab est un noyau Jupyter persistant : ce qu'une execution y
@@ -391,6 +391,7 @@ def _preambule(video_id, mode, racine_vm, forcer):
         "VOIX_VIDEO_ID": video_id,
         "VOIX_MODE": mode,
         "VOIX_RACINE": racine_vm,
+        "VOIX_NOM": nom_voix,
         "VOIX_NON_INTERACTIF": "1",
         "VOIX_FORCER_RELANCE": "1" if forcer else "",
     }
@@ -510,7 +511,7 @@ def rapatrier_sorties(session, racine, video_id, racine_vm, journal):
 
 def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
                  chemin_journal, timeout_exec, journal, reprendre=False,
-                 entrees=None, racine_locale=None):
+                 entrees=None, racine_locale=None, nom_voix="voix_principale"):
     """Enchaine les commandes du CLI. Leve ErreurColab si l'outil echoue."""
     journal(f"session={session} gpu={gpu} mode={mode} video={video_id} reprendre={reprendre}")
     verdict = (False, "le run ne s'est pas rendu jusqu'au controle")
@@ -560,7 +561,7 @@ def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
             _monter_drive(session, journal)
 
         r = _colab(["exec", "-s", session, "--timeout", str(TIMEOUT_PREAMBULE)],
-                   entree=_preambule(video_id, mode, racine_vm, forcer),
+                   entree=_preambule(video_id, mode, racine_vm, forcer, nom_voix),
                    timeout=300, journal=journal)
         if r.returncode != 0:
             raise ErreurColab(f"pose des parametres impossible : {(r.stderr or r.stdout).strip()[-400:]}")
@@ -726,7 +727,7 @@ def main(argv=None):
         garder = (a.garder or a.reprendre) and not a.arreter
         ok, message = executer_run(video_id, session, a.gpu, a.mode, racine_vm,
                                    a.forcer, garder, chemin_journal, a.timeout,
-                                   journal, a.reprendre, entrees, a.root)
+                                   journal, a.reprendre, entrees, a.root, a.nom_voix)
     except ErreurColab as e:
         print(f"❌ {e}", file=sys.stderr)
         return 4
