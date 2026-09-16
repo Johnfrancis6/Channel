@@ -50,6 +50,44 @@ colab stop -s ...
 | `--garder` | non | laisse la session Colab ouverte, pour diagnostiquer |
 | `--verifier` | — | dit ce qui serait lancé, sans rien lancer |
 
+### Le consentement Drive, et pourquoi il n'y a pas de run sans humain
+
+`colab drivemount` monte le Drive avec un **jeton éphémère** : l'URL
+d'autorisation porte `authorize-for-drive-credentials-ephem` et
+`prompt=consent`. Le consentement est redemandé **à chaque session**, et
+autoriser une fois dans un notebook classique ne se reporte pas. Constaté le
+16/09/2026, après trois runs échoués sur `ValueError: mount failed`.
+
+Ce n'est donc pas un réglage à corriger : tant que le montage de Drive est sur
+le chemin, un humain clique une fois par run. La marche à suivre :
+
+```bash
+colab new -s voixoff --gpu T4
+colab drivemount -s voixoff          # ouvre l'URL affichée, autorise, Entrée
+
+python3 outils/lancer_voix_off.py --root "$CHAINE_YT_ROOT" \
+  --reprendre --session voixoff
+```
+
+`--reprendre` saute `new` et `drivemount`, vérifie que la session répond, et
+enchaîne le reste. Elle **n'arrête pas** la session à la fin : le
+consentement est la seule chose du run qui ait coûté un geste humain, et
+l'arrêter obligerait à en redonner un pour une seconde tentative. Ajoute
+`--arreter` quand tu en as fini.
+
+Pense à libérer la machine ensuite, elle consomme du quota :
+
+```bash
+colab stop -s voixoff
+```
+
+**Le seul chemin vers un run réellement sans humain** serait de ne pas monter
+Drive du tout : pousser le script et la référence avec `colab upload`,
+récupérer les quatre sorties avec `colab download`, écrire `state.json`
+localement. Il demande de sortir la synthèse du notebook, donc de maintenir
+deux implémentations — pas fait, et à ne faire que si le clic par run devient
+gênant.
+
 ### Installation du CLI
 
 ```bash

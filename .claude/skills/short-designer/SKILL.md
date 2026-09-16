@@ -193,9 +193,22 @@ Puis retire `"a_completer"` de la scene. **Aucune scene ne doit rester
 storyboard a vraiment ete travaille, et le signalera au CP3 sinon.
 
 Quelques reperes de bon sens, en plus des regles de la charte : varier le
-`mouvement` entre scenes voisines, reserver `punch` aux deux ou trois
-moments qui portent le propos, et garder le hook sobre (rien ne bouge
-au-dela de l'entree).
+`mouvement` entre scenes voisines, et reserver `punch` aux deux ou trois
+moments qui portent le propos.
+
+**Le hook garde son animation** (tranche le 16/09/2026). La formulation
+precedente — « garder le hook sobre, rien ne bouge au-dela de l'entree » —
+contredisait la regle 8 du §8, que le Monteur doit appliquer a tous les
+composants : *rien n'est jamais totalement immobile*. Les deux ne pouvaient
+pas etre vraies, et un agent est venu buter dessus en concevant un plan de
+hook.
+
+Ce qu'il faut lire a la place : la regle qui vaut au hook est celle qui vaut
+partout, **un seul mouvement dominant par scene**
+(`charte.json > animation.regles`). Pendant le hook, ce mouvement dominant
+est l'entree ; le fond continue de deriver a faible amplitude. Sobre ne veut
+pas dire fige — une image figee parait morte, et c'est la premiere seconde
+d'un Short qui decide si on reste.
 
 **Durees** : celles du squelette sont des estimations. Elles sont
 recalees automatiquement sur l'audio reel au montage, a partir de

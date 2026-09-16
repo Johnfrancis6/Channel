@@ -8,6 +8,26 @@ google-colab-cli`, Linux et macOS uniquement). L'enchainement est celui
 qu'un humain faisait a la main : allouer un GPU, monter le Drive, executer
 le notebook, recuperer le journal, liberer la machine.
 
+## Ce que ce script ne peut PAS faire tourner seul
+
+`colab drivemount` monte le Drive avec un **jeton ephemere** : l'URL
+d'autorisation porte `authorize-for-drive-credentials-ephem` et
+`prompt=consent`, et le consentement est redemande **a chaque session**.
+Autoriser une fois dans un notebook classique ne se reporte pas. Constate le
+16/09/2026, apres trois runs echoues sur `ValueError: mount failed`.
+
+Il n'y a donc pas de run entierement sans humain tant que le montage de Drive
+est sur le chemin. Deux facons de vivre avec :
+
+- **`--reprendre`** (ce script) : Franco cree la session et monte Drive
+  lui-meme, une fois, puis le script prend la suite sur cette session vivante.
+  Un clic par run, et tout le reste est automatique.
+- **L'echange par fichiers**, pas encore ecrit : ne pas monter Drive du tout,
+  pousser le script et la reference avec `colab upload`, recuperer les quatre
+  sorties avec `colab download`, et ecrire `state.json` localement. La seule
+  voie vers un run reellement sans humain — au prix de sortir la synthese du
+  notebook.
+
 ## Ce qui decide du succes
 
 **Pas le code de retour de `colab exec`.** Le notebook signale ses echecs
@@ -32,6 +52,7 @@ C'est la seule preuve qui ne depende pas d'une API non documentee.
 Usage :
   python3 outils/lancer_voix_off.py --root /chemin/ChaineYouTube
   python3 outils/lancer_voix_off.py --root ... --video 2026-09-11_v01 --gpu L4
+  python3 outils/lancer_voix_off.py --root ... --reprendre --session voixoff
   python3 outils/lancer_voix_off.py --root ... --garder   # laisse la session ouverte
 """
 import argparse
@@ -219,39 +240,68 @@ def _preambule(video_id, mode, racine_vm, forcer):
     )
 
 
-def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
-                 chemin_journal, timeout_exec, journal):
-    """Enchaine les commandes du CLI. Leve ErreurColab si l'outil echoue."""
-    journal(f"session={session} gpu={gpu} mode={mode} video={video_id}")
+def _monter_drive(session, journal):
+    """`colab drivemount`, avec reprise sur la course DNS.
 
-    r = _colab(["new", "-s", session, "--gpu", gpu], timeout=600, journal=journal)
-    if r.returncode != 0:
-        raise ErreurColab(f"`colab new` a echoue : {(r.stderr or r.stdout).strip()[-400:]}")
+    C'est la premiere commande qui parle a la VM elle-meme, sur un nom d'hote
+    cree a l'instant par `colab new`. Ce nom met quelques secondes a se
+    propager : la resolution echoue alors avec « Temporary failure in name
+    resolution » et le run est perdu pour une raison qui n'a rien a voir avec
+    Drive. On lui laisse le temps.
+
+    La reprise ne porte QUE sur des motifs reseau connus. Un `retry` aveugle
+    masquerait le refus de consentement derriere quatre minutes d'attente.
+    """
+    for tentative in range(1, 5):
+        r = _colab(["drivemount", "-s", session], timeout=600, journal=journal)
+        if r.returncode == 0:
+            return
+        sortie = (r.stderr or r.stdout)
+        transitoire = any(motif in sortie for motif in (
+            "NameResolutionError", "Temporary failure in name resolution",
+            "Max retries exceeded", "ConnectionError",
+        ))
+        if not transitoire or tentative == 4:
+            raise ErreurColab(
+                "`colab drivemount` a echoue : "
+                f"{sortie.strip()[-400:]}\n"
+                "   → Le montage utilise un jeton ephemere : le consentement est\n"
+                "     redemande a CHAQUE session, et autoriser une fois ailleurs ne\n"
+                "     se reporte pas. Monte Drive a la main, puis --reprendre :\n"
+                f"       colab new -s {session} --gpu T4\n"
+                f"       colab drivemount -s {session}   # ouvre l'URL, autorise, Entree"
+            )
+        journal(f"drivemount : erreur reseau transitoire, nouvelle tentative dans 15 s ({tentative}/4)")
+        time.sleep(15)
+
+
+def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
+                 chemin_journal, timeout_exec, journal, reprendre=False):
+    """Enchaine les commandes du CLI. Leve ErreurColab si l'outil echoue."""
+    journal(f"session={session} gpu={gpu} mode={mode} video={video_id} reprendre={reprendre}")
+
+    if reprendre:
+        # La session existe deja et son Drive est monte a la main. On ne la
+        # recree pas et on ne remonte pas Drive : ce serait redemander le
+        # consentement qu'on vient justement de donner.
+        r = _colab(["status", "-s", session], timeout=120, journal=journal)
+        if r.returncode != 0:
+            raise ErreurColab(
+                f"session '{session}' introuvable ou eteinte : "
+                f"{(r.stderr or r.stdout).strip()[-300:]}\n"
+                "   → cree-la et monte Drive a la main, puis relance :\n"
+                f"       colab new -s {session} --gpu {gpu}\n"
+                f"       colab drivemount -s {session}   # ouvre l'URL, autorise, Entree"
+            )
+        journal(f"session '{session}' reprise, Drive suppose deja monte")
+    else:
+        r = _colab(["new", "-s", session, "--gpu", gpu], timeout=600, journal=journal)
+        if r.returncode != 0:
+            raise ErreurColab(f"`colab new` a echoue : {(r.stderr or r.stdout).strip()[-400:]}")
 
     try:
-        # `drivemount` est la premiere commande qui parle a la VM elle-meme,
-        # sur un nom d'hote cree a l'instant par `colab new`. Ce nom met
-        # quelques secondes a se propager : la resolution echoue alors avec
-        # « Temporary failure in name resolution » et le run est perdu pour
-        # une raison qui n'a rien a voir avec Drive. On lui laisse le temps.
-        for tentative in range(1, 5):
-            r = _colab(["drivemount", "-s", session], timeout=600, journal=journal)
-            if r.returncode == 0:
-                break
-            sortie = (r.stderr or r.stdout)
-            transitoire = any(motif in sortie for motif in (
-                "NameResolutionError", "Temporary failure in name resolution",
-                "Max retries exceeded", "ConnectionError",
-            ))
-            if not transitoire or tentative == 4:
-                raise ErreurColab(
-                    "`colab drivemount` a echoue : "
-                    f"{sortie.strip()[-400:]}\n"
-                    "   → si Drive demande un consentement navigateur, monte-le une\n"
-                    "     premiere fois a la main depuis Colab avec ce meme compte."
-                )
-            journal(f"drivemount : erreur reseau transitoire, nouvelle tentative dans 15 s ({tentative}/4)")
-            time.sleep(15)
+        if not reprendre:
+            _monter_drive(session, journal)
 
         r = _colab(["exec", "-s", session, "--timeout", str(TIMEOUT_PREAMBULE)],
                    entree=_preambule(video_id, mode, racine_vm, forcer),
@@ -284,7 +334,7 @@ def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
                 journal(f"⚠️ export du journal Colab impossible : {(rl.stderr or rl.stdout).strip()[-200:]}")
     finally:
         if garder:
-            journal(f"session {session} laissee ouverte (--garder)")
+            journal(f"session {session} laissee ouverte")
         else:
             rs = _colab(["stop", "-s", session], timeout=300, journal=journal)
             if rs.returncode != 0:
@@ -307,8 +357,16 @@ def main(argv=None):
                     help=f"Racine vue depuis la VM Colab. Defaut : {RACINE_VM}")
     ap.add_argument("--forcer", action="store_true",
                     help="Passe outre le plafond de tentatives et un statut deja 'termine'.")
+    ap.add_argument("--reprendre", action="store_true",
+                    help="Reprendre une session deja creee et dont Drive est deja monte a la "
+                         "main, au lieu d'en creer une. Seul mode qui fonctionne tant que le "
+                         "montage de Drive redemande un consentement a chaque session.")
     ap.add_argument("--garder", action="store_true",
-                    help="Ne pas arreter la session Colab a la fin (diagnostic).")
+                    help="Ne pas arreter la session Colab a la fin. Implicite avec --reprendre : "
+                         "l'arreter jetterait le consentement Drive donne a la main, et une "
+                         "seconde tentative en redemanderait un.")
+    ap.add_argument("--arreter", action="store_true",
+                    help="Arreter la session meme en mode --reprendre.")
     ap.add_argument("--timeout", type=int, default=5400,
                     help="Budget du run du notebook, en secondes (defaut : 5400, soit 1 h 30). "
                          "Sert deux fois, avec deux sens : passe a `colab exec --timeout`, c'est "
@@ -346,12 +404,16 @@ def main(argv=None):
         print(f"   notebook     : {NOTEBOOK}")
         print(f"   racine VM    : {a.racine_vm}")
         print(f"   journal      : {chemin_journal}")
-        print(f"   colab present: {'oui' if shutil.which('colab') else 'NON — pip install google-colab-cli'}")
+        print(f"   reprendre    : {'oui — session existante, Drive deja monte' if a.reprendre else 'non — session creee, drivemount tente'}")
+        print(f"   colab present: {'oui' if shutil.which('colab') else 'NON — uv tool install google-colab-cli'}")
         return 0
 
     try:
+        # Une session reprise garde par defaut le consentement Drive qu'elle
+        # porte : c'est la seule chose du run qui ait coute un geste humain.
+        garder = (a.garder or a.reprendre) and not a.arreter
         executer_run(video_id, session, a.gpu, a.mode, a.racine_vm, a.forcer,
-                     a.garder, chemin_journal, a.timeout, journal)
+                     garder, chemin_journal, a.timeout, journal, a.reprendre)
     except ErreurColab as e:
         print(f"❌ {e}", file=sys.stderr)
         return 4

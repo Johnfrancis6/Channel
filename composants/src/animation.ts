@@ -172,6 +172,15 @@ export function styleContinu(
  * `frameDeclenchement` est resolu au montage a partir du timestamp reel de
  * la phrase designee par `da.accent` (04_phrases.json) : l'accent tombe sur
  * le mot prononce, pas au milieu chronometrique de la scene.
+ *
+ * **Piege : la valeur rendue est une AMPLITUDE, pas un facteur d'echelle.**
+ * Elle vaut 0 partout hors de l'accent. Ecrire `scale(${pulsation(...)})`
+ * ecrase donc l'element a zero pendant toute la scene sauf l'instant de
+ * l'accent — l'element disparait, et aucun test ne le voit : il faut
+ * regarder l'image. C'est arrive le 16/09/2026, a trois endroits du meme
+ * composant. La forme juste ajoute l'amplitude a 1 :
+ *
+ *     transform: `scale(${1 + pulsation(frame, fps, pulsationFrame) * 0.12})`
  */
 export function pulsation(frame: number, fps: number, frameDeclenchement?: number): number {
   if (frameDeclenchement === undefined || frameDeclenchement === null) {
