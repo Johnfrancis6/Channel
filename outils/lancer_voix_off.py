@@ -39,6 +39,7 @@ import json
 import os
 import shutil
 import subprocess
+import time
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -219,16 +220,31 @@ def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
         raise ErreurColab(f"`colab new` a echoue : {(r.stderr or r.stdout).strip()[-400:]}")
 
     try:
-        r = _colab(["drivemount", "-s", session], timeout=600, journal=journal)
-        if r.returncode != 0:
-            raise ErreurColab(
-                "`colab drivemount` a echoue : "
-                f"{(r.stderr or r.stdout).strip()[-400:]}\n"
-                "   → si Drive demande un consentement navigateur, monte-le une\n"
-                "     premiere fois a la main depuis Colab avec ce meme compte."
-            )
+        # `drivemount` est la premiere commande qui parle a la VM elle-meme,
+        # sur un nom d'hote cree a l'instant par `colab new`. Ce nom met
+        # quelques secondes a se propager : la resolution echoue alors avec
+        # « Temporary failure in name resolution » et le run est perdu pour
+        # une raison qui n'a rien a voir avec Drive. On lui laisse le temps.
+        for tentative in range(1, 5):
+            r = _colab(["drivemount", "-s", session], timeout=600, journal=journal)
+            if r.returncode == 0:
+                break
+            sortie = (r.stderr or r.stdout)
+            transitoire = any(motif in sortie for motif in (
+                "NameResolutionError", "Temporary failure in name resolution",
+                "Max retries exceeded", "ConnectionError",
+            ))
+            if not transitoire or tentative == 4:
+                raise ErreurColab(
+                    "`colab drivemount` a echoue : "
+                    f"{sortie.strip()[-400:]}\n"
+                    "   → si Drive demande un consentement navigateur, monte-le une\n"
+                    "     premiere fois a la main depuis Colab avec ce meme compte."
+                )
+            journal(f"drivemount : erreur reseau transitoire, nouvelle tentative dans 15 s ({tentative}/4)")
+            time.sleep(15)
 
-        r = _colab(["exec", "-s", session],
+        r = _colab(["exec", "-s", session, "--timeout", "120"],
                    entree=_preambule(video_id, mode, racine_vm, forcer),
                    timeout=300, journal=journal)
         if r.returncode != 0:
@@ -236,8 +252,16 @@ def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
 
         # Le long : synthese, transcription, controle WER. Son code de retour
         # n'est PAS ce qui decide du succes (voir l'en-tete du module).
-        r = _colab(["exec", "-s", session, "-f", str(NOTEBOOK)],
-                   timeout=timeout_exec, journal=journal)
+        # `colab exec --timeout` vaut 30 s par defaut : c'est le delai
+        # d'attente d'une sortie de cellule, pas celui du processus. Sans lui,
+        # la premiere cellule un peu longue — installation des dependances,
+        # chargement du modele — leve `TimeoutError: Timeout waiting for
+        # output` au bout d'une demi-minute, et le run est perdu alors que la
+        # machine, elle, continue de travailler. Le budget de la cellule est
+        # donc celui du run.
+        r = _colab(["exec", "-s", session, "-f", str(NOTEBOOK),
+                    "--timeout", str(timeout_exec)],
+                   timeout=timeout_exec + 120, journal=journal)
         journal(f"`colab exec` du notebook : code {r.returncode}")
 
         # Le journal de session est la seule trace de ce qui s'est dit dans
