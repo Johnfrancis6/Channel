@@ -297,7 +297,22 @@ def executer_run(video_id, session, gpu, mode, racine_vm, forcer, garder,
     else:
         r = _colab(["new", "-s", session, "--gpu", gpu], timeout=600, journal=journal)
         if r.returncode != 0:
-            raise ErreurColab(f"`colab new` a echoue : {(r.stderr or r.stdout).strip()[-400:]}")
+            sortie = (r.stderr or r.stdout)
+            indice = ""
+            # 412 : le compte a deja trop de runtimes. Sur Colab gratuit c'est
+            # un seul GPU a la fois, et un run echoue avant `colab new` ne
+            # nettoie rien — le suivant se heurte a l'orphelin sans que le
+            # message dise ou regarder.
+            if "TooManyAssignments" in sortie or "Precondition Failed" in sortie:
+                indice = (
+                    "\n   → Trop de runtimes actifs sur ce compte. Liste et libere :\n"
+                    "       colab sessions\n"
+                    "       colab stop -s <nom>\n"
+                    "     Si la liste est vide et que l'erreur persiste, un runtime tourne\n"
+                    "     cote Google sans etre connu du CLI : colab.research.google.com\n"
+                    "     → Execution → Gerer les sessions → tout arreter."
+                )
+            raise ErreurColab(f"`colab new` a echoue : {sortie.strip()[-400:]}{indice}")
 
     try:
         if not reprendre:
