@@ -466,3 +466,96 @@ Ordre proposé, du plus utile au moins urgent :
 
 Les points 1 à 4 ont de la valeur sur les Shorts tels quels. Aucun n'est
 un investissement à fonds perdus si le format long est repoussé.
+
+---
+
+# Mise en place — points 1 à 4 (16/09/2026)
+
+Les quatre chantiers utiles dès maintenant sont faits. **Le point 5 — le
+format long lui-même — n'est pas commencé**, conformément à la
+recommandation ci-dessus : il attend une deuxième vidéo publiée.
+
+## 1. Résolution des ressources — `outils/resoudre_ressources.py`
+
+Le tuyau footage → écran avait ses deux bouts ouverts : A6 déclarait des
+`besoins`, `construire_props` savait lire `05b_ressources.json`, les trois
+composants `Plan*` savaient afficher le résultat, et **rien n'écrivait le
+fichier du milieu**. Ils ont été écrits, mis au registre, et alimentés par
+rien.
+
+**Ce qui a été tranché en écrivant.** L'outil s'arrête là où commence le
+jugement. Il fait la plomberie déterministe — télécharger un logo,
+capturer une page, retrouver un fichier désigné, mesurer la durée d'un
+clip — et sort en `non_resolus` tout besoin qui demande de décider *quel*
+rush illustre *quelle* intention, avec la liste de ce qui est disponible.
+C'est l'agent qui choisit, puis relance avec `--associer <clé>=<fichier>`.
+Une correspondance par mots-clés aurait rendu un jugement qu'on ne peut
+pas relire. C'est la même séparation que `generer_storyboard.py`, qui
+livre un squelette et laisse le choix des composants à A6.
+
+**Pas d'agent A8, pas d'étape de machine à états.** La décision sur les
+rushes l'impliquait déjà ; l'outil est appelé par le Monteur à son étape
+4a, juste avant de construire les props qu'il alimente. Rien ne bouge dans
+le §6.2.
+
+Trois façons de lier un rush à un besoin, de la plus explicite à la plus
+implicite : `--associer` ; `assets/rushes.json` ; le nom du fichier
+(`assets/<clé>.mp4`).
+
+**Un détail qui aurait cassé le rendu en silence** : `PlanBroll` choisit
+`<OffthreadVideo>` ou `<Img>` sur `type === 'broll'`, et `PlanCapture`
+n'affiche sa barre de navigateur que sur `type === 'capture'`. Le type
+écrit dans `05b_ressources.json` suit donc le **fichier**, pas la demande :
+un besoin de b-roll honoré par une photo sort en `image`, avec un
+avertissement. Sinon le composant tentait de lire un PNG comme une vidéo.
+
+Le test qui compte est `TestRoundTrip` : la sortie de l'outil est
+effectivement relue par `construire_props.preparer_ressources`. Un contrat
+vérifié seulement sur ses propres assertions est exactement ce qui a
+produit trois composants alimentés par rien.
+
+## 2. Cache des clips TTS par phrase
+
+La synthèse était déjà phrase par phrase avec une graine par phrase, donc
+déterministe — mais les clips ne vivaient qu'en RAM. Chaque clip est
+maintenant écrit dans `audio/clips/`, nommé par une empreinte de ce qui le
+détermine : **texte, graine, voix de référence**. Un script corrigé ou une
+graine changée invalident donc le cache d'eux-mêmes, ce qui évite un
+drapeau de configuration de plus — et garde intact le conseil du notebook
+sur un WER marginal (« relance avec une autre graine » produit bien une
+vraie re-synthèse).
+
+L'écriture se fait en deux temps (`.wav.tmp` puis `os.replace`) : un cache
+dont le seul rôle est de survivre à une interruption ne peut pas se
+permettre de relire un fichier tronqué comme s'il était bon.
+
+## 3. Dimensions de composition depuis la charte
+
+`Root.tsx` lit `props.charte.format` dans `calculateMetadata`, qui peut
+retourner `width`/`height`/`fps` autant que `durationInFrames`. Les
+valeurs en dur ne servent plus que d'amorce. **Vérifié par un rendu réel**,
+pas seulement par le typecheck : une charte 1920×1080 produit un PNG
+1920×1080, et le test le verrouille.
+
+Le verrou dur du paysage est donc levé. Ce qui reste — et qui n'est pas
+petit — c'est que les composants sont *composés* pour du vertical.
+
+## 4. Énumérations du rapport CP3 plafonnées
+
+Bornées à 12 entrées, puis « (+ N autres, sur M au total) ». Ces listes
+vivaient hors du budget de caractères du §5.5 : sur 200 scènes, c'était
+200 identifiants en tête du rapport, devant tout ce qui porte la décision.
+
+## Ce qui n'a pas pu être vérifié ici
+
+- **`ffprobe` n'est pas installé dans cet environnement.** La durée d'un
+  clip retombe donc sur `rushes.json`, et l'absence est signalée en
+  avertissement. Le chemin ffprobe lui-même n'a pas été exercé.
+- **Ni `capturer_web.py` ni `recuperer_logo.py` n'ont été appelés en
+  réseau** : les tests tournent en `--hors-ligne`, et le proxy du bac à
+  sable refuse le web général (même réserve qu'à la séance du 15/09). Le
+  premier appel réel reste à faire chez Franco.
+- **Le cache TTS n'a pas été exécuté** : le notebook demande Colab et un
+  GPU. Ce qui est testé ici, c'est la fonction de nommage, extraite du
+  notebook et exécutée pour de vrai — l'invalidation est exactement la
+  règle qu'un test par sous-chaîne aurait déclarée verte en se trompant.

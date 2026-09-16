@@ -550,11 +550,15 @@ Exactement ce pour quoi le catalogue existe :
 
 ### Ce qui reste pour fermer E5b
 
-L'agent A8 lui-meme (lecture des `besoins`, dispatch vers les outils,
-ecriture de `05b_ressources.json`, banque partagee sur Drive), la recherche
-de b-roll (Pexels), les transitions a la demande via `TransitionSeries`, et
-la passe de critique visuelle scene par scene. Les briques sur lesquelles
-tout ca repose sont en place et verifiees.
+~~L'agent A8 lui-meme~~ → **fait le 16/09**, mais pas sous la forme prevue :
+`outils/resoudre_ressources.py`, appele par le Monteur a son etape 4a. Pas
+d'agent A8, pas d'etape de machine a etats en plus — le tuyau se ferme la
+ou il etait coupe, entre le storyboard et les props. L'outil fait la
+plomberie deterministe (telecharger un logo, capturer une page, retrouver
+un fichier designe, mesurer un clip) et rend la main sur ce qui est un
+jugement : associer un rush a une intention. Ce qui reste : la recherche de
+b-roll en banque libre (#19), et la passe de critique visuelle scene par
+scene. Les briques sur lesquelles tout ca repose sont en place et verifiees.
 
 **Note d'environnement** : la seance s'est tenue dans un bac a sable dont le
 proxy refuse le CONNECT vers le web general. `capturer_web.py` a donc ete
@@ -798,7 +802,7 @@ place. Ce qui change, c'est que l'action attendue de Franco est désormais
 | 15 | Composants : boucle rognée, rail à travers le texte, `lean_in` sans inclinaison, sous-titres absents du catalogue | ✅ fait |
 | 16 | Graphe de dépendances dérivé de `PIPELINE` ; `short-state` lisait une clé que personne n'écrit | ✅ fait |
 | 17 | E5b : tuyau d'assets generalise, contrat `Besoin`/`Ressource`, `PlanCapture`/`PlanBroll`/`PlanLogos`, `capturer_web.py`, `recuperer_logo.py` | ✅ fait |
-| 18 | Agent A8 (Documentaliste) : lit les `besoins`, ecrit `05b_ressources.json`, alimente la banque partagee | ⬜ |
+| 18 | Resolution des ressources : lit les `besoins`, ecrit `05b_ressources.json`, alimente la banque partagee | ✅ fait — `outils/resoudre_ressources.py`, appele par A7 a l'etape 4a. Pas d'agent A8 ni d'etape en plus (16/09) |
 | 19 | B-roll : `outils/chercher_broll.py` (Pexels/Pixabay) | ⬜ |
 | 20 | Transitions a la demande : `transition_sortie` par scene via `TransitionSeries`, jamais deux fois la meme d'affilee | ✅ fait |
 | 21 | Passe de critique visuelle : une image fixe **par scene** de la vraie video, regardee avant le CP3 | ✅ fait — inscrite a l'etape 5 du SKILL du Monteur |
@@ -811,6 +815,9 @@ place. Ce qui change, c'est que l'action attendue de Franco est désormais
 | 28 | Fallback de `recaler_scenes` fatal, avec renvoi vers le convertisseur de rattrapage | ⬜ |
 | 29 | Une seule constante de marge basse partagee (aujourd'hui 300, 320, 420 et 220 selon le fichier) | ⬜ |
 | 30 | Wrapper `Camera` au niveau scene, avec `transformOrigin` sur un point d'interet declare au storyboard | ⬜ |
+| 32 | Cache des clips TTS par phrase : un run coupe ou un `resume_after_fail` reprend au lieu de tout re-synthetiser | ✅ fait |
+| 33 | Dimensions de composition lues dans `charte.json > format` au lieu d'etre en dur dans `Root.tsx` | ✅ fait |
+| 34 | Enumerations du rapport CP3 plafonnees (elles vivaient hors du budget de caracteres) | ✅ fait |
 | 31 | E4 sans navigateur : `outils/lancer_voix_off.py` via le Colab CLI officiel | ✅ fait — reste le premier run reel chez Franco |
 | — | *Plus tard* : outils qui rendent Remotion plus organique (d3-ease, `@remotion/noise`, rough.js) | ⬜ |
 

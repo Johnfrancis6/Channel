@@ -647,7 +647,9 @@ Avant de clore E6, A7 rend quelques images fixes (`remotion still` sur le hook, 
         ├── 05_storyboard.md         # lecture humaine, revu au CP3
         ├── 05_storyboard.json       # lu par le Monteur
         ├── 06_video_finale.mp4
-        ├── assets/                  # images d'inspiration déposées par Franco
+        ├── 05b_ressources.json      # assets résolus, écrit par resoudre_ressources.py (E5b)
+        ├── assets/                  # déposé par Franco : images d'inspiration **et** rushes
+        │   └── rushes.json          # description des rushes (clé, fichier, ce qu'on voit, durée)
         └── checkpoints/
             ├── rapport_CP1.md
             ├── rapport_CP2.md

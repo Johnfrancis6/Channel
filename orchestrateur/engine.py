@@ -293,6 +293,23 @@ def _duree_mp4_s(chemin):
     return None
 
 
+# Ces enumerations vivent **hors** du budget de caracteres du resume : la
+# troncature du §5.5 ne s'applique qu'a l'extrait du storyboard. Une video de
+# 200 scenes livrait donc 200 identifiants sur une seule ligne, en tete du
+# rapport, devant tout ce qui porte la decision — exactement le defaut que le
+# §5.5 avait corrige ailleurs.
+MAX_ENUMERATION = 12
+
+
+def _enumeration_bornee(items, maximum=MAX_ENUMERATION):
+    """Liste au plus `maximum` entrees, puis compte le reste."""
+    items = [str(i) for i in items]
+    if len(items) <= maximum:
+        return ", ".join(items)
+    reste = len(items) - maximum
+    return f"{', '.join(items[:maximum])} (+ {reste} autres, sur {len(items)} au total)"
+
+
 def _resume_video_finale(video_dir, state):
     """
     Ce qu'il faut pour decider au CP3 : le fichier a regarder, sa duree face
@@ -351,12 +368,12 @@ def _resume_video_finale(video_dir, state):
 
     a_completer = [sc.get("id") for sc in scenes if sc.get("a_completer")]
     if a_completer:
-        lignes.append(f"- ⚠️ **Scenes non tranchees par le Designer** : {', '.join(map(str, a_completer))} "
+        lignes.append(f"- ⚠️ **Scenes non tranchees par le Designer** : {_enumeration_bornee(a_completer)} "
                        f"— le storyboard a ete livre a l'etat de squelette.")
 
     nouveaux = storyboard.get("nouveaux_composants_necessaires") or []
     if nouveaux:
-        lignes.append(f"- **Nouveaux composants** : {', '.join(nouveaux)} — "
+        lignes.append(f"- **Nouveaux composants** : {_enumeration_bornee(nouveaux)} — "
                        f"ils n'ont jamais ete revus ailleurs qu'ici (§8).")
 
     if montage.get("message"):

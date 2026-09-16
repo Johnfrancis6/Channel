@@ -111,5 +111,73 @@ class TestDiagnosticWER(unittest.TestCase):
         self.assertLess(grave, 0.90)
 
 
+def _extraire_fonction(nom):
+    """Sort une fonction du notebook pour la tester pour de vrai.
+
+    Le reste du fichier verifie des chaines de caracteres, faute de pouvoir
+    executer le notebook. Une fonction pure, elle, s'execute ici — et
+    l'invalidation du cache est exactement le genre de regle qu'un test par
+    sous-chaine declarerait verte en se trompant.
+    """
+    import hashlib
+    for _, source in cellules_code():
+        arbre = ast.parse(source)
+        for noeud in ast.walk(arbre):
+            if isinstance(noeud, ast.FunctionDef) and noeud.name == nom:
+                espace = {"hashlib": hashlib}
+                exec(compile(ast.Module([noeud], []), "<notebook>", "exec"), espace)
+                return espace[nom], espace
+    raise AssertionError(f"fonction {nom} absente du notebook")
+
+
+class TestCacheDesClips(unittest.TestCase):
+    """Les clips ne vivaient qu'en RAM : `resume_after_fail` re-synthetisait
+    tout le script depuis zero, et un run coupe avant l'assemblage ne laissait
+    rien. Sur un script long, une session Colab a un timeout — l'echec devient
+    alors structurel, puisque le run ne peut jamais atteindre l'assemblage."""
+
+    def setUp(self):
+        self.source = source_complete()
+        self.cle_clip, self.espace = _extraire_fonction("cle_clip")
+
+    def _nom(self, i=0, phrase="Hello world", graine=42, voix="voix_principale", ref="ref"):
+        self.espace.update({"GRAINE": graine, "NOM_VOIX": voix, "ref_txt": ref})
+        return self.cle_clip(i, phrase)
+
+    def test_meme_entree_meme_nom(self):
+        self.assertEqual(self._nom(), self._nom())
+
+    def test_un_script_corrige_invalide_le_cache(self):
+        self.assertNotEqual(self._nom(phrase="Hello world"), self._nom(phrase="Hello there"))
+
+    def test_une_autre_graine_invalide_le_cache(self):
+        # C'est le conseil que donne le notebook sur un WER marginal : il doit
+        # produire une vraie re-synthese, pas relire les memes clips.
+        self.assertNotEqual(self._nom(graine=42), self._nom(graine=43))
+
+    def test_une_autre_voix_invalide_le_cache(self):
+        self.assertNotEqual(self._nom(voix="a"), self._nom(voix="b"))
+        self.assertNotEqual(self._nom(ref="texte de reference"), self._nom(ref="un autre"))
+
+    def test_deux_phrases_identiques_ne_partagent_pas_leur_clip(self):
+        # Meme texte a deux endroits du script : la graine est GRAINE + i,
+        # donc les deux clips different et l'index doit les separer.
+        self.assertNotEqual(self._nom(i=0), self._nom(i=1))
+
+    def test_le_nom_est_ordonnable(self):
+        # Les clips se lisent dans l'ordre du script quand on ouvre le dossier.
+        self.assertTrue(self._nom(i=0).startswith("0001_"))
+        self.assertTrue(self._nom(i=11).startswith("0012_"))
+
+    def test_le_clip_est_ecrit_puis_relu(self):
+        self.assertIn("sf.read(chemin_clip", self.source)
+        self.assertIn("sf.write(provisoire", self.source)
+
+    def test_l_ecriture_est_atomique(self):
+        # Un run coupe pendant l'ecriture laisserait un wav tronque que le run
+        # suivant relirait comme s'il etait bon.
+        self.assertIn("os.replace(provisoire, chemin_clip)", self.source)
+
+
 if __name__ == "__main__":
     unittest.main()

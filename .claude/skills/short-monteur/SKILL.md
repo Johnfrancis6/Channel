@@ -168,6 +168,41 @@ verifier (cadre trop vide, texte illisible, element hors champ).
 
 ## Etape 4 — Construire les props de rendu
 
+### 4a — Resoudre les ressources declarees par le Designer
+
+Si le storyboard contient des `besoins` (captures, logos, images, b-roll) :
+
+```bash
+python3 <chemin-du-skill>/outils/resoudre_ressources.py \
+  --storyboard <racine>/videos/<video_id>/05_storyboard.json \
+  --root <racine>
+```
+
+Il ecrit `05b_ressources.json`, le fichier que l'etape suivante consomme.
+Il fait la plomberie deterministe — telecharger un logo, capturer une page,
+retrouver un fichier designe, mesurer la duree d'un clip — et **s'arrete la
+ou commence le jugement** : associer « l'agent modifie un fichier dans VS
+Code » au rush `capture_ecran_2026_09_16.mp4` est ton travail, pas le sien.
+
+Lis sa sortie JSON :
+
+- **`non_resolus`** — pour chacun, regarde `rushes_disponibles` (les fichiers
+  que Franco a deposes dans `assets/`, avec leur description quand
+  `assets/rushes.json` en donne une), choisis, et relance avec
+  `--associer <cle>=<fichier>`. Un besoin `obligatoire` non resolu sort en
+  **code 3** : ne rends pas la video sans l'avoir traite ou signale.
+- **`avertissements`** — une duree de clip inconnue (pas de `ffprobe`)
+  signifie que `PlanBroll` ne rebouclera pas un clip plus court que sa
+  scene : la fin du plan sera noire. Declare la duree dans
+  `assets/rushes.json` si le cas se presente.
+
+Un besoin sans fichier n'empeche pas le montage : la ressource est
+simplement absente de la table et le composant affiche « Ressource
+manquante » en clair — ce qui se voit au CP3, contrairement a un cadre noir.
+Mais **ne laisse pas passer ca en silence** : dis-le au message de cloture.
+
+### 4b — Assembler les props
+
 ```bash
 cd composants
 python3 <chemin-du-skill>/scripts/construire_props.py \

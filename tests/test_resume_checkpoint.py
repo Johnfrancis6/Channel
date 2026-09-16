@@ -270,6 +270,30 @@ class TestResumeCP3(unittest.TestCase):
         self.ecrire_storyboard([("s1", 20.0)], nouveaux=["StickmanTalk"])
         self.assertIn("StickmanTalk", self.resume())
 
+    def test_une_longue_liste_de_scenes_est_bornee(self):
+        # Ces enumerations sont hors du budget de caracteres du resume : sur
+        # un script long, 200 identifiants passaient en tete du rapport,
+        # devant tout ce qui porte la decision.
+        ids = [f"s{i}" for i in range(1, 201)]
+        self.ecrire_storyboard([(i, 1.0) for i in ids], a_completer=set(ids))
+        r = self.resume()
+        self.assertIn("sur 200 au total", r)
+        self.assertNotIn("s200", r)
+        ligne = next(l for l in r.splitlines() if "non tranchees" in l)
+        self.assertLess(len(ligne), 400)
+
+    def test_une_longue_liste_de_composants_est_bornee(self):
+        self.ecrire_storyboard([("s1", 20.0)], nouveaux=[f"C{i}" for i in range(40)])
+        r = self.resume()
+        self.assertIn("sur 40 au total", r)
+        self.assertNotIn("C39", r)
+
+    def test_une_liste_courte_reste_entiere(self):
+        self.ecrire_storyboard([("s1", 20.0)], nouveaux=["StickmanTalk", "PlanBroll"])
+        r = self.resume()
+        self.assertIn("StickmanTalk, PlanBroll", r)
+        self.assertNotIn("au total", r)
+
     def test_la_video_passe_avant_le_plan(self):
         r = self.resume()
         self.assertLess(r.index("La video a valider"), r.index("Storyboard"))

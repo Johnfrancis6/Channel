@@ -52,19 +52,33 @@ const PROPS_PAR_DEFAUT: VideoProps = {
   ],
 };
 
+// Les dimensions viennent de `charte.json > format`, comme les couleurs et
+// les durees : le format fait partie de la charte, et il n'y a aucune raison
+// qu'il soit le seul token que le code ignore. Les valeurs en dur de
+// <Composition> ne servent plus que d'amorce avant le premier appel a
+// `calculateMetadata`, qui les remplace des que les props sont connues.
+const {largeur_px: LARGEUR, hauteur_px: HAUTEUR} = PROPS_PAR_DEFAUT.charte.format;
+
 export const RemotionRoot: React.FC = () => {
   return (
     <Composition
       id="Video"
       component={Video}
       fps={FPS}
-      width={1080}
-      height={1920}
+      width={LARGEUR}
+      height={HAUTEUR}
       durationInFrames={dureeTotaleFrames(PROPS_PAR_DEFAUT.scenes, FPS)}
       defaultProps={PROPS_PAR_DEFAUT}
-      calculateMetadata={async ({props}) => ({
-        durationInFrames: dureeTotaleFrames(props.scenes, FPS, props.duree_audio_s),
-      })}
+      calculateMetadata={async ({props}) => {
+        const format = props.charte?.format;
+        const fps = format?.fps || FPS;
+        return {
+          width: format?.largeur_px || LARGEUR,
+          height: format?.hauteur_px || HAUTEUR,
+          fps,
+          durationInFrames: dureeTotaleFrames(props.scenes, fps, props.duree_audio_s),
+        };
+      }}
     />
   );
 };
