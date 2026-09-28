@@ -1,0 +1,10 @@
+node_modules/
+dist/
+public/vendor/
+.wrangler/
+.dev.vars
+*.tsbuildinfo
+test-results/
+playwright-report/
+rapport-qualite/
+exemples/prive/

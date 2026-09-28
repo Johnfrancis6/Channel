@@ -1,0 +1,41 @@
+{
+  "name": "scanner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "App personnelle de scan et d'édition de documents (PWA + Cloudflare Worker).",
+  "scripts": {
+    "vendor": "node scripts/copy-vendor.mjs",
+    "dev": "npm run vendor && vite",
+    "build": "npm run vendor && tsc -b && vite build",
+    "preview": "wrangler dev",
+    "typecheck": "tsc -b",
+    "test": "vitest run --project unit --project worker",
+    "test:unit": "vitest run --project unit",
+    "test:worker": "vitest run --project worker",
+    "test:e2e": "playwright test",
+    "qualite": "playwright test tests/e2e/qualite.spec.ts",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@techstark/opencv-js": "4.12.0-release.1",
+    "@tesseract.js-data/fra": "^1.0.0",
+    "hono": "^4.13.10",
+    "pdf-lib": "^1.17.1",
+    "preact": "^10.29.8",
+    "tesseract.js": "^7.0.0",
+    "tesseract.js-core": "^7.0.0"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.22.0",
+    "@cloudflare/workers-types": "^5.20260928.1",
+    "@playwright/test": "1.56.1",
+    "@preact/preset-vite": "^2.10.6",
+    "@types/node": "^22.20.4",
+    "pdfjs-dist": "^6.3.289",
+    "typescript": "5.9.3",
+    "vite": "^8.3.1",
+    "vitest": "^4.1.0",
+    "wrangler": "^4.143.0"
+  }
+}
