@@ -1,7 +1,8 @@
 # Architecture d'exécution — v1
 
 *Rédigé le 28/09/2026, à partir du document d'état du 26/09/2026 et des
-contrats de `setup/`. Les décisions D1 à D36 sont tenues pour acquises :
+contrats de `setup/`. Révisé le 28/09 au soir : sept décisions prises
+en session sont intégrées et repérées par **[D-28/09]**. Les décisions D1 à D36 sont tenues pour acquises :
 ce document les met en œuvre, il ne les rediscute pas. Les désaccords
 sont rassemblés au §11, sans effet ailleurs.*
 
@@ -559,8 +560,9 @@ CREATE INDEX piste_par_tags  ON ops.piste_audio USING gin (tags);
 CREATE INDEX piste_par_moods ON ops.piste_audio USING gin (moods);
 
 -- D32 / M12 / R15 : une musique n'est pas livrée à deux clients sur la
--- période configurée. La table enregistre les livraisons ; la fenêtre
--- est un paramètre, pas une contrainte figée.
+-- période configurée : 30 jours [D-28/09]. La table enregistre les
+-- livraisons ; la fenêtre est un paramètre (ops.parametre), pas une
+-- contrainte figée.
 CREATE TABLE ops.musique_livree (
   asset_ref  text NOT NULL REFERENCES ops.piste_audio (asset_ref),
   client_id  text NOT NULL REFERENCES ops.client (client_id),
@@ -941,7 +943,7 @@ d'échec.
 | T14 | `CORRECTION` → `RENDERED_VERIFIED` | nouveau master conforme | R9, R10 | — |
 | T15 | états de travail → `FAILED` | erreur non rattrapable, ou watchdog après relance | `code_echec` renseigné | message neutre au client, alerte Franco (D33) |
 | T16 | attentes client → `FAILED` | `abandon_apres_s` dépassé | — | `code_echec = 'ABANDON_CLIENT'`, pas d'alerte P1 |
-| T17 | `FAILED` → `etat_avant_echec` | commande admin `job_relancer` | `etat_avant_echec` non nul, cause traitée | reprise sans repaiement. **Absent du diagramme du document d'état** : §11, écart É-2 |
+| T17 | `FAILED` → `etat_avant_echec` | commande admin `job_relancer` | `etat_avant_echec` non nul, cause traitée | reprise sans repaiement. Sur un échec `E_BUDGET`, **recharge `budget_centimes` et `budget_restant` au plafond courant** et écrit une ligne d'audit [D-28/09]. **Absent du diagramme du document d'état** : §11, écart É-2 |
 
 **T11 est le point sensible.** Un refus de Franco revient en
 `ASSETS_READY`, donc au menu et au Monteur — pas en `GENERATING`. Les
@@ -1256,6 +1258,36 @@ Cinq règles, qui sont le contrat réel :
    composition. C'est ce qui permet de l'exécuter à la main en T1, sans
    base.
 
+**Ce que HyperFrames fournit, et ce qu'il ne fournit pas** [D-28/09].
+Le moteur est confirmé : projet open source de HeyGen, licence Apache
+2.0, aucun frais par rendu, rendu local, Node 22 + FFmpeg + Chrome
+headless — exactement l'image de `job-produce`. Une composition y est un
+**fichier HTML ordinaire**, sans étape de build, dont le temps vit dans
+des attributs `data-start` / `data-duration` / `data-track-index`. Le
+renderer ne joue pas : il **cherche chaque frame**, la capture, puis
+encode. Trois conséquences :
+
+- **D34 n'est pas fourni par le moteur.** Il n'a pas de système de props
+  JSON. Les « emplacements déclarés remplis par JSON » sont **notre
+  code** : le manifeste déclare les `slot_id`, le HTML porte des
+  `data-slot`, et le compilateur injecte avant capture. T11 est une
+  vérification que nous écrivons, pas une propriété du moteur.
+- **Les temps se convertissent, et c'est là que naissent les décalages.**
+  Les contrats sont en millisecondes entières, le moteur attend des
+  secondes. Ne jamais émettre `ms / 1000` : partir du numéro de frame,
+  émettre `frame / fps`, et vérifier le retour —
+  `round(secondes × fps) === frame`.
+- **Toute animation doit être seekable** : timeline en pause, scrubée par
+  le renderer. Une animation pilotée par l'horloge murale, par
+  `requestAnimationFrame` ou par un aléa non graîné casse le déterminisme
+  **sans lever d'erreur**. C'est la forme concrète de R11 pour ce moteur,
+  et elle appartient à `Template.rules.md`.
+
+Le moteur sait aussi mixer l'audio, y compris le ducking. **Nous ne
+l'utilisons pas** : la composition résout déjà le mix (A2, R10, R15), et
+déplacer cette décision dans le moteur rouvrirait la conformité sonore à
+chaque changement de moteur.
+
 Les deux profils d'encodage (`encode.preview`, `encode.master`) sont
 appliqués **dans la commande FFmpeg du moteur**, jamais en
 post-traitement séparé : un remux ultérieur peut réintroduire des
@@ -1327,6 +1359,16 @@ choix qui a une conséquence d'isolation, traitée au §11, écart É-1.
    moyenne : ainsi le budget n'est jamais dépassé après coup et la
    contrainte de la base n'a jamais à être contournée.
 
+**Fournisseur LLM** [D-28/09] : Groq, `openai/gpt-oss-120b`, palier
+gratuit. Deux conséquences portées ailleurs dans ce document — le budget
+de reprise du Monteur se scinde (§6.1) parce que `strict` est ignoré sur
+ce modèle, et le plafond de coût **ne protège plus d'une boucle LLM**
+puisque les appels sont gratuits : cette protection repose désormais
+entièrement sur les deux bornes de reprise. Un palier gratuit n'étant
+assorti d'aucun engagement de service, **l'adaptateur porte deux
+fournisseurs** et bascule sur `E_FOURNISSEUR_INDISPO` avant la reprise du
+watchdog ; `ops.generation.fournisseur` enregistre lequel a servi.
+
 **Reprises** : uniquement sur erreur réseau, 5xx ou timeout, deux fois,
 2 s puis 8 s. Jamais sur 4xx. Jamais de nouvelle soumission sans
 `reconcilier()` quand `ref_fournisseur` existe — c'est la seule façon de
@@ -1393,8 +1435,22 @@ j'écarte donc l'idée d'un *plan par défaut* qui compilerait quand même
 techniquement facile et cela éviterait un `FAILED`, mais cela livrerait à
 Franco un montage plat en prétendant que le Monteur a travaillé. Mieux
 vaut une alerte : à 2 projets par jour, un échec de Monteur est un
-événement, pas un bruit de fond. La question est rouverte au §12, B3, si
-les échecs s'avèrent fréquents en T3.
+événement, pas un bruit de fond.
+
+**Mais deux échecs ne se valent pas** [D-28/09]. Le fournisseur retenu
+(Groq, `openai/gpt-oss-120b`) **ignore `response_format` en mode
+`strict`** : rien ne garantit la forme du JSON. Un document malformé
+n'est pas une mauvaise décision de montage, c'est du bruit de
+génération, et le faire compter comme un échec de jugement réveillerait
+Franco pour rien. Le budget se scinde donc :
+
+| Échec | Nature | Budget |
+|---|---|---|
+| le JSON ne parse pas, ou viole la **forme** du schéma | transport — le modèle n'a rien décidé | **3 tentatives**, hors budget du Monteur |
+| JSON bien formé mais violant le menu (M3) ou M4–M12 | vraie erreur de décision | **1 reprise**, puis alerte Franco |
+
+La règle de `Montage plan.rules.md` est conservée à l'identique là où
+elle a du sens : sur les décisions.
 
 ### 6.2 Ce que reçoit le Monteur, et rien d'autre
 
@@ -1580,7 +1636,8 @@ défaut) pendant tout segment de voix off (R14).
 
 **Élection** : `mood` ∈ `allowed_moods` du Brand Pack (B14, M12) →
 requête sur `ops.piste_audio.moods`, en excluant les pistes livrées à un
-autre client sur la période configurée :
+autre client sur la période configurée — **30 jours** [D-28/09], valeur
+portée par `ops.parametre`, pas en dur :
 
 ```sql
 -- prédicat, pas une implémentation
@@ -1591,7 +1648,7 @@ SELECT p.asset_ref FROM ops.piste_audio p
      SELECT 1 FROM ops.musique_livree m
       WHERE m.asset_ref = p.asset_ref
         AND m.client_id <> $client
-        AND m.livre_le > now() - $fenetre)
+        AND m.livre_le > now() - interval '30 days')
  ORDER BY p.asset_ref;
 ```
 
@@ -2176,7 +2233,9 @@ qui respecte le contrat à la lettre : **l'index d'unicité en base porte
 sur `(client_id, generation_key)`**, et `provenance.generation_key` garde
 exactement la valeur du contrat. La recherche d'idempotence est alors
 toujours bornée au client, et deux clients paient chacun la leur — ce qui
-est voulu (D30).
+est voulu (D30). **Appliqué aux contrats le 28/09** : le `$comment` de
+`provenance.generation_key` porte désormais la règle, et R12 recherche
+sur `(client_id, generation_key)`.
 
 **É-2 — `FAILED` est terminal dans le diagramme, mais le canal admin
 promet une relance « depuis le dernier état ».** Les deux ne peuvent pas
@@ -2222,8 +2281,9 @@ perçu est celui de l'**attaque**, qui peut arriver 90 ms plus tard. Un
 son parfaitement calé à l'oreille échouerait donc la règle, et un son
 conforme à la règle tomberait en retard. Le runtime résout en stockant
 `attaque_ms` par piste (§2.6) et en calant l'attaque ; **le contrôle R14
-doit porter sur `start_ms + attaque_ms`**, pas sur `start_ms`. C'est le
-seul endroit où je recommande de préciser un contrat existant.
+doit porter sur `start_ms + attack_ms`**, pas sur `start_ms`.
+**Appliqué aux contrats le 28/09** : `sfx.attack_ms` est désormais un
+champ requis de la composition, et R14 contrôle la somme.
 
 **É-8 — D24 fait valider au client une durée qui n'existe pas encore.**
 Depuis D20 la durée est une conséquence de l'alignement ; le storyboard
@@ -2242,13 +2302,24 @@ elle ne peut pas créer le droit. À dire au client en une phrase à la
 livraison, et à considérer comme la vraie raison de passer à ACE-Step,
 bien avant l'unicité sonore.
 
-**É-10 — « réduire le délai vers quelques minutes » est hors d'atteinte
-tant que D22 tient.** Même sans validation humaine, le plancher technique
-est de 6 à 10 min : démarrage à froid du Job GPU (2 à 4 min), générations
-fal.ai, rendu (cible T0 : 5 min), mixage, deux encodages, envois. Avec
-D22, le délai est celui du sommeil de Franco. C'est une ambition produit,
-pas une contrainte d'architecture : il ne faut pas concevoir contre elle
-aujourd'hui.
+**É-10 — « réduire le délai vers quelques minutes » reste hors
+d'atteinte.** Le plancher technique est de 6 à 10 min : démarrage à froid
+du Job GPU (2 à 4 min, sauf si É-15 le supprime), générations fal.ai,
+rendu (cible T0 : 5 min), mixage, deux encodages, envois. C'est une
+ambition produit, pas une contrainte d'architecture : il ne faut pas
+concevoir contre elle aujourd'hui.
+
+**D22 ∧ D36 : résolu, mais par un engagement, pas par l'architecture**
+[D-28/09]. Franco valide lui-même, y compris la nuit. La machine à états
+se ferme donc telle qu'elle est dessinée : `PENDING_REVIEW` garde
+`abandon_apres_s = NULL`, aucune arête automatique n'est ajoutée, et le
+point ouvert B1 disparaît. Deux instruments restent en place, et il ne
+faut pas les retirer sous prétexte que la décision est prise :
+`PENDING_REVIEW` continue de compter dans l'horloge de service (§3.4),
+ce qui **mesure le prix réel de cet engagement** ; et `history.revue`
+continue d'accumuler les paires refus / motif / plan accepté, sans quoi
+l'automatisation promise par D22 n'aura jamais de données. Au quatrième
+client, cette décision se rediscutera avec des chiffres.
 
 **É-11 — « voix off au choix du client » (D19) n'a pas encore d'objet.**
 D31 fixe le moteur mais pas le nombre de voix françaises réellement
@@ -2262,6 +2333,43 @@ d'administration d'une décision de LLM est une mauvaise idée pour un gain
 nul. D3 place les deux agents LLM « dans le Job » : le Storyboard tourne
 dans `svc-conversation`, puisque D24 exige que le client le valide
 **avant** que le Job ne démarre. Le Monteur, lui, est bien dans le Job.
+
+**É-13 — R10 mélange deux obligations qui n'ont pas le même domaine**
+[D-28/09]. La règle exige à la fois qu'une piste audio existe **dans tous
+les cas** — y compris silencieuse, via `anullsrc`, parce qu'un MP4 sans
+piste est refusé silencieusement par certains clients — et que le volume
+intégré vaille -14 LUFS ±1. Or une piste silencieuse mesure -∞ LUFS :
+elle ne peut, par construction, jamais satisfaire la seconde. R10 se lit
+donc comme **deux contrôles indépendants** : présence, format, canaux et
+fréquence d'échantillonnage s'appliquent toujours ; volume intégré et
+crête vraie ne s'appliquent que si `audio.silent_fallback` est faux. Le
+vérificateur consigne « non applicable : silent_fallback » — ni un succès,
+ni un rejet. Ce n'est pas une concession de T0, c'est le comportement
+permanent et correct.
+
+**É-14 — R11 confond le déterminisme du moteur et celui de l'encodeur**
+[D-28/09]. Le test d'acceptation dit « comparer les checksums vidéo et
+audio ». Mais deux choses distinctes peuvent diverger : les **frames
+capturées**, qui mesurent le moteur, et le **fichier encodé**, qui mesure
+x264 — lequel n'est pas garanti reproductible selon le *threading*, sans
+qu'une seule image diffère. Le `hash_frames` du contrat d'adaptateur
+(§5.1) et de `history.livraison` porte sur **les frames** : c'est lui qui
+fait foi. Le hash de fichier est informatif ; s'il diffère alors que les
+frames concordent, on épingle le *threading* de l'encodeur, on ne déclare
+pas un échec de déterminisme. Les deux se mesurent séparément.
+
+**É-15 — le GPU du Job TTS n'est peut-être pas nécessaire** [D-28/09].
+D31 fixe « Chatterbox Multilingual sur Cloud Run Job avec GPU L4 ». Le
+modèle est sous licence MIT : ce qui coûte, c'est la machine. Or le
+besoin réel est d'environ 30 secondes de parole deux fois par jour, et
+l'inférence CPU tiendrait probablement dans le budget de 30 minutes de
+`GENERATING`. L'intérêt n'est pas l'économie — 2 min de L4 coûtent peu —
+mais la suppression de **cinq dépendances** : la carte acceptée par
+Google Cloud (B5), le quota L4, une image de plusieurs gigaoctets, un
+démarrage à froid de 2 à 4 min dans le plancher de latence, et une unité
+de déploiement entière. **Écart à trancher par la mesure en T0b**, pas
+par délibération. Seuil : si 8 scènes de 4 secondes se synthétisent en
+moins de 5 minutes sur 8 vCPU, `job-tts` disparaît et B5 avec lui.
 
 ### 11.2 Décisions d'exécution prises par ce document
 
@@ -2283,20 +2391,10 @@ laissent ouvert.
 
 Classés par ce qu'ils empêchent d'écrire, pas par urgence ressentie.
 
-**B1 — Validation nocturne (É-10, D22 ∧ D36). BLOQUE** l'arête
-`PENDING_REVIEW → DELIVERED` automatique, donc la fermeture de la machine
-à états, donc la promesse D36. Une commande reçue à 2 h ne peut pas être
-livrée à 6 h si Franco dort : c'est une impossibilité arithmétique, pas
-un détail d'exploitation. L'architecture la rend **visible et mesurée**
-(§3.4) au lieu de la masquer. Décision attendue **avant T3**, étape 2 du
-§10.8. Deux options : (a) le délai ne court que pendant les heures de
-veille — à dire alors au client, dans le message d'accusé de réception ;
-(b) validation automatique de nuit sous conditions vérifiables (template
-publié, R9 et R10 vertes, aucune dégradation T9, aucun avertissement
-R13, client déjà servi). Recommandation : (b) pour un client déjà servi,
-(a) pour un premier projet — la conformité est binaire et vérifiée par
-code, c'est le goût qui n'est pas automatisable, et le goût est déjà
-cadré par un template publié.
+**B1 — Validation nocturne. RÉSOLU le 28/09** : Franco valide lui-même,
+24 h/24. Aucune arête automatique à construire, la machine à états se
+ferme telle quelle. Voir §11.1, D22 ∧ D36, pour les deux instruments à
+conserver.
 
 **B2 — Moteur de rendu (D7, T0). BLOQUE** le gel de `capacites()`, la
 validité de R5/R7/R8 et de T11, et la règle de dimensionnement
@@ -2330,15 +2428,24 @@ déposer maintenant.
 clarificateur, la règle S4 et `brand_pack.voice.allowed_voice_ids`
 (B14). Livrable de T0b.
 
-**B9 — Fenêtre de non-réutilisation musicale non chiffrée.** M12 et R15
-disent « sur la période configurée » sans donner de valeur. **BLOQUE** la
-requête d'élection du §7.5 et la taille utile de la bibliothèque : à
-30 jours et 3 clients il faut une poignée de pistes par ambiance ; à
-« jamais », il en faut 60 par an. À trancher avant T3, et cela détermine
-le volume du téléchargement Pixabay initial.
+**B9 — Fenêtre de non-réutilisation musicale. RÉSOLU le 28/09 : 30
+jours.** Conséquence de dimensionnement : l'exclusion ne joue qu'entre
+clients, et un client qui repasse commande garde sa piste. La demande
+simultanée est donc « 3 clients × ambiances réellement utilisées », pas
+60 pistes par an — de l'ordre de **8 à 10 pistes par ambiance**, soit 50
+à 60 au téléchargement initial. Effet de bord à connaître : au bout de 30
+jours, une piste livrée au client A redevient éligible pour le client B.
 
-**B10 — Plafonds de coût non chiffrés.** D35 fixe le principe, pas les
-montants. **BLOQUE** l'amorçage de `ops.plafond_cout` et donc T7 : sans
+**B10 — Plafonds de coût : valeurs d'amorçage proposées, à confirmer.**
+D35 fixe le principe, pas les montants. Proposition en attente
+d'acceptation : 200 c par vidéo, 50 c par visuel, 30 c par retouche ;
+15 000 c, 3 000 c et 2 000 c par mois. Devise unique : **le cent de
+dollar**, jamais le franc CFA — les fournisseurs facturent en USD, et
+figer un taux de change dans une colonne `integer` est une erreur qu'on
+ne découvre qu'au moment où le disjoncteur ne se déclenche pas. Depuis
+le 28/09, le plafond ne protège **plus** d'une boucle LLM (appels
+gratuits chez Groq) : cette protection repose entièrement sur les deux
+bornes de reprise du §6.1. **BLOQUE** l'amorçage de `ops.plafond_cout` et donc T7 : sans
 valeur, `budget_centimes` vaut zéro et aucune génération ne part. Une
 valeur provisoire suffit pour T3, mais elle doit exister, et le document
 d'état la renvoie au modèle commercial, qui est reporté.
