@@ -39,6 +39,10 @@ const bench = {
     images.set(id, c);
     return { width: c.width, height: c.height, scale: c.width / full.width };
   },
+  /** Exporte une image du banc en JPEG (data URL), comme une photo d'iPhone. */
+  jpeg(id: string) {
+    return toDataUrl(images.get(id)!);
+  },
   detect(id: string) {
     const t0 = performance.now();
     const d = detectDocument(cv, images.get(id)!);

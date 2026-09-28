@@ -402,3 +402,204 @@ textarea {
   opacity: 0;
   pointer-events: none;
 }
+
+/* --- Écran des coins --------------------------------------------------- */
+
+.topbar h1.center {
+  text-align: center;
+  font-size: 17px;
+}
+
+.stage {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: var(--stage);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.stage > img {
+  position: absolute;
+  pointer-events: none;
+}
+svg.quad {
+  position: absolute;
+  overflow: visible;
+}
+svg.quad polygon {
+  fill: rgba(56, 189, 248, 0.18);
+  stroke: #38bdf8;
+  stroke-width: 2.5;
+}
+svg.quad polygon.invalid {
+  fill: rgba(220, 38, 38, 0.2);
+  stroke: #ef4444;
+}
+svg.quad .hit {
+  fill: transparent;
+}
+svg.quad .handle {
+  fill: rgba(255, 255, 255, 0.35);
+  stroke: #38bdf8;
+  stroke-width: 3;
+  pointer-events: none;
+}
+.loupe {
+  position: absolute;
+  top: 12px;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+.hint {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 12px;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #f8fafc;
+  text-align: center;
+  font-size: 15px;
+}
+.corner-screen .bottombar {
+  align-items: center;
+}
+.corner-screen .bottombar .btn.primary {
+  flex: 1.6;
+}
+
+/* --- Éditeur ----------------------------------------------------------- */
+
+.btn.save {
+  min-height: 40px;
+  padding: 0 12px;
+  font-size: 15px;
+}
+.btn.save.dirty,
+.btn.save.error {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+.btn.save.error {
+  background: var(--danger);
+  color: #fff;
+}
+.btn.save.saved:disabled {
+  opacity: 1;
+  background: transparent;
+  color: var(--ok);
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.tabs button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font-weight: 600;
+  color: var(--muted);
+}
+.tabs button svg {
+  width: 20px;
+  height: 20px;
+}
+.tabs button[aria-selected='true'] {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.page-view {
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  touch-action: pan-x pan-y pinch-zoom;
+}
+.page-view img {
+  position: static;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  background: #fff;
+}
+
+.strip {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  overflow-x: auto;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  scrollbar-width: none;
+}
+.strip::-webkit-scrollbar {
+  display: none;
+}
+.strip .thumb {
+  position: relative;
+  flex: none;
+  width: 52px;
+  height: 68px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.strip .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.strip .thumb span {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  min-width: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: rgba(15, 23, 42, 0.75);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+.strip .thumb.current {
+  border-color: var(--accent);
+}
+.strip .thumb.add {
+  display: grid;
+  place-items: center;
+  border: 2px dashed var(--line);
+  background: transparent;
+}
+.strip .thumb.add svg {
+  width: 26px;
+  height: 26px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+}
+.row .btn {
+  flex: 1;
+}

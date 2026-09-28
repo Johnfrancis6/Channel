@@ -100,6 +100,9 @@ export function applyFilter(cv: CV, src: CV, filter: FilterName, p: FilterParams
     const out = new cv.Mat();
     cv.adaptiveThreshold(flat, out, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, block, p.bwC);
     free(flat);
+    // Les quelques pixels du bord viennent souvent du fond : liseré blanc pour un rendu net.
+    const t = Math.max(2, Math.round(out.cols * 0.004));
+    cv.rectangle(out, new cv.Point(0, 0), new cv.Point(out.cols - 1, out.rows - 1), new cv.Scalar(255), t);
     return out;
   }
   // Couleur améliorée : fond blanchi canal par canal, encre renforcée, couleurs ravivées.
