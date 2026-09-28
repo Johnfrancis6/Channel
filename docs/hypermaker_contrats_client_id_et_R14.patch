@@ -1,0 +1,77 @@
+diff --git a/setup/Composition.rules.md b/setup/Composition.rules.md
+index b7832a0..bbe48e9 100644
+--- a/setup/Composition.rules.md
++++ b/setup/Composition.rules.md
+@@ -207,8 +207,13 @@ la voix off, pas lues dans le storyboard, qui ne donne que des cibles.
+ - Chaque effet est rattaché à un événement de la timeline (`event_ref` : une
+   transition, l'apparition d'un élément, une emphase) qui existe dans la
+   composition
+-- `sfx.start_ms` égale le `start_ms` de l'événement ±1 frame. Un son décalé
+-  d'un demi-temps se remarque plus qu'une absence de son.
++- `sfx.start_ms + sfx.attack_ms` égale le `start_ms` de l'événement ±1 frame.
++  C'est l'**attaque** du son qui doit tomber sur l'événement, pas le début de son
++  fichier. `attack_ms` est mesuré une fois, à l'import de la bibliothèque (premier
++  échantillon à -20 dBFS du pic), et recopié dans la composition par le
++  compilateur. Sans lui, un whoosh dont le fichier commence par 90 ms de souffle
++  passe la règle et s'entend en retard, tandis qu'un son calé à l'oreille échoue.
++  Un son décalé d'un demi-temps se remarque plus qu'une absence de son.
+ - Les effets **structurels** (transitions, apparitions) proviennent du Brand Pack
+   ou du template ; les effets **sémantiques** proviennent d'une décision du plan
+   (`plan_decision_ref` obligatoire)
+@@ -320,12 +325,20 @@ fois lors du test HyperFrames (T0), puis en CI.
+ Avant chaque appel payant ou coûteux (génération fal.ai, voix off sur GPU) :
+ 
+ ```
+-si assets[ref].provenance.generation_key existe déjà en base
++si (client_id, assets[ref].provenance.generation_key) existe déjà en base
+    et l'objet R2 correspondant est présent
+ alors réutiliser, ne pas régénérer
+ sinon décrémenter le plafond du type de job (D35), PUIS appeler
+ ```
+ 
++**La recherche est bornée au client.** `generation_key` ne contient pas le
++`client_id` : deux clients qui demandent la même image, avec le même modèle et le
++même seed, produisent la même clé. Une recherche non bornée servirait donc au
++second l'asset du premier, dont `owner.client_id` est celui du premier — R17
++rejetterait la composition, mais tard, et le budget aurait été compté faux
++entre-temps. La clé d'unicité en base est `(client_id, generation_key)` ; chaque
++client paie la sienne, ce qui est voulu (D30).
++
+ Le plafond est décrémenté **avant** l'appel. Un plafond atteint bloque l'appel et
+ alerte Franco.
+ 
+diff --git a/setup/Composition.schema.json b/setup/Composition.schema.json
+index 06ae71b..8f9941a 100644
+--- a/setup/Composition.schema.json
++++ b/setup/Composition.schema.json
+@@ -303,7 +303,7 @@
+       "properties": {
+         "source": { "enum": ["client", "brand_pack", "generated", "tts", "library", "derived"] },
+         "generation_key": { "$ref": "#/$defs/sha256",
+-          "$comment": "sha256(provider | model | prompt | negative_prompt | seed | params), ou sha256(model | voice_id | texte | params) pour la voix off." },
++          "$comment": "sha256(provider | model | prompt | negative_prompt | seed | params), ou sha256(model | voice_id | texte | params) pour la voix off. La clé ne contient PAS le client_id : deux clients qui demandent la même image avec le même seed produisent donc la même valeur. La recherche d'idempotence est pour cette raison toujours bornée au client — la clé d'unicité en base est (client_id, generation_key), R12 — sans quoi l'asset d'un client serait servi à un autre et R17 rejetterait la composition." },
+         "provider": { "type": "string",
+           "$comment": "fal.ai pour la génération, identifiant du Job GPU pour la voix off." },
+         "model": { "type": "string" },
+@@ -641,8 +641,8 @@
+     "sfx": {
+       "type": "object",
+       "additionalProperties": false,
+-      "required": ["sfx_id", "asset_ref", "origin", "event_ref", "start_ms", "gain_db"],
+-      "$comment": "Effet sonore rattaché à un événement de la timeline, aligné sur lui ±1 frame (R14).",
++      "required": ["sfx_id", "asset_ref", "origin", "event_ref", "start_ms", "attack_ms", "gain_db"],
++      "$comment": "Effet sonore rattaché à un événement de la timeline. C'est son ATTAQUE qui tombe sur l'événement, à ±1 frame, pas le début de son fichier (R14).",
+       "properties": {
+         "sfx_id": { "type": "string", "pattern": "^sfx_[a-z0-9_]{2,32}$" },
+         "asset_ref": { "type": "string", "pattern": "^ast_[a-z0-9_]{3,40}$" },
+@@ -660,7 +660,9 @@
+           }
+         },
+         "start_ms": { "type": "integer", "minimum": 0,
+-          "$comment": "Position sur la timeline globale." },
++          "$comment": "Position du DÉBUT DU FICHIER sur la timeline globale." },
++        "attack_ms": { "type": "integer", "minimum": 0,
++          "$comment": "Décalage entre le début du fichier et son attaque, mesuré à l'import de la bibliothèque (premier échantillon à -20 dBFS du pic). Recopié ici par le compilateur pour que le validateur puisse contrôler l'instant réellement entendu : c'est start_ms + attack_ms qui doit tomber sur l'événement (R14). Un whoosh dont le fichier commence par 90 ms de souffle et qu'on aligne sur son premier échantillon s'entend en retard." },
+         "gain_db": { "type": "number", "minimum": -30, "maximum": 0 }
+       },
+       "if": { "properties": { "origin": { "const": "semantic" } } },
