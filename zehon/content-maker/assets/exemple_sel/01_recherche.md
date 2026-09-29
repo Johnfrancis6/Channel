@@ -76,7 +76,8 @@ en a pas, le sel est sous terre.
 
 | # | Affirmation | Statut | Source |
 |---|---|---|---|
-| 3.1 | Hallstatt (Autriche) : la plus ancienne mine de sel connue. L'activité minière est datée d'**environ 1500 av. J.-C.**, et l'exploitation systématique commence au XVIe s. av. J.-C. | **établi** | Naturhistorisches Museum Wien (NHM), site Hallstatt [src 10] |
+| 3.1 | Hallstatt (Autriche) : **l'une des plus anciennes mines de sel connues**. L'activité minière est datée d'**environ 1500 av. J.-C.**, et l'exploitation systématique commence au XVIe s. av. J.-C. Le NHM la présente comme « la plus ancienne du monde » : c'est **faux** (voir 3.1b) | **établi** (dates) | Naturhistorisches Museum Wien (NHM), site Hallstatt [src 10] |
+| 3.1b | **Duzdağı** (Nakhitchevan, Azerbaïdjan) : exploitation du sel gemme dès la **seconde moitié du Ve millénaire av. J.-C.** (datée par la céramique), soit plus de 2 000 ans avant Hallstatt. C'est la plus ancienne exploitation de sel gemme connue à ce jour | **établi** | Marro et al., *Journal of Field Archaeology* 41(4), 2016 [src 21] (résumé lu) |
 | 3.2 | Le chiffre de « **7 000 ans** » affiché par la mine touristique repose sur des haches en pierre et un pic en bois de cerf trouvés dans la vallée. Ce sont des **indices d'occupation, pas la preuve d'une mine** | L'occupation au Néolithique est **probable** ; la mine néolithique est une **hypothèse** | [src 10] (« likely ») ; Salzwelten (marketing) [src 11] |
 | 3.3 | Un **escalier en bois** trouvé en 2002 dans la partie préhistorique de la mine : l'abattage des arbres est daté par dendrochronologie de **1344 av. J.-C.** C'est le plus ancien escalier en bois connu en Europe | **établi** | Grabner et al., *Dendrochronologia* (Université BOKU, Vienne) ; NHM [src 10], [src 12] |
 | 3.4 | Le sel ne se conserve pas seulement dans la mine : il conserve tout ce qu'il touche. Bois, fourrure, herbe, excréments et restes de repas sont conservés **jusqu'à 3 500 ans** | **établi** | [src 10] |
@@ -168,8 +169,9 @@ Arc-et-Senans (« Ark-é-Senan »), Ledoux, dendrochronologie, saumoduc.
 - L'« homme dans le sel » de Hallstatt (1734) : un mineur préhistorique
   retrouvé conservé dans le sel. Source secondaire seulement (Wikipédia
   EN) : **à ne pas utiliser sans source primaire**.
-- Duzdağı (Nakhitchevan) : une mine de sel du Ve millénaire av. J.-C.
-  (Marro et al.). **Non vérifié ce jour.**
+- Duzdağı : vérifié le 29/09, passé en 3.1b. Utile comme moment « comment
+  on le sait » : le musée dit « la plus ancienne », les fouilles disent
+  autre chose.
 
 ---
 
@@ -237,3 +239,6 @@ Arc-et-Senans (« Ark-é-Senan »), Ledoux, dendrochronologie, saumoduc.
 20. Santé publique France, étude Esteban 2014-2016 (via extrait) ; OMS,
     « Réduction de l'apport en sodium ».
     https://www.who.int/fr/news-room/fact-sheets/detail/sodium-reduction
+21. Marro C. et al. (2016). « Salt mining tools and techniques from Duzdaği
+    (Nakhchivan, Azerbaijan) in the 5th to 3rd millennium B.C. ». *Journal of
+    Field Archaeology* 41(4). https://www.tandfonline.com/doi/abs/10.1080/00934690.2016.1201615
