@@ -42,9 +42,11 @@ usine → salière**. Chaque question se referme sur une pièce à conviction.
 
 **Pièce à conviction Q1** : le monticule de cendres de Poiana Slatinei (coupe
 stratigraphique, *Antiquity* 2005, fig. 3 à 5). **Licence : non libre**
-(revue). Solution : photo de la source salée de Lunca sur Commons, si elle
-existe (recherche en cours), sinon un schéma de coupe redessiné en Remotion à
-partir de la figure, avec la citation.
+(revue). **À TROUVER** : aucune photo libre sur Commons (recherches
+« Poiana Slatinei », « Lunca Neamț », 29/09). Solutions : demander à
+O. Weller (CNRS) l'autorisation d'utiliser une figure, ou un schéma de coupe
+redessiné avec la citation « d'après Weller & Dumitroaia 2005 » (licence à
+décider par Franco).
 
 **Paradoxe du hook** : pendant l'essentiel de l'histoire humaine, on n'ajoute
 pas de sel (1.1, **probable**). Les premiers à en fabriquer sont les premiers
@@ -62,9 +64,10 @@ agriculteurs (1.2, 1.3, **établi**).
 | 2.6 | Faire bouillir la saumure demande **énormément de bois**. C'est la contrainte qui pèse sur toute l'histoire du sel de source, jusqu'au XVIIIe siècle (voir 4.4) | **probable** pour la protohistoire (déduit du procédé) ; **établi** pour le XVIIIe | [src 13] |
 
 **Pièce à conviction Q2** : les tessons de briquetage de la Seille (augets,
-piliers, « flûtes »). Fichiers Commons repérés sur la page Wikipédia :
-`Briquetage.jpg`, `Céramiques.jpg`, `Fourneaux.jpg`. **Licence à vérifier**
-(recherche Commons en cours).
+piliers, « flûtes »). Wikimedia Commons, vérifié le 29/09 : `Briquetage.jpg`,
+`Récipients.jpg`, `Fourneaux.jpg`, **CC BY-SA 4.0**, auteur Laurent Olivier
+(compte Commons « Laur… », relevé par un agent de test le 29/09 : à
+reconfirmer sur la page du fichier).
 
 **« Sauf que »** : on ne trouve pas de source salée partout. Et là où il n'y
 en a pas, le sel est sous terre.
@@ -80,14 +83,15 @@ en a pas, le sel est sous terre.
 | 3.5 | Juste à côté de la mine, des **cuves de salaison** en rondins, datées au radiocarbone des **XIIIe-XIIe s. av. J.-C.**, pouvaient contenir **150 à 200 porcs** chacune. Chaque année, on y salait la viande de plusieurs centaines de porcs | **établi** (datation et capacité) ; l'échelle « industrielle » est une **interprétation probable** | NHM [src 10] ; Hammer et al. 2018, *BMC Research Notes* (CC BY 4.0) [src 14] |
 
 **Pièce à conviction Q3** : l'escalier de 1344 av. J.-C. Il est exposé dans
-la mine (« Bronze Age Cinema »). Photo NHM : **droits réservés**. Il faut une
-photo Commons sous licence libre (recherche en cours) ou une demande à la
-NHM. Pièce de secours : les cuves de salaison (article CC BY 4.0, mais ses
-figures sont des graphiques d'ADN, pas des photos).
+la mine (« Bronze Age Cinema »). Wikimedia Commons, vérifié le 29/09 :
+`Escalier de l'âge du bronze, mines de sel de Hallstatt. XIVe av. J.-C.jpg`,
+**CC BY-SA 3.0, Andreas W. Rausch**. La photo porte une légende incrustée
+en bas : à recadrer. En plus : `Casquet de pell, segle XIII aC. Mina de sal de
+Hallstatt.JPG` (bonnet en peau, CC BY-SA 3.0, Joanbanjo).
 
 **Ce que la question rapporte à la ligne** : ce qui rend le sel précieux,
-c'est **la conservation**. Le sel transforme de la viande qui pourrit en 3
-jours en réserve pour l'hiver.
+c'est **la conservation**. Le sel transforme de la viande périssable en
+réserve pour l'hiver (3.5).
 
 ### Q4. Comment ce trésor est-il devenu une poudre à quelques centimes ?
 
@@ -109,10 +113,14 @@ par an**. 8,1 g × 365 ≈ **3 kg mangés**. Environ **9 kilos sur 10 ne
 finissent pas dans une assiette**. À dire « à peu près » : la population
 mondiale est arrondie et la consommation est française.
 
-**Pièce à conviction Q4** : la Saline royale d'Arc-et-Senans (nombreuses
-photos libres sur Commons), ou un grenier à sel (Honfleur). Pour le mythe
-du salaire : une page d'un manuscrit ou d'une édition ancienne de Pline
-(domaine public).
+**Pièce à conviction Q4** : la Saline royale d'Arc-et-Senans. Wikimedia
+Commons, vérifié le 29/09 : `Berniers Ouest, Saline Royale, Arc-et-Senans,
+2026.jpg` (**CC0**, DimiTalen). Les poêles où l'on faisait bouillir la
+saumure, à la Grande Saline de Salins : `Salines de Salins - Poele 1.JPG`
+(**CC BY-SA 3.0**, photographe à relever) — elles illustrent 2.6 et 4.4.
+Greniers à sel : Craon (`Grenier à sel Craon 1.JPG`, CC BY-SA 4.0, Yann
+Gwilhoù). Pour le mythe du salaire : **À TROUVER**, une page de *HN* 31.89
+dans une édition ancienne (domaine public, par exemple Mayhoff 1897).
 
 ---
 
