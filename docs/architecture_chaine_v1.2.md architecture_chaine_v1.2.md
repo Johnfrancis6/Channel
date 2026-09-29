@@ -794,6 +794,7 @@ Publiées : 4 — Abandonnées : 1 — Prochain cycle hebdo : dimanche
   - **les scripts d'agent trouvent le dépôt par `REPO_ROOT = parents[3]`** (`generer_storyboard.py`, `rendre_video.py`), donc `composants/` est commun à toutes les chaînes. C'est probablement ce qu'on veut — une bibliothèque partagée — mais alors la charte doit rester par chaîne, et `REGISTRE.md` gagner une colonne « chaîne » ;
   - **un argument `--chaine`** pour les skills, qui résout vers la bonne racine ;
   - ordre recommandé : faire tourner une chaîne une semaine, puis sortir les piliers, puis `--chaine`. Préparer le terrain avant d'avoir publié une seule vidéo, c'est généraliser sur un seul exemple.
+  - **29/09/2026 : seconde chaîne décidée** (préhistoire et histoire du quotidien, en français, format long) ; cadrage et chantiers dans [lancement_chaine_2_prehistoire.md](lancement_chaine_2_prehistoire.md).
 
 - **Déclenchement de l'Orchestrateur** : ~~cron local + Claude Code en mode headless, ou lancement manuel~~ → **tranché : cron** (§6.4). Reste ouvert : l'accès à Drive depuis la machine locale (Google Drive pour ordinateur ou rclone), et le lancement des agents eux-mêmes en mode headless — le cron fait avancer la machine à états, il n'exécute aucun skill.
 - **Outil d'animation** : ~~Manim, Motion Canvas ou Remotion~~ → **tranché : Remotion** (React + spring animations).

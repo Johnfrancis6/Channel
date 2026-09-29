@@ -17,6 +17,9 @@ Diagnostic du pipeline **étape par étape**, en cours — décisions transverse
 file d'attente, ce qui reste à examiner :
 [docs/diagnostic_pipeline.md](docs/diagnostic_pipeline.md).
 
+Seconde chaîne (préhistoire et histoire du quotidien, en français), en
+cadrage : [docs/lancement_chaine_2_prehistoire.md](docs/lancement_chaine_2_prehistoire.md).
+
 ## Règles du dépôt
 
 - **Ne jamais éditer `.claude/skills/`** : c'est un miroir généré. Modifier
