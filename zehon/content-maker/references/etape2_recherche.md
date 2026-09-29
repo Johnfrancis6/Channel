@@ -40,11 +40,14 @@ site, une trace, une datation, qu'on **montre** à l'écran.
 Pour chaque question, cherche **une photo montrable** :
 
 1. **Wikimedia Commons** en premier. Note le nom exact du fichier, la
-   licence (CC0, CC BY, CC BY-SA, domaine public) et l'auteur.
+   licence (CC0, CC BY, CC BY-SA, domaine public) et l'auteur. Note aussi
+   si la photo porte un texte ou une légende incrustée à recadrer.
 2. Sinon, les collections ouvertes de musées (Open Access).
-3. Sinon, note « **manque** » et propose une solution : demander
+3. Sinon, note « **À TROUVER** » et propose une solution : demander
    l'autorisation à l'auteur de la figure, ou un schéma redessiné avec la
-   citation « d'après … ».
+   citation « d'après … ». **N'attribue jamais toi-même une licence** à
+   une image qui n'existe pas encore, ni au nom de Franco : c'est lui qui
+   décide comment il publie ses propres schémas.
 
 **Jamais** d'image générée à la place d'une vraie pièce (voir `chaine.md`).
 CC BY-SA et CC BY imposent de créditer l'auteur : garde toujours le nom

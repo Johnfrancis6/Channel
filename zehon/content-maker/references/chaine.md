@@ -1,5 +1,7 @@
 # Zehon — la chaîne
 
+Chaîne YouTube **Zehon** (handle **@zehonfr**), en français.
+
 ## La ligne
 
 **« De la matière brute à l'objet, et comment on le sait. »**

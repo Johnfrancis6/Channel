@@ -51,8 +51,18 @@ vraiment mal prononcés doivent rester longtemps.
 - Mots pour 8 min : <recalculé à partir du débit>
 ```
 
-**Ce que Franco remplit** : les chiffres à J+7 (YouTube Studio) et le
-débit mesuré de sa voix. **Ce que tu en fais** : à l'étape 1, préfère les
+**Ce que Franco remplit** : les chiffres (YouTube Studio) et le débit
+mesuré de sa voix.
+
+**La discipline des chiffres** (reprise du plugin *AI YouTube OS*,
+licence MIT, parce qu'elle évite les fausses conclusions) :
+- relever les vues à **24 h, 72 h et 7 jours**, séparément ; un relevé
+  fait en retard porte le délai réel (« 9 jours ») ; une valeur encore en
+  traitement n'est pas remplacée par 0 ;
+- **ne rien conclure avant 3 vidéos** : avant, une leçon est une
+  observation, pas une règle ;
+- **une seule expérience à la fois** (par exemple, changer seulement la
+  miniature), notée dans `lecons.md` avant la publication. **Ce que tu en fais** : à l'étape 1, préfère les
 formes de sujets qui ont marché ; à l'étape 3, applique les réglages
 mesurés (par exemple le nombre de mots si le débit de la voix n'est pas
 3 mots/s) et les leçons sur les hooks. Dis-le quand une leçon change ta

@@ -31,6 +31,13 @@ choisisse un. Tu ne choisis pas à sa place : tu recommandes.
   (b) **si Zelan l'a déjà traité**, et avec quel paradoxe ;
   (c) qu'il existe au moins une preuve forte et montrable.
   Note la date de chaque relevé.
+- **YouTube bloque souvent les requêtes directes** (erreur 429, page
+  anti-robot). Dans ce cas, prends les vues sur la page de résultats d'un
+  moteur de recherche ou un service tiers, dis lesquels, et présente-les
+  comme des **ordres de grandeur**. Ne donne jamais un nombre de vues de
+  mémoire.
+- Une date ou un fait **cité de mémoire** porte la mention « à vérifier » :
+  il sera vérifié à l'étape 2.
 - Sans recherche web, pars de `sujets.md` et de tes connaissances, et
   **marque clairement ce qui n'est pas vérifié** (« demande : non
   vérifiée »).

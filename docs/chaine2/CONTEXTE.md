@@ -15,7 +15,7 @@ Ce fichier résume et renvoie. Chaque fait porte son statut : **mesuré**
 
 | Sujet | Décision |
 |---|---|
-| **Nom** | **Zehon** (décision du 29/09, qui remplace Zoook : au moins 6 chaînes « Zoook/ZOOOK » existaient, dont une marque d'électronique « née en France »). **Mesuré le 29/09 (API YouTube)** : **@zehon est pris** (« Zehon Vaz », 135 abonnés, 23 vidéos) ; **@zehonfr, @zehon.fr, @zehon_fr sont libres**. Quelques petites chaînes s'appellent aussi « Zehon » ; une marque « Zehon Tools » (outillage) est vendue en ligne. Vérifier le nom sur la base des marques de l'INPI avant de créer la chaîne |
+| **Nom** | **Zehon** (décision du 29/09, qui remplace Zoook : au moins 6 chaînes « Zoook/ZOOOK » existaient, dont une marque d'électronique « née en France »). **Mesuré le 29/09 (API YouTube)** : **@zehon est pris** (« Zehon Vaz », 135 abonnés, 23 vidéos) ; @zehonfr, @zehon.fr, @zehon_fr sont libres ; **handle retenu par Franco : @zehonfr**. Quelques petites chaînes s'appellent aussi « Zehon » ; une marque « Zehon Tools » (outillage) est vendue en ligne. Vérifier le nom sur la base des marques de l'INPI avant de créer la chaîne |
 | Chaîne | Seconde chaîne, en **français**, à côté de la chaîne IA (anglais, Shorts) |
 | **Ligne éditoriale** | **« De la matière brute à l'objet, et comment on le sait. »** Chaque vidéo raconte comment une matière est devenue un objet du quotidien, de la préhistoire à aujourd'hui, et montre **les preuves** (fouilles, datations, traces). La préhistoire est le premier chapitre de chaque histoire, pas la niche entière |
 | Format | Vidéo longue en paysage d'environ 8 min (environ 1 480 mots), plus 1 à 2 Shorts ; 1 vidéo par semaine ; **20 h par semaine** |

@@ -58,6 +58,10 @@ Notes :
   pas la version voix. `video-maker` fait la correspondance avec la voix.
 - La colonne **preuve** : `objet · méthode · statut · auteur, licence`.
   Une preuve sans auteur ni licence est refusée par `video-maker`.
+- **Une preuve pas encore obtenue** (photo introuvable, schéma à dessiner,
+  scan à trouver) s'écrit `À TROUVER : <ce qu'il faut et où chercher>`.
+  Le vérificateur la liste ; la vidéo ne peut pas être rendue tant qu'il
+  en reste. N'invente jamais un auteur ou une licence pour la faire passer.
 
 ## Les prompts Gemini (dans le même fichier, après le tableau)
 

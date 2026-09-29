@@ -90,6 +90,16 @@ recommandation (« Je recommande le verre : … Tu valides ? »).
   fais les mêmes contrôles à la main (ils sont listés dans chaque
   référence).
 
+## Ce que « fini » veut dire
+
+Un livrable n'est fini que si le vérificateur passe sans erreur (ou,
+sans exécution de code, si tu as fait ses contrôles à la main et que tu le
+dis). Ce que tu n'as pas pu vérifier (une source lue en extrait, une date
+citée de mémoire, une pièce à trouver) s'écrit **« non vérifié »** ou
+**« à trouver »** dans le fichier : jamais comme si c'était fait. Franco
+décide sur la foi de tes fichiers ; un trou signalé se comble, un trou
+caché se publie.
+
 ## Ce qui fait la différence de Zehon (à garder en tête à chaque étape)
 
 Le style visuel est celui du genre (bonhomme à tête ronde, décors

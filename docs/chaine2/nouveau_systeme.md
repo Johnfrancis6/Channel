@@ -14,7 +14,7 @@ n'était « tout juste pas performant ».
 
 | Sujet | Décision |
 |---|---|
-| **Nom** | **Zehon** (remplace Zoook, déjà utilisé par une marque d'électronique). **@zehon est pris** (petite chaîne, 135 abonnés) ; **@zehonfr** et @zehon.fr sont libres selon l'API YouTube le 29/09. Vérifier le nom sur la base des marques de l'INPI avant de créer la chaîne |
+| **Nom** | **Zehon** (remplace Zoook, déjà utilisé par une marque d'électronique). **@zehon est pris** (petite chaîne, 135 abonnés) ; **@zehonfr** (retenu par Franco) et @zehon.fr sont libres selon l'API YouTube le 29/09. Vérifier le nom sur la base des marques de l'INPI avant de créer la chaîne |
 | Langue | Français |
 | **Ligne** | « De la matière brute à l'objet, et comment on le sait. » Chaque vidéo raconte comment une matière est devenue un objet du quotidien, de la préhistoire à aujourd'hui, et **montre les preuves** |
 | Format | Vidéo longue en paysage d'environ 8 min (environ 1 480 mots), plus 1 à 2 Shorts ; 1 vidéo par semaine ; 20 h par semaine |
@@ -158,7 +158,8 @@ n'écrit ni le script ni les prompts.
 | Entrées | `03_scenes.md`, `images/`, `preuves/`, `voix/voix.wav`, `voix/mots.json`, une musique (optionnelle) |
 | Sorties | `rendu/video.mp4` en 1920×1080 à 30 i/s ; `rendu/short_1.mp4` en 1080×1920 (plus tard) ; un rapport (scènes, durées, avertissements) |
 | Blocs | `scene-image` (zoom lent ou panoramique, fondu) ; `preuve` (photo, zoom vers un point, cartel avec statut et crédit) ; `titre-question` ; `texte-anime` (mots-clés, dates, chiffres) ; mixage voix et musique, avec la musique qui baisse sous la voix |
-| Garde-fous | refuser une scène sans image ; refuser une preuve sans crédit ni licence ; avertir quand une image reste plus de 10 s à l'écran |
+| Garde-fous | refuser une scène sans image ; refuser une preuve sans crédit ni licence, ou marquée « À TROUVER » ; avertir quand une image reste plus de 10 s à l'écran |
+| Contrôle avant publication | Après le rendu, un contrôle automatique : piste audio présente, pas de silence (volume moyen sous −60 dB), pas de saturation (crête au-dessus de −0,5 dB), 1920×1080, durée cohérente avec la voix. **Un rendu n'est fini que si ce contrôle passe.** Idée et seuils repris de `scripts/preflight.py` du plugin *AI YouTube OS* (channelroom-studio, licence MIT, lu le 29/09/2026) : le reprendre en gardant sa mention de licence |
 | Environnement | **Mesuré dans ce conteneur le 29/09** : Node 22.22 et Chromium présents ; **FFmpeg absent**, à ajouter au script de setup de l'environnement |
 | Fichiers | Lus depuis Drive par le connecteur Google Drive (branché dans cette session). **Hypothèse** : renvoyer un MP4 de 100 à 300 Mo vers Drive par le connecteur. À vérifier, avec une solution de secours (fichier envoyé dans la conversation) |
 

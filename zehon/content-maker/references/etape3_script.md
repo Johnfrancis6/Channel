@@ -55,6 +55,14 @@ Vérifie avant de livrer : 8 à 10 temps, chaque temps a un obstacle (sauf
 le dernier), chaque question a sa pièce, 5 à 6 retours au présent en tout,
 total entre 1 400 et 1 560 mots.
 
+**Chaque fait du plan renvoie à une affirmation du dossier** (1.2, 3.3…).
+Un détail frappant qui n'est pas dans le dossier (« les galères », « en
+trois jours ») ne va pas dans le plan : soit tu le retires, soit tu le
+signales comme « à sourcer » pour que Franco décide. Pourquoi : un plan
+validé devient la commande du script, et une erreur qui passe le plan
+passe tout le reste. Si tu reprends un plan écrit ailleurs, fais la même
+vérification avant d'écrire, et dis ce que tu as retiré.
+
 **Pause 3** : 3 lignes de résumé, puis « Tu valides le plan ? ».
 
 ## 3b. Le script : `02_script.md`
@@ -120,7 +128,12 @@ question du hook avant la 9e phrase, au moins un « Sauf que », aucun appel
 à s'abonner, et pour la version voix aucun chiffre ni phrase de plus de 22
 mots.
 
-**Pause 4** : résume en 3 lignes (le total de mots, la durée estimée à
-environ 3 mots/s, les 2 passages dont tu es le moins sûr), puis « Tu
+**La durée se calcule sur la version voix**, pas sur le script lisible :
+les nombres écrits en lettres ajoutent des mots (sur le sel : 1 585 mots
+dits pour 1 513 écrits). Le vérificateur donne l'estimation ; si elle
+dépasse 9 min, resserre le script plutôt que de laisser filer.
+
+**Pause 4** : résume en 3 lignes (le total de mots, la durée estimée sur
+la version voix, les 2 passages dont tu es le moins sûr), puis « Tu
 valides le script ? ». Après sa validation, enchaîne sur l'étape 4 sans
 t'arrêter.

@@ -123,7 +123,12 @@ def verifier_voix(chemin):
             avertir(f"ligne {i} : sigle « {sigle.group(0)} », à dire en toutes lettres ?")
         if ligne.startswith("#"):
             erreur(f"ligne {i} : titre ou commentaire, rien que du texte prononcé")
-    return f"{len(lignes)} lignes, {total} mots"
+    minutes = total / 3.0 / 60
+    if minutes > 9:
+        avertir(f"durée estimée {minutes:.1f} min à 3 mots/s : au-delà de 9 min, resserrer le script")
+    elif minutes < 7 and total > 400:
+        avertir(f"durée estimée {minutes:.1f} min à 3 mots/s : en dessous de 7 min")
+    return f"{len(lignes)} lignes, {total} mots, ~{minutes:.1f} min à 3 mots/s"
 
 
 def normaliser(texte):
@@ -166,7 +171,9 @@ def verifier_scenes(chemin, chemin_script=None):
         elif typ == "preuve":
             if not image.startswith("preuves/"):
                 erreur(f"scène {num} : une preuve pointe vers preuves/…, pas « {image} »")
-            if preuve in ("", "—", "-") or not RE_LICENCE.search(preuve):
+            if preuve.upper().startswith("À TROUVER") or preuve.upper().startswith("A TROUVER"):
+                avertir(f"scène {num} : preuve à trouver ({preuve[:80]}) — rendu impossible tant qu'elle manque")
+            elif preuve in ("", "—", "-") or not RE_LICENCE.search(preuve):
                 erreur(f"scène {num} : preuve sans licence ni crédit (« {preuve} »)")
             if int(num) in prompts:
                 avertir(f"scène {num} : prompt présent pour une preuve (vraie photo attendue)")

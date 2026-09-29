@@ -13,6 +13,10 @@ mise à jour de la mémoire (voir `memoire.md`).
   sel* de Zelan, formulés en « découverte », ont fait 3,6 k et 5,9 k).
 - Pas de majuscules criées, pas de fausse promesse. Si le titre pose une
   question, la vidéo y répond.
+- **Ne reprends pas mot pour mot la formule de Zelan** (« Comment nos
+  ancêtres ont-ils… ») : la forme question marche, mais la copier fait de
+  Zehon un clone de plus. Centre le titre sur l'objet et son paradoxe
+  (« Le sel valait une fortune. Pourquoi plus rien ? »).
 - Recommande-en un, en une phrase.
 
 ## Description
