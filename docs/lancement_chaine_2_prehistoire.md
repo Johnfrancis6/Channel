@@ -9,6 +9,15 @@ Document de cadrage, ouvert le 29/09/2026. Rien n'est encore produit.
 - **niche** : préhistoire (« comment faisaient nos ancêtres… ? ») **et**
   histoire des objets du quotidien (« qui a inventé… ? »).
 
+**Mise à jour, décisions de Franco en fin de session (29/09/2026)** :
+- **La ligne est recentrée : « de la matière brute à l'objet, et comment on
+  le sait ».** La préhistoire devient le premier chapitre de chaque histoire.
+  Les sections 2 à 4 ci-dessous datent d'avant ce recentrage. Pour la suite,
+  la référence est [`chaine2/CONTEXTE.md`](chaine2/CONTEXTE.md).
+- **Une connaissance en France est réellement propriétaire** de la chaîne
+  (AdSense à son nom). Franco est gestionnaire, avec un contrat écrit.
+- **20 h par semaine.**
+
 Modèle de format observé : Zelan (@ZelanStudio). Voir la section 1.
 Cartographie des concurrents :
 [`chaine2/concurrents_2026-09-29.md`](chaine2/concurrents_2026-09-29.md).
@@ -641,7 +650,15 @@ je me connecte à la chaîne pour publier et la gérer ? » Réponse :
   risque en fausse déclaration.
 - La même question se pose pour la chaîne IA si elle est au nom de Franco.
 
-**En attente** :
+**Décisions de fin de session** : Franco recentre la ligne sur « de la
+matière brute à l'objet, et comment on le sait ». Sa connaissance accepte
+d'être réellement propriétaire, avec un contrat écrit. La phase de cadrage
+est close. La suite (recherche, script, images, mise en place de la vidéo
+pilote) repart de [`chaine2/CONTEXTE.md`](chaine2/CONTEXTE.md), avec le
+message d'ouverture
+[`chaine2/PROMPT_NOUVELLE_SESSION.md`](chaine2/PROMPT_NOUVELLE_SESSION.md).
+
+**En attente (historique, avant les décisions de fin de session)** :
 - **Décision de Franco sur la ligne** (garder ou recentrer). Elle
   conditionne le nom, la mascotte et le backlog.
 - Transcriptions de la journée, de l'eau sale, du sucre et de la n° 1,

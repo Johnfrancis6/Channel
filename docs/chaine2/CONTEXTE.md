@@ -1,142 +1,213 @@
-# Chaîne 2 — contexte de reprise (état au 29/09/2026, fin de journée)
+# Chaîne 2 — contexte de reprise (état au 29/09/2026, fin de session)
 
-À lire en premier pour reprendre le travail sur la seconde chaîne. Ce
-fichier **résume et renvoie** ; le détail est dans les documents cités.
-Chaque fait porte son statut : **mesuré** (données relevées, avec la
-date) ou **hypothèse** (interprétation, à tester).
+**À lire en premier.** La phase de cadrage est close. La prochaine session
+porte sur la **production** : recherche active, rédaction du script, images
+et mise en place des vidéos, jusqu'à une **vidéo pilote**.
 
-## 1. Les documents
+Ce fichier résume et renvoie. Chaque fait porte son statut : **mesuré**
+(relevé, daté) ou **hypothèse** (à tester).
+
+---
+
+## 1. Décisions de Franco (toutes du 29/09/2026)
+
+| Sujet | Décision |
+|---|---|
+| Chaîne | Seconde chaîne, à côté de la chaîne IA (anglais, Shorts), qui continue |
+| Langue | **Français** |
+| **Ligne éditoriale** | **« De la matière brute à l'objet, et comment on le sait. »** Chaque vidéo raconte comment une matière (minerai, sable, grain, graisse, fibre…) est devenue un objet du quotidien, en partant de la préhistoire jusqu'à aujourd'hui, et montre **les preuves** (fouilles, traces, datations, expériences). La préhistoire est le premier chapitre de chaque histoire, pas la niche entière |
+| Format | Vidéo longue en paysage d'environ 8 min, plus 1 à 2 Shorts tirés du même script ; 1 vidéo par semaine au départ |
+| Temps | **20 h par semaine** |
+| Propriété | Franco réside au **Burkina Faso**, qui n'est pas éligible au Programme Partenaire. **Une connaissance en France est réellement propriétaire** : chaîne et AdSense à son nom, revenus déclarés en France. Franco est **gestionnaire** (compte de marque), rémunéré par un **contrat écrit** (rémunération ou part des revenus, droits sur les vidéos, conditions de sortie), à signer avant la première vidéo |
+| Pipeline | Partage du pipeline et de `composants/` (Remotion). **Pas de code multi-chaînes** (`profil_chaine.json`, `--chaine`) avant la vidéo pilote. Pour la pilote : `--root` explicite, et seulement les réglages en dur que la pilote exige (langue, débit) |
+
+Règles de travail : Claude propose, Franco tranche (sujets, nom, charte) ;
+des recommandations, pas des listes d'options ; mesuré séparé de
+l'hypothèse ; une question à la fois ; ne jamais éditer `.claude/skills/` ;
+`git fetch` avant chaque push ; branche de travail
+`claude/zelan-studio-analysis-rws9f6`.
+
+---
+
+## 2. Ce que la vidéo doit être (le modèle mesuré)
+
+**La référence de structure : *Comment nos ancêtres ont-ils découvert le
+fer ?* (Zelan, 435 k vues).** Transcription segmentée le 29/09 (mesuré) :
+- 500 s, 1 547 mots, **3,09 mots/s** en français ;
+- un **hook de 30 s** (8 phrases) : un objet que tu as sous la main, puis un
+  paradoxe (« le métal le plus banal du monde… personne n'a su en
+  fabriquer un gramme ») ; la question tombe à la 9e phrase ;
+- **10 temps de 55 à 255 mots** (123 en moyenne), en fil chronologique.
+  Chaque temps finit sur un obstacle, que le suivant lève. Le mot charnière
+  est « **Sauf que** » ;
+- le **tutoiement**, et 5 à 6 **retours au présent** (« un couteau à 3 € au
+  supermarché », « 10 objets en fer dans ton tiroir ») ;
+- **pas d'appel à s'abonner**. La vidéo finit sur une question ouverte ;
+- **seulement 2 mentions de preuve** en 116 phrases. C'est là qu'on se
+  distingue.
+
+**Notre structure (recommandation, à valider sur le script pilote)** :
+- environ **1 480 mots pour 8 min** ;
+- hook de 25 à 30 s sur l'objet du quotidien et un paradoxe ;
+- **3 à 4 questions d'enquête**, chacune en 2 à 3 temps (au total 8 à 10
+  temps de 120 à 150 mots). Chaque question se referme sur **une pièce à
+  conviction montrée à l'écran** : l'objet de fouille, la trace, la
+  datation, l'expérience ;
+- marqueurs d'incertitude à l'oral (« on sait que… », « on pense que… »,
+  « personne ne sait vraiment… »), hérités du dossier de recherche ;
+- fin sur une question ouverte, rattachée au présent.
+
+**Pourquoi la transformation** (mesuré le 29/09, détail dans
+[`niches_2026-09-29.md`](niches_2026-09-29.md)) :
+- c'est le meilleur score de Zelan (*le fer*, 435 k), alors que *le sucre*
+  (3,6 k) et *le sel* (5,9 k), traités comme des « découvertes », ont
+  échoué ;
+- c'est la veine française la plus régulière : **Je T'explique Comment**
+  (« Comment c'est fait », 95 k abonnés, médiane 21 k), dont *le sucre* et
+  *le sel* dépassent 140 k ;
+- l'histoire racontée par l'inventeur ne marche pas (Quand Tout a Commencé,
+  médiane 1,4 k) : **c'est le procédé qui intéresse, pas la biographie** ;
+- la vague de clones « comment faisaient nos ancêtres » s'effondre (en
+  anglais, médiane de 1,1 M à 6,5 k vues entre avril et août ; en français,
+  10 chaînes et une médiane sous 1 k) ;
+- depuis le 16/07/2026, YouTube démonétise le contenu répétitif produit en
+  masse : l'enquête sourcée protège aussi la monétisation.
+
+---
+
+## 3. Sujets candidats pour la pilote (à valider par Franco)
+
+Classés par preuve de demande (mesuré le 29/09) :
+
+| Sujet | Demande prouvée | Pièces à conviction possibles |
+|---|---|---|
+| **Le pain** (du grain sauvage à la baguette) | EN 333 k (*How Did Humans Invent Bread?*) | Pain carbonisé de Shubayqa 1 (Jordanie), il y a environ 14 400 ans, avant l'agriculture ; meules ; grains carbonisés |
+| Le verre (du sable à la vitre) | FR 154 k (Je T'explique Comment) | Obsidienne, perles de verre mésopotamiennes et égyptiennes, fours |
+| Le fer (de la pierre rouge à l'acier) | FR 435 k (Zelan) | Scories, bas fourneaux, lame météoritique de Toutânkhamon. **Déjà fait par Zelan** : à garder pour plus tard, sous l'angle de la preuve |
+| Le sel, le sucre | FR 145 k et 142 k (Je T'explique Comment) ; ratés chez Zelan | Mines de Hallstatt, salines ; à traiter comme des procédés, pas comme des « découvertes » |
+| Le ciment, le crayon, les pièces de monnaie | FR 279 k, 369 k, 718 k (Je T'explique Comment, procédé moderne) | Mortiers romains, graphite de Borrowdale, ateliers monétaires. À vérifier : existe-t-il une histoire « depuis la préhistoire » solide ? |
+
+**Recommandation pour la pilote : le pain.** La demande est prouvée, la
+transformation est visible (grain → farine → pâte → pain) et il y a une
+vraie pièce à conviction récente et datée (Shubayqa 1). En plus, le pain
+tombe avant l'agriculture, ce qui fait un paradoxe de hook. **Hypothèse** :
+à vérifier pendant la recherche. Franco tranche.
+
+À tester après les 3 premières vidéos : le format « **Chaque X expliqué** »
+sur notre terrain (*Chaque métal expliqué*, *Chaque âge des matériaux
+expliqué*). C'est le format des deux meilleures jeunes chaînes françaises
+sans visage (Le Labo de la Curiosité, médiane 89 k ; Dinguerie Psychologie,
+30,8 k).
+
+---
+
+## 4. Ce que le pipeline sait déjà faire, et ce qui bloque la pilote
+
+Pipeline de la chaîne IA : agents A2 (Chercheur) → A4 (Rédacteur) ⇄ A5
+(Filtre TTS) → CP2 → voix off (Colab, `notebooks/voix_off.ipynb`) et A6
+(Designer, storyboard) → A7 (Monteur, Remotion) → publication. Les
+composants disponibles sont dans `composants/REGISTRE.md`, avec leurs
+aperçus.
+
+**Déjà prêt pour le format long** (commits du 16/09) : le champ
+`format_video: "long"` dans `state.json`, le budget, le rendu en
+1920×1080, des scènes cibles de 12 s (120 au plus), l'insert de footage
+(`InsertFootage`). Tout est centralisé dans `outils/formats_video.py`.
+
+**À régler pour la pilote** (vérifié dans le code le 29/09) :
+
+| # | Point | Où | Mesure disponible |
+|---|---|---|---|
+| 1 | Voix en anglais en dur : `language="English"` (2 endroits), `language="en"` pour les horodatages Whisper (dont dépendent les sous-titres) | `notebooks/voix_off.ipynb` | Il faut un **échantillon de voix de référence en français**. Choix de la voix non tranché (celle de Franco, un clone, Qwen3-TTS) |
+| 2 | Débit : `MOTS_PAR_SECONDE = 2.8` (mesuré en anglais, sur un Short) | `outils/formats_video.py` | Zelan : 3,09 mots/s en français. À mesurer sur notre propre voix |
+| 3 | Budget : `MOTS_PAR_IDEE[long] = 300`, `IDEES_MAX_DEFAUT[long] = 8`. Le plafond de 8 idées colle ; les 300 mots par idée, non (le modèle mesuré en fait environ 120 à 150) | `outils/formats_video.py`, `agents/short-redacteur/SKILL.md` | Mesuré sur *le fer* |
+| 4 | Le Rédacteur suppose une chaîne en anglais (« La chaîne est en anglais », l. 88) | `agents/short-redacteur/SKILL.md` | Puis relancer `python3 agents/_synchroniser_vers_claude_skills.py` |
+| 5 | Seuils de phrase du Filtre TTS (8 à 18 mots, §7.3) calibrés en anglais | `agents/short-filtre-tts/scripts/metriques.py` | Phrase médiane de Zelan : 12 mots |
+| 6 | Charte visuelle de la chaîne 2 (mascotte ou pas, palette, décors) | `00_Profil/charte_visuelle/` de la nouvelle racine Drive (à créer) | Voir section 5 |
+| 7 | Composants Remotion pour montrer une transformation (matière → étapes → objet) et une pièce à conviction (objet de fouille, légende, date, lieu) | `composants/` | Aucun composant existant ne le fait : `Stickman`, `ConceptCutaway`, `PlanListeSequencee` sont pensés pour l'IA |
+| 8 | Règle d'exactitude du Chercheur : chaque affirmation marquée **établi**, **probable** ou **hypothèse**, avec sa source | `agents/short-chercheur/SKILL.md` | Voir la section 5 du doc de cadrage |
+
+---
+
+## 5. Images et miniatures : ce qui est décidé et ce qui ne l'est pas
+
+**Mesuré le 29/09** : tout le genre partage une seule grammaire. Bonhomme
+blanc à tête ronde, pagne léopard, savane ou grotte peinte, 2 à 3 mots en
+capitales jaunes cernées de noir, rendu d'image générée par IA. Zelan
+copie jusqu'aux compositions (*PAS DE BOULOT ?* reprend *NO JOBS* d'Ink
+Explainer). La seule miniature de Zelan sans personnage, *le fer*, est son
+meilleur score : deux mains, un minerai, une lame.
+
+**Recommandations** :
+- **Charte hors du genre entier** : ni bonhomme à tête ronde, ni texte jaune
+  cerné de noir.
+- **Miniature « transformation »** : la matière brute et l'objet fini côte à
+  côte, sans personnage, avec 2 à 4 mots. On la teste contre une variante
+  avec personnage dès que deux vidéos existent.
+- **Vidéo en Remotion, décors simples** (décision du 11/09 : tout codé) ;
+  la richesse visuelle va dans la miniature. La pièce à conviction est
+  l'endroit où une **vraie photo** (musée, fouille, sous licence libre) a
+  sa place, via `PlanBroll` ou `InsertFootage`.
+- **Non tranché** : générer des images par IA pour les scènes (plus riche,
+  mais dépendance et cohérence d'un plan à l'autre), la mascotte, le nom.
+
+**Nom** : *Avant Nous* est écarté (pris). Handles vérifiés libres le 29/09 :
+@commentonlesait, @enquetedorigine, @preuvesalappui (et
+@lenquetedesancetres, moins adapté à la nouvelle ligne). À trancher avec la
+charte.
+
+---
+
+## 6. Recherche active : méthode et outils
+
+- **Veille des sujets** : le marché anglais sert de banc d'essai. Un sujet
+  qui a fait plus de 500 k en anglais et n'existe pas en français passe
+  devant. Pour la transformation, la référence française est Je T'explique
+  Comment. On reprend des sujets, **jamais des scripts**.
+- **Recherche d'un sujet** (A2) : sources primaires ou institutionnelles
+  (publications, musées, rapports de fouille) ; chaque affirmation marquée
+  établi, probable ou hypothèse ; au moins une pièce à conviction montrable
+  (photo sous licence libre) par question d'enquête.
+- **Outils de relevé** : [`outils_releve/`](outils_releve/) (API YouTube,
+  yt-dlp, sous-titres avec le client `mweb`). YouTube renvoie un 429 après
+  quelques dizaines de requêtes : espacer.
+- **Transcriptions encore à récupérer**, utiles pour l'écriture : *la
+  journée* (u7gam_aBU4s), *l'eau sale* (ZBJ0fXTN4EA), *le sucre*
+  (pvx89-uxxBI, le raté) et la n° 1 (efqIZk5HDVs). La question : *le sucre*
+  diffère-t-il du *fer* par la structure ou seulement par le sujet ?
+  Récupérer aussi une transcription de Je T'explique Comment (le modèle
+  « procédé »). Segmenter avec `outils/analyser_transcription.py`, puis
+  ajouter à [`corpus_structures.jsonl`](corpus_structures.jsonl).
+- Le vocabulaire fermé des rôles n'a pas de rôle « conclusion ». La question
+  finale du *fer* a été classée `cta`. À trancher avant d'étendre le corpus.
+
+---
+
+## 7. Questions ouvertes pour la prochaine session, dans l'ordre
+
+1. **Sujet de la pilote** (recommandation : le pain).
+2. **Voix** : la sienne, un clone ou Qwen3-TTS ? Il faut un échantillon
+   français de référence.
+3. **Budget mensuel** (images, voix, musique, banques d'images).
+4. **Charte** : images générées ou non, mascotte ou non, nom.
+5. Objectif à 6 mois.
+
+---
+
+## 8. Les documents de la phase de cadrage
 
 | Fichier | Contenu |
 |---|---|
-| [`../lancement_chaine_2_prehistoire.md`](../lancement_chaine_2_prehistoire.md) | Document de cadrage : décisions, Zelan (section 1), positionnement, piliers et backlog, format, exactitude, chantiers pipeline, ordre, journal de session (section 8) |
-| [`concurrents_2026-09-29.md`](concurrents_2026-09-29.md) | Cartographie FR et EN du genre « Ancient Humans », saturation, qui Zelan imite, liste proposée pour `chaines_concurrentes.json` |
-| [`niches_2026-09-29.md`](niches_2026-09-29.md) | Comparaison de 16 niches, jeunes gagnants français, recommandation de recentrage |
-| [`revenus_2026-09-29.md`](revenus_2026-09-29.md) | Revenus estimés des chaînes du genre (vues mesurées × RPM supposé), risque « contenu inauthentique » |
-| [`zelan_releve_2026-09-29.csv`](zelan_releve_2026-09-29.csv) | Les 25 vidéos de Zelan (API) : date, durée, vues, likes, commentaires, titres FR et EN |
-| [`corpus_structures.jsonl`](corpus_structures.jsonl) | Corpus de segmentations (`outils/analyser_transcription.py`), **append-only**. Une ligne : *le fer*. À déplacer dans `02_Veille_hebdo/` de la racine Drive de la chaîne 2 quand elle existera |
-| [`outils_releve/`](outils_releve/) | Scripts ponctuels de relevé (API, yt-dlp, sous-titres), hors pipeline |
+| [`../lancement_chaine_2_prehistoire.md`](../lancement_chaine_2_prehistoire.md) | Document de cadrage complet et journal de session (section 8) |
+| [`niches_2026-09-29.md`](niches_2026-09-29.md) | 16 niches comparées ; pourquoi la transformation |
+| [`concurrents_2026-09-29.md`](concurrents_2026-09-29.md) | Le genre en FR et EN, saturation, qui Zelan imite |
+| [`revenus_2026-09-29.md`](revenus_2026-09-29.md) | Revenus estimés du genre, risque « contenu inauthentique » |
+| [`zelan_releve_2026-09-29.csv`](zelan_releve_2026-09-29.csv) | Les 25 vidéos de Zelan (API) |
+| [`corpus_structures.jsonl`](corpus_structures.jsonl) | Segmentations de vidéos, append-only (une ligne : *le fer*) |
+| [`outils_releve/`](outils_releve/) | Scripts ponctuels de relevé, hors pipeline |
+| [`PROMPT_NOUVELLE_SESSION.md`](PROMPT_NOUVELLE_SESSION.md) | Le message à coller pour ouvrir la prochaine session |
 
-## 2. Décisions de Franco
-
-| Date | Décision |
-|---|---|
-| 29/09 | Seconde chaîne, à côté de la chaîne IA (anglais, Shorts), qui continue |
-| 29/09 | En **français** |
-| 29/09 | Niche de départ : préhistoire + histoire des objets du quotidien — **remise en question par l'analyse des niches, en attente de sa réponse** |
-| 29/09 | Partage du pipeline et de `composants/` (Remotion). **Pas de code multi-chaînes avant une vidéo pilote** |
-| 29/09 | Format proposé : vidéo longue en paysage d'environ 8 min, plus 1 à 2 Shorts ; 1 vidéo par semaine au départ |
-| 29/09 | **Temps disponible : 20 h par semaine** |
-
-Règles de travail : Claude propose, Franco tranche (sujets, concurrents,
-nom) ; recommandations plutôt que listes d'options ; mesuré séparé de
-l'hypothèse ; ne jamais éditer `.claude/skills/` ; `git fetch` avant chaque
-push ; branche `claude/zelan-studio-analysis-rws9f6`.
-
-## 3. Ce qu'on sait (mesuré le 29/09)
-
-**Zelan** (@zelanstudio, le modèle observé) :
-- 7 semaines, 25 vidéos, une tous les 2 jours à 17 h 30 ; 4,37 k abonnés ;
-  médiane 14,1 k vues ; 3 vidéos font 72 % des vues ; 0,38 % des vues
-  deviennent des abonnés.
-- **Il traduit les sujets de chaînes anglaises** (Ink Explainer surtout,
-  puis Axen et The Primal Glitch), avec un décalage passé de ~120 à
-  ~20 jours. Il copie aussi les **compositions de miniatures**.
-- *Le fer* (435 k) : 3,09 mots/s, 10 temps de ~120 mots enchaînés par des
-  « Sauf que », tutoiement et retours au présent, pas d'appel à s'abonner,
-  **seulement 2 mentions de preuve**. La preuve n'est pas la structure :
-  l'angle « enquête » reste libre.
-
-**Le genre** :
-- En anglais, la médiane des vues du genre « Ancient Humans » passe de
-  1,1 M (vidéos d'avril) à 6,5 k (vidéos d'août).
-- En français, une chaîne active en mai, dix en septembre ; médiane sous
-  1 k, sauf Zelan.
-- Toutes ces chaînes partagent la même grammaire visuelle (bonhomme à tête
-  ronde, pagne léopard, texte jaune cerné de noir).
-- Les archéologues vulgarisatrices (Passé sauvage, Boneless Archéologie)
-  convertissent 1 à 3 % des vues en abonnés, contre 0,4 % pour Zelan.
-
-**Les autres niches (français)** :
-- Les deux meilleures jeunes chaînes sans visage font du **« Chaque X
-  expliqué »** : Le Labo de la Curiosité (122 k abonnés, médiane 89 k) et
-  Dinguerie Psychologie (64,8 k, médiane 30,8 k).
-- **« Comment c'est fait »** (la matière qui devient un objet) : Je
-  T'explique Comment, 95 k abonnés, médiane 21 k, plus de 20 vidéos
-  au-dessus de 100 k.
-- L'histoire des inventions racontée par l'inventeur ne marche pas (Quand
-  Tout a Commencé, médiane 1,4 k).
-
-**Revenus (estimés, pas mesurés)** : les chaînes françaises du genre qui
-ont percé font de l'ordre de 500 à 3 000 € par mois. Une chaîne à la médiane
-de Zelan, avec une vidéo par semaine, ferait 60 à 300 € par mois. Depuis le
-16/07/2026, YouTube démonétise le contenu répétitif produit en masse : les
-clones du genre sont exposés.
-
-**Backlog** : le pain, la nuit, Néandertal (« ce qu'il nous a laissé »),
-Lascaux (« le mystère ») et le feu sous la pluie sont prouvés en anglais.
-La veine française « corps des femmes et des enfants » (règles, grossesse,
-bébés, espérance de vie) est prouvée, et Zelan n'y a pas touché.
-
-## 4. Les recommandations en cours (hypothèses)
-
-1. **Recentrer la ligne sur la transformation** : « comment on est passé de
-   la matière brute à l'objet que tu as dans la main, et comment on le
-   sait ». La préhistoire devient le premier chapitre de chaque histoire,
-   pas la niche entière. Tester aussi le format « Chaque X expliqué » sur ce
-   terrain.
-2. **L'enquête comme structure** : 3 à 4 questions d'enquête par vidéo,
-   chacune en 2 à 3 temps, avec une pièce à conviction à l'écran. Environ
-   1 480 mots pour 8 min (3,1 mots/s).
-3. **Utiliser l'anglais comme banc d'essai** : un sujet qui a fait plus de
-   500 k en anglais et n'existe pas en français passe devant. On reprend des
-   sujets, jamais des scripts.
-4. **Une charte visuelle hors du genre** : pas de bonhomme à tête ronde, pas
-   de texte jaune cerné de noir. La miniature du fer (l'objet transformé,
-   sans personnage) est la piste à creuser.
-5. **Calendrier** : vidéo pilote en octobre. Avec 20 h par semaine : la
-   pilote pendant les semaines 1 à 3, puis 1 vidéo par semaine, puis 2 si le
-   coût tombe sous 8 h par vidéo.
-6. Nom : *Avant Nous* est écarté (déjà pris). Handles libres relevés :
-   @commentonlesait, @lenquetedesancetres, @enquetedorigine,
-   @preuvesalappui. **À revoir si la ligne est recentrée.**
-
-## 5. Questions ouvertes, dans l'ordre
-
-1. ~~Temps par semaine~~ → 20 h.
-2. **Niche : garder « comment faisaient nos ancêtres », ou recentrer sur la
-   transformation** (niches, section 5) ? C'est la question en cours.
-3. **Propriété de la chaîne** : Franco réside au **Burkina Faso**, qui
-   n'est pas éligible au Programme Partenaire (vérifié sur la page d'aide
-   YouTube le 29/09 ; le Sénégal, le Ghana et le Maroc le sont). Une
-   connaissance en France crée la chaîne. Voir la réponse dans la section 8
-   du doc principal. **Décision attendue** : la connaissance est-elle
-   réellement propriétaire (AdSense à son nom, revenus déclarés en France),
-   avec un contrat écrit qui rémunère Franco ? Ou bien Franco garde la
-   chaîne et vit de revenus hors Programme Partenaire (sponsors,
-   affiliation, dons) ?
-4. Budget mensuel (images, voix, musique).
-5. Voix : la sienne, un clone, ou Qwen3-TTS ? Il faut de toute façon un
-   échantillon de référence en français (chantier 3).
-6. Objectif à 6 mois (abonnés ? revenu ? apprentissage ?).
-7. Rapport personnel au sujet.
-8. Nom de la chaîne et mascotte (distincte du genre entier).
-9. Grammaire des miniatures.
-10. Relecture et priorisation du backlog selon la ligne retenue.
-
-## 6. Travail technique en suspens
-
-- **Transcriptions** de *la journée* (u7gam_aBU4s), *l'eau sale*
-  (ZBJ0fXTN4EA), *le sucre* (pvx89-uxxBI) et de la n° 1 (efqIZk5HDVs) :
-  bloquées par un 429 de YouTube le 29/09. Relancer
-  `outils_releve/transcription.sh <id>` un autre jour, puis segmenter
-  (`outils/analyser_transcription.py --gabarit`, puis `--mesurer --corpus
-  docs/chaine2/corpus_structures.jsonl`). Question à trancher : *le sucre*
-  (raté) diffère-t-il du *fer* par la structure ou seulement par le sujet ?
-- Le vocabulaire fermé des rôles n'a pas de rôle « conclusion ». La
-  question ouverte finale du *fer* a été classée `cta` (appel à commenter).
-  À discuter avant d'étendre le corpus.
-- Environnement : `googleapis.com`, `youtube.com` et `i.ytimg.com` sont
-  accessibles ; `socialblade.com` ne l'est pas. Quota de l'API : 10 000
-  unités par jour, et `search.list` coûte 100 unités. Les recherches
-  passent donc par yt-dlp.
+Environnement du conteneur au 29/09 : `googleapis.com`, `youtube.com`,
+`i.ytimg.com` et `google.com` accessibles, `socialblade.com` refusé.
+`YOUTUBE_API_KEY` définie (10 000 unités par jour ; `search.list` coûte
+100 unités, donc les recherches passent par yt-dlp).
