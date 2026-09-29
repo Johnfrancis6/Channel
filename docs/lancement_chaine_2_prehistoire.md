@@ -10,103 +10,184 @@ Document de cadrage, ouvert le 29/09/2026. Rien n'est encore produit.
   histoire des objets du quotidien (« qui a inventé… ? »).
 
 Modèle de format observé : Zelan (@ZelanStudio). Voir la section 1.
+Cartographie des concurrents :
+[`chaine2/concurrents_2026-09-29.md`](chaine2/concurrents_2026-09-29.md).
 
 ---
 
 ## 1. Le modèle observé : Zelan
 
-Relevé le 29/09/2026 sur des captures d'écran de Franco : les 24 vidéos,
-dont 21 avec leurs vues. C'est une photo à un instant donné, pas un
-historique. Les vidéos récentes n'ont pas fini de monter.
+**Relevé par l'API YouTube Data v3 le 29/09/2026 vers 16 h UTC** (`snippet`,
+`statistics`, `contentDetails`, `localizations`). Il remplace le relevé fait
+sur captures d'écran. Données brutes :
+[`chaine2/zelan_releve_2026-09-29.csv`](chaine2/zelan_releve_2026-09-29.csv).
+C'est une photo à un instant donné, et les vidéos récentes n'ont pas fini de
+monter. Les concurrents sont traités dans
+[`chaine2/concurrents_2026-09-29.md`](chaine2/concurrents_2026-09-29.md).
 
-### Les chiffres
+### Les chiffres (mesurés)
 
-- 4,37 k abonnés, 24 vidéos, en français, sans visage, dessins au trait.
-- **Chaîne d'environ 5 semaines.** Les 12 premières vidéos datent toutes
-  d'environ un mois, et les 7 dernières sont sorties **exactement tous les
-  deux jours** (13 j, 11 j, 9 j, 7 j, 5 j, 3 j, 1 j).
-- **Durées de 7:40 à 11:06**, la plupart entre 8:40 et 9:45.
-- **Environ 1,13 M de vues** sur les 21 vidéos dont le compteur est visible.
-  **Médiane : 14 k.**
-- **Trois vidéos font 74 % des vues** : *le fer* (434 k), *la journée de nos
-  ancêtres* (276 k), *l'eau sale* (127 k). Le reste se situe entre 1,3 k et
-  42 k.
-- **Très peu d'abonnés pour autant de vues** : 4,37 k pour plus d'un
-  million, soit environ 0,4 %. Le public vient voir une vidéo sans revenir.
-  À surveiller chez nous : un succès sans abonnés ne construit pas de chaîne.
-- Environ la moitié des titres s'affichent en anglais, alors que toutes les
-  miniatures sont en français. **Vérifié par Franco le 29/09/2026 : l'audio
-  est en français, sans piste doublée.** Les titres anglais ne sont donc que
-  des traductions de métadonnées. Le public qui regarde est francophone, et
-  les 1,1 M de vues mesurent bien le **marché français** : c'est un
-  argument pour le choix de la langue.
+- Chaîne **créée le 12/08/2026**, première vidéo le 13/08 : elle a **7 semaines**,
+  pas 5. Pays déclaré : FR.
+- **4 370 abonnés, 25 vidéos, 1 138 881 vues** au compteur de la chaîne.
+- **Une vidéo tous les deux jours depuis le premier jour**, toujours à
+  15:30 UTC (17:30 à Paris). Seule exception : trois jours de suite, les 13,
+  14 et 15/09 (*intimité*, *fer*, *−20 °C*). Le relevé sur captures (« les
+  12 premières datent toutes d'environ un mois ») venait de l'arrondi « il y
+  a 1 mois » de l'affichage.
+- La 25e vidéo est sortie aujourd'hui : *Comment l'Homme a-t-il découvert le
+  cuivre ?*, suite directe du fer. Elle est exclue des calculs.
+- **Durées de 7:40 à 11:06, médiane 9:14.**
+- **24 vidéos, 1 160 534 vues. Médiane 14,3 k, moyenne 48 k.**
+- **Le top 3 fait 72 % des vues** : *le fer* (434,5 k), *la journée*
+  (276,8 k), *l'eau sale* (127,4 k).
+- **Abonnés / vues : 0,38 %.**
+- Likes : médiane de 0,9 % des vues. Commentaires : environ 0,5 pour
+  1 000 vues.
+- **Tous les titres d'origine sont en français.** Les titres anglais vus sur
+  les captures sont des **localisations** : Zelan remplit des traductions
+  (en, de, es, it, pt) sur 17 vidéos sur 25, et YouTube les affiche selon la
+  langue du spectateur. La langue audio déclarée est `fr` partout, ce que
+  confirme l'écoute de Franco. Les 1,16 M de vues mesurent donc bien le
+  **marché francophone**.
 
-| # | Âge | Durée | Vues | Titre affiché | Texte de la miniature |
-|---|---|---|---|---|---|
-| 1 | 1 mois | 9:05 | 1,3 k | What Did Humans Actually Do All Day Before Work Was Invented? | PERSONNE NE TRAVAILLE ICI ? |
-| 2 | 1 mois | 9:53 | 12 k | What Did Prehistoric Humans Do When the Rain Wouldn't Stop for Days? | PERSONNE NE SORT ? |
-| 3 | 1 mois | 11:06 | 28 k | We Were Never Alone: Why Homo Sapiens Is the Last Human Species on Earth | UN SEUL A SURVÉCU ? |
-| 4 | 1 mois | 10:16 | 11 k | How Prehistoric Humans Survived Winters That Should Have Killed Them | TOUT L'HIVER DEHORS |
-| 5 | 1 mois | 9:28 | 14 k | No Claws, No Fangs: How Our Ancestors Survived Earth's Deadliest Predators | ENCERCLÉS DANS LE NOIR |
-| 6 | 1 mois | 9:42 | 23 k | Les pires choses faites par nos ancêtres pour survivre au froid | DORMIR DANS UN MAMMOUTH |
-| 7 | 1 mois | 10:32 | 3,3 k | When Did Humans Drink Their First Alcohol? Long Before Farming | ILS TRINQUAIENT DÉJÀ |
-| 8 | 1 mois | 8:54 | 20 k | Why Did Humans Start Wearing Clothes? The Real Reason Wasn't Warmth | POURQUOI PAS TOUT NU ? |
-| 9 | 4 sem. | 9:10 | 4,4 k | Before Toilet Paper: How Did Early Humans Actually Clean Themselves? | ILS S'ESSUYAIENT COMMENT ? |
-| 10 | ~4 sem. | 9:39 | n. v. | How Did the First Humans Walk Across the Entire Planet Barefoot? | PIEDS NUS ? |
-| 11 | ~4 sem. | 9:43 | n. v. | Pourquoi la roue a-t-elle mis 300 000 ans à arriver ? | INVENTION DE LA ROUE ? |
-| 12 | ~3 sem. | 8:44 | n. v. | When Did Humans First Smoke Cannabis? … | DÉFONCÉS TOUTE LA JOURNÉE ! |
-| 13 | 3 sem. | 7:54 | **127 k** | How Did Prehistoric Humans Drink Dirty Water Without Getting Sick? | IL A BU ÇA |
-| 14 | 2 sem. | 9:04 | 14 k | Comment nos ancêtres survivaient aux canicules ? | TROP CHAUD ? |
-| 15 | 2 sem. | 7:56 | **276 k** | Que faisait réellement nos ancêtres toute la journée ? | PAS DE BOULOT ? |
-| 16 | 2 sem. | 7:40 | 35 k | How Did Anyone Get Privacy in the Stone Age? | ZÉRO INTIMITÉ ? |
-| 17 | 2 sem. | 8:20 | **434 k** | Comment nos ancêtres ont-ils découvert le fer ? | LA DÉCOUVERTE DU FER |
-| 18 | 13 j | 9:13 | 42 k | Dormir dehors par −20 °C : la nuit d'un chasseur-cueilleur | −45 °C / +20 °C |
-| 19 | 11 j | 8:40 | 21 k | Comment nos ancêtres chassaient-ils les géants ? | COMMENT TUER ÇA ? |
-| 20 | 9 j | 9:14 | 3,5 k | Quand les humains ont-ils découvert le sucre ? | LA DÉCOUVERTE DU SUCRE ? |
-| 21 | 7 j | 9:13 | 36 k | Pourquoi les animaux ont-ils peur des humains ? | NÉS POUR TUER ? |
-| 22 | 5 j | 9:39 | 12 k | Comment les premiers rois ont-ils pris le pouvoir ? | QUI L'A DÉCIDÉ ? |
-| 23 | 3 j | 9:22 | 5,8 k | Comment les humains ont-ils découvert le sel ? | LE PREMIER SEL ? |
-| 24 | 1 j | 10:11 | 8,4 k | Comment nos ancêtres dormaient-ils avec autant de moustiques ? | TOUTES LES NUITS ?! |
+| # | Date | Durée | Vues | Likes | Comm. | Likes/vues | Titre d'origine (FR) |
+|---|---|---|---|---|---|---|---|
+| 1 | 13/08 | 9:05 | 1,3 k | 28 | 3 | 2,1 % | Avant le travail : 24 heures dans la peau d'un chasseur-cueilleur |
+| 2 | 16/08 | 9:53 | 13,0 k | 119 | 9 | 0,9 % | Que faisaient les hommes préhistoriques quand la pluie ne s'arrêtait plus ? |
+| 3 | 18/08 | 11:06 | 28,7 k | 217 | 28 | 0,8 % | Pourquoi sommes-nous la SEULE espèce humaine encore vivante sur Terre ? |
+| 4 | 20/08 | 10:16 | 11,9 k | 60 | 6 | 0,5 % | Comment les humains préhistoriques survivaient-ils aux hivers meurtriers ? |
+| 5 | 22/08 | 9:28 | 14,1 k | 121 | 1 | 0,9 % | Comment nos ancêtres survivaient-ils aux prédateurs ? |
+| 6 | 24/08 | 9:42 | 23,9 k | 201 | 13 | 0,8 % | Les pires choses faites par nos ancêtres pour survivre au froid |
+| 7 | 26/08 | 10:32 | 3,4 k | 35 | 1 | 1,0 % | Quand l'humain a-t-il bu son premier alcool ? |
+| 8 | 28/08 | 8:54 | 20,6 k | 198 | 15 | 1,0 % | La vraie raison pour laquelle on s'est habillé |
+| 9 | 30/08 | 9:10 | 4,4 k | 66 | 8 | 1,5 % | Comment nos ancêtres faisaient-ils sans papier ? |
+| 10 | 01/09 | 9:39 | 15,6 k | 115 | 8 | 0,7 % | Comment nos ancêtres ont traversé la Terre pieds nus |
+| 11 | 03/09 | 9:43 | 1,5 k | 44 | 6 | 3,0 % | Pourquoi la roue a-t-elle mis 300 000 ans à arriver ? |
+| 12 | 05/09 | 8:44 | 2,0 k | 39 | 1 | 1,9 % | Depuis quand les humains fument-ils du cannabis ? |
+| 13 | 07/09 | 7:54 | **127,4 k** | 811 | 37 | 0,6 % | Comment nos ancêtres buvaient l'eau sale sans mourir |
+| 14 | 09/09 | 9:04 | 14,6 k | 110 | 4 | 0,8 % | Comment nos ancêtres survivaient aux canicules ? |
+| 15 | 11/09 | 7:56 | **276,8 k** | 1 973 | 55 | 0,7 % | Que faisait réellement nos ancêtres toute la journée ? |
+| 16 | 13/09 | 7:40 | 35,5 k | 331 | 15 | 0,9 % | Les hommes préhistoriques avaient-ils une intimité ? |
+| 17 | 14/09 | 8:20 | **434,5 k** | 2 614 | 125 | 0,6 % | Comment nos ancêtres ont-ils découvert le fer ? |
+| 18 | 15/09 | 9:13 | 42,0 k | 349 | 16 | 0,8 % | Dormir dehors par −20 °C : la nuit d'un chasseur-cueilleur |
+| 19 | 17/09 | 8:40 | 21,6 k | 210 | 17 | 1,0 % | Comment nos ancêtres chassaient-ils les géants ? |
+| 20 | 19/09 | 9:14 | 3,6 k | 87 | 8 | 2,4 % | Quand les humains ont-ils découvert le sucre ? |
+| 21 | 21/09 | 9:13 | 36,8 k | 403 | 35 | 1,1 % | Pourquoi les animaux ont-ils peur des humains ? |
+| 22 | 23/09 | 9:39 | 13,0 k | 165 | 13 | 1,3 % | Comment les premiers rois ont-ils pris le pouvoir ? |
+| 23 | 25/09 | 9:22 | 5,9 k | 64 | 5 | 1,1 % | Comment les humains ont-ils découvert le sel ? |
+| 24 | 27/09 | 10:11 | 8,5 k | 73 | 6 | 0,9 % | Comment nos ancêtres dormaient-ils avec autant de moustiques ? |
+| 25 | 29/09 | 9:17 | 4 | 0 | 0 | — | Comment l'Homme a-t-il découvert le cuivre ? |
 
-*L'ordre de publication est déduit de l'âge affiché. n. v. : compteur non
-visible sur la capture.*
+*Corrections par rapport aux captures : n° 10 (pieds nus) 15,6 k, n° 11 (roue)
+1,5 k et n° 12 (cannabis) 2,0 k, qui n'étaient pas visibles. Les autres
+chiffres étaient justes à l'arrondi près.*
 
 ### Ce que les chiffres montrent
 
-1. **L'emballage compte plus que le sujet.** La vidéo n° 1 (*ce que
-   faisaient les humains avant le travail*, 1,3 k) et la n° 15 (*que
-   faisaient réellement nos ancêtres toute la journée ?*, 276 k) traitent **le
-   même sujet**, republié deux à trois semaines plus tard avec un autre titre et une
-   autre miniature. Le rapport est de 1 à 200. Deux choses ont changé, et on
-   ne peut pas les départager : l'emballage, et la confiance que l'algorithme
-   avait entre-temps accordée à la chaîne. L'enseignement tient quand même :
-   **un bon sujet qui a raté se republie**, avec un emballage neuf.
-2. **Les trois succès racontent tous un besoin vital et concret**, montré de
-   façon viscérale : boire de l'eau sale, occuper ses journées, transformer
-   une pierre en métal. Les sujets plus « culturels » (alcool 3,3 k, cannabis
-   non visible, rois 12 k) restent bas.
-3. **Le même format de titre donne des résultats très différents.** *Le fer*
-   fait 434 k, *le sucre* 3,5 k, *le sel* 5,8 k (en 3 jours). La miniature du
-   fer est la seule sans personnage : deux mains, un minerai, une lame. C'est
-   une transformation avant/après, lisible en une seconde. Hypothèse à
-   tester, pas une règle.
-4. **Les trois succès sont parmi les vidéos les plus courtes** (7:54, 7:56,
-   8:20). Sur 24 vidéos, ce n'est pas une preuve, mais c'est un argument pour
-   viser **8 min plutôt que 10**.
-5. **Ce qui a marché est exploité en série** : le froid revient trois fois
-   (11 k, 23 k, 42 k), et chaque déclinaison fait mieux que la précédente.
-6. **La cadence est industrielle** : 24 vidéos de 8 à 11 min en environ
-   5 semaines, avec des illustrations très homogènes. C'est presque
-   certainement une production assistée par IA. Conséquence pour nous : les
-   sujets les plus évidents de la niche vont être pris vite. La
-   différenciation (section 2) n'est pas un luxe.
+Chaque point dit s'il est **mesuré** ou s'il reste une **hypothèse**.
+
+1. **Le même sujet republié : 1,3 k → 276,8 k (×208).** *Mesuré.* Le titre
+   d'origine de la n° 1 n'était pas celui des captures, mais *Avant le
+   travail : 24 heures dans la peau d'un chasseur-cueilleur*, un titre
+   « concept ». La n° 15 pose la question naïve du spectateur. *Hypothèse* :
+   trois causes se mêlent sans qu'on puisse les séparer. L'emballage a
+   changé, la chaîne avait gagné la confiance de l'algorithme, et la n° 15
+   sort trois semaines après que le même sujet a fait 9,6 M de vues en
+   anglais (voir 1.2). L'enseignement tient : **un bon sujet qui a raté se
+   republie**.
+2. **Le taux de like baisse quand la vidéo perce.** *Mesuré* : les trois
+   succès sont à 0,6-0,7 %, les ratés à 2-3 % (roue 3,0 %, sucre 2,4 %,
+   n° 1 2,1 %). *Hypothèse, classique* : un raté n'est vu que par les
+   abonnés, déjà conquis ; un succès touche un public froid. **Le taux de
+   like ne sert donc pas à juger un sujet.** Les vues à 48 h, rapportées aux
+   abonnés, oui.
+3. **Les vidéos courtes font mieux.** *Mesuré* : les 4 vidéos sous 8:30 sont
+   les 3 succès et *l'intimité* (5e). Corrélation entre la durée et le
+   logarithme des vues : r = −0,45 sur 24 vidéos. *Hypothèse* : l'effet est
+   réel mais confondu avec la date (les courtes sont toutes au milieu de la
+   série). Ça reste un argument pour **8 min plutôt que 10**.
+4. **Le plancher monte.** *Mesuré* : médiane des vidéos 1 à 12 : 12,4 k ; des
+   vidéos 13 à 24 : 28,6 k, alors qu'elles sont plus jeunes. Les succès
+   tirent le reste de la chaîne.
+5. **Ce qui marche est décliné en série, avec des résultats inégaux.**
+   *Mesuré* : le froid revient trois fois et progresse à chaque fois (11,9 k,
+   23,9 k, 42,0 k). La « découverte » après le fer rate pour l'instant :
+   sucre 3,6 k, sel 5,9 k, cuivre en cours. *Hypothèse* : le fer n'a pas
+   marché parce que c'était « une découverte ». Il a marché parce que c'était
+   **une transformation spectaculaire** (une pierre qui devient du métal) :
+   le sucre et le sel n'en ont pas.
+6. **Les métadonnées de Zelan citent des preuves.** *Mesuré* : ses tags
+   nomment des sites et des méthodes précis (Schöningen, Swartkrans, Laetoli,
+   Göbekli Tepe, Jiahu, Raqefet, Belovode, Hallstatt, « pou de corps ADN »).
+   *Conséquence* : Zelan mentionne probablement des preuves dans ses scripts.
+   L'angle « enquête » (section 2) est peut-être moins inédit qu'on le
+   pensait. **À vérifier sur les transcriptions.** Ce qui peut rester
+   distinctif : faire de la preuve la **structure** de la vidéo, pas une
+   mention au passage.
+7. **La cadence est industrielle** : 25 vidéos de 8 à 11 min en 47 jours, à
+   heure fixe. C'est presque certainement une production assistée par IA
+   (*hypothèse forte*, voir aussi 1.2).
+
+### 1.2 D'où viennent les sujets de Zelan (mesuré)
+
+Pour chaque vidéo, on a cherché dans l'API son titre anglais localisé. **Zelan
+transpose en français des sujets qui ont d'abord marché en anglais**, surtout
+chez trois chaînes nées en avril-mai 2026.
+
+| Zelan (date) | Même sujet en anglais, avant | Écart |
+|---|---|---|
+| Avant le travail (13/08) | Axen, *What Did Ancient Humans Do all Day Before Jobs Existed?* (04/05, 3,4 M) | 101 j |
+| Pluie (16/08) | Ink Explainer, *What Did Ancient Humans Do When It Rained All Week?* (03/07, 1,6 M) | 44 j |
+| Seule espèce (18/08) | Ink Explainer, *Why Are We the Only Human Species Left?* (14/06, 1,3 M) | 65 j |
+| Hivers meurtriers (20/08) | Axen, *How Did Ancient Humans Survive Deadly Winters?* (30/05, 931 k) | 82 j |
+| Prédateurs (22/08) | Axen, *How Did Ancient Humans Survive the World's Deadliest Predators?* (28/04, 1,3 M) | 116 j |
+| Pires choses pour le froid (24/08) | Ink Explainer, *The Disturbing Ways Ancient Humans Survived Winter* (16/07, 747 k) | 39 j |
+| Alcool (26/08) | Ink Explainer, *When Did Ancient Humans Start Drinking Alcohol?* (16/05, 885 k) | 102 j |
+| Vêtements (28/08) | Ink Explainer, *The Real Reason Humans Started Wearing Clothes* (27/04, 356 k) | 123 j |
+| Pieds nus (01/09) | Ink Explainer, *How Did Ancient Humans Travel the World?* (23/06, 799 k) | 70 j |
+| Cannabis (05/09) | Ink Explainer, *When Did Ancient Humans Start Smoking Weed?* (05/06, 324 k) | 92 j |
+| **Journée (11/09)** | Ink Explainer, *What Did Ancient Humans Actually Do All Day?* (21/08, **9,6 M**) | 21 j |
+| Intimité (13/09) | Axen, *How Did Ancient Humans Have Privacy?* (05/05, 271 k) | 131 j |
+| **Fer (14/09)** | The Primal Glitch, *How Did Ancient Humans Turn Rock Into Iron?* (09/08, 179 k) | 36 j |
+| Animaux qui ont peur (21/09) | Ink Explainer, *Why Ancient Humans Were The Most TERRIFYING Animal Alive* (07/08, 209 k) | 45 j |
+| Cuivre (29/09) | The Primal Glitch, *How Did Ancient Humans Turned Green Rocks Into Copper?* (13/09, 2,2 k) | 16 j |
+
+Les dix autres (eau sale, papier, roue, canicule, −20 °C, géants, sucre,
+rois, sel, moustiques) existent aussi en anglais, souvent chez plusieurs
+petites chaînes en même temps, sans source unique identifiable. Exemple :
+sept vidéos anglaises titrées « How Did Ancient Humans Sleep With Mosquitoes
+Everywhere? » sont sorties entre le 20 et le 27/09.
+
+**Ce que ça dit :**
+- **Zelan, c'est Ink Explainer en français**, complété par Axen et
+  The Primal Glitch. 9 des 16 vidéos d'Ink Explainer ont leur équivalent
+  chez Zelan. *Mesuré.*
+- **Le décalage se raccourcit** : 100 à 130 jours au début, 16 à 45 jours
+  aujourd'hui. Zelan surveille maintenant l'anglais presque en temps réel.
+  *Mesuré.*
+- **La transposition peut faire mieux que l'original** : le fer fait 434 k en
+  français contre 179 k en anglais. *Mesuré, n = 1.* *Hypothèse* : le marché
+  français est moins saturé (voir l'annexe concurrents, section 2).
+- **Mais elle ne marche pas toujours** : l'alcool passe de 885 k à 3,4 k,
+  le cannabis de 324 k à 2,0 k. Les sujets « culturels » tombent en
+  français, les besoins vitaux passent. *Mesuré* sur ces deux cas.
+
+**Conséquence pour nous (recommandation)** : **le marché anglais est notre
+banc d'essai gratuit**. Avant de retenir un sujet, on regarde ce qu'il a fait
+en anglais. C'est le travail de A3 : une liste hebdomadaire des « sujets qui
+ont dépassé 500 k en anglais et qui n'ont pas encore été traités en
+français ». Ce n'est pas une différenciation (les clones font pareil) :
+c'est le **ticket d'entrée**. La différenciation reste l'enquête et la
+qualité. Règle : on reprend **des sujets, jamais des scripts**.
 
 ### Ce qui porte le format
 1. **Une seule formule de titre** : « Comment [nos ancêtres] … ? ». On part
    d'un geste banal d'aujourd'hui et on le transpose à la préhistoire.
 2. **Des miniatures à grammaire fixe** : 2 ou 3 mots énormes (blanc et jaune,
    contour noir), un « ? », un personnage aux yeux écarquillés, un ciel bleu
-   saturé.
+   saturé. *(Relevé sur captures ; les miniatures ne sont pas accessibles
+   depuis le conteneur.)*
 3. **Une mascotte récurrente** sur l'avatar, la bannière et les miniatures.
    Elle remplace le présentateur.
 4. **Des vidéos plus simples que leurs miniatures.** L'image de la vidéo sur
@@ -128,8 +209,21 @@ public comme de l'algorithme.
 **Angle proposé : « l'enquête ».** Chaque vidéo répond à la question, puis
 montre **comment on le sait** : fossiles, traces d'usure, ADN, expérimentation
 archéologique. C'est l'ADN de la chaîne IA (« on décode, on teste »)
-transposé à l'histoire. Zelan ne le fait pas, et c'est aussi le meilleur
-garde-fou contre les idées reçues (voir la section 5).
+transposé à l'histoire. C'est aussi le meilleur garde-fou contre les idées
+reçues (voir la section 5).
+
+*Mise à jour du 29/09 (relevé API)* : l'angle est moins vierge qu'on le
+pensait. Les tags de Zelan citent des sites de fouille (section 1, point 6),
+donc il mentionne sans doute des preuves. Et en français, l'angle « comment
+on le sait » est déjà tenu par des **archéologues à visage découvert** :
+Passé sauvage (187 k abonnés) et Boneless Archéologie (75,5 k). *Mesuré* :
+ces deux chaînes convertissent 1 à 3 % de leurs vues en abonnés, contre
+0,4 % chez Zelan. **Recommandation : garder l'enquête, mais comme
+structure** (la question, la réponse, puis « comment on le sait », avec une
+pièce à conviction à l'écran à chaque idée), pas comme une mention au
+passage. C'est ce qu'aucune chaîne sans visage du genre ne fait (*hypothèse
+à confirmer sur les transcriptions*). C'est aussi le seul levier visible
+pour convertir mieux que 0,4 %.
 
 **Deuxième différence : la ligne du temps va jusqu'à aujourd'hui.** Le
 pilier « qui a inventé… ? » part de la préhistoire et arrive à l'objet qu'on
@@ -140,8 +234,20 @@ ceux de Zelan (pas d'enfant en parka à capuche fourrée, pas d'homme
 préhistorique à tête ronde blanche comme personnage principal). À dessiner
 en séance de charte, pas ici.
 
-**Nom** : à trouver. Pistes à vérifier (disponibilité du handle non
-vérifiée) : *Avant Nous*, *Comment On Faisait*, *L'Enquête des Ancêtres*.
+**Nom** : à trouver. Vérification des pistes le 29/09 (API, `forHandle` ;
+« libre » veut seulement dire qu'aucune chaîne ne porte ce handle ce
+jour-là) :
+- ***Avant Nous* : écarté.** Une chaîne clone du genre porte déjà ce nom
+  (@avantnous-u9l, 51 vidéos depuis juillet, dont *Comment nos ancêtres
+  dormaient-ils sans mourir de froid ?*). Le handle @avantnous est lui aussi
+  pris.
+- *Comment On Faisait* : @commentonfaisait libre, mais il existe une chaîne
+  *Comment faisait-on avant ?*. Risque de confusion.
+- *L'Enquête des Ancêtres* : @lenquetedesancetres libre.
+- Autres handles libres relevés : @commentonlesait, @enquetedorigine,
+  @preuvesalappui, @dossierprehistoire. @commentonsait est pris (chaîne
+  vide).
+La décision revient à Franco, en séance (section 8).
 
 ---
 
@@ -194,16 +300,83 @@ commencer :
 - **Priorité aux besoins vitaux et concrets** (boire, manger, avoir chaud,
   se soigner, dormir), qui ont fait les trois succès de Zelan. Dans notre
   liste : rage de dents, feu sous la pluie, pain.
-- `invention` est validé par *le fer* (434 k), mais *le sucre* (3,5 k)
-  montre que le mot « découverte » ne suffit pas. Il faut une transformation
-  visible : une matière brute qui devient un objet.
+- `invention` est validé par *le fer* (434 k), mais *le sucre* (3,6 k) et
+  *le sel* (5,9 k) montrent que le mot « découverte » ne suffit pas. Il faut
+  une transformation visible : une matière brute qui devient un objet.
+
+**Passé au banc d'essai anglais (29/09, API)**. Pour chaque sujet, la
+meilleure vidéo anglaise du genre trouvée depuis juin 2025. *Indicatif* :
+une recherche de 15 résultats peut manquer un succès, et un sujet traité
+seulement par de petites chaînes fait peu de vues quel que soit son
+potentiel. « Non prouvé » ne veut pas dire « mauvais ».
+
+| Sujet | Meilleur résultat anglais trouvé | Lecture |
+|---|---|---|
+| Rage de dents | 1,1 k (15 min) | non prouvé |
+| Feu sous la pluie | 114 k (*Keep Fire Alive in Endless Rain*, 30 min) | prouvé |
+| Se laver | < 1 k (Zelan a fait 4,4 k sur le papier toilette) | non prouvé |
+| Compter sans chiffres | 5,0 k | non prouvé |
+| Se repérer sans carte | 6,1 k (Mack) | non prouvé |
+| Que faire de ses morts | pas de vidéo directe ; la voisine *Why Did Ancient Humans Start Believing in Gods?* fait 326 k | non prouvé en direct |
+| Pain | 333 k (*How Did Humans Invent Bread?*) | **prouvé** |
+| Chaussure | 52 k | moyen |
+| Clé | < 1 k | non prouvé |
+| Lit / dormir | 208 k (*Sleep When It Was Freezing*), 8,0 M (*Do at Night*, Zenn) | **prouvé**, mais sous l'angle « la nuit » |
+| Calendrier | < 1 k | non prouvé |
+| Brosse à dents | 1,0 k | non prouvé |
+| Néandertal | 1,2 M (*Traits You Got from Neanderthal DNA*) | **prouvé**, sous l'angle « ce qu'il nous a laissé » |
+| Dénisoviens | 899 k (*The 8 Human Species Before Us*) | prouvé, mais pris par Zelan n° 3 |
+| Mammouths | pas de vidéo du genre dans les résultats | non testé |
+| Ötzi | 86 k (*I Made Ötzi's Last Meal*) | moyen |
+| Dater un os | pas de vidéo longue du genre | non prouvé |
+| Lascaux | 637 k (*30,000 Year Old Cave Art No One Can Explain*) | **prouvé**, sous l'angle « mystère » |
+
+**Sujets prouvés que Zelan n'a pas faits** (FR et EN, relevé du 29/09).
+*Mesuré*, à proposer au backlog, Franco tranche :
+- **Le corps des femmes** : les règles (FR : 75,7 k chez Lucas Explique,
+  39,3 k chez Le Gribouilleur, 32,1 k chez Nos Ancêtres), la grossesse
+  (58,4 k chez Humain Moderne), l'accouchement. C'est la veine française la
+  plus régulière hors Zelan, et un terrain où la preuve (squelettes,
+  ethnographie) sert vraiment.
+- **Garder les bébés en vie** : 169 k chez Le Gribouilleur (FR), 836 k chez
+  Explain In Paint (EN).
+- **La nuit** : 8,0 M chez Zenn (EN), 50 k chez L'inattendu (FR).
+- **Le chien** : 401 k chez The Primal Glitch, 935 k chez Explain In Paint
+  (EN).
+- **La couleur de peau** : 1,1 M chez Mack, 296 k chez Paint It Simple (EN),
+  25,6 k chez Nos Ancêtres (FR). Sujet sensible, à traiter avec des sources
+  solides ou pas du tout.
+- **L'espérance de vie réelle** : 69,4 k chez Le Gribouilleur (FR). C'est
+  exactement l'idée reçue de la section 5 (« on mourait à 30 ans ») : un
+  sujet taillé pour l'enquête.
+
+**Recommandation** : la vidéo pilote se choisit parmi les sujets
+**prouvés**. Un sujet non prouvé ajoute une inconnue à une vidéo dont le but
+est de mesurer le pipeline. Pistes : *le pain*, *l'espérance de vie*, *la
+nuit*. Les sujets non prouvés (clé, calendrier, brosse à dents) passent
+après les 5 premières vidéos.
 
 ---
 
 ## 4. Format
 
 - **Vidéo longue en paysage** (`format_video: "long"`), **8 min visées**.
-  Zelan va de 7:40 à 11:06, et ses trois succès durent tous 8:20 ou moins.
+  Zelan va de 7:40 à 11:06 (médiane 9:14), et ses trois succès durent tous
+  8:20 ou moins.
+- *Mesuré* : le genre a deux formats en anglais. **8 à 11 min**, une vidéo
+  par semaine environ (Ink Explainer, Axen, Zenn : durée médiane 8 à 9 min).
+  **20 à 23 min, une vidéo tous les 1,4 jour** (Mack, Explain In Paint,
+  Stickly ; en français, Gribouillis). Le second vise le temps de visionnage
+  et suppose une production quasi automatique. **Recommandation : rester sur
+  8 min.** C'est le format qui a fait les succès de Zelan, et le seul
+  compatible avec une vidéo par semaine et une enquête sourcée.
+- **Pas de Shorts chez les concurrents du format long** : aucune des 8
+  chaînes anglaises du format long n'en publie, Zelan non plus. Les chaînes
+  du genre en Shorts seuls (The Very Extra Ordinary, 331 k abonnés ; Prehistoric
+  Path, 107 k) convertissent 0,13 % de leurs vues en abonnés. *Hypothèse* :
+  nos 1 à 2 Shorts par vidéo sont un pari non testé dans le genre. On les
+  garde (le coût marginal est faible), mais on mesure s'ils envoient des
+  spectateurs vers la vidéo longue avant d'y mettre plus d'effort.
 - **Une grammaire de miniature à fixer en charte, et à tester.** Un
   gros texte de 2 à 4 mots. On compare deux familles : personnage expressif
   (la norme de Zelan), ou objet transformé sans personnage (sa miniature du
@@ -275,10 +448,21 @@ problème de garder la mascotte identique d'une image à l'autre.
 Le §12 veut qu'une chaîne tourne une semaine avant qu'on généralise le
 pipeline. On le respecte pour le **code**, pas pour l'éditorial :
 
+**Le calendrier compte** (relevé du 29/09, annexe concurrents, section 1).
+*Mesuré* : en anglais, la médiane des vues du genre est passée d'environ
+1,1 M (vidéos d'avril) à 6,5 k (vidéos d'août) ; en français, on est passé
+d'une chaîne active en mai à dix en septembre, et environ 100 vidéos par
+mois. *Hypothèse* : le français suit l'anglais avec 3 à 4 mois de retard, et
+la saturation y arrivera vers la fin de l'année. Ça ne change pas l'ordre
+ci-dessous. Ça veut dire que la **vidéo pilote doit sortir en octobre**,
+pas « quand tout sera prêt ». Et qu'une chaîne qui arrive tard ne gagnera
+pas sur le volume, seulement sur la qualité (l'enquête).
+
 1. **Tout de suite, sans toucher au code** : nom, mascotte et charte ;
    validation du backlog ; création de la racine Drive ; ajout de Zelan et
-   de 2 ou 3 autres chaînes du genre à ses `chaines_concurrentes.json` ;
-   récupération de transcriptions de Zelan pour le corpus de structures.
+   des chaînes proposées dans l'annexe concurrents (section 5) à ses
+   `chaines_concurrentes.json` ; récupération de transcriptions de Zelan
+   pour le corpus de structures.
 2. **Une vidéo pilote**, produite avec `--root` explicite et les réglages
    écrits en dur ajustés à la main : elle mesure le débit en français, la
    durée par idée et le coût réel d'une vidéo longue.
@@ -287,3 +471,28 @@ pipeline. On le respecte pour le **code**, pas pour l'éditorial :
 4. Critères pour juger les 10 premières vidéos : vues à 24 h rapportées aux
    abonnés (le signal relevé chez Zelan), taux de clic des miniatures,
    rétention à 30 s.
+
+---
+
+## 8. Session du 29/09/2026 : état et décisions
+
+**Réseau du conteneur** : `googleapis.com` accessible (API YouTube Data v3
+utilisable, `YOUTUBE_API_KEY` définie) ; `youtube.com`, `i.ytimg.com`
+(miniatures), `socialblade.com` et `google.com` refusés par le proxy. Pas de
+transcriptions ni de miniatures depuis le conteneur.
+
+**Fait** :
+- Relevé API exact des 25 vidéos de Zelan (section 1, CSV dans `chaine2/`).
+- Découverte de la source des sujets de Zelan (section 1.2).
+- Cartographie des concurrents FR et EN :
+  [`chaine2/concurrents_2026-09-29.md`](chaine2/concurrents_2026-09-29.md).
+- Backlog passé au banc d'essai anglais (section 3).
+- Vérification des handles (section 2).
+
+**En attente** :
+- Transcriptions du fer, de la journée, de l'eau sale et du sucre, à coller
+  par Franco, puis segmentation avec `outils/analyser_transcription.py`.
+  Question à trancher avec elles : Zelan fait-il déjà « l'enquête » ?
+- Brainstorming (contraintes, nom, mascotte, miniatures, backlog) : les
+  réponses de Franco seront consignées ici.
+
