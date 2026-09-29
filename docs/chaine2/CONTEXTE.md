@@ -1,4 +1,4 @@
-# Zehon (chaîne 2) — contexte de reprise (état au 29/09/2026, fin de session)
+# Zehon (chaîne 2) — contexte de reprise (état au 29/09/2026, fin de session, soir)
 
 **À lire en premier.** Le setup est terminé : vision, niche, angle, charte
 et nom sont décidés. **La prochaine session construit le nouveau système**,
@@ -38,14 +38,31 @@ l'hypothèse ; une question à la fois ; ne jamais éditer `.claude/skills/` ;
 
 | Fichier | Contenu | État |
 |---|---|---|
-| [`pilote_sel/01_recherche.md`](pilote_sel/01_recherche.md) | 4 questions d'enquête, 29 affirmations marquées établi, probable ou hypothèse, 20 sources (Antiquity, NHM Vienne, UNESCO, USGS, Mérimée…) | **Prêt.** Quelques sources, lues seulement via un extrait (Inrap, Cloudflare), sont à relire |
-| [`pilote_sel/02_plan_script.md`](pilote_sel/02_plan_script.md) | Plan en temps : hook, 10 temps, fin | **Prêt.** Angle validé par Franco : « le trésor devenu gratuit », le mythe du salaire romain comme moment « comment on le sait », la fin sur ce qu'on fait du sel aujourd'hui |
-| [`pilote_sel/03_images.md`](pilote_sel/03_images.md) | Pièces à conviction repérées sur Commons, miniature, décisions de style | Pièces **trouvées** pour Q2 (briquetage de la Seille), Q3 (escalier de Hallstatt) et Q4 (Saline royale, poêles de Salins). **Q1 (Poiana Slatinei) : aucune photo libre** |
+| [`pilote_sel/01_recherche.md`](pilote_sel/01_recherche.md) | 4 questions d'enquête, 30 affirmations marquées établi, probable ou hypothèse, 21 sources (Antiquity, NHM Vienne, JFA, UNESCO, USGS, Mérimée…) | **Prêt.** Pièces à conviction Commons reportées (auteurs, licences). Corrigé le 29/09 : Hallstatt n'est **pas** la plus ancienne mine de sel (Duzdağı, Ve millénaire av. J.-C.). Quelques sources lues en extrait sont à relire |
+| [`pilote_sel/02_plan_script.md`](pilote_sel/02_plan_script.md) | Plan en temps : hook, 10 temps, fin | **Prêt.** Angle validé par Franco : « le trésor devenu gratuit », le mythe du salaire romain comme moment « comment on le sait », la fin sur ce qu'on fait du sel aujourd'hui. Faits non sourcés retirés le 29/09 (galères, « 3 jours », chute du prix au XIXe) |
+| [`pilote_sel/03_images.md`](pilote_sel/03_images.md) | Pièces à conviction repérées sur Commons, miniature, décisions de style | Pièces **trouvées** pour Q2 (briquetage de la Seille), Q3 (escalier de Hallstatt) et Q4 (Saline royale, poêles de Salins). **À TROUVER** : Q1 (coupe de Poiana Slatinei) et la page de Pline |
 | [`pilote_sel/04_mise_en_place.md`](pilote_sel/04_mise_en_place.md) | Plan pour l'ancien pipeline | **Obsolète**, gardé pour ses mesures |
 
-**Le texte du script n'est pas écrit.** Franco voulait d'abord la
-comparaison des transcriptions (succès contre raté), et YouTube les bloque
-depuis le conteneur (voir §4).
+**Le script définitif n'est pas validé.** Les tests de `content-maker`
+ont produit des scripts du sel (1 493 à 1 513 mots, vérificateur sans
+erreur), des scènes et une publication, mais ce sont des **sorties de test**,
+dans `zehon/content-maker-workspace/` (non versionné). La vraie production
+du sel passe par la skill, sur un compte de Franco. La comparaison des
+transcriptions (succès contre raté) reste à faire (voir §4).
+
+## 2 bis. La skill `content-maker` (construite, testée, validée le 29/09)
+
+La skill qui fait le contenu d'une vidéo, de la recherche aux prompts
+d'images : **`zehon/content-maker/`**, à installer depuis
+**`zehon/content-maker.skill`**. Détail : [`nouveau_systeme.md`](nouveau_systeme.md) §10.
+- 5 étapes, 4 pauses, reprise d'un compte à l'autre par les fichiers,
+  mémoire dans `Memoire/` (sujets, lexique, leçons).
+- **Mesuré** : 96 % des vérifications passent avec la v2 (92 % en v1),
+  26 % sans la skill, sur 3 cas de test tournés dans Claude Code.
+- **Pas encore essayée sur un vrai compte gratuit** : c'est la première
+  chose à faire.
+- Installer : *Settings > Capabilities > Code execution and file creation*,
+  puis *Customize > Skills > Upload*.
 
 **Mesuré le 29/09, à ne pas oublier** :
 - La vidéo *sel* de Zelan (25/09) a pris le paradoxe « personne ne salait
@@ -124,13 +141,17 @@ expliqué*).
 
 1. **La suppression des anciennes skills** : la chaîne IA en dépend.
    Recommandation : ne rien supprimer avant la première vidéo de Zehon.
+   Le plugin tiers *AI YouTube OS* (channelroom-studio) a été lu le 29/09 :
+   sûr, mais ne remplace rien ; trois idées reprises (voir
+   `nouveau_systeme.md` §10).
 2. **Le budget mensuel** : environ 35 $ si les images sont payées ; près de
    0 si les quotas gratuits de Gemini suffisent (hypothèse).
 3. Le texte de la miniature du sel (proposition : *UN TRÉSOR*).
-4. La pièce à conviction de Q1 (Poiana Slatinei) : demander à O. Weller
-   (CNRS) l'autorisation pour une figure, ou redessiner la coupe avec la
-   citation.
-5. L'objectif à 6 mois.
+4. Les pièces à conviction du sel **À TROUVER** : la coupe de Poiana
+   Slatinei (autorisation d'O. Weller, CNRS, ou schéma redessiné avec la
+   citation) et une page de Pline, *HN* 31.89 (édition ancienne).
+5. Le nom **Zehon** sur la base des marques de l'INPI.
+6. L'objectif à 6 mois.
 
 ---
 
@@ -140,6 +161,7 @@ expliqué*).
 |---|---|
 | [`nouveau_systeme.md`](nouveau_systeme.md) | **Le cahier des charges du nouveau système** : fondations, charte, déroulé, arborescence Drive, règles du script, format des scènes, `video-maker`, vérifications |
 | [`pilote_sel/`](pilote_sel/) | La première vidéo : recherche, plan, images |
+| [`../../zehon/content-maker/`](../../zehon/content-maker/) | La skill `content-maker` (sources) ; `../../zehon/content-maker.skill` à installer |
 | [`../lancement_chaine_2_prehistoire.md`](../lancement_chaine_2_prehistoire.md) | Document de cadrage complet et journal de la phase de cadrage |
 | [`niches_2026-09-29.md`](niches_2026-09-29.md) | 16 niches comparées ; pourquoi la transformation |
 | [`concurrents_2026-09-29.md`](concurrents_2026-09-29.md) | Le genre en FR et EN, saturation, qui Zelan imite |

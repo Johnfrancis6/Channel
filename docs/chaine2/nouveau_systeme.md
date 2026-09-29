@@ -51,51 +51,46 @@ n'était « tout juste pas performant ».
 
 ## 3. Le déroulé d'une vidéo
 
+**Mise à jour du 29/09 (fin de session)** : les étapes 1 à 4 et 8 sont
+désormais faites par la skill **`content-maker`**, construite, testée et
+validée par Franco (voir §10). Elle remplace le dossier `Instructions/`
+prévu au départ.
+
 | # | Étape | Qui / où | Entrée | Sortie (dans Drive) |
 |---|---|---|---|---|
-| 1 | Choix du sujet | Franco, aidé par n'importe quel Claude | `Sujets/` | le dossier de la vidéo |
-| 2 | Recherche | N'importe quel compte Claude, **gratuit compris** | les instructions | `01_recherche.md` : sources, statuts, pièces à conviction |
-| 3 | Script | idem : Claude pose ses questions, puis rédige | `01_recherche.md` + les règles | `02_script.md` |
-| 4 | Scènes et prompts | idem | `02_script.md` + la charte | `03_scenes.md` : une ligne par scène, avec le texte dit, le type, le prompt d'image, le mouvement et le texte animé |
+| 1 | Sujet et angle | `content-maker`, sur n'importe quel compte Claude (gratuit compris) | `Memoire/` | 3 sujets proposés ; Franco tranche (pause 1) |
+| 2 | Recherche | `content-maker` | le sujet | `01_recherche.md` (pause 2) |
+| 3 | Plan puis script | `content-maker` | `01_recherche.md` | `02_plan.md` (pause 3), `02_script.md` + `02_script_voix.txt` (pause 4) |
+| 4 | Scènes et prompts | `content-maker` | `02_script.md` | `03_scenes.md` (scènes + prompts Gemini par lots de 10) |
 | 5 | Images | Franco, dans Gemini | les prompts + la planche du bonhomme | `images/scene_001.png`… |
-| 6 | Voix | Colab + Qwen3-TTS (GPU gratuit) | `02_script.md` + `ref.wav` | `voix.wav` + `mots.json` (horodatage mot à mot par Whisper) |
-| 7 | Assemblage | **Claude Code web**, skill `video-maker` | tout le dossier | `rendu/video.mp4` (+ les Shorts) |
-| 8 | Miniature, titre, description | Claude + Gemini ; Franco publie | le script | `publication.md` (les crédits CC BY-SA y sont **obligatoires**) |
+| 6 | Voix | Colab + Qwen3-TTS (GPU gratuit) | `02_script_voix.txt` + `ref.wav` | `voix.wav` + `mots.json` (horodatage mot à mot par Whisper) |
+| 7 | Assemblage | **Claude Code web**, skill `video-maker` | tout le dossier | `rendu/video.mp4` |
+| 8 | Publication | `content-maker` ; Franco publie | le script et les scènes | `04_publication.md` (titres, description, crédits **obligatoires**, miniature) |
 
-## 4. L'arborescence Drive proposée
+## 4. L'arborescence Drive
 
 ```
 Zehon/
 ├── LISEZMOI.md                   ← mode d'emploi pour Franco (1 page)
-├── Instructions/
-│   ├── 00_DEMARRAGE.md           ← le texte à coller dans n'importe quel Claude
-│   ├── 01_chaine.md              ← ligne, public, ton, ce qu'on ne fait pas
-│   ├── 02_recherche.md           ← sources, statuts, pièces à conviction, Commons
-│   ├── 03_script.md              ← la structure mesurée (§5), avec un exemple
-│   ├── 04_scenes_et_prompts.md   ← le format de 03_scenes.md, les règles de prompt
-│   ├── 05_charte.md              ← §2, avec le prompt de style fixe
-│   └── 06_publication.md         ← titre, description, crédits, miniature
+├── Memoire/                      ← à déposer au lancement de content-maker
+│   ├── sujets.md                 ← faits, proposés, déjà traités ailleurs
+│   ├── lexique.md                ← prononciations de la voix clonée
+│   └── lecons.md                 ← chiffres à 24 h / 72 h / 7 j, leçons, débit mesuré
 ├── Charte/
 │   ├── planche_bonhomme.png
 │   └── exemples/
-├── Sujets/
-│   └── sujets.md                 ← propositions ; Franco tranche
-├── Videos/
-│   └── 01_sel/
-│       ├── 01_recherche.md  02_script.md  03_scenes.md
-│       ├── images/  preuves/  voix/  rendu/
-│       └── publication.md
-└── Suivi/
-    └── lecons.md                 ← ce que chaque vidéo a appris (vues, rétention)
+└── Videos/
+    └── 01_sel/
+        ├── 01_recherche.md  02_plan.md  02_script.md  02_script_voix.txt
+        ├── 03_scenes.md  04_publication.md
+        ├── images/  preuves/  voix/  rendu/
 ```
 
-**Règle de conception** : chaque fichier d'instructions **tient seul** et
-reste court. Un compte gratuit a peu de contexte et peu de messages
-(**hypothèse** sur les limites exactes, à vérifier). `00_DEMARRAGE.md` dit à
-Claude quels fichiers lire à chaque étape, et lui demande de **poser ses
-questions une par une** avant d'écrire.
+Les règles (ligne, charte, structure du script, format des scènes) vivent
+dans la skill, pas dans Drive : une seule source, mise à jour en
+réinstallant le fichier `.skill`.
 
-## 5. Les règles du script (à reprendre dans `03_script.md`)
+## 5. Les règles du script (reprises dans `content-maker`, `references/etape3_script.md`)
 
 **Mesuré sur *le fer* de Zelan** (435 k vues, une seule vidéo) :
 - **3,09 mots/s**, 1 547 mots en 500 s ; phrase médiane de 12 mots ;
@@ -172,10 +167,16 @@ propres blocs**.
 
 ## 8. Ce qu'il faut vérifier ou trancher dans la prochaine session
 
+**Vérifié le 29/09** (documentation officielle) : les skills fonctionnent
+sur un compte Claude **gratuit** (*Customize > Skills*, avec *Settings >
+Capabilities > Code execution and file creation* activé) ; le connecteur
+Google Drive est ouvert à tous les plans sur claude.ai, en lecture
+(recherche et lecture de fichiers).
+
 **Hypothèses à vérifier** (dans cet ordre) :
-1. Un compte Claude **gratuit** peut-il lire Drive par le connecteur ? Si
-   ce n'est pas le cas, les instructions se collent ou se déposent en
-   fichier. C'est ce qui fixe la forme de `00_DEMARRAGE.md`.
+1. `content-maker` sur un **vrai compte gratuit** : les tests ont tourné
+   dans Claude Code, et un compte gratuit peut utiliser un modèle plus
+   petit. Essai sur le sel, de la recherche aux scènes.
 2. Le premier rendu HyperFrames dans Claude Code web (FFmpeg compris), avec
    3 images, une voix de test et un texte animé.
 3. Gemini tient-il le bonhomme d'une image à l'autre avec une planche de
@@ -183,31 +184,50 @@ propres blocs**.
 4. Les quotas de Gemini, et **les conditions d'utilisation de Google**
    pour un usage réparti sur plusieurs comptes.
 5. La voix : un notebook Colab **simplifié** (le clone Qwen3-TTS et Whisper
-   en français), repris de `notebooks/voix_off.ipynb`, qui n'en garde que
-   l'essentiel.
+   en français), repris de `notebooks/voix_off.ipynb`.
 
 **À trancher par Franco** :
 - **La suppression des anciennes skills** : la chaîne IA (anglais, Shorts)
-  en dépend (`short-*`, `new-short`, `short-state`, `short-publier`). Soit
-  on la migre sur le nouveau système, soit elle s'arrête, soit on garde ses
-  skills. **Recommandation** : ne rien supprimer avant que Zehon ait publié
-  sa première vidéo avec le nouveau système.
+  en dépend (`short-*`, `new-short`, `short-state`, `short-publier`).
+  **Recommandation** : ne rien supprimer avant que Zehon ait publié sa
+  première vidéo avec le nouveau système.
 - Le budget mensuel (estimation : environ 35 $ si les images sont payées ;
   près de 0 si les quotas gratuits de Gemini suffisent. **Hypothèse.**)
-- Le texte de la miniature du sel (proposition : *UN TRÉSOR*).
+- Les deux pièces à conviction du sel encore **À TROUVER** : la coupe de
+  Poiana Slatinei (autorisation d'O. Weller ou schéma redessiné) et une page
+  de Pline, *HN* 31.89.
+- La vérification du nom Zehon sur la base des marques de l'INPI.
 
 ## 9. Ordre recommandé pour la prochaine session
 
-1. Le connecteur Drive en compte gratuit (vérification 1) : 15 min. Il
-   décide de la forme des instructions.
-2. **L'arborescence Drive et les fichiers d'instructions** (§4 et §5), avec
-   le sel comme exemple rempli : environ 4 à 5 h.
-3. Un essai à blanc avec un compte gratuit sur le sel (recherche déjà
-   faite, script, puis scènes) : environ 1 h. On corrige les instructions.
-4. La skill `video-maker` : socle HyperFrames et premier rendu (environ
-   6 h), puis les blocs (environ 10 à 14 h).
-5. Le notebook de voix simplifié : environ 2 h.
+1. Installer `content-maker` sur un compte gratuit et faire l'essai réel
+   sur le sel (vérification 1) : environ 1 h. Corriger la skill si besoin.
+2. **L'arborescence Drive** (§4), avec `Memoire/` amorcé (le sel dans
+   `sujets.md`, les noms du sel dans `lexique.md`) : environ 1 h.
+3. La skill `video-maker` : socle HyperFrames et premier rendu (environ
+   6 h), puis les blocs (environ 10 à 14 h), avec le contrôle avant
+   publication.
+4. Le notebook de voix simplifié : environ 2 h.
 
-**Total estimé** : environ 25 à 30 h, soit 1 semaine et demie à 20 h par
-semaine (**hypothèse**). Le risque se concentre sur deux postes non
-mesurés : le rendu HyperFrames et la cohérence du bonhomme sous Gemini.
+**Total estimé** : environ 20 à 25 h (**hypothèse**). Le risque se
+concentre sur le rendu HyperFrames et la cohérence du bonhomme sous Gemini.
+
+## 10. La skill `content-maker` (construite et validée le 29/09)
+
+- **Où** : `zehon/content-maker/` (sources), `zehon/content-maker.skill`
+  (le fichier à installer). Hors de `skills/`, que l'ancien système recopie
+  dans `.claude/skills/`.
+- **Ce qu'elle fait** : 5 étapes (sujet, recherche, plan puis script,
+  scènes et prompts, publication), 4 pauses, reprise d'un compte à l'autre
+  en déduisant l'étape des fichiers déposés, mémoire dans `Memoire/`,
+  vérificateur `scripts/verifier.py` (longueurs, question du hook, appel à
+  s'abonner, version voix, format et continuité des scènes, preuves « À
+  TROUVER »).
+- **Mesuré** (3 cas de test, avec et sans la skill, dans Claude Code) :
+  96 % des vérifications passent avec la v2 (92 % en v1), 26 % sans la
+  skill. Coût : environ 450 s et 47 000 tokens de plus par tâche.
+- **Repris du plugin *AI YouTube OS*** (channelroom-studio, MIT, lu le
+  29/09) : la définition du « fini », la discipline des chiffres (24 h /
+  72 h / 7 j, rien avant 3 vidéos, une expérience à la fois). Le contrôle
+  avant publication (`preflight.py`) est pour `video-maker` (§7).
+- **Résultats des tests** : `zehon/content-maker-workspace/` (non versionné).
