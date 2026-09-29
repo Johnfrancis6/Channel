@@ -90,6 +90,12 @@ l'écran pendant la pièce**, et repris dans la description de la vidéo.
 
 ---
 
+> **Sections 4 et 5 dépassées (29/09, décision de Franco)** : le rendu ne
+> passe plus par l'ancien pipeline (A6, A7), mais par la skill `video-maker`
+> du nouveau système. La liste des blocs reste valable ; leur place est
+> décrite dans [`../nouveau_systeme.md`](../nouveau_systeme.md) §6 et §7. La
+> charte validée est au §2 de ce même document.
+
 ## 4. Ce qui manque pour montrer une transformation et une pièce à conviction
 
 Le rendu part de zéro sous HyperFrames. Avec des scènes en images IA, les

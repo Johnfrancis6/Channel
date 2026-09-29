@@ -1,5 +1,14 @@
 # Mise en place de la pilote dans le pipeline (29/09/2026)
 
+> **OBSOLÈTE (29/09/2026, décision de Franco).** La chaîne 2 ne passe pas
+> par l'ancien pipeline (agents A2 à A7, Remotion, `formats_video.py`). Elle
+> aura **un nouveau système, simple** : des instructions dans Drive,
+> utilisables depuis n'importe quel compte Claude, des images Gemini et une
+> nouvelle skill `video-maker`. Les anciennes skills seront supprimées. Voir
+> [`../nouveau_systeme.md`](../nouveau_systeme.md). Le document est gardé
+> pour ses mesures (débit, budget par temps, seuils de phrase), qui restent
+> valables.
+
 **Rien n'est encore modifié dans le code.** Ce document propose l'ordre et
 chiffre l'effort, comme demandé. Franco valide avant qu'on touche au code.
 
