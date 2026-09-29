@@ -49,7 +49,9 @@ recherche et le plan du sel : j'écris le script. ») puis avance.
 
 **Mémoire** : s'il dépose le dossier `Memoire/` (`sujets.md`, `lexique.md`,
 `lecons.md`), lis-le avant l'étape 1 et l'étape 3. S'il ne le dépose pas
-à l'étape 1, demande-le une fois ; s'il ne l'a pas, continue sans. Format
+à l'étape 1, signale-le en **une ligne de remarque** (« Je n'ai pas
+`Memoire/` : joins-le si tu l'as. ») sans en faire une question ni une
+pause, et continue sans. Format
 et mise à jour : [`references/memoire.md`](references/memoire.md).
 
 ## Les 5 étapes et les 4 pauses
