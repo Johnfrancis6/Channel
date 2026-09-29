@@ -1,6 +1,6 @@
 // Éditeur d'un document : onglets Image | Texte, vignettes des pages, outils en bas.
 import { useEffect, useRef, useState } from 'preact/hooks';
-import type { FilterName, Quad } from '../shared/types';
+import type { FilterName, OcrResult, Quad } from '../shared/types';
 import { FILTERS } from '../shared/types';
 import { nextRotation } from '../scan/geometry';
 import { PromptSheet, Sheet } from './components';
@@ -45,6 +45,19 @@ export function Editor({ doc, onChange, onClose, addPages, askCorners, saveState
   }, [index]);
 
   const replacePage = (p: PageState) => onChange({ ...doc, dirty: true, pages: doc.pages.map((q) => (q.id === p.id ? p : q)) });
+
+  // L'OCR se termine après coup : on repart de l'état le plus récent, pas de celui capturé au lancement.
+  const latest = useRef(doc);
+  latest.current = doc;
+  const setOcr = (pageId: string, ocr: OcrResult, forUrl?: string) => {
+    const d = latest.current;
+    const target = d.pages.find((p) => p.id === pageId);
+    // Page supprimée, ou image recalculée (filtre, rotation…) pendant l'OCR : résultat périmé.
+    if (!target || (forUrl !== undefined && target.processedUrl !== forUrl)) return;
+    const next = { ...d, dirty: true, pages: d.pages.map((p) => (p.id === pageId ? { ...p, ocr } : p)) };
+    latest.current = next;
+    onChange(next);
+  };
 
   async function rerender(p: PageState, changes: Partial<PageState>, message: string) {
     if (p.ocr && p.ocr.lines.length && !confirm('Le texte reconnu (et tes corrections) de cette page sera effacé. Continuer ?')) return;
@@ -124,12 +137,7 @@ export function Editor({ doc, onChange, onClose, addPages, askCorners, saveState
           <img key={page.processedUrl} src={page.processedUrl} alt={`Page ${index + 1}`} />
         </main>
       ) : (
-        <TextPanel
-          key={page.id}
-          doc={doc}
-          page={page}
-          onChange={(p) => replacePage(p)}
-        />
+        <TextPanel key={page.id} doc={doc} page={page} setOcr={setOcr} />
       )}
 
       <div class="strip" ref={stripRef}>
@@ -221,7 +229,7 @@ export function Editor({ doc, onChange, onClose, addPages, askCorners, saveState
         />
       )}
 
-      {sheet === 'export' && <ExportSheet doc={doc} onChange={onChange} onClose={() => setSheet(null)} />}
+      {sheet === 'export' && <ExportSheet doc={doc} setOcr={setOcr} onClose={() => setSheet(null)} />}
     </div>
   );
 }

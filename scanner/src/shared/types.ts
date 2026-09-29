@@ -18,6 +18,10 @@ export interface OcrLine {
   /** [x0, y0, x1, y1] en pixels de l'image traitée. */
   bbox: [number, number, number, number];
   confidence: number;
+  /** Ordonnée de la ligne de base (pixels), si Tesseract la fournit. */
+  baseline?: number;
+  /** Numéro de paragraphe, pour rétablir les sauts de paragraphe à l'export. */
+  para?: number;
 }
 
 export interface OcrResult {

@@ -7,5 +7,5 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
-  "include": ["src/app", "src/scan", "src/ocr", "src/export", "src/shared", "src/testbench", "tests/unit"]
+  "include": ["src/app", "src/scan", "src/ocr", "src/export", "src/shared", "src/testbench"]
 }

@@ -7,6 +7,8 @@ import { loadOpenCV, type CV } from '../scan/opencv';
 import { DEFAULT_FILTER_PARAMS, renderPage, type FilterParams } from '../scan/process';
 import { MAX_SOURCE_SIDE } from '../scan/image';
 import { synthPhoto, type SynthOptions } from './synth';
+import { recognize } from '../ocr/ocr';
+import { ocrToText } from '../ocr/text';
 
 let cv: CV;
 const images = new Map<string, HTMLCanvasElement>();
@@ -53,6 +55,16 @@ const bench = {
     const c = renderPage(cv, images.get(id)!, { corners: quad, rotation: 0, filter }, undefined, { ...DEFAULT_FILTER_PARAMS, ...params });
     const ms = Math.round(performance.now() - t0);
     return { ms, width: c.width, height: c.height, dataUrl: await toDataUrl(c, filter === 'bw' ? 'image/png' : 'image/jpeg') };
+  },
+  /** Redresse, filtre puis lit le texte, comme l'app (mêmes réglages Tesseract). */
+  async ocr(id: string, quad: Quad, filter: FilterName) {
+    const c = renderPage(cv, images.get(id)!, { corners: quad, rotation: 0, filter });
+    const blob = await canvasToBlob(c, filter === 'bw' ? 'image/png' : 'image/jpeg', 0.85);
+    const t0 = performance.now();
+    const r = await recognize(blob, c.width, c.height);
+    const ms = Math.round(performance.now() - t0);
+    const conf = r.lines.length ? r.lines.reduce((a, l) => a + l.confidence, 0) / r.lines.length : 0;
+    return { ms, text: ocrToText(r), lines: r.lines.length, confidence: Math.round(conf) };
   },
   /** Aperçu de la photo avec le quadrilatère détecté (vert) et la vérité (magenta). */
   async overlay(id: string, detected: Quad, truth?: Quad) {

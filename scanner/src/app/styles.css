@@ -603,3 +603,86 @@ svg.quad .handle {
 .row .btn {
   flex: 1;
 }
+
+.small {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* --- Onglet Texte ------------------------------------------------------ */
+
+.text-panel {
+  /* Ses enfants deviennent des éléments de l'éditeur : sa barre d'outils passe alors,
+     comme celle de l'onglet Image, sous les vignettes (et sur la zone de sécurité). */
+  display: contents;
+}
+.editor > .bottombar,
+.editor .text-panel > .bottombar {
+  order: 1;
+}
+/* Image et cadres des lignes partagent la même boîte et le même ajustement (contain) :
+   le viewBox du SVG est en pixels de l'image, les cadres tombent donc pile sur le texte. */
+.text-image {
+  position: relative;
+  flex: 0 0 38%;
+  min-height: 160px;
+  background: var(--stage);
+}
+.text-image img,
+.text-image svg {
+  position: absolute;
+  inset: 8px;
+  width: calc(100% - 16px);
+  height: calc(100% - 16px);
+}
+.text-image img {
+  object-fit: contain;
+}
+.text-image rect {
+  fill: rgba(56, 189, 248, 0.12);
+  stroke: rgba(56, 189, 248, 0.7);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.text-image rect.low {
+  fill: rgba(245, 158, 11, 0.15);
+  stroke: rgba(245, 158, 11, 0.85);
+}
+.text-image rect.sel {
+  fill: rgba(56, 189, 248, 0.35);
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+.text-lines {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.text-lines textarea.line {
+  flex-shrink: 0; /* sinon la colonne écrase les lignes au lieu de défiler */
+  width: 100%;
+  resize: none;
+  overflow: hidden;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--surface);
+  line-height: 1.35;
+}
+.text-lines textarea.line.low {
+  border-color: rgba(245, 158, 11, 0.6);
+}
+.text-lines textarea.line.selected,
+.text-lines textarea.line:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.ocr-progress {
+  padding: 24px 12px;
+  text-align: center;
+}
