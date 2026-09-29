@@ -14,8 +14,8 @@ Budget : **environ 1 480 mots, 8 min à environ 3,1 mots/s**. Hook de 25 à
 
 | Bloc | Temps | Contenu | Obstacle de fin (« Sauf que ») | Pièce / retour au présent | Mots |
 |---|---|---|---|---|---|
-| **Hook** | — | La salière sur ta table : ce qu'il y a de moins cher dans ta cuisine. Paradoxe : pendant presque toute l'histoire humaine, personne n'en fabriquait (1.1). Puis on a brûlé des forêts, creusé des montagnes, et un roi de France en a fait l'impôt le plus détesté du pays (4.2). **Question à la 9e phrase au plus tard** : comment une eau salée est-elle devenue cette poudre blanche, et comment un trésor est-il devenu presque gratuit ? | — | **Présent** : la salière, le paquet | 85-95 |
-| **Q1** Pourquoi, un jour, en fabriquer ? | T1 | Les chasseurs-cueilleurs trouvent leur sodium dans la viande (1.1, **« on pense que »**). Puis les premiers champs et les premiers troupeaux changent la donne (1.4, **probable**, à dire comme tel) | Il faut du sel, et le sel ne se ramasse pas | — | 120 |
+| **Hook** | — | La salière sur ta table : ce qu'il y a de moins cher dans ta cuisine. Chaque hiver, des camions en jettent sur les routes (4.8). Paradoxe : il y a 250 ans, en France, en transporter un sac sans payer l'impôt pouvait t'envoyer aux galères ou au Canada (4.2, 4.3). Entre les deux, on a brûlé des forêts et creusé des montagnes. **Question à la 9e phrase au plus tard** : comment une eau salée est-elle devenue cette poudre blanche, et comment un trésor est-il devenu presque gratuit ? | — | **Présent** : la salière, la saleuse | 85-95 |
+| **Q1** Pourquoi, un jour, en fabriquer ? | T1 | En une ou deux phrases seulement : les chasseurs-cueilleurs trouvent leur sodium dans la viande (1.1, **« on pense que »**). Les premiers champs et les premiers troupeaux changent la donne (1.4, **probable**). **C'est l'angle entier de la vidéo de Zelan (25/09) : on ne s'y attarde pas**, on passe vite au procédé | Il faut du sel, et le sel ne se ramasse pas | — | 100 |
 | | T2 | Poiana Slatinei, Roumanie, 6050 av. J.-C. : les premiers agriculteurs arrosent de grands feux avec l'eau d'une source salée (1.2, 1.3, 1.6). Cinq siècles de feux laissent un monticule de 3 m (1.5) | Un sel gris, plein de cendres. Et il faut une source | **Pièce Q1** : le monticule (Commons : manque, voir `03_images.md`) | 140 |
 | **Q2** Comment sortir le sel de l'eau ? | T3 | L'argile. On fait bouillir la saumure dans des pots, et on **casse le pot** pour sortir le pain de sel (2.2). Dans le Jura dès 4000 av. J.-C. (2.1) | Chaque pain de sel coûte un pot cassé | — | 130 |
 | | T4 | La vallée de la Seille : des déchets de pots cassés jusqu'à 11 m d'épaisseur (2.3), une production « proto-industrielle » au IIe s. av. J.-C. (2.4) | Il faut **énormément de bois** (2.6, **probable**). Et pas de source salée partout | **Pièce Q2** : tessons de briquetage (CC BY-SA 4.0) | 140 |
@@ -28,6 +28,15 @@ Budget : **environ 1 480 mots, 8 min à environ 3,1 mots/s**. Hook de 25 à
 | **Fin** | — | Retour à la salière. Question ouverte, sans appel à s'abonner. Piste : *pendant 8 000 ans, on a tout fait pour en avoir assez ; qu'est-ce qu'on a aujourd'hui sous la main, de banal, qui vaudra une fortune demain ?* À affiner après la comparaison des fins | — | **Présent** | 50-60 |
 
 **Total visé** : environ 1 480 mots (hook 90, 10 temps pour 1 340, fin 55).
+
+**Mesuré le 29/09 (API, descriptions)** : la vidéo *sel* de Zelan (9 min 22 s)
+bâtit tout son propos sur « pendant presque toute l'histoire humaine,
+personne n'a salé sa nourriture […] La salière n'est pas née d'un goût, mais
+d'un manque ». Ses tags citent Hallstatt. Et **depuis le 11/09, Zelan cite
+ses sources en description sur 11 vidéos sur 12**. Notre différence ne peut
+donc pas être « nous citons des sources ». Elle se joue **à l'écran et à
+l'oral** : les pièces montrées, leur statut, et les moments « comment on le
+sait » (T5 : 7 000 ans contre 3 500 ; T7 : le salaire).
 
 **À vérifier sur les transcriptions avant d'écrire** :
 1. La place de la question dans le hook, et le nombre de retours au présent,

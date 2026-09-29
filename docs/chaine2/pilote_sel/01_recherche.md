@@ -122,8 +122,10 @@ du salaire : une page d'un manuscrit ou d'une édition ancienne de Pline
   (hypothèse) : le kilo de sel fin se vend moins de 1 €.
 - **Le paradoxe** : ce qu'il y a de moins cher dans ta cuisine a été, pendant
   des millénaires, une richesse assez grande pour creuser des montagnes,
-  brûler des forêts et fonder l'impôt le plus détesté de France. Et pendant
-  l'essentiel de l'histoire humaine, on n'en ajoutait pas du tout (1.1).
+  brûler des forêts et fonder l'impôt le plus détesté de France.
+- **Pas le paradoxe « on n'en ajoutait pas du tout » (1.1)** : c'est l'angle
+  entier de la vidéo de Zelan du 25/09 (mesuré sur sa description). Le fait
+  reste dans Q1, en une phrase.
 - **La question** (9e phrase au plus tard) : comment une eau salée est-elle
   devenue cette poudre blanche, et comment un trésor est-il devenu gratuit ?
 
