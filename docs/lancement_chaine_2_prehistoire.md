@@ -35,10 +35,11 @@ historique. Les vidéos récentes n'ont pas fini de monter.
   million, soit environ 0,4 %. Le public vient voir une vidéo sans revenir.
   À surveiller chez nous : un succès sans abonnés ne construit pas de chaîne.
 - Environ la moitié des titres s'affichent en anglais, alors que toutes les
-  miniatures sont en français. Ce sont probablement des traductions de
-  titres, peut-être accompagnées d'un doublage automatique. **Non vérifié**,
-  et c'est important : une partie des gros scores pourrait venir d'un public
-  étranger. Pour vérifier, ouvrir une vidéo, menu ⚙ → « Piste audio ».
+  miniatures sont en français. **Vérifié par Franco le 29/09/2026 : l'audio
+  est en français, sans piste doublée.** Les titres anglais ne sont donc que
+  des traductions de métadonnées. Le public qui regarde est francophone, et
+  les 1,1 M de vues mesurent bien le **marché français** : c'est un
+  argument pour le choix de la langue.
 
 | # | Âge | Durée | Vues | Titre affiché | Texte de la miniature |
 |---|---|---|---|---|---|
