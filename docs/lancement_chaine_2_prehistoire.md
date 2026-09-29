@@ -611,6 +611,36 @@ est-ce un conflit ?** Réponse du 29/09 :
   Le risque : suspension de la monétisation ou de la chaîne, après des mois
   de travail. À clarifier avant de publier la première vidéo.
 
+**Précision de Franco : il réside au Burkina Faso**, qui n'est pas dans la
+liste des pays du Programme Partenaire (page d'aide YouTube, vérifiée le
+29/09 : « Vous pouvez vous inscrire au Programme Partenaire YouTube si vous
+résidez dans l'un des pays suivants »). Question : « est-ce un problème si
+je me connecte à la chaîne pour publier et la gérer ? » Réponse :
+- **La connexion n'est pas le problème.** Un compte de marque peut avoir
+  des gestionnaires n'importe où, et beaucoup de chaînes confient le
+  montage ou la publication à quelqu'un à l'étranger.
+- **Le problème, c'est l'inscription au Programme Partenaire.** Si la
+  chaîne est en réalité celle de Franco (il décide, il produit, l'argent lui
+  revient) et que la connaissance ne sert qu'à passer la condition de
+  résidence, c'est un contournement. Le risque tombe au pire moment :
+  gains retenus par AdSense, démonétisation, voire fermeture, une fois que
+  la chaîne rapporte.
+- **Deux montages honnêtes :**
+  1. **La connaissance est vraiment propriétaire** : chaîne et AdSense à son
+     nom, revenus déclarés en France. Elle **achète la production** à
+     Franco (scripts, vidéos) par un contrat écrit : rémunération ou part
+     des revenus, droits sur les vidéos, conditions de sortie. C'est un
+     schéma courant (propriétaire et prestataire), mais la chaîne lui
+     appartient juridiquement.
+  2. **Franco garde la chaîne** et vit sans le Programme Partenaire au
+     début : sponsors payés directement (le plus rentable à partir de
+     10 à 20 k abonnés en français), affiliation, dons (Tipeee, Patreon).
+     Il bascule sur la monétisation YouTube le jour où le Burkina devient
+     éligible, ou s'il réside réellement dans un pays éligible.
+- **À ne pas faire** : masquer d'où l'on se connecte. Ça transformerait un
+  risque en fausse déclaration.
+- La même question se pose pour la chaîne IA si elle est au nom de Franco.
+
 **En attente** :
 - **Décision de Franco sur la ligne** (garder ou recentrer). Elle
   conditionne le nom, la mascotte et le backlog.

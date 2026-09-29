@@ -106,11 +106,15 @@ bébés, espérance de vie) est prouvée, et Zelan n'y a pas touché.
 1. ~~Temps par semaine~~ → 20 h.
 2. **Niche : garder « comment faisaient nos ancêtres », ou recentrer sur la
    transformation** (niches, section 5) ? C'est la question en cours.
-3. **Propriété de la chaîne** : Franco a demandé à une connaissance en
-   France de créer la chaîne. Il reste à savoir pourquoi (pays de résidence
-   de Franco, éligibilité au Programme Partenaire), qui en est propriétaire
-   et à qui revient l'AdSense. Voir la réponse du 29/09 dans la section 8
-   du doc principal.
+3. **Propriété de la chaîne** : Franco réside au **Burkina Faso**, qui
+   n'est pas éligible au Programme Partenaire (vérifié sur la page d'aide
+   YouTube le 29/09 ; le Sénégal, le Ghana et le Maroc le sont). Une
+   connaissance en France crée la chaîne. Voir la réponse dans la section 8
+   du doc principal. **Décision attendue** : la connaissance est-elle
+   réellement propriétaire (AdSense à son nom, revenus déclarés en France),
+   avec un contrat écrit qui rémunère Franco ? Ou bien Franco garde la
+   chaîne et vit de revenus hors Programme Partenaire (sponsors,
+   affiliation, dons) ?
 4. Budget mensuel (images, voix, musique).
 5. Voix : la sienne, un clone, ou Qwen3-TTS ? Il faut de toute façon un
    échantillon de référence en français (chantier 3).
