@@ -12,6 +12,9 @@ Document de cadrage, ouvert le 29/09/2026. Rien n'est encore produit.
 Modèle de format observé : Zelan (@ZelanStudio). Voir la section 1.
 Cartographie des concurrents :
 [`chaine2/concurrents_2026-09-29.md`](chaine2/concurrents_2026-09-29.md).
+Comparaison des niches (et recommandation de recentrage) :
+[`chaine2/niches_2026-09-29.md`](chaine2/niches_2026-09-29.md).
+**Pour reprendre le travail : [`chaine2/CONTEXTE.md`](chaine2/CONTEXTE.md).**
 
 ---
 
@@ -180,6 +183,74 @@ ont dépassé 500 k en anglais et qui n'ont pas encore été traités en
 français ». Ce n'est pas une différenciation (les clones font pareil) :
 c'est le **ticket d'entrée**. La différenciation reste l'enquête et la
 qualité. Règle : on reprend **des sujets, jamais des scripts**.
+
+### 1.3 Anatomie d'un succès : *le fer* (transcription, mesuré)
+
+Sous-titres automatiques récupérés le 29/09 (`outils_releve/transcription.sh`),
+segmentés avec `outils/analyser_transcription.py` (vocabulaire fermé). La
+ligne est dans [`chaine2/corpus_structures.jsonl`](chaine2/corpus_structures.jsonl).
+Les autres transcriptions (journée, eau sale, sucre, n° 1) ont été bloquées
+par un 429 de YouTube : à refaire.
+
+| Mesure | *Le fer* (434 k) |
+|---|---|
+| Durée, mots | 500 s, 1 547 mots |
+| **Débit** | **3,09 mots/s** (le pipeline suppose 2,8, mesuré en anglais) |
+| Phrase médiane | 12 mots |
+| Hook | 8 phrases, 93 mots, 30 s ; la promesse (la question) tombe à la 9e phrase |
+| **Idées** | **10 temps de 55 à 255 mots (moyenne 123)**, pas 3 idées de 300 |
+| Idées dans le temps total | 80 % |
+| Appel à s'abonner | **aucun**. La vidéo finit sur une question ouverte (« Quelle pierre est-ce qu'on pousse encore du pied aujourd'hui ? ») |
+
+**Ce que montre la lecture du texte** (*mesuré sur une vidéo, à confirmer sur
+les autres*) :
+- **Un fil chronologique à rebondissements** : pierre → cuivre (mou) →
+  bronze (dur, mais l'étain est rare) → le fer est partout mais invisible →
+  le fer tombé du ciel → le bas fourneau → l'accident d'atelier → l'acier.
+  Chaque temps se termine par un obstacle, et le suivant le lève. Le mot
+  charnière est **« Sauf que »** (4 fois), avec « Mais » et « Alors ».
+- **Le tutoiement et le présent d'aujourd'hui en contrepoint** : « la lame
+  de ton couteau », « un couteau à 3 € au supermarché », « tu attends 6 mois
+  une pièce détachée », « tu as 10 objets en fer dans un tiroir ». 5 à 6
+  retours au présent dans la vidéo.
+- **La preuve est présente, mais rare** : deux marqueurs seulement sur
+  116 phrases (« On en a même une preuve dans une tombe », la lame de
+  Toutânkhamon ; « L'hypothèse la plus solide, c'est… »). **Réponse à la
+  question du point 6 : Zelan cite des preuves, sans en faire la
+  structure.** L'angle « enquête » reste libre, sous la forme décrite à la
+  section 2.
+- **Le texte est écrit, pas improvisé** : zéro hésitation, des phrases
+  courtes et rythmées. Zelan publie aussi des sous-titres complets en six
+  langues. Ça confirme une production scriptée et outillée.
+
+**Conséquence pour notre format (section 4)** : le conflit entre « 3 idées »
+et « 8 min » se tranche par les chiffres. À 3,1 mots/s, 8 min font environ
+**1 480 mots**. Le modèle qui marche découpe en **8 à 10 temps courts**,
+chacun avec son obstacle, et non en 3 blocs. La règle `idées_max = 3` de la
+chaîne IA (Shorts) ne s'applique pas telle quelle au format long de la
+chaîne 2. **Recommandation** : 3 à 4 **questions d'enquête**, chacune
+découpée en 2 à 3 temps.
+
+### 1.4 Les miniatures (vues le 29/09)
+
+*Observé* sur les 6 meilleures miniatures de Zelan, comparées aux 4
+meilleures d'Ink Explainer et d'Axen et aux 2 meilleures de The Primal
+Glitch :
+- **Tout le genre partage une seule grammaire** : bonhomme blanc à tête
+  ronde (façon « rage comic »), pagne en peau de léopard, décor de savane ou
+  de grotte peint, 2 à 3 mots en capitales jaunes ou blanches cernées de
+  noir. Rendu d'image générée par IA, homogène d'une chaîne à l'autre.
+- **Zelan copie aussi les compositions** : *PAS DE BOULOT ?* reprend *NO
+  JOBS* d'Ink Explainer (personnage allongé à gauche, savane, feu au fond),
+  *ZÉRO INTIMITÉ ?* reprend *NO PRIVACY?* d'Axen (cercle de têtes rondes
+  dans une grotte, de nuit).
+- ***Le fer* est l'exception** : pas de personnage, deux mains, un minerai
+  et une lame, avec une traînée de fer entre les deux. The Primal Glitch
+  (*THE IRON SECRET*) a un personnage.
+
+**Conséquence** : une miniature « bonhomme à tête ronde + texte jaune » nous
+rend indiscernables d'une trentaine de chaînes. La charte doit s'écarter
+**du genre entier**, pas seulement de Zelan (voir la section 8).
 
 ### Ce qui porte le format
 1. **Une seule formule de titre** : « Comment [nos ancêtres] … ? ». On part
@@ -393,7 +464,8 @@ après les 5 premières vidéos.
   les deux jours, mais le pipeline n'a encore produit **aucune** vidéo
   longue (§12). On accélère une fois le coût réel mesuré.
 
-**Un conflit à trancher sur la vidéo pilote.** Avec la règle actuelle
+**Un conflit à trancher sur la vidéo pilote** *(tranché par la mesure le
+29/09, voir la section 1.3 : environ 1 480 mots en 8 à 10 temps courts)*. Avec la règle actuelle
 (`idées_max = 3`, 300 mots par idée en long, 2,8 mots/s), une vidéo longue
 fait 900 mots, soit **environ 5 min 20**. Pour atteindre 8 min (environ
 1 350 mots), il faut soit 4 à 5 idées, soit environ 450 mots par idée. Les
@@ -476,10 +548,29 @@ pas sur le volume, seulement sur la qualité (l'enquête).
 
 ## 8. Session du 29/09/2026 : état et décisions
 
-**Réseau du conteneur** : `googleapis.com` accessible (API YouTube Data v3
-utilisable, `YOUTUBE_API_KEY` définie) ; `youtube.com`, `i.ytimg.com`
-(miniatures), `socialblade.com` et `google.com` refusés par le proxy. Pas de
-transcriptions ni de miniatures depuis le conteneur.
+**Réseau du conteneur** : au début de la session, seul `googleapis.com`
+passait. Franco a élargi l'accès en cours de session : `youtube.com`,
+`i.ytimg.com` et `google.com` passent désormais, `socialblade.com` reste
+refusé. Les sous-titres se récupèrent avec yt-dlp (client `mweb`), mais
+YouTube renvoie un 429 après quelques dizaines de requêtes.
+
+**Réponses de Franco** :
+- **Temps disponible : 20 h par semaine**, en plus de la chaîne IA.
+
+*Ce que 20 h permettent (estimation, à vérifier sur la vidéo pilote)* :
+une vidéo longue de 8 min demande, une fois le pipeline rodé, environ 8 à
+10 h de travail humain (validation de la recherche et du script, miniature,
+relecture du storyboard, vérification du rendu, publication et Shorts).
+Recommandation :
+- **Semaines 1 à 3** : la vidéo pilote prend les 20 h. Elle sert surtout à
+  adapter le pipeline (voix française, format long).
+- **Semaines 4 à 8** : 1 vidéo par semaine (environ 10 h), et environ 10 h
+  pour corriger ce que la pilote a révélé.
+- **À partir du 3e mois** : 2 vidéos par semaine, si le coût mesuré tombe
+  sous 8 h par vidéo.
+La cadence de Zelan (3,5 vidéos par semaine) n'est pas un objectif : la
+médiane des vues du genre s'effondre (annexe concurrents), le volume ne
+gagne plus.
 
 **Fait** :
 - Relevé API exact des 25 vidéos de Zelan (section 1, CSV dans `chaine2/`).
@@ -489,10 +580,21 @@ transcriptions ni de miniatures depuis le conteneur.
 - Backlog passé au banc d'essai anglais (section 3).
 - Vérification des handles (section 2).
 
+- Transcription et segmentation du *fer* (section 1.3) : Zelan cite des
+  preuves, mais n'en fait pas la structure.
+- Miniatures comparées (section 1.4).
+- Comparaison de 16 niches :
+  [`chaine2/niches_2026-09-29.md`](chaine2/niches_2026-09-29.md).
+  **Recommandation : recentrer la ligne sur la transformation** (« de la
+  matière brute à l'objet, et comment on le sait »), la préhistoire
+  devenant le premier chapitre de chaque histoire.
+- Contexte de reprise : [`chaine2/CONTEXTE.md`](chaine2/CONTEXTE.md).
+
 **En attente** :
-- Transcriptions du fer, de la journée, de l'eau sale et du sucre, à coller
-  par Franco, puis segmentation avec `outils/analyser_transcription.py`.
-  Question à trancher avec elles : Zelan fait-il déjà « l'enquête » ?
+- **Décision de Franco sur la ligne** (garder ou recentrer). Elle
+  conditionne le nom, la mascotte et le backlog.
+- Transcriptions de la journée, de l'eau sale, du sucre et de la n° 1,
+  bloquées par le 429 (voir `chaine2/CONTEXTE.md`, section 6).
 - Brainstorming (contraintes, nom, mascotte, miniatures, backlog) : les
   réponses de Franco seront consignées ici.
 

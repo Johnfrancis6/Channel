@@ -19,6 +19,8 @@ file d'attente, ce qui reste à examiner :
 
 Seconde chaîne (préhistoire et histoire du quotidien, en français), en
 cadrage : [docs/lancement_chaine_2_prehistoire.md](docs/lancement_chaine_2_prehistoire.md).
+Pour reprendre ce travail, lire d'abord
+[docs/chaine2/CONTEXTE.md](docs/chaine2/CONTEXTE.md).
 
 ## Règles du dépôt
 
