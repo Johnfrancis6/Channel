@@ -590,6 +590,27 @@ gagne plus.
   devenant le premier chapitre de chaque histoire.
 - Contexte de reprise : [`chaine2/CONTEXTE.md`](chaine2/CONTEXTE.md).
 
+- Estimation des revenus du genre :
+  [`chaine2/revenus_2026-09-29.md`](chaine2/revenus_2026-09-29.md).
+
+**Question de Franco : une connaissance en France crée la chaîne pour lui,
+est-ce un conflit ?** Réponse du 29/09 :
+- **Pas de conflit avec le projet ni avec le pipeline.** Le pays du compte ne
+  décide pas du public (c'est la langue et le sujet qui le font). Le
+  pipeline ne dépend pas du propriétaire. Il faut seulement que Franco
+  puisse publier.
+- **Le vrai sujet, c'est la propriété.** La chaîne et ses revenus
+  appartiennent au titulaire du compte Google et de l'AdSense. Si c'est la
+  connaissance, juridiquement, **tout est à elle** : la chaîne, les revenus
+  (qu'elle déclare en France), et le droit de retirer l'accès à Franco.
+- **Recommandation** : un compte de marque (*Brand Account*) dont Franco est
+  **propriétaire principal**, la connaissance au plus gestionnaire.
+- **Si la raison est que le pays de Franco n'est pas éligible au
+  Programme Partenaire**, monétiser via l'identité d'un tiers enfreint les
+  règles d'AdSense et de YouTube (pays et identité réels du bénéficiaire).
+  Le risque : suspension de la monétisation ou de la chaîne, après des mois
+  de travail. À clarifier avant de publier la première vidéo.
+
 **En attente** :
 - **Décision de Franco sur la ligne** (garder ou recentrer). Elle
   conditionne le nom, la mascotte et le backlog.

@@ -12,6 +12,7 @@ date) ou **hypothèse** (interprétation, à tester).
 | [`../lancement_chaine_2_prehistoire.md`](../lancement_chaine_2_prehistoire.md) | Document de cadrage : décisions, Zelan (section 1), positionnement, piliers et backlog, format, exactitude, chantiers pipeline, ordre, journal de session (section 8) |
 | [`concurrents_2026-09-29.md`](concurrents_2026-09-29.md) | Cartographie FR et EN du genre « Ancient Humans », saturation, qui Zelan imite, liste proposée pour `chaines_concurrentes.json` |
 | [`niches_2026-09-29.md`](niches_2026-09-29.md) | Comparaison de 16 niches, jeunes gagnants français, recommandation de recentrage |
+| [`revenus_2026-09-29.md`](revenus_2026-09-29.md) | Revenus estimés des chaînes du genre (vues mesurées × RPM supposé), risque « contenu inauthentique » |
 | [`zelan_releve_2026-09-29.csv`](zelan_releve_2026-09-29.csv) | Les 25 vidéos de Zelan (API) : date, durée, vues, likes, commentaires, titres FR et EN |
 | [`corpus_structures.jsonl`](corpus_structures.jsonl) | Corpus de segmentations (`outils/analyser_transcription.py`), **append-only**. Une ligne : *le fer*. À déplacer dans `02_Veille_hebdo/` de la racine Drive de la chaîne 2 quand elle existera |
 | [`outils_releve/`](outils_releve/) | Scripts ponctuels de relevé (API, yt-dlp, sous-titres), hors pipeline |
@@ -66,6 +67,12 @@ push ; branche `claude/zelan-studio-analysis-rws9f6`.
 - L'histoire des inventions racontée par l'inventeur ne marche pas (Quand
   Tout a Commencé, médiane 1,4 k).
 
+**Revenus (estimés, pas mesurés)** : les chaînes françaises du genre qui
+ont percé font de l'ordre de 500 à 3 000 € par mois. Une chaîne à la médiane
+de Zelan, avec une vidéo par semaine, ferait 60 à 300 € par mois. Depuis le
+16/07/2026, YouTube démonétise le contenu répétitif produit en masse : les
+clones du genre sont exposés.
+
 **Backlog** : le pain, la nuit, Néandertal (« ce qu'il nous a laissé »),
 Lascaux (« le mystère ») et le feu sous la pluie sont prouvés en anglais.
 La veine française « corps des femmes et des enfants » (règles, grossesse,
@@ -99,14 +106,19 @@ bébés, espérance de vie) est prouvée, et Zelan n'y a pas touché.
 1. ~~Temps par semaine~~ → 20 h.
 2. **Niche : garder « comment faisaient nos ancêtres », ou recentrer sur la
    transformation** (niches, section 5) ? C'est la question en cours.
-3. Budget mensuel (images, voix, musique).
-4. Voix : la sienne, un clone, ou Qwen3-TTS ? Il faut de toute façon un
+3. **Propriété de la chaîne** : Franco a demandé à une connaissance en
+   France de créer la chaîne. Il reste à savoir pourquoi (pays de résidence
+   de Franco, éligibilité au Programme Partenaire), qui en est propriétaire
+   et à qui revient l'AdSense. Voir la réponse du 29/09 dans la section 8
+   du doc principal.
+4. Budget mensuel (images, voix, musique).
+5. Voix : la sienne, un clone, ou Qwen3-TTS ? Il faut de toute façon un
    échantillon de référence en français (chantier 3).
-5. Objectif à 6 mois (abonnés ? revenu ? apprentissage ?).
-6. Rapport personnel au sujet.
-7. Nom de la chaîne et mascotte (distincte du genre entier).
-8. Grammaire des miniatures.
-9. Relecture et priorisation du backlog selon la ligne retenue.
+6. Objectif à 6 mois (abonnés ? revenu ? apprentissage ?).
+7. Rapport personnel au sujet.
+8. Nom de la chaîne et mascotte (distincte du genre entier).
+9. Grammaire des miniatures.
+10. Relecture et priorisation du backlog selon la ligne retenue.
 
 ## 6. Travail technique en suspens
 
