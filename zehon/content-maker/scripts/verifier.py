@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Contrôles automatiques des livrables content-maker (Zoook).
+"""Contrôles automatiques des livrables content-maker (Zehon).
 
 Le jugement (la qualité du récit, l'exactitude) reste au modèle et à Franco.
 Ce script ne vérifie que ce qui se compte : longueurs, formats, continuité.

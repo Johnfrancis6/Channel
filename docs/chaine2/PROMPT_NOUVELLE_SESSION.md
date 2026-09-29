@@ -1,4 +1,4 @@
-# Message d'ouverture de la prochaine session (Zoook)
+# Message d'ouverture de la prochaine session (Zehon)
 
 À copier tel quel dans une nouvelle discussion Claude Code web, avec le
 connecteur Google Drive activé.
@@ -6,7 +6,7 @@ connecteur Google Drive activé.
 ---
 
 Session de travail : **construire le nouveau système de production** de ma
-chaîne YouTube française **Zoook**. Ligne éditoriale : « de la matière brute
+chaîne YouTube française **Zehon**. Ligne éditoriale : « de la matière brute
 à l'objet, et comment on le sait ».
 
 ## Mise en route
@@ -16,7 +16,7 @@ chaîne YouTube française **Zoook**. Ligne éditoriale : « de la matière brut
 2. Lis `docs/chaine2/CONTEXTE.md`, puis **en entier**
    `docs/chaine2/nouveau_systeme.md` : c'est le cahier des charges.
    L'ancien pipeline (agents `short-*`, Remotion, `new-short`) ne sert pas
-   à Zoook : ne t'en sers pas comme base.
+   à Zehon : ne t'en sers pas comme base.
 3. Vérifie que le connecteur Google Drive répond, et si FFmpeg est
    installé.
 
@@ -38,7 +38,7 @@ chaîne YouTube française **Zoook**. Ligne éditoriale : « de la matière brut
 ## Ce que j'attends de cette session, dans l'ordre
 1. Vérifie si un compte Claude gratuit peut lire Drive (ça fixe la forme
    des instructions).
-2. **Crée l'arborescence Zoook dans mon Drive et les fichiers
+2. **Crée l'arborescence Zehon dans mon Drive et les fichiers
    d'instructions** (`nouveau_systeme.md` §4 à §6), avec le sel comme
    exemple rempli. Montre-moi l'arborescence avant de créer les fichiers.
 3. Fais un essai à blanc des instructions sur le sel, comme le ferait un

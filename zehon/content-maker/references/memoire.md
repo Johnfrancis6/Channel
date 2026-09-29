@@ -1,4 +1,4 @@
-# La mémoire : `Zoook/Memoire/`
+# La mémoire : `Zehon/Memoire/`
 
 Une skill ne se souvient de rien d'une conversation à l'autre. La mémoire
 de la chaîne vit donc dans **3 fichiers courts** que Franco dépose au

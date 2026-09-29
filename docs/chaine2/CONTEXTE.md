@@ -1,10 +1,10 @@
-# Zoook (chaîne 2) — contexte de reprise (état au 29/09/2026, fin de session)
+# Zehon (chaîne 2) — contexte de reprise (état au 29/09/2026, fin de session)
 
 **À lire en premier.** Le setup est terminé : vision, niche, angle, charte
 et nom sont décidés. **La prochaine session construit le nouveau système**,
 décrit dans [`nouveau_systeme.md`](nouveau_systeme.md) (le cahier des
 charges, à lire en entier). L'ancien pipeline (agents A2 à A7, Remotion,
-`new-short`) **ne sert pas** à Zoook.
+`new-short`) **ne sert pas** à Zehon.
 
 Ce fichier résume et renvoie. Chaque fait porte son statut : **mesuré**
 (relevé, daté) ou **hypothèse** (à tester).
@@ -15,7 +15,7 @@ Ce fichier résume et renvoie. Chaque fait porte son statut : **mesuré**
 
 | Sujet | Décision |
 |---|---|
-| **Nom** | **Zoook** (@zoook libre selon l'API YouTube le 29/09 ; à confirmer à la création) |
+| **Nom** | **Zehon** (décision du 29/09, qui remplace Zoook : au moins 6 chaînes « Zoook/ZOOOK » existaient, dont une marque d'électronique « née en France »). **Mesuré le 29/09 (API YouTube)** : **@zehon est pris** (« Zehon Vaz », 135 abonnés, 23 vidéos) ; **@zehonfr, @zehon.fr, @zehon_fr sont libres**. Quelques petites chaînes s'appellent aussi « Zehon » ; une marque « Zehon Tools » (outillage) est vendue en ligne. Vérifier le nom sur la base des marques de l'INPI avant de créer la chaîne |
 | Chaîne | Seconde chaîne, en **français**, à côté de la chaîne IA (anglais, Shorts) |
 | **Ligne éditoriale** | **« De la matière brute à l'objet, et comment on le sait. »** Chaque vidéo raconte comment une matière est devenue un objet du quotidien, de la préhistoire à aujourd'hui, et montre **les preuves** (fouilles, datations, traces). La préhistoire est le premier chapitre de chaque histoire, pas la niche entière |
 | Format | Vidéo longue en paysage d'environ 8 min (environ 1 480 mots), plus 1 à 2 Shorts ; 1 vidéo par semaine ; **20 h par semaine** |
@@ -123,7 +123,7 @@ expliqué*).
 ## 6. Questions ouvertes
 
 1. **La suppression des anciennes skills** : la chaîne IA en dépend.
-   Recommandation : ne rien supprimer avant la première vidéo de Zoook.
+   Recommandation : ne rien supprimer avant la première vidéo de Zehon.
 2. **Le budget mensuel** : environ 35 $ si les images sont payées ; près de
    0 si les quotas gratuits de Gemini suffisent (hypothèse).
 3. Le texte de la miniature du sel (proposition : *UN TRÉSOR*).

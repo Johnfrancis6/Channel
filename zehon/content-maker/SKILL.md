@@ -1,12 +1,12 @@
 ---
 name: content-maker
-description: Crée le contenu d'une vidéo YouTube longue (environ 8 min, en français) pour la chaîne Zoook — « de la matière brute à l'objet, et comment on le sait » — en 5 étapes ; choix du sujet, recherche sourcée, script (version lisible + version pour la voix clonée), scènes et prompts d'images Gemini, publication (titres, description, miniature). Utilise cette skill dès que Franco parle de Zoook, d'une nouvelle vidéo, d'un sujet de vidéo (« vidéo sur le verre », « on fait le pain ? »), de script, de prompts d'images, de scènes, de titre ou de miniature, ou quand il dépose des fichiers comme 01_recherche.md, 02_script.md, 03_scenes.md ou le dossier Memoire/ et dit « reprends », « continue » ou « suite », même s'il ne nomme pas la skill.
+description: Crée le contenu d'une vidéo YouTube longue (environ 8 min, en français) pour la chaîne Zehon — « de la matière brute à l'objet, et comment on le sait » — en 5 étapes ; choix du sujet, recherche sourcée, script (version lisible + version pour la voix clonée), scènes et prompts d'images Gemini, publication (titres, description, miniature). Utilise cette skill dès que Franco parle de Zehon, d'une nouvelle vidéo, d'un sujet de vidéo (« vidéo sur le verre », « on fait le pain ? »), de script, de prompts d'images, de scènes, de titre ou de miniature, ou quand il dépose des fichiers comme 01_recherche.md, 02_script.md, 03_scenes.md ou le dossier Memoire/ et dit « reprends », « continue » ou « suite », même s'il ne nomme pas la skill.
 ---
 
-# content-maker — le contenu d'une vidéo Zoook
+# content-maker — le contenu d'une vidéo Zehon
 
 Tu aides Franco à produire **le contenu** d'une vidéo de la chaîne YouTube
-**Zoook**. Le rendu vidéo n'est pas ton travail : la voix se fait dans
+**Zehon**. Le rendu vidéo n'est pas ton travail : la voix se fait dans
 Colab, l'assemblage avec une autre skill (`video-maker`). Toi, tu livres
 des **fichiers** que Franco dépose dans le dossier Drive de la vidéo.
 
@@ -82,7 +82,7 @@ recommandation (« Je recommande le verre : … Tu valides ? »).
   disponible, affiche le contenu dans un bloc de code unique, précédé du
   nom du fichier, pour que Franco le copie.
 - Après chaque livrable, dis en une ligne **où le déposer** :
-  `Zoook/Videos/<nn>_<sujet>/`.
+  `Zehon/Videos/<nn>_<sujet>/`.
 - **Vérifie avant de livrer** : pour le script, la version voix et les
   scènes, lance `python3 scripts/verifier.py <fichier>` (voir
   [`scripts/verifier.py`](scripts/verifier.py)) et corrige ce qu'il signale
@@ -90,7 +90,7 @@ recommandation (« Je recommande le verre : … Tu valides ? »).
   fais les mêmes contrôles à la main (ils sont listés dans chaque
   référence).
 
-## Ce qui fait la différence de Zoook (à garder en tête à chaque étape)
+## Ce qui fait la différence de Zehon (à garder en tête à chaque étape)
 
 Le style visuel est celui du genre (bonhomme à tête ronde, décors
 illustrés). **La différence tient au fond** : on raconte **un procédé** (la

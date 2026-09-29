@@ -1,9 +1,9 @@
-# Zoook — cahier des charges du nouveau système (29/09/2026)
+# Zehon — cahier des charges du nouveau système (29/09/2026)
 
 **Pour la prochaine session.** Le setup de la chaîne est terminé (vision,
 niche, angle, charte, nom). Cette session-là construit **le nouveau
 système**. L'ancien pipeline (agents A2 à A7, Remotion, `new-short`,
-`formats_video.py`, `voix_off.ipynb` tel quel) **ne sert pas** à Zoook.
+`formats_video.py`, `voix_off.ipynb` tel quel) **ne sert pas** à Zehon.
 
 Principe de Franco : **simplicité, contenu plus net.** L'ancien système
 n'était « tout juste pas performant ».
@@ -14,7 +14,7 @@ n'était « tout juste pas performant ».
 
 | Sujet | Décision |
 |---|---|
-| **Nom** | **Zoook**. Handle @zoook : libre selon l'API YouTube le 29/09 (aucune chaîne). À confirmer à la création : un handle peut être réservé sans chaîne visible |
+| **Nom** | **Zehon** (remplace Zoook, déjà utilisé par une marque d'électronique). **@zehon est pris** (petite chaîne, 135 abonnés) ; **@zehonfr** et @zehon.fr sont libres selon l'API YouTube le 29/09. Vérifier le nom sur la base des marques de l'INPI avant de créer la chaîne |
 | Langue | Français |
 | **Ligne** | « De la matière brute à l'objet, et comment on le sait. » Chaque vidéo raconte comment une matière est devenue un objet du quotidien, de la préhistoire à aujourd'hui, et **montre les preuves** |
 | Format | Vidéo longue en paysage d'environ 8 min (environ 1 480 mots), plus 1 à 2 Shorts ; 1 vidéo par semaine ; 20 h par semaine |
@@ -65,7 +65,7 @@ n'était « tout juste pas performant ».
 ## 4. L'arborescence Drive proposée
 
 ```
-Zoook/
+Zehon/
 ├── LISEZMOI.md                   ← mode d'emploi pour Franco (1 page)
 ├── Instructions/
 │   ├── 00_DEMARRAGE.md           ← le texte à coller dans n'importe quel Claude
@@ -189,7 +189,7 @@ propres blocs**.
 - **La suppression des anciennes skills** : la chaîne IA (anglais, Shorts)
   en dépend (`short-*`, `new-short`, `short-state`, `short-publier`). Soit
   on la migre sur le nouveau système, soit elle s'arrête, soit on garde ses
-  skills. **Recommandation** : ne rien supprimer avant que Zoook ait publié
+  skills. **Recommandation** : ne rien supprimer avant que Zehon ait publié
   sa première vidéo avec le nouveau système.
 - Le budget mensuel (estimation : environ 35 $ si les images sont payées ;
   près de 0 si les quotas gratuits de Gemini suffisent. **Hypothèse.**)

@@ -1,4 +1,4 @@
-# Zoook — la chaîne
+# Zehon — la chaîne
 
 ## La ligne
 
@@ -66,7 +66,7 @@ Chaque affirmation du dossier de recherche porte un **statut** :
 | **hypothèse** | défendable, non démontrée | « personne ne sait vraiment, mais… », « une piste : … » |
 
 Pourquoi : une chaîne sur le passé qui répète des idées reçues se fait
-corriger en commentaires, et à raison. Et la marque de Zoook, c'est
+corriger en commentaires, et à raison. Et la marque de Zehon, c'est
 justement de dire **comment on le sait**. Un chiffre sans source ne va pas
 dans le script ; un mythe célèbre (« les soldats romains payés en sel »)
 peut y aller **pour être démonté**, preuves à l'appui.

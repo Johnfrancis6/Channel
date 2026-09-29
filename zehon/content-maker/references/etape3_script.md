@@ -26,7 +26,7 @@ Ce modèle vient d'**une seule vidéo** : c'est un point de départ, que
 autre chose (par exemple un débit mesuré sur la voix de Franco), c'est
 `lecons.md` qui gagne.
 
-## La structure Zoook
+## La structure Zehon
 
 | Bloc | Contenu | Mots |
 |---|---|---|
@@ -82,7 +82,7 @@ blocs en commentaire (`## Hook`, `## Q1 — T1`…). Règles :
 - **On reprend des sujets, jamais des scripts** : ne paraphrase pas une
   vidéo concurrente.
 
-**Un hook dans le bon registre** (exemple Zoook, le sel) :
+**Un hook dans le bon registre** (exemple Zehon, le sel) :
 
 > Regarde la salière sur ta table. C'est sans doute ce qu'il y a de moins
 > cher dans ta cuisine. Chaque hiver, des camions entiers en jettent sur

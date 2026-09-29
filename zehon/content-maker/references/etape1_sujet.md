@@ -3,11 +3,11 @@
 **But** : proposer **3 sujets**, chacun avec son angle, pour que Franco en
 choisisse un. Tu ne choisis pas à sa place : tu recommandes.
 
-## Ce qu'un bon sujet Zoook doit avoir
+## Ce qu'un bon sujet Zehon doit avoir
 
 1. **Une matière et un objet du quotidien** : le sable devient la vitre,
    le grain devient le pain, le minerai devient le couteau. Si on ne peut
-   pas écrire « de ___ à ___ », ce n'est pas un sujet Zoook.
+   pas écrire « de ___ à ___ », ce n'est pas un sujet Zehon.
 2. **Une histoire longue et prouvée** : au moins 3 étapes du procédé
    documentées par des preuves montrables (fouilles, objets datés,
    textes). Sans preuve montrable, pas de pièce à conviction, donc pas de
@@ -51,4 +51,4 @@ Puis **ta recommandation en 2 phrases** (lequel, et pourquoi), et **une
 seule question** : « Lequel on fait ? »
 
 Quand Franco a choisi, rappelle-lui en une ligne de créer le dossier
-`Zoook/Videos/<nn>_<sujet>/`, puis enchaîne sur l'étape 2 (recherche).
+`Zehon/Videos/<nn>_<sujet>/`, puis enchaîne sur l'étape 2 (recherche).
