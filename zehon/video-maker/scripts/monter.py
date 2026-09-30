@@ -4,14 +4,21 @@
   python3 monter.py <dossier_video>                  # valide, cale, rend, contrôle
   python3 monter.py <dossier_video> --plan           # valide et cale seulement (rien n'est rendu)
   python3 monter.py <dossier_video> --scenes 1-10    # un extrait (scènes 1 à 10)
+  python3 monter.py <dossier_video> --sous-titres    # avec les sous-titres incrustés
 
 Le dossier contient 03_scenes.md, images/scene_NNN.(png|jpg), clips/(anim|scene)_NNN.mp4,
 voix/voix.wav et voix/mots.json (écrits par le notebook voix_zehon.ipynb). Sortie : la vidéo,
-et rendu/rapport.json (durée de chaque scène, avertissements, contrôle avant publication).
+rendu/rapport.json (durée de chaque scène, avertissements, contrôle avant publication) et, pour
+la vidéo entière comme pour --plan, rendu/sous_titres.srt (à déposer sur YouTube).
 
 Les durées ne s'écrivent pas à la main : chaque scène est calée sur les mots horodatés de la
 voix (mots.json), en retrouvant son « texte dit » dans la transcription. Les scènes « titre »
 ajoutent une pause de TITRE_S secondes dans la voix, le temps de lire la question.
+
+Les sous-titres reprennent le « texte dit » des scènes (l'orthographe du script : « 8 000 »,
+« Duzdağı »), chaque mot calé sur la voix. Incrustés (--sous-titres), ils passent quelques mots
+à la fois en bas de l'image, le mot prononcé en couleur ; le texte animé remonte pour leur
+laisser la place, et ils s'effacent pendant les titres.
 
 Dépendances : Python 3.9+, numpy, opencv-python(-headless), Pillow, et ffmpeg/ffprobe.
 """
@@ -46,6 +53,22 @@ IMAGE_MAX_S = 10.0     # garde-fou : une image qui reste plus longtemps est sign
 VOLUME_LUFS = -14.0   # volume de référence de YouTube (il baisse ce qui est plus fort, ne monte pas le reste)
 CRETE_DBTP = -1.5     # limiteur (le contrôle refuse une crête au-dessus de −0,5 dB)
 BLANC_CASSE = (244, 239, 230)
+
+# Les sous-titres (tailles en pixels à 1080p)
+ST_MOTS_MAX = 7        # incrustés : quelques mots à la fois…
+ST_CARS_MAX = 34       # …sur une seule ligne
+ST_TAILLE = 50
+ST_BAS = 56            # marge sous le bandeau
+ST_RESERVE = 120       # avec les sous-titres, le texte animé remonte d'autant
+ST_TENUE_S = 0.6       # un groupe reste après son dernier mot, sauf si le suivant arrive avant
+ST_FONDU_S = 0.15
+MOT_DIT = (255, 196, 92)       # le mot prononcé
+FOND_ST = (18, 14, 10, 140)    # le bandeau, sombre et transparent
+SRT_CARS_LIGNE = 42    # .srt : deux lignes de 42 caractères au plus (usage courant du sous-titrage)
+PETITS_MOTS = {"le", "la", "les", "un", "une", "des", "de", "du", "au", "aux", "à", "et", "ou", "en", "sur",
+               "dans", "par", "pour", "qui", "que", "ce", "cette", "ces", "ne", "se", "son", "sa", "ses",
+               "ton", "ta", "tes", "on", "il", "ils", "elle", "tu", "y", "sans", "est", "a", "ont", "sont",
+               "très", "mais", "car", "où", "d'un", "d'une"}
 
 TYPES = {"image", "video", "titre"}
 MOUVEMENTS = {"zoom_avant", "zoom_arriere", "pan_droite", "pan_gauche", "fixe"}
@@ -230,6 +253,25 @@ def valider(scenes, dossier, verifier_fichiers=True, seulement=None):
 
 
 # ── Caler les scènes sur la voix ──────────────────────────────────────────────
+def jetons_voix(voix):
+    """Les jetons de la transcription (mots.json), et pour chacun l'indice de son mot."""
+    b, b_mot = [], []
+    for i, m in enumerate(voix["mots"]):
+        for j in jetons(m["mot"]):
+            b.append(j)
+            b_mot.append(i)
+    return b, b_mot
+
+
+def aligner(a, b):
+    """{indice dans a: indice dans b} pour les jetons communs, dans l'ordre (difflib)."""
+    vers = {}
+    for bloc in difflib.SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks():
+        for d in range(bloc.size):
+            vers[bloc.a + d] = bloc.b + d
+    return vers
+
+
 def trouver_suite(cherche, dans):
     """Position de la première occurrence de la suite `cherche` dans `dans`, ou None."""
     for i in range(len(dans) - len(cherche) + 1):
@@ -252,15 +294,8 @@ def caler(scenes, voix):
             a.append(j)
             a_scene.append(k)
     mots = voix["mots"]
-    b, b_mot = [], []
-    for i, m in enumerate(mots):
-        for j in jetons(m["mot"]):
-            b.append(j)
-            b_mot.append(i)
-    vers = {}
-    for bloc in difflib.SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks():
-        for d in range(bloc.size):
-            vers[bloc.a + d] = bloc.b + d
+    b, b_mot = jetons_voix(voix)
+    vers = aligner(a, b)
     avert = []
     for k, s in enumerate(dites):
         idx = [i for i, sc in enumerate(a_scene) if sc == k]
@@ -324,11 +359,7 @@ def chronologie(scenes, voix):
 def placer_textes(scenes, voix):
     """Le texte animé apparaît quand la voix prononce le mot qu'il reprend (sinon, en début de scène)."""
     mots = voix["mots"]
-    b, b_mot = [], []
-    for i, m in enumerate(mots):
-        for j in jetons(m["mot"]):
-            b.append(j)
-            b_mot.append(i)
+    b, b_mot = jetons_voix(voix)
     petits = {"la", "le", "les", "l", "d", "de", "du", "des", "un", "une", "et", "a", "au", "en"}
     for s in scenes:
         if s.type == "titre" or s.texte_anime in VIDE:
@@ -505,9 +536,10 @@ class LecteurClip:
 class Rendu:
     """Une scène à l'écran : sait fabriquer son image à n'importe quel instant de sa présence."""
 
-    def __init__(self, scene, suivante, largeur, hauteur):
+    def __init__(self, scene, suivante, largeur, hauteur, reserve_bas=0):
         self.s, self.suivante = scene, suivante
         self.l, self.h = largeur, hauteur
+        self.reserve_bas = reserve_bas  # place laissée aux sous-titres sous le texte animé (pixels à 1080p)
         self.debut_vue = scene.debut - FONDU_S / 2
         self.duree_vue = scene.duree + FONDU_S
         self.pret = False
@@ -555,7 +587,7 @@ class Rendu:
             else:
                 apparition = s.apparition
                 x = round(110 * self.l / LARGEUR)
-                y = self.h - round(120 * self.h / HAUTEUR) - self.calque.shape[0]
+                y = self.h - round((120 + self.reserve_bas) * self.h / HAUTEUR) - self.calque.shape[0]
                 glisse = 14 * self.h / HAUTEUR
             entree = lisser((t - apparition) / 0.5)
             sortie = lisser((s.fin - 0.2 - t) / 0.4)
@@ -567,6 +599,263 @@ class Rendu:
             self.clip.fermer()
             self.clip = None
         self.source = self.calque = None
+
+
+# ── Les sous-titres ───────────────────────────────────────────────────────────
+@dataclass
+class Mot:
+    texte: str
+    scene: Scene
+    debut: float = None  # temps de la vidéo
+    fin: float = None
+
+
+@dataclass
+class Groupe:
+    mots: list
+    debut: float = 0.0
+    fin: float = 0.0
+    fondu_entree: bool = True
+    fondu_sortie: bool = True
+
+    @property
+    def texte(self):
+        return " ".join(m.texte for m in self.mots)
+
+
+def mots_du_texte(texte):
+    """Les mots à afficher. « 8 000 », « 42 % », « 21 km », « eau ? » et « « sal » » restent d'un tenant."""
+    mots, devant = [], ""
+    for brut in texte.replace(" ", " ").replace(" ", " ").split():
+        precedent = mots[-1] if mots else ""
+        if brut in ("«", "“", "(") or (brut in ("—", "–") and not mots):
+            devant += brut + " "
+        elif mots and (re.fullmatch(r"[?!:;»”)…—–]+[.,]?", brut)
+                       or (re.fullmatch(r"\d{3}\b.*", brut) and re.search(r"\d$", precedent))
+                       or (re.fullmatch(r"(%|km|m|kg|g|°C?)[.,;:]?", brut) and re.search(r"\d$", precedent))):
+            mots[-1] = precedent + " " + brut
+        else:
+            mots.append(devant + brut)
+            devant = ""
+    return mots
+
+
+def minuter_mots(scenes, voix):
+    """Chaque mot du « texte dit », avec ses temps dans la vidéo, calés sur les mots de la voix.
+    Un mot que Whisper a entendu autrement prend place entre ses voisins, au prorata de sa longueur.
+    Renvoie (mots, part des mots calés directement)."""
+    mots_voix = voix["mots"]
+    affiches, a, a_mot = [], [], []
+    for s in scenes:
+        if s.type == "titre":
+            continue
+        for texte in mots_du_texte(s.texte):
+            for j in jetons(texte):
+                a.append(j)
+                a_mot.append(len(affiches))
+            affiches.append(Mot(texte, s))
+    b, b_mot = jetons_voix(voix)
+    voix_t = [[None, None] for _ in affiches]
+    vers = aligner(a, b)
+    for i, k in enumerate(a_mot):
+        if i in vers:
+            m = mots_voix[b_mot[vers[i]]]
+            d, f = voix_t[k]
+            voix_t[k] = [m["debut_s"] if d is None else min(d, m["debut_s"]), m["fin_s"] if f is None else max(f, m["fin_s"])]
+    cales = sum(1 for d, _ in voix_t if d is not None)
+    # Les mots non retrouvés : répartis entre le mot calé d'avant et celui d'après.
+    k = 0
+    while k < len(affiches):
+        if voix_t[k][0] is not None:
+            k += 1
+            continue
+        fin_trou = k
+        while fin_trou < len(affiches) and voix_t[fin_trou][0] is None:
+            fin_trou += 1
+        t0 = voix_t[k - 1][1] if k > 0 else affiches[k].scene._coupe_debut
+        t1 = voix_t[fin_trou][0] if fin_trou < len(affiches) else voix["duree_s"]
+        t1 = max(t1, t0)
+        poids = [len(affiches[i].texte) + 1 for i in range(k, fin_trou)]
+        t = t0
+        for i, p in zip(range(k, fin_trou), poids):
+            pas = (t1 - t0) * p / sum(poids)
+            voix_t[i] = [t, t + pas]
+            t += pas
+        k = fin_trou
+    # En temps de la vidéo (les titres décalent la suite), jamais en arrière.
+    precedent = 0.0
+    for mot, (d, f) in zip(affiches, voix_t):
+        decale = mot.scene.debut - mot.scene._coupe_debut
+        mot.debut = max(d + decale, precedent)
+        mot.fin = max(f + decale, mot.debut + 0.05)
+        precedent = mot.debut
+    return affiches, (cales / len(affiches) if affiches else 1.0)
+
+
+def equilibrer(mots, cars_max, mots_max, virgule=300):
+    """Coupe une suite de mots en le moins de groupes possible, de longueurs voisines, de préférence
+    après une virgule (bonus `virgule`), sans laisser un petit mot (« de », « la »…) en fin de groupe
+    ni séparer un nombre du mot qui l'annonce."""
+    n = len(mots)
+    longueur = lambda i, j: len(" ".join(m.texte for m in mots[i:j]))
+    tient = lambda i, j: j - i == 1 or (j - i <= mots_max and longueur(i, j) <= cars_max)
+    if tient(0, n):
+        return [mots]
+    mini = [0] + [n] * n
+    for j in range(1, n + 1):
+        mini[j] = min(mini[i] + 1 for i in range(j) if tient(i, j))
+
+    def decouper(k):
+        """(coût, morceaux) du meilleur découpage en k groupes, ou None."""
+        cible = longueur(0, n) / k
+        meilleur = {(0, 0): (0.0, None)}
+        for parts in range(1, k + 1):
+            for j in range(1, n + 1):
+                choix = []
+                for i in range(j):
+                    if (i, parts - 1) in meilleur and tient(i, j):
+                        c = meilleur[(i, parts - 1)][0] + (longueur(i, j) - cible) ** 2
+                        if j < n:
+                            dernier = mots[j - 1].texte
+                            c += 2000 if dernier.lower() in PETITS_MOTS else 0
+                            c -= virgule if dernier.endswith(",") else 0
+                            c += 800 if mots[j].texte[:1].isdigit() else 0  # « entre | 6050 », « carbone | 14 »
+                        choix.append((c, i))
+                if choix:
+                    meilleur[(j, parts)] = min(choix)
+        if (n, k) not in meilleur:
+            return None
+        morceaux, j = [], n
+        for parts in range(k, 0, -1):
+            i = meilleur[(j, parts)][1]
+            morceaux.append(mots[i:j])
+            j = i
+        return meilleur[(n, k)][0], morceaux[::-1]
+
+    # le moins de groupes possible, ou un de plus si ça évite une mauvaise coupe
+    essais = [r for r in (decouper(mini[n]), decouper(mini[n] + 1)) if r]
+    essais[-1:] = [(essais[-1][0] + 600, essais[-1][1])] if len(essais) == 2 else essais[-1:]
+    return min(essais, key=lambda r: r[0])[1]
+
+
+def grouper(mots, scenes, cars_max, mots_max, pause_s=0.45):
+    """Des groupes de mots à afficher ensemble. On coupe d'abord aux fins de phrase, aux
+    changements de scène et aux vraies pauses de la voix, puis on équilibre ce qui est trop long."""
+    segments, courant = [], []
+    for m in mots:
+        if courant:
+            prec = courant[-1]
+            if m.scene is not prec.scene or prec.texte[-1] in ".?!:;…»" or m.debut - prec.fin > pause_s:
+                segments.append(courant)
+                courant = []
+        courant.append(m)
+    if courant:
+        segments.append(courant)
+    groupes = [Groupe(g) for seg in segments for g in equilibrer(seg, cars_max, mots_max)]
+    # Les horaires : du premier mot à un peu après le dernier, sans chevaucher le suivant ni un titre.
+    rang = {id(s): i for i, s in enumerate(scenes)}
+    for g, suivant in zip(groupes, groupes[1:] + [None]):
+        s = g.mots[-1].scene
+        g.debut = max(0.0, g.mots[0].debut - 0.05)
+        g.fin = g.mots[-1].fin + ST_TENUE_S
+        if suivant is not None:
+            g.fin = min(g.fin, suivant.mots[0].debut - 0.05)
+        i = rang[id(s)]
+        if i + 1 < len(scenes) and scenes[i + 1].type == "titre":
+            g.fin = min(g.fin, s.fin - FONDU_S / 2)
+        g.fin = max(g.fin, g.debut + 0.3)
+    for g, suivant in zip(groupes, groupes[1:]):
+        if suivant.debut - g.fin < 0.1:  # enchaînés : ni fondu de sortie ni d'entrée (pas de clignement)
+            g.fin = max(suivant.debut, g.debut + 0.05)
+            g.fondu_sortie = suivant.fondu_entree = False
+    return groupes
+
+
+def horodatage_srt(t):
+    ms = int(round(max(t, 0) * 1000))
+    h, ms = divmod(ms, 3_600_000)
+    m, ms = divmod(ms, 60_000)
+    s, ms = divmod(ms, 1000)
+    return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
+
+
+def deux_lignes(texte, largeur=SRT_CARS_LIGNE):
+    """Coupe un sous-titre trop long en deux lignes, à l'espace le plus proche du milieu."""
+    if len(texte) <= largeur:
+        return texte
+    espaces = [i for i, c in enumerate(texte) if c == " "]
+    if not espaces:
+        return texte
+    tiennent = [i for i in espaces if i <= largeur and len(texte) - i - 1 <= largeur]
+    if tiennent:  # au plus près du milieu, de préférence après une virgule
+        i = min(tiennent, key=lambda i: abs(i - len(texte) / 2) - (8 if texte[i - 1] == "," else 0))
+    else:
+        i = min(espaces, key=lambda i: max(i, len(texte) - i - 1))
+    return texte[:i] + "\n" + texte[i + 1:]
+
+
+def ecrire_srt(mots, scenes, chemin):
+    """Le fichier .srt pour YouTube : des phrases (deux lignes au plus), calées sur la voix."""
+    groupes = grouper(mots, scenes, 2 * SRT_CARS_LIGNE - 4, 18, pause_s=0.9)
+    blocs = [f"{i}\n{horodatage_srt(g.debut)} --> {horodatage_srt(g.fin)}\n{deux_lignes(g.texte)}\n"
+             for i, g in enumerate(groupes, 1)]
+    chemin = Path(chemin)
+    chemin.parent.mkdir(parents=True, exist_ok=True)
+    chemin.write_text("\n".join(blocs), encoding="utf-8")
+    return len(groupes)
+
+
+class SousTitres:
+    """Les sous-titres incrustés : un bandeau discret en bas, le mot prononcé en couleur."""
+
+    def __init__(self, groupes, largeur, hauteur):
+        self.groupes = groupes
+        self.debuts = [g.debut for g in groupes]
+        self.l, self.h = largeur, hauteur
+        self.e = largeur / LARGEUR
+        self.fonte = ImageFont.truetype(str(POLICE_TITRE), round(ST_TAILLE * self.e))
+        self.cache = {}
+
+    def calque(self, i, k):
+        """Le bandeau du groupe i, le mot k en couleur (k = −1 : aucun)."""
+        if (i, k) in self.cache:
+            return self.cache[(i, k)]
+        if len(self.cache) > 64:
+            self.cache.clear()
+        mots = [m.texte for m in self.groupes[i].mots]
+        f, e = self.fonte, self.e
+        espace = f.getlength(" ")
+        largeurs = [f.getlength(m) for m in mots]
+        montee, descente = f.getmetrics()
+        px, haut, bas = round(26 * e), round(4 * e), round(8 * e)
+        w = int(sum(largeurs) + espace * (len(mots) - 1)) + 2 * px
+        h = montee + descente + haut + bas
+        im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        d = ImageDraw.Draw(im)
+        d.rounded_rectangle((0, 0, w - 1, h - 1), radius=round(16 * e), fill=FOND_ST)
+        x = px
+        for j, (mot, lm) in enumerate(zip(mots, largeurs)):
+            d.text((x, haut), mot, font=f, fill=(MOT_DIT if j == k else BLANC_CASSE) + (255,))
+            x += lm + espace
+        self.cache[(i, k)] = np.asarray(im)
+        return self.cache[(i, k)]
+
+    def poser(self, image, t):
+        i = bisect.bisect_right(self.debuts, t) - 1
+        if i < 0 or t >= self.groupes[i].fin:
+            return image
+        g = self.groupes[i]
+        k = -1
+        for j, m in enumerate(g.mots):
+            if m.debut <= t:
+                suivant = g.mots[j + 1].debut if j + 1 < len(g.mots) else m.fin + 0.2
+                k = j if t < max(suivant, m.fin) else -1
+        calque = self.calque(i, k)
+        entree = lisser((t - g.debut) / ST_FONDU_S) if g.fondu_entree else 1.0
+        sortie = lisser((g.fin - t) / ST_FONDU_S) if g.fondu_sortie else 1.0
+        x = (self.l - calque.shape[1]) / 2
+        y = self.h - round(ST_BAS * self.e) - calque.shape[0]
+        return poser(image, calque, x, y, min(entree, sortie))
 
 
 # ── Le son ────────────────────────────────────────────────────────────────────
@@ -624,13 +913,16 @@ def sonder_duree(chemin):
         return 0.0
 
 
-def rendre(scenes, son, t0, t1, sortie, largeur=LARGEUR, hauteur=HAUTEUR, preset="medium", crf=18, bavard=True):
-    """Fabrique la vidéo entre t0 et t1 (temps de la vidéo). Renvoie les avertissements du rendu."""
+def rendre(scenes, son, t0, t1, sortie, largeur=LARGEUR, hauteur=HAUTEUR, preset="medium", crf=18, bavard=True,
+           sous_titres=None):
+    """Fabrique la vidéo entre t0 et t1 (temps de la vidéo). Renvoie les avertissements du rendu.
+    `sous_titres` : les groupes de mots à incruster (grouper), ou None."""
     visibles = [s for s in scenes if s.fin > t0 and s.debut < t1]
     rendus = []
     for i, s in enumerate(visibles):
         suivante = next((d for d in scenes[scenes.index(s) + 1:] if d.type != "titre"), None)
-        rendus.append(Rendu(s, suivante, largeur, hauteur))
+        rendus.append(Rendu(s, suivante, largeur, hauteur, ST_RESERVE if sous_titres else 0))
+    incrustes = SousTitres(sous_titres, largeur, hauteur) if sous_titres else None
     debuts = [r.s.debut for r in rendus]
     sortie = Path(sortie)
     sortie.parent.mkdir(parents=True, exist_ok=True)
@@ -659,6 +951,8 @@ def rendre(scenes, son, t0, t1, sortie, largeur=LARGEUR, hauteur=HAUTEUR, preset
                 elif k > 0 and t < r.s.debut + FONDU_S / 2:
                     a = lisser(0.5 + (t - r.s.debut) / FONDU_S)
                     image = cv2.addWeighted(rendus[k - 1].image(t), 1 - a, image, a, 0)
+                if incrustes is not None:
+                    image = incrustes.poser(image, t)
                 noir = min(lisser(t / DEBUT_NOIR_S) if t0 == 0 else 1.0, lisser((scenes[-1].fin - t) / 1.0))
                 if noir < 1:
                     image = (image.astype(np.float32) * noir).astype(np.uint8)
@@ -722,6 +1016,8 @@ def main(argv=None):
     p.add_argument("--sans-fichiers", action="store_true",
                    help="avec --plan : ne pas chercher images et clips (ils sont dans Drive, pas ici)")
     p.add_argument("--musique", help="une nappe musicale (mp3, wav…), mise en boucle à bas volume")
+    p.add_argument("--sous-titres", action="store_true",
+                   help="incruster les sous-titres (quelques mots à la fois, le mot dit en couleur)")
     p.add_argument("--taille", default=f"{LARGEUR}x{HAUTEUR}", help="par exemple 960x540 pour un aperçu rapide")
     p.add_argument("--preset", default="medium", help="preset x264 (ultrafast pour un essai, medium pour la vraie)")
     args = p.parse_args(argv)
@@ -740,6 +1036,13 @@ def main(argv=None):
     for s in scenes:
         texte = s.texte_anime if s.type == "titre" else s.texte
         print(f"   {s.n:3d} {s.type:6s} {minutes(s.debut):>7s}  {s.duree:5.1f} s  {s.couverture:4.0%}  {texte[:60]}")
+    mots, cales = minuter_mots(scenes, voix)
+    if cales < 0.9:
+        avert.append(f"sous-titres : seulement {cales:.0%} des mots calés directement sur la voix")
+    if not extrait:
+        chemin_srt = dossier / "rendu" / "sous_titres.srt"
+        n_srt = ecrire_srt(mots, scenes, chemin_srt)
+        print(f"📝 {chemin_srt} : {n_srt} sous-titres, {len(mots)} mots ({cales:.0%} calés directement sur la voix)")
     for a in avert:
         print(f"⚠️  {a}")
     if args.plan:
@@ -759,13 +1062,14 @@ def main(argv=None):
         return 1
     son = piste_son(chemin_voix, insertions, total, args.musique)
     print(f"🎞️  Rendu de {minutes(t0)} à {minutes(t1)} → {sortie}")
-    for a in rendre(scenes, son, t0, t1, sortie, largeur, hauteur, args.preset):
+    groupes = grouper(mots, scenes, ST_CARS_MAX, ST_MOTS_MAX) if args.sous_titres else None
+    for a in rendre(scenes, son, t0, t1, sortie, largeur, hauteur, args.preset, sous_titres=groupes):
         print(f"⚠️  {a}")
         avert.append(a)
     controle = controler(sortie, t1 - t0, largeur, hauteur)
     rapport = {
         "video": dossier.resolve().name, "sortie": str(sortie), "de_s": round(t0, 2), "a_s": round(t1, 2),
-        "duree_totale_s": round(total, 2),
+        "duree_totale_s": round(total, 2), "sous_titres_incrustes": bool(args.sous_titres),
         "scenes": [{"n": s.n, "type": s.type, "debut_s": round(s.debut, 2), "duree_s": round(s.duree, 2),
                     "couverture": round(s.couverture, 2),
                     "texte_anime_s": round(s.apparition, 2) if s.apparition is not None else None} for s in scenes],

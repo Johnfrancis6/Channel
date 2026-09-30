@@ -131,6 +131,50 @@ class Calage(unittest.TestCase):
         self.assertLessEqual(deux.apparition, deux.fin - m.TEXTE_MIN_S + 1e-6)
 
 
+class SousTitres(unittest.TestCase):
+    def test_mots_affiches_d_un_tenant(self):
+        self.assertEqual(m.mots_du_texte("il y a 8 000 ans, 42 % de l'eau ?"),
+                         ["il", "y", "a", "8 000", "ans,", "42 %", "de", "l'eau ?"])
+        self.assertEqual(m.mots_du_texte("de « sal », le sel"), ["de", "« sal »,", "le", "sel"])
+        self.assertEqual(m.mots_du_texte("un conduit de 21 km part"), ["un", "conduit", "de", "21 km", "part"])
+
+    def test_mots_cales_sur_la_voix_et_decales_par_le_titre(self):
+        d = Dossier()
+        scenes, voix, *_ = m.planifier(d.d)
+        mots, cales = m.minuter_mots(scenes, voix)
+        self.assertEqual(cales, 1.0)
+        self.assertEqual(" ".join(x.texte for x in mots[:2]), "Regarde la")
+        huit = next(x for x in mots if x.texte == "8 000")
+        self.assertAlmostEqual(huit.debut, voix["mots"][9]["debut_s"])  # « 8000 » dans la voix
+        sauf = next(x for x in mots if x.texte == "Sauf")
+        self.assertAlmostEqual(sauf.debut, voix["mots"][15]["debut_s"] + m.TITRE_S)
+        self.assertEqual(sorted(x.debut for x in mots), [x.debut for x in mots])
+
+    def test_groupes_courts_equilibres_et_hors_titre(self):
+        d = Dossier()
+        scenes, voix, *_ = m.planifier(d.d)
+        mots, _ = m.minuter_mots(scenes, voix)
+        groupes = m.grouper(mots, scenes, 20, 4)
+        self.assertEqual(" ".join(g.texte for g in groupes), " ".join(x.texte for x in mots))
+        self.assertEqual(groupes[0].texte, "Regarde la salière")
+        self.assertTrue(all(len(g.mots) <= 4 and len(g.texte) <= 20 for g in groupes))
+        self.assertEqual([g.texte for g in groupes][-2:], ["coûte cher.", "Très cher."])  # fin de phrase
+        titre = scenes[2]
+        self.assertTrue(all(g.fin <= titre.debut or g.debut >= titre.fin for g in groupes))
+        self.assertFalse(any(g.mots[-1].texte.lower() in m.PETITS_MOTS for g in groupes))
+
+    def test_srt(self):
+        d = Dossier()
+        scenes, voix, *_ = m.planifier(d.d)
+        mots, _ = m.minuter_mots(scenes, voix)
+        n = m.ecrire_srt(mots, scenes, d.d / "rendu" / "sous_titres.srt")
+        blocs = (d.d / "rendu" / "sous_titres.srt").read_text(encoding="utf-8").strip().split("\n\n")
+        self.assertEqual(len(blocs), n)
+        self.assertRegex(blocs[0], r"^1\n00:00:00,000 --> 00:00:0\d,\d{3}\nRegarde la salière sur ta table\.$")
+        self.assertEqual(m.deux_lignes("Et il y a moins de 300 ans, en France, en faire passer"),
+                         "Et il y a moins de 300 ans,\nen France, en faire passer")
+
+
 @unittest.skipUnless(shutil.which("ffmpeg"), "ffmpeg absent")
 class Rendu(unittest.TestCase):
     def test_rendu_miniature_passe_le_controle(self):
@@ -144,6 +188,25 @@ class Rendu(unittest.TestCase):
         self.assertEqual(code, 0)
         rapport = json.loads((d.d / "rendu" / "rapport.json").read_text(encoding="utf-8"))
         self.assertTrue(rapport["pret"], rapport["controle"])
+
+    def test_rendu_avec_sous_titres(self):
+        d = Dossier()
+        voix = voix_de_test()
+        t = np.arange(int(voix["duree_s"] * 24000)) / 24000
+        signal = (0.3 * np.sin(2 * np.pi * 220 * t)).astype(np.float32)
+        subprocess.run(["ffmpeg", "-v", "error", "-f", "f32le", "-ar", "24000", "-ac", "1", "-i", "-",
+                        str(d.d / "voix" / "voix.wav")], input=signal.tobytes(), check=True)
+        code = m.main([str(d.d), "--taille", "320x180", "--preset", "ultrafast", "--sous-titres"])
+        self.assertEqual(code, 0)
+        rapport = json.loads((d.d / "rendu" / "rapport.json").read_text(encoding="utf-8"))
+        self.assertTrue(rapport["sous_titres_incrustes"])
+        self.assertTrue((d.d / "rendu" / "sous_titres.srt").is_file())
+        # le bandeau est bien là : le bas de l'image, pendant la première phrase, n'est plus uni
+        image = subprocess.run(["ffmpeg", "-v", "error", "-ss", "1.0", "-i", str(d.d / "rendu" / "video.mp4"),
+                                "-frames:v", "1", "-f", "rawvideo", "-pix_fmt", "gray", "-"],
+                               capture_output=True, check=True).stdout
+        bas = np.frombuffer(image, np.uint8).reshape(180, 320)[150:175]
+        self.assertGreater(bas.std(), 20)
 
 
 if __name__ == "__main__":

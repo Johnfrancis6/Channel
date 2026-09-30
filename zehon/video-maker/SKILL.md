@@ -21,9 +21,24 @@ cette page.
 | Rendre | 1920×1080, 30 i/s ; zoom lent de 5 % ou panoramique, fondu enchaîné de 0,6 s, plans animés recadrés (ralentis puis figés s'ils sont trop courts), texte animé en bas à gauche quand la voix prononce le mot (au moins 2,5 s à l'écran), titres sur l'image suivante floutée ; son normalisé à −14 LUFS, crêtes à −1,5 dB |
 | Contrôler | image 1920×1080, piste audio, pas de silence (volume moyen > −60 dB), pas de saturation (crête ≤ −0,5 dB), durée attendue. **Un rendu n'est fini que si ce contrôle passe** |
 
-Sorties : `rendu/video.mp4` (ou `rendu/extrait_AAA-BBB.mp4`) et
+Sorties : `rendu/video.mp4` (ou `rendu/extrait_AAA-BBB.mp4`),
 `rendu/rapport.json` (début et durée de chaque scène, avertissements,
-contrôle).
+contrôle) et `rendu/sous_titres.srt` (vidéo entière et `--plan`), à déposer
+sur YouTube avec la vidéo.
+
+## Les sous-titres
+
+- **Le `.srt`** est toujours écrit (vidéo entière et `--plan`) : le « texte
+  dit » des scènes (orthographe du script : « 8 000 », « Duzdağı »), chaque
+  mot calé sur `mots.json`, deux lignes de 42 caractères au plus. Il se
+  fait donc dès le plan, ici, sans rendu.
+- **Incrustés, en option** (`--sous-titres`) : quelques mots à la fois
+  (34 caractères, 7 mots au plus) dans un bandeau sombre transparent, en
+  bas au centre ; le mot prononcé passe en jaune doré. Les groupes coupent
+  aux fins de phrase, aux pauses et aux changements de scène, sont
+  équilibrés (jamais un petit mot seul en fin de groupe) et s'effacent
+  pendant les titres. Le texte animé remonte de 120 px pour leur laisser
+  la place.
 
 Environnement : Python 3, `numpy`, `opencv-python-headless`, `Pillow`,
 `ffmpeg`. Dans un conteneur Claude Code : `apt-get install -y ffmpeg` et
@@ -42,7 +57,8 @@ vérifie et on rend des extraits ; la vidéo entière se rend dans Colab
    Compare la liste des scènes à la liste Drive de `images/` et `clips/`.
    Donne à Franco, en 5 lignes : durée totale, pièces manquantes (numéros),
    scènes de plus de 10 s, scènes mal retrouvées dans la voix (moins de
-   60 %).
+   60 %). Le plan écrit aussi `<travail>/rendu/sous_titres.srt` (pour le
+   relire ici ; le rendu dans Colab l'écrit dans Drive).
 2. **Un extrait** (`--scenes 1-10`) : télécharge les images et clips de ces
    scènes dans `<travail>/images/` et `<travail>/clips/` (chaque résultat
    du connecteur est enregistré sur disque : décode son champ `content`,
@@ -67,9 +83,6 @@ la vidéo ne se publie pas.
 
 ## Prévu, pas encore fait
 
-- **Sous-titres animés** (demandés par Franco le 30/09, en option) : les
-  mots dits, calés sur `mots.json`, pour mieux suivre la narration ; plus
-  un `.srt` pour YouTube.
 - Le notebook Colab `montage_zehon.ipynb`, pour rendre la vidéo entière.
 
 ## Ce qu'il faut dire à Franco
