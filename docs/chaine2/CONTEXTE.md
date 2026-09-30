@@ -38,6 +38,16 @@
 >   (affichage des phrases en entier, message `pad_token_id` masqué) : la
 >   remplacer une fois le run de Franco fini.
 >
+> **Ménage du 30/09 (demandé par Franco)** : l'ancien pipeline de la
+> chaîne IA (Shorts anglais : agents `short-*`, skills Shorts, orchestrateur,
+> Remotion, outils, schémas, ancien notebook de voix, ses tests et sa
+> documentation) est retiré de cette branche. Il est archivé, intact, sur
+> la branche `archive/pipeline-shorts-2026-09-30` (état de `main` au 16/09).
+> `CLAUDE.md` ne parle plus que de Zehon ; `zehon/synchroniser_skills.py`
+> régénère le miroir `.claude/skills/` et l'archive `.skill` ;
+> `tests/test_zehon.py` vérifie le miroir et le vérificateur de scènes.
+> **`main` n'est pas encore touché.**
+>
 > **Leçons du 30/09** (intégrées à la skill v5) : Gemini ajoute un bras en
 > trop (deux planches sur deux) ; en mode conversation, il raconte une
 > histoire et enchaîne des images non demandées ; les miniatures sombres
@@ -85,7 +95,7 @@ Ce fichier résume et renvoie. Chaque fait porte son statut : **mesuré**
 >   continue dans **Claude Code**, sur des comptes Pro. Constats de l'essai :
 >   [`essai_compte_gratuit/LISEZMOI.md`](essai_compte_gratuit/LISEZMOI.md).
 > - **`content-maker` v4, adaptée à Claude Code** : recopiée dans
->   `.claude/skills/` par `agents/_synchroniser_vers_claude_skills.py` (qui
+>   `.claude/skills/` par `agents/_synchroniser_vers_claude_skills.py`, remplacé le 30/09 par `zehon/synchroniser_skills.py` (qui
 >   couvre désormais `zehon/*/`) ; lit et écrit elle-même dans Drive ; mesure
 >   les vues par l'API (`scripts/youtube.py`, avec `YOUTUBE_API_KEY`).
 >   **Présente seulement sur cette branche** : ouvrir les sessions Claude

@@ -39,8 +39,8 @@ matière brute à l'objet »). On continue **la première vidéo, le sel**.
   code par prompt.
 - Ne vérifie pas mes miniatures : je m'en occupe.
 - Ne jamais éditer `.claude/skills/` (miroir généré) : modifier
-  `zehon/content-maker/`, puis `python3 agents/_synchroniser_vers_claude_skills.py`,
-  et reconstruire `zehon/content-maker.skill`.
+  `zehon/content-maker/`, puis `python3 zehon/synchroniser_skills.py` (miroir
+  et archive `.skill` en une fois).
 - Mets à jour `docs/chaine2/CONTEXTE.md` en fin de session. Commite et
   pousse sur la branche ci-dessus, avec `git fetch` avant chaque push.
 - Réponds en français.
