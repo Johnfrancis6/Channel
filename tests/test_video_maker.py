@@ -1,8 +1,10 @@
 """video-maker : lecture de 03_scenes.md, calage sur la voix, titres, et un vrai rendu miniature."""
 import importlib.util
 import json
+import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -207,6 +209,22 @@ class Rendu(unittest.TestCase):
                                capture_output=True, check=True).stdout
         bas = np.frombuffer(image, np.uint8).reshape(180, 320)[150:175]
         self.assertGreater(bas.std(), 20)
+
+
+class NotebookMontage(unittest.TestCase):
+    """montage_zehon.ipynb : du Python valide, et seulement des options que monter.py connaît."""
+
+    def test_cellules_et_options(self):
+        import ast
+        nb = json.loads((RACINE / "zehon" / "notebooks" / "montage_zehon.ipynb").read_text(encoding="utf-8"))
+        code = "\n".join("".join(c["source"]) for c in nb["cells"] if c["cell_type"] == "code")
+        ast.parse(code)
+        aide = subprocess.run([sys.executable, str(MONTER), "--help"], capture_output=True, text=True).stdout
+        montage = "\n".join("".join(c["source"]) for c in nb["cells"] if "lancer(" in "".join(c["source"]))
+        for option in set(re.findall(r'"(--[a-z-]+)"', montage)):
+            self.assertIn(option, aide, f"{option} : inconnue de monter.py")
+        self.assertIn("monter.py", code)
+        self.assertNotIn("def rendre(", code)  # le code du montage n'est pas recopié dans le notebook
 
 
 if __name__ == "__main__":

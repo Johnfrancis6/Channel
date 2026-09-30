@@ -1016,6 +1016,8 @@ def main(argv=None):
     p.add_argument("--sans-fichiers", action="store_true",
                    help="avec --plan : ne pas chercher images et clips (ils sont dans Drive, pas ici)")
     p.add_argument("--musique", help="une nappe musicale (mp3, wav…), mise en boucle à bas volume")
+    p.add_argument("--volume-musique", type=float, default=-26.0,
+                   help="volume de la nappe en dB (défaut −26) ; elle baisse encore de 6 dB quand la voix parle")
     p.add_argument("--sous-titres", action="store_true",
                    help="incruster les sous-titres (quelques mots à la fois, le mot dit en couleur)")
     p.add_argument("--taille", default=f"{LARGEUR}x{HAUTEUR}", help="par exemple 960x540 pour un aperçu rapide")
@@ -1060,7 +1062,7 @@ def main(argv=None):
     if not chemin_voix.is_file():
         print("❌ voix/voix.wav introuvable")
         return 1
-    son = piste_son(chemin_voix, insertions, total, args.musique)
+    son = piste_son(chemin_voix, insertions, total, args.musique, args.volume_musique)
     print(f"🎞️  Rendu de {minutes(t0)} à {minutes(t1)} → {sortie}")
     groupes = grouper(mots, scenes, ST_CARS_MAX, ST_MOTS_MAX) if args.sous_titres else None
     for a in rendre(scenes, son, t0, t1, sortie, largeur, hauteur, args.preset, sous_titres=groupes):
@@ -1070,6 +1072,8 @@ def main(argv=None):
     rapport = {
         "video": dossier.resolve().name, "sortie": str(sortie), "de_s": round(t0, 2), "a_s": round(t1, 2),
         "duree_totale_s": round(total, 2), "sous_titres_incrustes": bool(args.sous_titres),
+        "musique": Path(args.musique).name if args.musique else None,
+        "volume_musique_db": args.volume_musique if args.musique else None,
         "scenes": [{"n": s.n, "type": s.type, "debut_s": round(s.debut, 2), "duree_s": round(s.duree, 2),
                     "couverture": round(s.couverture, 2),
                     "texte_anime_s": round(s.apparition, 2) if s.apparition is not None else None} for s in scenes],
