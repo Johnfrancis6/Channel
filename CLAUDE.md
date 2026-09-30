@@ -1,29 +1,28 @@
-# Architecture de la chaîne YouTube
+# Zehon — chaîne YouTube « de la matière brute à l'objet »
 
-Référence unique : [docs/architecture_chaine_v1.2.md](<docs/architecture_chaine_v1.2.md architecture_chaine_v1.2.md>)
+Vidéos de 8 min en français : comment une matière devient un objet du
+quotidien. Franco tranche les sujets et valide aux pauses ; Claude écrit le
+contenu, Franco produit les pièces (images Gemini, voix Colab).
 
-*Le nom de fichier est bien dupliqué avec une espace au milieu — c'est
-voulu, ne pas le « corriger ».*
+**Pour reprendre : lire [docs/chaine2/CONTEXTE.md](docs/chaine2/CONTEXTE.md)**
+(le bloc du haut dit où on en est).
 
-Lire ce document en priorité avant chaque session.
+## Où sont les choses
 
-Revue de fond la plus récente, qui explique le **pourquoi** des décisions
-en place : [docs/revue_architecture_2026-09-11.md](docs/revue_architecture_2026-09-11.md).
+- `zehon/content-maker/` : la skill qui fait le contenu d'une vidéo
+  (recherche, script, scènes, prompts, publication). Tout le fonctionnement
+  est dans son `SKILL.md`.
+- `zehon/notebooks/voix_zehon.ipynb` : la voix off (Colab, copie dans Drive).
+- Google Drive, dossier `Zehon/` : la mémoire (`Memoire/`), la charte
+  (`Charte/`) et les vidéos (`Videos/<nn>_<sujet>/`). L'état d'une vidéo
+  vit dans ses fichiers Drive, pas dans le dépôt.
+- `docs/chaine2/` : le cadrage et l'historique des décisions.
 
-Revue de la **chaîne de conception visuelle** (Remotion), la plus récente :
-[docs/revue_conception_video_2026-09-15.md](docs/revue_conception_video_2026-09-15.md).
+## Règles
 
-Diagnostic du pipeline **étape par étape**, en cours — décisions transverses,
-file d'attente, ce qui reste à examiner :
-[docs/diagnostic_pipeline.md](docs/diagnostic_pipeline.md).
-
-## Règles du dépôt
-
-- **Ne jamais éditer `.claude/skills/`** : c'est un miroir généré. Modifier
-  `agents/short-*/` ou `skills/*/`, puis relancer
-  `python3 agents/_synchroniser_vers_claude_skills.py`
-  (`--verifier` signale la dérive sans rien écrire).
+- Ne jamais éditer `.claude/skills/` ni `zehon/*.skill` : ils sont générés.
+  Modifier `zehon/<skill>/`, puis `python3 zehon/synchroniser_skills.py`.
 - Tests : `python3 -m unittest discover -s tests`.
-- Composants Remotion : `cd composants && npm run typecheck`.
-- `git fetch` avant chaque push — les pushs concurrents depuis d'autres
-  sessions sont fréquents. Résoudre en gardant les deux côtés.
+- `git fetch` avant chaque push.
+- L'ancienne chaîne (Shorts anglais, agents `short-*`, Remotion) est
+  archivée sur la branche `archive/pipeline-shorts-2026-09-30`.
