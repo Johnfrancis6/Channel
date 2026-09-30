@@ -133,6 +133,19 @@ class Calage(unittest.TestCase):
         self.assertLessEqual(deux.apparition, deux.fin - m.TEXTE_MIN_S + 1e-6)
 
 
+class Musique(unittest.TestCase):
+    def test_boucle_sans_coupure(self):
+        taux = m.TAUX_AUDIO
+        nappe = np.ones(10 * taux, np.float32)
+        boucle = m.boucler(nappe, 25 * taux)
+        self.assertEqual(len(boucle), 25 * taux)
+        milieu = boucle[3 * taux:-4 * taux]  # hors entrée et sortie : ni trou ni saut aux reprises
+        self.assertGreater(milieu.min(), 0.99)
+        self.assertLess(milieu.max(), 1.42)
+        self.assertEqual(boucle[0], 0.0)
+        self.assertAlmostEqual(float(boucle[-1]), 0.0)
+
+
 class SousTitres(unittest.TestCase):
     def test_mots_affiches_d_un_tenant(self):
         self.assertEqual(m.mots_du_texte("il y a 8 000 ans, 42 % de l'eau ?"),

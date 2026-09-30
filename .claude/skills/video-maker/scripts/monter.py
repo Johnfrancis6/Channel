@@ -868,6 +868,26 @@ def lire_audio(chemin):
     return np.frombuffer(brut, np.float32)
 
 
+def boucler(nappe, n, fondu_s=3.0, entree_s=2.0, sortie_s=3.0):
+    """La nappe mise à la longueur n : bouclée avec un fondu enchaîné (à puissance constante) pour
+    qu'on n'entende pas la reprise, avec une entrée et une sortie en douceur."""
+    f = int(fondu_s * TAUX_AUDIO)
+    if len(nappe) <= 2 * f:
+        sortie = np.tile(nappe, n // max(len(nappe), 1) + 1)[:n]
+    else:
+        rampe = np.sqrt(np.linspace(0, 1, f, dtype=np.float32))
+        morceaux, longueur, queue = [nappe[:-f]], len(nappe) - f, nappe[-f:]
+        while longueur < n:
+            morceaux += [queue * rampe[::-1] + nappe[:f] * rampe, nappe[f:-f]]
+            longueur += len(nappe) - f
+        morceaux.append(queue)
+        sortie = np.concatenate(morceaux)[:n].copy()
+    e, s = min(int(entree_s * TAUX_AUDIO), n), min(int(sortie_s * TAUX_AUDIO), n)
+    sortie[:e] *= np.linspace(0, 1, e, dtype=np.float32)
+    sortie[n - s:] *= np.linspace(1, 0, s, dtype=np.float32)
+    return sortie
+
+
 def piste_son(chemin_voix, insertions, total, musique=None, volume_musique_db=-26.0):
     """La voix, avec les silences des titres ; la musique (facultative) en nappe, plus basse sous la voix."""
     voix = lire_audio(chemin_voix)
@@ -882,7 +902,7 @@ def piste_son(chemin_voix, insertions, total, musique=None, volume_musique_db=-2
     if musique is not None:
         nappe = lire_audio(musique)
         if len(nappe):
-            nappe = np.tile(nappe, len(son) // len(nappe) + 1)[:len(son)]
+            nappe = boucler(nappe, len(son))
             # La musique baisse encore de 6 dB quand la voix parle (enveloppe lissée sur 0,3 s).
             enveloppe = np.convolve(np.abs(son), np.ones(int(0.3 * TAUX_AUDIO)) / (0.3 * TAUX_AUDIO), mode="same")
             parle = np.clip(enveloppe / 0.02, 0, 1)

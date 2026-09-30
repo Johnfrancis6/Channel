@@ -26,6 +26,17 @@ Sorties : `rendu/video.mp4` (ou `rendu/extrait_AAA-BBB.mp4`),
 contrôle) et `rendu/sous_titres.srt` (vidéo entière et `--plan`), à déposer
 sur YouTube avec la vidéo.
 
+## La musique
+
+Une nappe libre de droits (bibliothèque audio de YouTube, « attribution
+non requise »), rangée dans `Zehon/Charte/musique/` : `--musique` (champ
+`MUSIQUE` du notebook). Elle est bouclée avec un fondu de 3 s, entre en 2 s,
+sort en 3 s, et se règle par `--volume-musique` (défaut −26 dB, puis
+−6 dB de plus quand la voix parle). **Mesuré le 30/09** sur la voix du sel,
+avec une nappe à −14 LUFS : à −26 dB, la nappe finit **23 dB sous la
+voix**. Faire écouter un extrait (`EXTRAIT` = `1-10`) avant le rendu
+complet.
+
 ## Les sous-titres
 
 - **Le `.srt`** est toujours écrit (vidéo entière et `--plan`) : le « texte
