@@ -72,18 +72,26 @@ vérifie et on rend des extraits ; la vidéo entière se rend dans Colab
 
 ## La vidéo entière : dans Colab
 
-`monter.py` tourne tel quel dans Colab, où Drive est monté : il lit le
-dossier de la vidéo et écrit `rendu/video.mp4` directement dans Drive,
-sans limite de taille. *(Le notebook `montage_zehon.ipynb` qui l'emballe
-est la prochaine étape : tant qu'il n'existe pas, dis-le simplement.)*
+Le notebook **`montage_zehon.ipynb`** (dans le dépôt, `zehon/notebooks/`, et
+copie dans Drive : `Zehon/montage_zehon.ipynb`) rend la vidéo entière dans
+Colab, sans GPU. Franco remplit le formulaire (vidéo, sous-titres cochés
+par défaut, musique rangée dans `Charte/musique/`, extrait éventuel) et
+lance **Tout exécuter**. Le notebook :
+
+1. monte Drive et **clone le dépôt** (branche `BRANCHE`) : le code du montage
+   n'est recopié nulle part, une correction poussée sert au lancement
+   suivant ;
+2. lance `monter.py --plan` (arrêt net si une pièce manque) ;
+3. rend sur le disque de Colab, puis copie `video.mp4` et `rapport.json`
+   dans `rendu/` (le `.srt` y est écrit directement) ; le rapport garde la
+   branche, le commit et la durée du rendu (`rendu_s`).
+
+Si le notebook change, le reconstruire dans `zehon/notebooks/` et remplacer
+sa copie dans Drive (nouveau fichier, puis l'ancien à la corbeille).
 
 Quand Franco a rendu la vidéo : lis `rendu/rapport.json` en brut, et
 donne le résultat du contrôle et les avertissements. Si `"pret": false`,
 la vidéo ne se publie pas.
-
-## Prévu, pas encore fait
-
-- Le notebook Colab `montage_zehon.ipynb`, pour rendre la vidéo entière.
 
 ## Ce qu'il faut dire à Franco
 
