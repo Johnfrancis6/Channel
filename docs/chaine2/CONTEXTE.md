@@ -46,7 +46,10 @@
 > `CLAUDE.md` ne parle plus que de Zehon ; `zehon/synchroniser_skills.py`
 > régénère le miroir `.claude/skills/` et l'archive `.skill` ;
 > `tests/test_zehon.py` vérifie le miroir et le vérificateur de scènes.
-> **`main` n'est pas encore touché.**
+> **Fusionné dans `main` le 30/09** (pull request n° 1, fusionnée par Franco) :
+> `main` ne porte plus que Zehon. Les envois directs sur `main` sont bloqués
+> par la sécurité de Claude Code : passer par une branche et une demande de
+> fusion.
 >
 > **Leçons du 30/09** (intégrées à la skill v5) : Gemini ajoute un bras en
 > trop (deux planches sur deux) ; en mode conversation, il raconte une

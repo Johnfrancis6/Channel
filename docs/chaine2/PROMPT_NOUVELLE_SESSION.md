@@ -9,12 +9,9 @@ Session de travail sur ma chaîne YouTube française **Zehon** (« de la
 matière brute à l'objet »). On continue **la première vidéo, le sel**.
 
 ## Mise en route
-1. Récupère la branche de travail et reste dessus toute la session :
-   `git fetch origin claude/zelan-studio-analysis-rws9f6`, puis
-   `git checkout claude/zelan-studio-analysis-rws9f6`.
-2. Lis `docs/chaine2/CONTEXTE.md` : le bloc du haut (« Reprise au 30/09 »)
+1. Tout est sur `main` (fusion du 30/09). Lis `docs/chaine2/CONTEXTE.md` : le bloc du haut (« Reprise au 30/09 »)
    dit exactement où on en est. Puis `zehon/content-maker/SKILL.md`.
-3. Vérifie que le connecteur Google Drive répond : dossier `Zehon`
+2. Vérifie que le connecteur Google Drive répond : dossier `Zehon`
    (`1e3_Fu2nbhyfKtvCG2k54ME_W6K-gaKWB`), vidéo `Videos/01_sel`
    (`1Evm6KQ6gc2p_WfSsIdTpTeL3ItNE9SZ5`).
 
@@ -41,6 +38,7 @@ matière brute à l'objet »). On continue **la première vidéo, le sel**.
 - Ne jamais éditer `.claude/skills/` (miroir généré) : modifier
   `zehon/content-maker/`, puis `python3 zehon/synchroniser_skills.py` (miroir
   et archive `.skill` en une fois).
-- Mets à jour `docs/chaine2/CONTEXTE.md` en fin de session. Commite et
-  pousse sur la branche ci-dessus, avec `git fetch` avant chaque push.
+- Mets à jour `docs/chaine2/CONTEXTE.md` en fin de session. Commite sur une
+  branche de travail, pousse (avec `git fetch` avant), et prépare une demande
+  de fusion vers `main` : je la fusionne moi-même.
 - Réponds en français.
