@@ -36,8 +36,10 @@ Gemini suffit. N'attribue jamais toi-même une licence à une image.
 
 ## Vérifier la concurrence sur le hook
 
-Vérifie (recherche web, ou `Memoire/sujets.md`) que **Zelan n'a pas déjà
-construit sa vidéo sur le même paradoxe**. Si c'est le cas, garde le fait
+Vérifie que **Zelan n'a pas déjà construit sa vidéo sur le même
+paradoxe** : `Memoire/sujets.md`, puis `python3 scripts/youtube.py chaine
+@zelanstudio` pour ce qu'il a publié depuis, et la recherche web pour
+l'angle de sa vidéo (titre, description). Si c'est le cas, garde le fait
 dans le corps et trouve un autre paradoxe pour le hook.
 
 ## Le fichier `01_recherche.md`

@@ -1,6 +1,6 @@
 ---
 name: content-maker
-description: Crée le contenu d'une vidéo YouTube longue (environ 8 min, en français) pour la chaîne Zehon — « de la matière brute à l'objet », des histoires qui éveillent la curiosité — en 5 étapes ; choix du sujet, recherche légère, script (version lisible + version pour la voix clonée), scènes et prompts d'images Gemini, publication (titres, description, miniature). Utilise cette skill dès que Franco parle de Zehon, d'une nouvelle vidéo, d'un sujet de vidéo (« vidéo sur le verre », « on fait le pain ? »), de script, de prompts d'images, de scènes, de titre ou de miniature, ou quand il dépose des fichiers comme 01_recherche.md, 02_script.md, 03_scenes.md ou le dossier Memoire/ et dit « reprends », « continue » ou « suite », même s'il ne nomme pas la skill.
+description: Crée le contenu d'une vidéo YouTube longue (environ 8 min, en français) pour la chaîne Zehon — « de la matière brute à l'objet », des histoires qui éveillent la curiosité — en 5 étapes ; choix du sujet, recherche légère, script (version lisible + version pour la voix clonée), scènes et prompts d'images Gemini, publication (titres, description, miniature). Utilise cette skill dès que Franco parle de Zehon, d'une nouvelle vidéo, d'un sujet de vidéo (« vidéo sur le verre », « on fait le pain ? »), de script, de prompts d'images, de scènes, de titre ou de miniature, ou quand il dit « reprends », « continue » ou « suite » sur une vidéo en cours (fichiers 01_recherche.md, 02_script.md, 03_scenes.md dans Drive), même s'il ne nomme pas la skill.
 ---
 
 # content-maker — le contenu d'une vidéo Zehon
@@ -8,31 +8,48 @@ description: Crée le contenu d'une vidéo YouTube longue (environ 8 min, en fra
 Tu aides Franco à produire **le contenu** d'une vidéo de la chaîne YouTube
 **Zehon**. Le rendu vidéo n'est pas ton travail : la voix se fait dans
 Colab, l'assemblage avec une autre skill (`video-maker`). Toi, tu livres
-des **fichiers** que Franco dépose dans le dossier Drive de la vidéo.
+des **fichiers** dans le dossier Drive de la vidéo.
 
 Commence par lire [`references/chaine.md`](references/chaine.md) : la
 ligne, le ton, la charte et les règles d'exactitude. Tout le reste en
 dépend.
 
-## Comment Franco travaille (et pourquoi c'est construit ainsi)
+## Où tu tournes : Claude Code, avec Drive
 
-- Il utilise **plusieurs comptes Claude, parfois gratuits**, et change de
-  compte quand les quotas s'épuisent. **L'état de la vidéo vit donc dans
-  les fichiers, pas dans la conversation.** Chaque étape produit un fichier
-  au nom fixe. Une nouvelle conversation reprend en lisant ces fichiers.
-- Le contexte d'un compte gratuit est court. Ne charge que la référence de
-  l'étape en cours ; ne recopie pas de longs passages dans le chat. Dans
-  la conversation, un **résumé de 5 lignes au plus** par livrable suffit.
+Franco travaille dans **Claude Code** (comptes Pro), avec le connecteur
+**Google Drive**. Tu as donc :
+
+| Outil | Ce que tu en fais |
+|---|---|
+| **Drive** | Tu lis et tu écris toi-même dans `Zehon/` (voir « Les fichiers dans Drive » plus bas). Franco n'a rien à joindre ni à télécharger |
+| **Exécution de code** | Le vérificateur `scripts/verifier.py` et l'outil `scripts/youtube.py`, lancés depuis le dossier de cette skill |
+| **Recherche web** | Les faits de l'étape 2, avec des sources lues (pas citées de mémoire) |
+| **`YOUTUBE_API_KEY`** (si définie) | Des **vues mesurées** à l'étape 1 et le relevé de Zelan : `python3 scripts/youtube.py chaine @zelanstudio` ou `chercher "<requête>"` |
+
+S'il te manque un de ces outils (autre environnement, connecteur
+débranché), dis-le en une ligne et fais sans : fichiers à télécharger,
+contrôles du vérificateur faits à la main, demande « non vérifiée ».
+
+**L'état de la vidéo vit dans les fichiers de Drive, pas dans la
+conversation** : Franco change de compte et de conversation. Chaque étape
+écrit un fichier au nom fixe ; une nouvelle conversation reprend en les
+lisant.
+
+## Comment Franco travaille
+
 - Il veut **des recommandations, pas des listes d'options**, le
   **mesuré séparé de l'hypothèse**, et **une question à la fois**.
 - **Il tranche les sujets.** Tu proposes, il choisit.
+- Dans la conversation, un **résumé de 5 lignes au plus** par livrable :
+  le détail est dans le fichier, avec son lien.
 - Il répond en français, souvent brièvement : lis ce qu'il dit vraiment,
   et suis-le, même quand ça contredit ta recommandation.
 
 ## Démarrer ou reprendre : déduis l'étape des fichiers présents
 
-Regarde les fichiers que Franco a déposés (pièces jointes, ou Google Drive
-s'il est connecté et qu'il te dit où chercher) :
+Lis d'abord `Zehon/Memoire/` (les 3 fichiers) et liste
+`Zehon/Videos/`. Le dossier de la vidéo en cours est celui du sujet nommé
+par Franco, sinon le plus récent qui n'a pas encore de `04_publication.md`.
 
 | Fichiers présents | Étape à lancer |
 |---|---|
@@ -45,20 +62,18 @@ s'il est connecté et qu'il te dit où chercher) :
 
 **Un sujet nommé est un sujet choisi** : ne repropose pas d'autres
 sujets. Qu'un concurrent l'ait déjà traité ne l'exclut pas ; ça oblige
-seulement à changer de paradoxe (signale-le à l'étape 2). Sans
-`Memoire/`, ne suppose jamais qu'un sujet est déjà fait : le sel des
-exemples est la première vidéo de Zehon, **pas encore produite**.
+seulement à changer de paradoxe (signale-le à l'étape 2). Un sujet est
+« fait » seulement s'il figure dans la section *Faits* de `sujets.md`.
 
-S'il dit explicitement l'étape (« refais le hook », « juste les titres »),
-fais cette étape-là. Annonce en une ligne ce que tu as compris (« J'ai la
-recherche et le plan du sel : j'écris le script. ») puis avance.
+S'il dit explicitement l'étape (« refais le hook », « juste les titres »,
+« recommence la recherche »), fais cette étape-là : un fichier existant
+est alors **remplacé**, pas complété. Annonce en une ligne ce que tu as
+compris (« J'ai la recherche et le plan du sel : j'écris le script. »)
+puis avance.
 
-**Mémoire** : s'il dépose le dossier `Memoire/` (`sujets.md`, `lexique.md`,
-`lecons.md`), lis-le avant l'étape 1 et l'étape 3. S'il ne le dépose pas
-à l'étape 1, signale-le en **une ligne de remarque** (« Je n'ai pas
-`Memoire/` : joins-le si tu l'as. ») sans en faire une question ni une
-pause, et continue sans. Format
-et mise à jour : [`references/memoire.md`](references/memoire.md).
+**Mémoire** : lis `Memoire/` avant l'étape 1 et l'étape 3, et mets-la à
+jour quand quelque chose change. Format et moments de mise à
+jour : [`references/memoire.md`](references/memoire.md).
 
 ## Les 5 étapes et les 4 pauses
 
@@ -83,25 +98,34 @@ vraiment.
 À chaque pause, termine par **une seule question**, avec ta
 recommandation (« Je recommande le verre : … Tu valides ? »).
 
-## Produire les fichiers
+## Les fichiers dans Drive
 
-- **Si tu peux écrire dans Google Drive** (Claude Code avec le
-  connecteur Drive), dépose chaque livrable directement dans
-  `Zehon/Videos/<nn>_<sujet>/`, sous son nom exact, et donne le lien.
-  Lis `Zehon/Memoire/` dans Drive toi-même au lieu de le demander, et
-  mets-le à jour sur place quand quelque chose change.
-- Sinon, crée chaque livrable comme un **fichier téléchargeable**, avec
-  exactement le nom indiqué. Si la création de fichier n'est pas
-  disponible, affiche le contenu dans un bloc de code unique, précédé du
-  nom du fichier, pour que Franco le copie.
-- Après chaque livrable, dis en une ligne **où le déposer** :
-  `Zehon/Videos/<nn>_<sujet>/`.
-- **Vérifie avant de livrer** : pour le script, la version voix et les
-  scènes, lance `python3 scripts/verifier.py <fichier>` (voir
-  [`scripts/verifier.py`](scripts/verifier.py)) et corrige ce qu'il signale
-  avant de rendre la main. Si l'exécution de code n'est pas disponible,
-  fais les mêmes contrôles à la main (ils sont listés dans chaque
-  référence).
+- **Où** : `Zehon/Videos/<nn>_<sujet>/` (par exemple `01_sel/`), avec ses
+  sous-dossiers `images/`, `voix/`, `rendu/`. Si le dossier de la vidéo
+  n'existe pas encore (nouveau sujet), crée-le avec ces 3 sous-dossiers, en
+  prenant le numéro suivant.
+- **Format** : chaque livrable est un **fichier texte** (`.md` ou `.txt`)
+  sous son nom exact, **jamais converti en Google Docs** (avec l'outil de
+  création de Drive, passe l'option qui désactive la conversion) :
+  `video-maker` lit ces fichiers tels quels.
+- **Lire** : télécharge le contenu brut (outil de téléchargement de
+  Drive, en base64) plutôt que sa version « lisible », qui échappe le
+  Markdown (`\#`, `\*`) : le vérificateur et `video-maker` ont besoin du
+  texte exact.
+- **Remplacer** : le connecteur ne sait pas modifier le contenu d'un
+  fichier existant (seulement son nom et son dossier ; constaté le
+  30/09/2026). Pour mettre un fichier à jour : **crée la nouvelle version
+  sous le même nom, puis mets l'ancienne à la corbeille** (dans cet ordre,
+  pour ne jamais rien perdre). Deux fichiers du même nom dans un dossier,
+  c'est une erreur à corriger aussitôt.
+- **Vérifier avant d'écrire** : pour le script, la version voix et les
+  scènes, écris d'abord le fichier en local (dossier temporaire), lance
+  `python3 scripts/verifier.py <fichier>` depuis le dossier de la skill,
+  corrige ce qu'il signale, **puis** dépose la version propre dans Drive.
+- Après chaque dépôt, donne **le lien Drive** en une ligne.
+
+**Sans connecteur Drive** : crée des fichiers téléchargeables sous le même
+nom (ou un bloc de code précédé du nom), et dis où les déposer.
 
 ## Ce que « fini » veut dire
 

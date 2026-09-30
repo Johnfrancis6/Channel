@@ -1,10 +1,12 @@
 # La mémoire : `Zehon/Memoire/`
 
 Une skill ne se souvient de rien d'une conversation à l'autre. La mémoire
-de la chaîne vit donc dans **3 fichiers courts** que Franco dépose au
-lancement, et que tu lui **rends mis à jour** quand quelque chose a
-changé. Garde chacun **sous une page** : ils doivent tenir dans le contexte
-d'un compte gratuit. Quand un fichier grossit, résume les entrées
+de la chaîne vit donc dans **3 fichiers courts**, dans Drive
+(`Zehon/Memoire/`). Tu les lis au début et tu les mets à jour quand
+quelque chose a changé : nouvelle version, puis l'ancienne à la corbeille
+(voir « Les fichiers dans Drive » dans `SKILL.md`). Sans connecteur
+Drive, Franco les joint et tu les lui rends mis à jour. Garde chacun
+**sous une page** : quand un fichier grossit, résume les entrées
 anciennes au lieu de les empiler.
 
 ## `sujets.md`
@@ -12,7 +14,10 @@ anciennes au lieu de les empiler.
 ```markdown
 # Sujets
 
-## Faits
+## En cours
+| n° | Sujet | Dossier | Étape atteinte |
+
+## Faits (publiés)
 | n° | Sujet | Date de publication | Vues à J+7 |
 
 ## Proposés, non retenus
@@ -23,7 +28,8 @@ anciennes au lieu de les empiler.
 ```
 
 **Quand le mettre à jour** : à l'étape 1 (les sujets proposés et la
-concurrence relevée), et à l'étape 5 (le sujet fait).
+concurrence relevée), à chaque étape finie (colonne « Étape atteinte »),
+et quand Franco dit que la vidéo est publiée (elle passe dans *Faits*).
 
 ## `lexique.md`
 

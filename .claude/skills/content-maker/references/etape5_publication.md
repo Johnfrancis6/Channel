@@ -72,6 +72,7 @@ Termine le fichier par cette liste, à cocher par Franco :
 
 ## Fin de vidéo
 
-Donne à Franco, en 3 lignes : où déposer `04_publication.md`, ce qui lui
+Donne à Franco, en 3 lignes : le lien de `04_publication.md`, ce qui lui
 reste à faire (images Gemini, voix dans Colab, assemblage avec
-`video-maker`), et la **mise à jour de `Memoire/`** (voir `memoire.md`).
+`video-maker`), et ce que tu as mis à jour dans `Memoire/` (voir
+`memoire.md`).

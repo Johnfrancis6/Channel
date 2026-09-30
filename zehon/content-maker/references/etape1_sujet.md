@@ -21,20 +21,28 @@ choisisse un. Tu ne choisis pas à sa place : tu recommandes.
 
 ## Comment chercher
 
-- Lis `Memoire/sujets.md` s'il est fourni : les sujets faits, ceux déjà
+- Lis `Memoire/sujets.md` (dans Drive) : les sujets faits, ceux déjà
   proposés, et ce que les concurrents ont traité. **Ne repropose pas un
   sujet fait**, et signale quand un concurrent l'a déjà pris (et sous quel
   angle).
-- Si la recherche web est disponible, vérifie pour chaque sujet :
-  (a) les vidéos existantes et leurs vues, en français et en anglais ;
-  (b) **si Zelan l'a déjà traité**, et avec quel paradoxe ;
-  (c) qu'il y a assez de faits étonnants pour tenir 8 minutes.
-  Note la date de chaque relevé.
-- **YouTube bloque souvent les requêtes directes** (erreur 429, page
-  anti-robot). Dans ce cas, prends les vues sur la page de résultats d'un
-  moteur de recherche ou un service tiers, dis lesquels, et présente-les
-  comme des **ordres de grandeur**. Ne donne jamais un nombre de vues de
-  mémoire.
+- **Mesure la demande avec l'API** (si `YOUTUBE_API_KEY` est définie),
+  depuis le dossier de la skill :
+  - `python3 scripts/youtube.py chaine @zelanstudio` : ce que Zelan a
+    publié depuis le dernier relevé de `sujets.md` ;
+  - `python3 scripts/youtube.py chercher "histoire du verre"` (et la même
+    requête en anglais avec `--langue en`) : les vidéos les plus vues et
+    leurs vues réelles. Chaque recherche coûte environ 100 unités sur
+    10 000 par jour : 2 à 4 par sujet suffisent.
+  Les résultats sont bruités (Shorts, contes, recettes) : ne garde que
+  les vidéos qui racontent vraiment l'histoire de la matière. Reporte les
+  relevés utiles dans `sujets.md`, datés.
+- Complète par la **recherche web** : (a) si **Zelan** a déjà traité le
+  sujet, et avec quel paradoxe ; (b) qu'il y a assez de faits étonnants
+  pour tenir 8 minutes.
+- **Sans clé API**, YouTube bloque souvent les requêtes directes (429,
+  page anti-robot) : prends les vues sur une page de résultats d'un moteur
+  de recherche, dis laquelle, et présente-les comme des **ordres de
+  grandeur**. Ne donne jamais un nombre de vues de mémoire.
 - Une date ou un fait **cité de mémoire** porte la mention « à vérifier » :
   il sera vérifié à l'étape 2.
 - Sans recherche web, pars de `sujets.md` et de tes connaissances, et
@@ -56,5 +64,6 @@ Pour chacun des 3 sujets, 5 lignes au plus :
 Puis **ta recommandation en 2 phrases** (lequel, et pourquoi), et **une
 seule question** : « Lequel on fait ? »
 
-Quand Franco a choisi, rappelle-lui en une ligne de créer le dossier
-`Zehon/Videos/<nn>_<sujet>/`, puis enchaîne sur l'étape 2 (recherche).
+Quand Franco a choisi, crée le dossier `Zehon/Videos/<nn>_<sujet>/` (avec
+`images/`, `voix/`, `rendu/`), inscris le sujet dans la section *En cours*
+de `sujets.md`, puis enchaîne sur l'étape 2 (recherche).

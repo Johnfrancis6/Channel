@@ -20,6 +20,29 @@ Ce fichier résume et renvoie. Chaque fait porte son statut : **mesuré**
 > l'objet »**. `content-maker` est passée en v3 en conséquence. Les
 > mentions de preuves plus bas dans ce document sont **dépassées**.
 
+> **Session du 30/09/2026 (en cours).**
+> - **Essais sur compte gratuit arrêtés** (décision de Franco) : il
+>   continue dans **Claude Code**, sur des comptes Pro. Constats de l'essai :
+>   [`essai_compte_gratuit/LISEZMOI.md`](essai_compte_gratuit/LISEZMOI.md).
+> - **`content-maker` v4, adaptée à Claude Code** : recopiée dans
+>   `.claude/skills/` par `agents/_synchroniser_vers_claude_skills.py` (qui
+>   couvre désormais `zehon/*/`) ; lit et écrit elle-même dans Drive ; mesure
+>   les vues par l'API (`scripts/youtube.py`, avec `YOUTUBE_API_KEY`).
+>   **Présente seulement sur cette branche** : ouvrir les sessions Claude
+>   Code sur `claude/zelan-studio-analysis-rws9f6`.
+> - **Arborescence Drive créée** (validée par Franco) : `Zehon/` avec
+>   `LISEZMOI.md`, `Memoire/` amorcé (`sujets.md` avec le relevé API de Zelan
+>   du 30/09, `lexique.md` avec 9 noms du sel non vérifiés, `lecons.md`),
+>   `Charte/exemples/`, `Videos/01_sel/{images,voix,rendu}`. **Pas de
+>   `preuves/`** (version « histoire simple »). Dossier `Zehon` :
+>   `1e3_Fu2nbhyfKtvCG2k54ME_W6K-gaKWB`, `01_sel` :
+>   `1Evm6KQ6gc2p_WfSsIdTpTeL3ItNE9SZ5`.
+> - **Mesuré (30/09)** : le connecteur Drive lit les `.md` (téléchargement
+>   brut exact) mais **ne modifie pas le contenu d'un fichier** (seulement
+>   nom et dossier) : mettre à jour = nouvelle version, puis l'ancienne à la
+>   corbeille. FFmpeg s'installe par `apt-get install ffmpeg` (6.1.1), mais
+>   ne survit pas au conteneur : à mettre dans le script de setup.
+
 ---
 
 ## 1. Décisions de Franco (toutes du 29/09/2026)
