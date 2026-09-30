@@ -8,8 +8,10 @@
 
 Le dossier contient 03_scenes.md, images/scene_NNN.(png|jpg), clips/(anim|scene)_NNN.mp4,
 voix/voix.wav et voix/mots.json (écrits par le notebook voix_zehon.ipynb). Sortie : la vidéo,
-rendu/rapport.json (durée de chaque scène, avertissements, contrôle avant publication) et, pour
-la vidéo entière comme pour --plan, rendu/sous_titres.srt (à déposer sur YouTube).
+rendu/rapport.json (durée de chaque scène, avertissements, contrôle avant publication), un
+verdict court rendu/verdict.json (moins de 1 Ko) et rendu/apercu/ (6 images réduites : début,
+titre, plan animé, sous-titres, texte animé, fin) et, pour la vidéo entière comme pour --plan,
+rendu/sous_titres.srt (à déposer sur YouTube).
 
 Les durées ne s'écrivent pas à la main : chaque scène est calée sur les mots horodatés de la
 voix (mots.json), en retrouvant son « texte dit » dans la transcription. Les scènes « titre »
@@ -29,7 +31,9 @@ import json
 import re
 import subprocess
 import sys
+import shutil
 import tempfile
+import time
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
@@ -1023,6 +1027,63 @@ def controler(chemin, duree_attendue, largeur=LARGEUR, hauteur=HAUTEUR):
     ]
 
 
+# ── Le verdict court et l'aperçu (ce que Claude lit après un rendu dans Colab) ────
+APERCU_LARGEUR = 640   # images de l'aperçu, en pixels de large
+VERDICT_MAX = 1000     # octets : le verdict se lit d'un coup d'œil
+
+
+def version_du_code():
+    """La branche et le commit du code qui a rendu la vidéo (le dépôt cloné par le notebook)."""
+    def git(*args):
+        r = subprocess.run(["git", "-C", str(Path(__file__).resolve().parent), *args], capture_output=True, text=True)
+        return r.stdout.strip() if r.returncode == 0 else None
+    return {"branche": git("rev-parse", "--abbrev-ref", "HEAD"), "commit": git("rev-parse", "--short", "HEAD")}
+
+
+def moments_apercu(scenes, groupes, t0, t1):
+    """Les 6 images de l'aperçu : [(nom, t)], t en temps du fichier rendu (0 = son début).
+    Ce qui manque dans le passage rendu (pas de titre, pas de plan animé…) devient une image du milieu."""
+    duree = t1 - t0
+    dedans = [s for s in scenes if s.debut >= t0 - 1e-6 and s.fin <= t1 + 1e-6]
+    titre = next((s for s in dedans if s.type == "titre"), None)
+    anime = next((s for s in dedans if s.type == "video" and s.fichier_clip), None)
+    texte = next((s for s in dedans if s.type != "titre" and s.apparition is not None), None)
+    groupe = next((g for g in groupes or [] if g.debut >= t0 + duree / 3 and g.fin <= t1), None)
+    trouves = [
+        ("debut", min(1.0, duree / 2)),
+        ("titre", titre and (titre.debut + titre.fin) / 2 - t0),
+        ("plan_anime", anime and (anime.debut + anime.fin) / 2 - t0),
+        ("sous_titres", groupe and (groupe.debut + groupe.fin) / 2 - t0),
+        ("texte_anime", texte and min(texte.apparition + 1.2, texte.fin - 0.3) - t0),
+        ("fin", max(0.0, duree - 0.5)),
+    ]
+    return [(f"{i}_{nom}" if t is not None else f"{i}_milieu", t if t is not None else duree * i / 7)
+            for i, (nom, t) in enumerate(trouves, 1)]
+
+
+def ecrire_apercu(video, moments, dossier):
+    """Extrait les images de l'aperçu (JPEG réduits) ; renvoie leurs noms."""
+    shutil.rmtree(dossier, ignore_errors=True)
+    dossier.mkdir(parents=True)
+    for nom, t in moments:
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{max(0.0, t):.2f}", "-i", str(video), "-frames:v", "1",
+                        "-vf", f"scale='min({APERCU_LARGEUR},iw)':-2", "-q:v", "5", str(dossier / f"{nom}.jpg")],
+                       check=False)
+    return sorted(p.name for p in dossier.glob("*.jpg"))
+
+
+def ecrire_verdict(chemin, verdict):
+    """verdict.json, compact et sous VERDICT_MAX octets : les avertissements en trop restent dans le rapport."""
+    tous = [a if len(a) <= 110 else a[:109] + "…" for a in verdict["avertissements"]]
+    for k in range(len(tous), -1, -1):
+        verdict["avertissements"] = tous[:k] + ([f"+ {len(tous) - k} autre(s) dans le rapport"] if k < len(tous) else [])
+        texte = json.dumps(verdict, ensure_ascii=False, separators=(",", ":"))
+        if len(texte.encode("utf-8")) <= VERDICT_MAX:
+            break
+    chemin.write_text(texte, encoding="utf-8")
+    return verdict
+
+
 def minutes(t):
     return f"{int(t // 60)}:{t % 60:04.1f}"
 
@@ -1082,6 +1143,7 @@ def main(argv=None):
     if not chemin_voix.is_file():
         print("❌ voix/voix.wav introuvable")
         return 1
+    debut_rendu = time.monotonic()
     son = piste_son(chemin_voix, insertions, total, args.musique, args.volume_musique)
     print(f"🎞️  Rendu de {minutes(t0)} à {minutes(t1)} → {sortie}")
     groupes = grouper(mots, scenes, ST_CARS_MAX, ST_MOTS_MAX) if args.sous_titres else None
@@ -1089,6 +1151,8 @@ def main(argv=None):
         print(f"⚠️  {a}")
         avert.append(a)
     controle = controler(sortie, t1 - t0, largeur, hauteur)
+    rendu_s = round(time.monotonic() - debut_rendu)
+    code = version_du_code()
     rapport = {
         "video": dossier.resolve().name, "sortie": str(sortie), "de_s": round(t0, 2), "a_s": round(t1, 2),
         "duree_totale_s": round(total, 2), "sous_titres_incrustes": bool(args.sous_titres),
@@ -1100,9 +1164,16 @@ def main(argv=None):
         "avertissements": avert,
         "controle": [{"verification": v, "reussie": ok, "detail": d} for v, ok, d in controle],
         "pret": all(ok for _, ok, _ in controle),
+        "rendu_s": rendu_s, "code": code,
     }
-    (sortie.parent / ("rapport.json" if suffixe == "video" else f"rapport_{suffixe}.json")).write_text(
-        json.dumps(rapport, ensure_ascii=False, indent=2), encoding="utf-8")
+    nom_rapport = "rapport.json" if suffixe == "video" else f"rapport_{suffixe}.json"
+    (sortie.parent / nom_rapport).write_text(json.dumps(rapport, ensure_ascii=False, indent=2), encoding="utf-8")
+    apercu = ecrire_apercu(sortie, moments_apercu(scenes, groupes, t0, t1), sortie.parent / "apercu")
+    ecrire_verdict(sortie.parent / "verdict.json", {
+        "video": rapport["video"], "sortie": sortie.name, "rapport": nom_rapport, "pret": rapport["pret"],
+        "controle": [f"{'✓' if ok else '✗'} {v} : {d}" for v, ok, d in controle],
+        "avertissements": avert, "duree_s": round(sonder_duree(sortie), 1), "rendu_s": rendu_s,
+        "code": f"{code['branche']}@{code['commit']}", "apercu": apercu})
     print("🔎 Contrôle avant publication :")
     for v, ok, d in controle:
         print(f"   {'✓' if ok else '✗'} {v} : {d}")

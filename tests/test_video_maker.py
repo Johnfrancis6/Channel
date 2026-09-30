@@ -216,12 +216,76 @@ class Rendu(unittest.TestCase):
         rapport = json.loads((d.d / "rendu" / "rapport.json").read_text(encoding="utf-8"))
         self.assertTrue(rapport["sous_titres_incrustes"])
         self.assertTrue((d.d / "rendu" / "sous_titres.srt").is_file())
+        # le verdict court et l'aperçu, ce que Claude lit après un rendu dans Colab
+        brut = (d.d / "rendu" / "verdict.json").read_bytes()
+        self.assertLessEqual(len(brut), m.VERDICT_MAX)
+        verdict = json.loads(brut)
+        self.assertTrue(verdict["pret"])
+        self.assertEqual(verdict["sortie"], "video.mp4")
+        for cle in ("controle", "avertissements", "duree_s", "rendu_s"):
+            self.assertIn(cle, verdict)
+        apercu = sorted(p.name for p in (d.d / "rendu" / "apercu").glob("*.jpg"))
+        self.assertEqual(apercu, verdict["apercu"])
+        self.assertEqual(len(apercu), 6)
+        self.assertIn("2_titre.jpg", apercu)
+        self.assertIn("4_sous_titres.jpg", apercu)
+        self.assertIn("3_milieu.jpg", apercu)  # la scène 2 n'a pas de plan animé
         # le bandeau est bien là : le bas de l'image, pendant la première phrase, n'est plus uni
         image = subprocess.run(["ffmpeg", "-v", "error", "-ss", "1.0", "-i", str(d.d / "rendu" / "video.mp4"),
                                 "-frames:v", "1", "-f", "rawvideo", "-pix_fmt", "gray", "-"],
                                capture_output=True, check=True).stdout
         bas = np.frombuffer(image, np.uint8).reshape(180, 320)[150:175]
         self.assertGreater(bas.std(), 20)
+
+
+class Verdict(unittest.TestCase):
+    def test_sous_la_limite_meme_avec_beaucoup_d_avertissements(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            chemin = Path(tmp) / "verdict.json"
+            v = m.ecrire_verdict(chemin, {"pret": True, "controle": ["✓ image : 1920×1080"] * 5,
+                                          "avertissements": [f"scène {n} : " + "x" * 200 for n in range(40)]})
+            self.assertLessEqual(len(chemin.read_bytes()), m.VERDICT_MAX)
+            self.assertIn("autre(s) dans le rapport", v["avertissements"][-1])
+            self.assertTrue(all(len(a) <= 110 for a in v["avertissements"]))
+
+
+class Lanceur(unittest.TestCase):
+    """Les lanceurs Drive : un formulaire et quelques lignes, le vrai notebook vient du dépôt."""
+    NOTEBOOKS = RACINE / "zehon" / "notebooks"
+
+    def charger_lanceur(self):
+        spec = importlib.util.spec_from_file_location("lanceur", self.NOTEBOOKS / "lanceur.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_reglages_du_lanceur_par_dessus_et_arret_net(self):
+        lanceur = self.charger_lanceur()
+        cellule = lambda source, tags=(): {"cell_type": "code", "metadata": {"tags": list(tags)}, "source": [source]}
+        nb = {"cells": [cellule('A = 1\nB = 2', ["reglages"]), cellule("C = A + B"),
+                        cellule('raise SystemExit("stop")'), cellule("D = 4")]}
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "essai.ipynb").write_text(json.dumps(nb), encoding="utf-8")
+            lanceur.ICI = Path(tmp)
+            espace = {}
+            with self.assertRaises(SystemExit):
+                lanceur.executer("essai.ipynb", {"A": 10}, espace)
+        self.assertEqual((espace["A"], espace["B"], espace["C"]), (10, 2, 12))  # B garde sa valeur par défaut
+        self.assertTrue(espace["DEPOT_PRET"])
+        self.assertNotIn("D", espace)
+
+    def test_lanceurs_accordes_aux_notebooks(self):
+        for lanceur, cible in [("lanceur_montage.ipynb", "montage_zehon.ipynb"), ("lanceur_voix.ipynb", "voix_zehon.ipynb")]:
+            code = "".join(json.loads((self.NOTEBOOKS / lanceur).read_text(encoding="utf-8"))["cells"][1]["source"])
+            nb = json.loads((self.NOTEBOOKS / cible).read_text(encoding="utf-8"))
+            reglages = [c for c in nb["cells"] if "reglages" in c.get("metadata", {}).get("tags", [])]
+            self.assertEqual(len(reglages), 1, cible)
+            connus = set(re.findall(r"^(\w+) =", "".join(reglages[0]["source"]), re.M)) | {"BRANCHE"}
+            formulaire = re.findall(r"^(\w+) = .*# @param", code, re.M)
+            self.assertTrue(formulaire)
+            self.assertLessEqual(set(formulaire), connus, lanceur)
+            self.assertIn(f'lanceur.executer("{cible}"', code)
+            self.assertLess(len(code.splitlines()), 45)
 
 
 class NotebookMontage(unittest.TestCase):

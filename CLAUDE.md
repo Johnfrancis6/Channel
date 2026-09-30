@@ -14,7 +14,8 @@ contenu, Franco produit les pièces (images Gemini, voix Colab).
   est dans son `SKILL.md`.
 - `zehon/video-maker/` : la skill qui monte la vidéo (`scripts/monter.py` :
   03_scenes.md + images + clips + voix → `rendu/video.mp4`, avec contrôle).
-- `zehon/notebooks/voix_zehon.ipynb` : la voix off (Colab, copie dans Drive).
+- `zehon/notebooks/` : les notebooks Colab (voix off, montage). Dans Drive,
+  seulement des lanceurs fixes (`lanceur_*.ipynb`) qui exécutent ceux du dépôt.
 - Google Drive, dossier `Zehon/` : la mémoire (`Memoire/`), la charte
   (`Charte/`) et les vidéos (`Videos/<nn>_<sujet>/`). L'état d'une vidéo
   vit dans ses fichiers Drive, pas dans le dépôt.

@@ -155,7 +155,8 @@ dossier de la vidéo et réponds par un tableau court :
 | Miniatures | `miniatures/` | au moins 3 images |
 
 **La voix se fait avec le notebook `voix_zehon.ipynb`** (dans `Zehon/`, à
-ouvrir avec Google Colab ; source : `zehon/notebooks/` du dépôt). Il lit
+ouvrir avec Google Colab : un lanceur qui exécute le vrai notebook du dépôt,
+`zehon/notebooks/`, sans jamais être recopié). Il lit
 `02_script_voix.txt`, clone la voix rangée dans `Zehon/Charte/voix/` (ou
 une nouvelle, envoyée depuis le notebook avec sa transcription), et
 dépose `voix.wav`, `mots.json` (bornes de chaque phrase et de chaque mot)

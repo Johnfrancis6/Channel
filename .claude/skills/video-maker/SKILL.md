@@ -23,8 +23,9 @@ cette page.
 
 Sorties : `rendu/video.mp4` (ou `rendu/extrait_AAA-BBB.mp4`),
 `rendu/rapport.json` (début et durée de chaque scène, avertissements,
-contrôle) et `rendu/sous_titres.srt` (vidéo entière et `--plan`), à déposer
-sur YouTube avec la vidéo.
+contrôle), `rendu/verdict.json` et `rendu/apercu/` (le verdict court et
+6 images, ce qu'on lit ici) et `rendu/sous_titres.srt` (vidéo entière et
+`--plan`), à déposer sur YouTube avec la vidéo.
 
 ## La musique
 
@@ -55,12 +56,13 @@ Environnement : Python 3, `numpy`, `opencv-python-headless`, `Pillow`,
 `ffmpeg`. Dans un conteneur Claude Code : `apt-get install -y ffmpeg` et
 `pip install opencv-python-headless pillow numpy` s'ils manquent.
 
-## Dans Claude Code : le plan, puis un extrait
+## Dans Claude Code : le plan, puis la lecture du verdict
 
 Le connecteur Drive télécharge **au plus 10 Mo par fichier** et n'envoie
-pas de gros fichier vers Drive (mesuré le 30/09/2026). Donc ici, on
-vérifie et on rend des extraits ; la vidéo entière se rend dans Colab
-(voir plus bas).
+pas de gros fichier vers Drive (mesuré le 30/09/2026). Donc ici, on ne
+télécharge jamais les pièces (images, clips, voix) : tout rendu, extrait
+compris, se fait dans Colab ; ici, on fait le plan et on lit ce que Colab a
+écrit.
 
 1. **Le plan (toujours d'abord)** : télécharge en brut `03_scenes.md` et
    `voix/mots.json` dans un dossier de travail (`<travail>/voix/mots.json`),
@@ -68,41 +70,39 @@ vérifie et on rend des extraits ; la vidéo entière se rend dans Colab
    Compare la liste des scènes à la liste Drive de `images/` et `clips/`.
    Donne à Franco, en 5 lignes : durée totale, pièces manquantes (numéros),
    scènes de plus de 10 s, scènes mal retrouvées dans la voix (moins de
-   60 %). Le plan écrit aussi `<travail>/rendu/sous_titres.srt` (pour le
-   relire ici ; le rendu dans Colab l'écrit dans Drive).
-2. **Un extrait** (`--scenes 1-10`) : télécharge les images et clips de ces
-   scènes dans `<travail>/images/` et `<travail>/clips/` (chaque résultat
-   du connecteur est enregistré sur disque : décode son champ `content`,
-   en base64), et les phrases de voix correspondantes depuis
-   `voix/cache/` (`0001_….wav`, `0002_…` : les N premières, sans trou).
-   Puis `python3 scripts/voix_depuis_cache.py <travail>` et
-   `python3 scripts/monter.py <travail> --scenes 1-10`.
-   Envoie la vidéo à Franco dans la conversation, et **regarde toi-même
-   quelques images** (`ffmpeg -ss <t> -i … -frames:v 1`) : fondus, texte
-   animé, titre, plans animés.
+   60 %). Le plan écrit aussi `<travail>/rendu/sous_titres.srt`.
+2. **Un essai** : Franco met `1-10` dans `EXTRAIT` du lanceur et lance
+   (5 min environ). Puis lecture comme ci-dessous.
+3. **Après un rendu** (extrait ou vidéo entière), lis dans `rendu/` :
+   - `verdict.json` (moins de 1 Ko : `pret`, `controle`, `avertissements`,
+     `duree_s`, `rendu_s`, `code`, le nom du rapport) ;
+   - les 6 images de `apercu/` (JPEG de 640 px : `1_debut`, `2_titre`,
+     `3_plan_anime`, `4_sous_titres`, `5_texte_anime`, `6_fin` ; `N_milieu`
+     quand le passage rendu n'a pas l'élément). **Regarde-les toi-même** :
+     titre lisible, plan animé bien cadré, sous-titres, texte animé ;
+   - **plus le rapport en entier** (`rapport.json`, des dizaines de Ko) :
+     s'il faut un détail (une scène), télécharge-le sur disque et n'en
+     affiche que la partie utile (`python3 -c` ou `jq`).
 
-## La vidéo entière : dans Colab
+   Donne le contrôle et les avertissements. Si `"pret": false`, la vidéo
+   ne se publie pas.
 
-Le notebook **`montage_zehon.ipynb`** (dans le dépôt, `zehon/notebooks/`, et
-copie dans Drive : `Zehon/montage_zehon.ipynb`) rend la vidéo entière dans
-Colab, sans GPU (le sel, 7 min 55 s : **42 min de rendu**, mesuré le 30/09). Franco remplit le formulaire (vidéo, sous-titres cochés
-par défaut, musique rangée dans `Charte/musique/`, extrait éventuel) et
-lance **Tout exécuter**. Le notebook :
+## Colab : un lanceur fixe, le vrai notebook dans le dépôt
 
-1. monte Drive et **clone le dépôt** (branche `BRANCHE`) : le code du montage
-   n'est recopié nulle part, une correction poussée sert au lancement
-   suivant ;
-2. lance `monter.py --plan` (arrêt net si une pièce manque) ;
-3. rend sur le disque de Colab, puis copie `video.mp4` et `rapport.json`
-   dans `rendu/` (le `.srt` y est écrit directement) ; le rapport garde la
-   branche, le commit et la durée du rendu (`rendu_s`).
+Dans Drive, `Zehon/montage_zehon.ipynb` et `Zehon/voix_zehon.ipynb` sont des
+**lanceurs** (`zehon/notebooks/lanceur_montage.ipynb`, `lanceur_voix.ipynb`) :
+le formulaire de réglages, puis quelques lignes qui clonent le dépôt
+(branche `BRANCHE`) et exécutent le vrai notebook (`montage_zehon.ipynb`,
+`voix_zehon.ipynb`) avec `zehon/notebooks/lanceur.py`. **On ne recopie plus
+rien dans Drive** : une correction poussée sert au lancement suivant. Un
+réglage ajouté au notebook garde sa valeur par défaut (cellule marquée
+`reglages`) tant que le lanceur ne l'affiche pas.
 
-Si le notebook change, le reconstruire dans `zehon/notebooks/` et remplacer
-sa copie dans Drive (nouveau fichier, puis l'ancien à la corbeille).
-
-Quand Franco a rendu la vidéo : lis `rendu/rapport.json` en brut, et
-donne le résultat du contrôle et les avertissements. Si `"pret": false`,
-la vidéo ne se publie pas.
+Le montage tourne sans GPU (le sel, 7 min 55 s : **42 min de rendu**, mesuré
+le 30/09) : plan (arrêt net si une pièce manque), rendu sur le disque de
+Colab, puis copie dans `rendu/` de la vidéo, du rapport, de `verdict.json` et
+de `apercu/` (le `.srt` y est écrit directement). Le rapport et le verdict
+gardent la branche, le commit et la durée du rendu (`rendu_s`).
 
 ## Ce qu'il faut dire à Franco
 
