@@ -36,12 +36,18 @@ s'il est connecté et qu'il te dit où chercher) :
 
 | Fichiers présents | Étape à lancer |
 |---|---|
-| aucun fichier de vidéo | **1. Sujet** |
-| sujet choisi, pas de `01_recherche.md` | **2. Recherche** |
+| aucun fichier de vidéo, et aucun sujet nommé | **1. Sujet** |
+| un sujet nommé par Franco (« vidéo sur le sel »), sans `01_recherche.md` | **2. Recherche** |
 | `01_recherche.md` sans `02_plan.md` | **3a. Plan** |
 | `02_plan.md` sans `02_script.md` | **3b. Script** |
 | `02_script.md` sans `03_scenes.md` | **4. Scènes et prompts** |
 | `03_scenes.md` sans `04_publication.md` | **5. Publication** |
+
+**Un sujet nommé est un sujet choisi** : ne repropose pas d'autres
+sujets. Qu'un concurrent l'ait déjà traité ne l'exclut pas ; ça oblige
+seulement à changer de paradoxe (signale-le à l'étape 2). Sans
+`Memoire/`, ne suppose jamais qu'un sujet est déjà fait : le sel des
+exemples est la première vidéo de Zehon, **pas encore produite**.
 
 S'il dit explicitement l'étape (« refais le hook », « juste les titres »),
 fais cette étape-là. Annonce en une ligne ce que tu as compris (« J'ai la

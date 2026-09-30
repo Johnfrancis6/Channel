@@ -72,7 +72,9 @@ la chaîne est au nom de sa propriétaire.
 - **Zelan** (FR) : même genre, publie tous les 2 jours, a traité le fer,
   le sel, le sucre, le cuivre. **Avant chaque sujet et chaque hook,
   vérifie qu'il n'a pas déjà pris le même paradoxe** : c'est arrivé pour le
-  sel.
+  sel. Un sujet traité par Zelan **reste possible** avec un autre
+  paradoxe : le sel est justement la première vidéo de Zehon (paradoxe
+  « le trésor devenu gratuit », pas celui de Zelan).
 - **Je T'explique Comment** (FR, « Comment c'est fait ») : procédés
   industriels modernes, sans la préhistoire.
 - **Zenn** (EN) : a culminé à 8 M vues en avril 2026, retombé à 13-37 k
