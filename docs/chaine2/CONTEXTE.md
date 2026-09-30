@@ -1,73 +1,59 @@
-# Zehon (chaîne 2) — contexte de reprise (état au 30/09/2026, fin de session)
+# Zehon (chaîne 2) — contexte de reprise (état au 30/09/2026, soir)
 
-> **Reprise au 30/09/2026, fin de session : où en est le sel.** Pour ouvrir
-> une nouvelle session, coller [`PROMPT_NOUVELLE_SESSION.md`](PROMPT_NOUVELLE_SESSION.md).
+> **Reprise au 30/09/2026, soir : le sel est prêt à monter, sauf une image.**
+> Pour ouvrir une nouvelle session, coller [`PROMPT_NOUVELLE_SESSION.md`](PROMPT_NOUVELLE_SESSION.md).
+> Branche de travail : `claude/zelan-studio-analysis-rws9f6` (en avance sur `main`).
 >
-> **Contenu : terminé** (skill `content-maker`, étapes 1 à 5), dans
-> `Zehon/Videos/01_sel/` : `01_recherche.md`, `02_plan.md`, `02_script.md`
-> (1 464 mots), `02_script_voix.txt` (140 lignes, 1 551 mots),
-> `03_scenes.md` (80 scènes : 68 images, 8 plans animés, 4 titres ; 76
-> prompts d'image et 8 d'animation), `04_publication.md` (titre
-> recommandé « Comment le sel est-il devenu presque gratuit ? », 5
-> miniatures M1 à M5, trio à tester M1, M2, M3). Angle : « le trésor devenu
-> presque gratuit » ; la moitié « prix » (gabelle, Arc-et-Senans, train,
-> Varangéville) fait 52 % du texte, parce que Zelan a déjà montré Lunca,
-> les pots cassés et l'escalier de Hallstatt. **À vérifier avant
-> publication** : les 8,1 g de sel par jour (Esteban), qui donnent les
-> « 3 kilos par an ».
+> **Contenu : terminé** dans `Zehon/Videos/01_sel/` (`01_recherche.md` à
+> `04_publication.md`, 80 scènes). **À vérifier avant publication** : les
+> 8,1 g de sel par jour (Esteban), qui donnent les « 3 kilos par an ».
 >
-> **Pièces, produites par Franco** (état déclaré dans la conversation,
-> **à relire dans Drive**) : planche du bonhomme validée (la version
-> retouchée, sans bras en trop), à ranger dans
-> `Zehon/Charte/planche_bonhomme.png` ; images : lot 1 fait (scènes 1 à 11) ;
-> miniatures : les 5 générées ; plans animés : pas encore ; **voix : premier
-> run du notebook `voix_zehon.ipynb` en cours le 30/09**, avec une voix de
-> référence **ElevenLabs** (et non la voix de Franco) : lire
-> `Videos/01_sel/voix/etat.json`.
+> **Pièces (relevées dans Drive le 30/09 au soir)** :
+> - planche : `Charte/planche_bonhomme.jpg` ;
+> - images : **75 sur 76**, en `.jpg` ; **manque `scene_061`** (lot 6 :
+>   campagne lorraine, tour de forage en bois) ;
+> - plans animés : **8 sur 8**, nommés `clips/anim_NNN.mp4` (1280×720,
+>   24 i/s, 8 s, avec du son, coupé au montage) ;
+> - voix : **prête** (`voix/etat.json`) : 461,8 s, 1 551 mots, **3,36 mots/s
+>   pauses comprises** (3,69 en parole seule), voix de référence
+>   ElevenLabs de 7,4 s, synthèse en 22 min sur T4. Reporté dans
+>   `Memoire/lecons.md` : **environ 1 610 mots pour 8 min**. Les 19 phrases
+>   « à réécouter » étaient des **fausses alertes** (Whisper écrit « 1344 »,
+>   le script « mille trois cent… ») : corrigé dans le notebook (nombres
+>   remis en lettres avant la comparaison ; 0 alerte sur 140 en rejouant le
+>   sel). Copie Drive du notebook **remplacée** : `Zehon/voix_zehon.ipynb`
+>   (`1nkFeUZJc82xrLKuejmMb57uUxhSBrUGk`) ;
+> - miniatures : Franco s'en occupe (pas de vérification demandée).
 >
-> **Outils livrés le 30/09** (branche `claude/zelan-studio-analysis-rws9f6`) :
-> - `content-maker` **v5** : prompts affichés dans le chat, planche du
->   bonhomme, préambule Gemini sans narration, plans animés (type `video`,
->   `anim_NNN`), miniatures en dessin animé vif, état des pièces, voix.
->   Archive à installer sur claude.ai : `zehon/content-maker.skill`
->   (Franco doit remplacer l'ancienne version).
-> - `zehon/notebooks/voix_zehon.ipynb` : Qwen3-TTS en français, voix de
->   référence dans `Zehon/Charte/voix/`, cache sur Drive, `voix.wav` +
->   `mots.json` + `etat.json`. Copie dans Drive : `Zehon/voix_zehon.ipynb`
->   (`1EMpqhqNcUvWeRoHKE_gQ8k5i2YIcM0pM`), **en retard d'un commit**
->   (affichage des phrases en entier, message `pad_token_id` masqué) : la
->   remplacer une fois le run de Franco fini.
+> **`video-maker` construite (30/09)** : `zehon/video-maker/`
+> (`scripts/monter.py`, `scripts/voix_depuis_cache.py`, polices OFL Nunito
+> et IBM Plex Mono), archive `zehon/video-maker.skill`, tests
+> `tests/test_video_maker.py`. **Choix, et pourquoi** : Python (OpenCV,
+> Pillow) + FFmpeg plutôt que HyperFrames : pas de Chromium à faire tourner
+> 14 400 fois, le même script tourne dans Claude Code et dans Colab, et il
+> est testable. **Mesuré** :
+> - le plan du sel : 80 scènes calées sur `mots.json` en 0,3 s, chacune
+>   retrouvée à 80 % ou plus ; **7 min 55 s** avec les 4 titres (3 s
+>   chacun) ; scènes 32 et 80 signalées (plus de 10 s) ;
+> - **premier rendu court** : scènes 1 à 10, 48 s en 1080p, rendu en 83 s
+>   sur 4 cœurs, contrôle avant publication passé, envoyé à Franco dans la
+>   conversation ; son à −15,2 LUFS après normalisation (la voix brute
+>   sortait à **−22 LUFS** : trop bas pour YouTube) ;
+> - le connecteur Drive **télécharge au plus 10 Mo par fichier** (refus sur
+>   `voix.wav`, 22 Mo) et n'envoie pas de gros fichier : la voix d'un
+>   extrait se reconstitue depuis `voix/cache/`, et **la vidéo entière se
+>   rendra dans Colab** (Drive monté, `rendu/video.mp4` écrit sur place).
 >
-> **Ménage du 30/09 (demandé par Franco)** : l'ancien pipeline de la
-> chaîne IA (Shorts anglais : agents `short-*`, skills Shorts, orchestrateur,
-> Remotion, outils, schémas, ancien notebook de voix, ses tests et sa
-> documentation) est retiré de cette branche. Il est archivé, intact, sur
-> la branche `archive/pipeline-shorts-2026-09-30` (état de `main` au 16/09).
-> `CLAUDE.md` ne parle plus que de Zehon ; `zehon/synchroniser_skills.py`
-> régénère le miroir `.claude/skills/` et l'archive `.skill` ;
-> `tests/test_zehon.py` vérifie le miroir et le vérificateur de scènes.
-> **Fusionné dans `main` le 30/09** (pull request n° 1, fusionnée par Franco) :
-> `main` ne porte plus que Zehon. Les envois directs sur `main` sont bloqués
-> par la sécurité de Claude Code : passer par une branche et une demande de
-> fusion.
->
-> **Leçons du 30/09** (intégrées à la skill v5) : Gemini ajoute un bras en
-> trop (deux planches sur deux) ; en mode conversation, il raconte une
-> histoire et enchaîne des images non demandées ; les miniatures sombres
-> et réalistes ne plaisent pas à Franco ; les scènes « titre » sans image
-> font croire à un trou dans la numérotation.
->
-> **Reste à faire, dans l'ordre** :
-> 1. Lire `voix/etat.json` du sel : durée, débit (`debit_mots_s`, à reporter
->    dans `Memoire/lecons.md`), phrases à réécouter. Remplacer la copie
->    Drive du notebook.
-> 2. **Construire `video-maker`** (rien n'existe encore) :
->    `nouveau_systeme.md` §6 et §7, en lisant `03_scenes.md` (types
->    `image`, `video`, `titre`), `images/`, `clips/`, `voix/voix.wav` et
->    `voix/mots.json` (bornes par phrase, mots horodatés).
-> 3. **À trancher par Franco** : la voix de la chaîne (ElevenLabs ou son
->    propre clone ; droits commerciaux de l'offre ElevenLabs). `chaine.md`
->    et ce document disent encore « clone de la voix de Franco ».
+> **Reste à faire, dans l'ordre** (effort estimé, **hypothèse**) :
+> 1. Franco : générer `scene_061`, et donner son avis sur l'extrait.
+> 2. **Question posée à Franco le 30/09, en attente** : la voix de la chaîne
+>    (ElevenLabs ou son propre clone ; droits commerciaux). Puis mettre la
+>    charte à jour (`content-maker/references/chaine.md`, ce document,
+>    `nouveau_systeme.md` disent encore « clone de la voix de Franco »).
+> 3. `video-maker` : le notebook Colab `montage_zehon.ipynb` qui emballe
+>    `monter.py` (environ 2 h), puis la musique (nappe, déjà codée, à
+>    choisir) et le rendu complet du sel par Franco.
+> 4. Relire la vidéo entière, puis publier (`04_publication.md`).
 
 ---
 

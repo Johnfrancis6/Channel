@@ -156,6 +156,14 @@ nomme la ligne).
 
 ## 7. La skill `video-maker` (Claude Code web, HyperFrames)
 
+> **Construite le 30/09/2026** (`zehon/video-maker/`), **sans HyperFrames** :
+> Python (OpenCV, Pillow) + FFmpeg, le même script dans Claude Code (plan,
+> extraits) et dans Colab (la vidéo entière, écrite dans Drive), parce que le
+> connecteur Drive ne transfère pas plus de 10 Mo par fichier (mesuré). Les
+> preuves et cartels ci-dessous sont dépassés (version « histoire simple ») ;
+> les plans animés (`clips/anim_NNN.mp4`) et les titres sont en place. Détail
+> et mesures : `CONTEXTE.md`, bloc du haut.
+
 **Rôle** : lire un dossier de vidéo, valider, assembler, rendre. Elle
 n'écrit ni le script ni les prompts.
 

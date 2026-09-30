@@ -12,6 +12,8 @@ contenu, Franco produit les pièces (images Gemini, voix Colab).
 - `zehon/content-maker/` : la skill qui fait le contenu d'une vidéo
   (recherche, script, scènes, prompts, publication). Tout le fonctionnement
   est dans son `SKILL.md`.
+- `zehon/video-maker/` : la skill qui monte la vidéo (`scripts/monter.py` :
+  03_scenes.md + images + clips + voix → `rendu/video.mp4`, avec contrôle).
 - `zehon/notebooks/voix_zehon.ipynb` : la voix off (Colab, copie dans Drive).
 - Google Drive, dossier `Zehon/` : la mémoire (`Memoire/`), la charte
   (`Charte/`) et les vidéos (`Videos/<nn>_<sujet>/`). L'état d'une vidéo

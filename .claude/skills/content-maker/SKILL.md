@@ -148,9 +148,9 @@ dossier de la vidéo et réponds par un tableau court :
 
 | Pièce | Où | Prête quand |
 |---|---|---|
-| Planche du bonhomme | `Zehon/Charte/planche_bonhomme.png` | le fichier existe |
-| Images | `images/scene_NNN.png` | une par scène `image` **et** `video` de `03_scenes.md` ; nomme celles qui manquent |
-| Plans animés | `clips/scene_NNN.mp4` | un par scène `video` ; un clip manquant n'empêche pas le montage (l'image le remplace), dis-le |
+| Planche du bonhomme | `Zehon/Charte/planche_bonhomme.png` (ou `.jpg`) | le fichier existe |
+| Images | `images/scene_NNN.png` (ou `.jpg`) | une par scène `image` **et** `video` de `03_scenes.md` ; nomme celles qui manquent, et réaffiche leur prompt en entier |
+| Plans animés | `clips/anim_NNN.mp4` (ou `scene_NNN.mp4`) | un par scène `video` ; un clip manquant n'empêche pas le montage (l'image le remplace), dis-le |
 | Voix off | `voix/etat.json` | `"statut": "pret"` (lis-le en téléchargement brut) ; `en_cours` depuis plus d'une heure = Colab coupé : relancer le notebook, il reprend où il s'était arrêté ; `echec` : donne son champ `erreur` ; pas de fichier = notebook pas encore lancé |
 | Miniatures | `miniatures/` | au moins 3 images |
 
@@ -169,8 +169,9 @@ Quand la voix est prête :
   et recalcule les mots pour 8 min : c'est le chiffre que l'étape 3
   utilisera pour les vidéos suivantes.
 
-L'assemblage (`video-maker`) n'est possible que quand toutes les pièces
-sont prêtes ; tant que cette skill n'existe pas, dis-le simplement.
+L'assemblage se fait avec la skill **`video-maker`** : quand toutes les
+images sont là et la voix prête, propose-la (« je monte le sel ? »).
+Un extrait se monte même avant, avec les pièces de ses scènes.
 
 ## Ce que « fini » veut dire
 
