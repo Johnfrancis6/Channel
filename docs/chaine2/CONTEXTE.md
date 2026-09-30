@@ -1,4 +1,48 @@
-# Zehon (chaîne 2) — contexte de reprise (état au 30/09/2026, soir)
+# Zehon (chaîne 2) — contexte de reprise (état au 30/09/2026, nuit)
+
+> **Reprise au 30/09/2026, nuit : le montage du sel est prêt, reste le rendu
+> complet dans Colab (par Franco), puis la relecture et la publication.**
+> Branche de travail : `claude/zelan-studio-analysis-rws9f6`.
+>
+> **Fait dans la session de montage (30/09, nuit)** :
+> - **Plan du sel** (mesuré) : 80 scènes, **7 min 55 s** (4 titres de 3 s),
+>   toutes les scènes retrouvées à 80 % ou plus dans la voix ; 8 plans animés
+>   sur 8 dans Drive ; scènes 32 (10,7 s) et 80 (10,8 s, dont 1,5 s de fin)
+>   signalées, **laissées telles quelles** (recommandation).
+> - **Sous-titres** (style **validé par Franco**) : `monter.py --sous-titres`
+>   incruste quelques mots à la fois (34 caractères, 7 mots au plus) dans un
+>   bandeau sombre transparent en bas au centre, le mot dit en jaune doré ;
+>   texte du script (« 8 000 »), groupes équilibrés, rien pendant les titres,
+>   texte animé remonté de 120 px. Le `.srt` YouTube (`rendu/sous_titres.srt`,
+>   2 lignes de 42 caractères) s'écrit dès `--plan` : **164 sous-titres,
+>   1 461 mots, 97 % calés directement sur la voix**. Extrait 5 à 9 avec et
+>   sans, envoyé à Franco ; rendu 27 s en 45 s sur 4 cœurs.
+> - **Notebook `zehon/notebooks/montage_zehon.ipynb`**, copie dans Drive :
+>   `Zehon/montage_zehon.ipynb` (`1ovtArNc6LV11ULkUv2HQeCwBTZ4hL9re`). Sans
+>   GPU. **Une seule source** : il clone le dépôt (public) sur `BRANCHE` à
+>   chaque lancement. Plan, rendu sur le disque de Colab, copie de
+>   `video.mp4` et `rapport.json` dans `rendu/` (le rapport garde branche,
+>   commit, `rendu_s`). Sous-titres cochés par défaut ; `EXTRAIT` pour un
+>   essai. **Validé ici de bout en bout** sur un faux Drive (clone GitHub
+>   compris) ; **pas encore lancé dans Colab**. Durée du rendu complet dans
+>   Colab : **20 à 30 min (hypothèse)**.
+> - **Musique** : `--musique` / `--volume-musique` (défaut −26 dB, −6 dB de
+>   plus sous la voix), nappe bouclée en fondu de 3 s, entrée 2 s, sortie
+>   3 s. **Mesuré** : avec une nappe à −14 LUFS, elle finit **23 dB sous la
+>   voix**. Nappe à ranger dans `Zehon/Charte/musique/` ; **pas encore
+>   choisie** (critères donnés à Franco : bibliothèque audio YouTube,
+>   attribution non requise, ambient calme, sans batterie ni voix).
+> - Conteneur : `apt-get install ffmpeg` échoue sans `apt-get update` avant.
+>
+> **Reste à faire, dans l'ordre** : (1) Franco choisit la nappe, lance un
+> essai `EXTRAIT = 1-10`, puis le rendu complet ; (2) Claude lit
+> `rendu/rapport.json` (`"pret"`, avertissements) ; (3) relire la vidéo
+> entière, vérifier les 8,1 g de sel par jour, puis publier
+> (`04_publication.md`, et le `.srt` dans YouTube Studio).
+
+---
+
+# État précédent (30/09/2026, soir)
 
 > **Reprise au 30/09/2026, soir : le sel est prêt à monter.**
 > Pour ouvrir une nouvelle session, coller [`PROMPT_NOUVELLE_SESSION.md`](PROMPT_NOUVELLE_SESSION.md).
