@@ -1,8 +1,9 @@
 # Zehon (chaîne 2) — contexte de reprise (état au 30/09/2026, nuit)
 
-> **Reprise au 30/09/2026, nuit : `rendu/video.mp4` du sel est dans Drive et
-> passe le contrôle (`"pret": true`). Reste : la décision sur la musique,
-> la relecture par Franco, puis la publication.**
+> **Reprise au 30/09/2026, nuit : la vidéo du sel est VALIDÉE par Franco
+> (`rendu/video.mp4`, sans musique, décision du 30/09). Reste la
+> publication.** La musique (nappe, `--musique`) reste prête pour les
+> vidéos suivantes.
 >
 > **Rendu complet du sel (Colab, 30/09, rapport lu par Claude)** : commit
 > `ac28c5c`, sous-titres incrustés, **sans musique** ; 475,3 s (7 min 55 s)
@@ -45,11 +46,9 @@
 >   attribution non requise, ambient calme, sans batterie ni voix).
 > - Conteneur : `apt-get install ffmpeg` échoue sans `apt-get update` avant.
 >
-> **Reste à faire, dans l'ordre** : (1) Franco décide : publier sans musique,
-> ou choisir une nappe et relancer (42 min) ; (2) Franco regarde la vidéo
-> entière ; (3) vérifier les 8,1 g de sel par jour et l'usage commercial de
-> la voix ElevenLabs ; (4) publier (`04_publication.md`, et
-> `rendu/sous_titres.srt` dans YouTube Studio).
+> **Reste à faire, dans l'ordre** : (1) vérifier les 8,1 g de sel par jour
+> et l'usage commercial de la voix ElevenLabs ; (2) publier
+> (`04_publication.md`, et `rendu/sous_titres.srt` dans YouTube Studio).
 
 ---
 

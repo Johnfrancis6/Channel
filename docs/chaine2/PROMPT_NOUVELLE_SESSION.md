@@ -27,8 +27,7 @@ matière brute à l'objet »). On **sort la première vidéo, le sel**.
   Colab avec `Zehon/montage_zehon.ipynb`.
 
 ## Ce que j'attends
-1. Le rendu du sel est fait et passe le contrôle (lu le 30/09). Si je l'ai
-   relancé depuis (avec une musique), relis `rendu/rapport.json`.
+1. La vidéo du sel est rendue et validée (sans musique).
 2. Aide-moi à publier : `04_publication.md`, le `.srt`, et la vérification
    des 8,1 g de sel par jour.
 
