@@ -65,6 +65,13 @@ Quand Franco a rendu la vidéo : lis `rendu/rapport.json` en brut, et
 donne le résultat du contrôle et les avertissements. Si `"pret": false`,
 la vidéo ne se publie pas.
 
+## Prévu, pas encore fait
+
+- **Sous-titres animés** (demandés par Franco le 30/09, en option) : les
+  mots dits, calés sur `mots.json`, pour mieux suivre la narration ; plus
+  un `.srt` pour YouTube.
+- Le notebook Colab `montage_zehon.ipynb`, pour rendre la vidéo entière.
+
 ## Ce qu'il faut dire à Franco
 
 - Des recommandations, pas des options ; le mesuré séparé de l'hypothèse ;

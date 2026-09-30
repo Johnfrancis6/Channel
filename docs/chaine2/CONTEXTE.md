@@ -1,6 +1,6 @@
 # Zehon (chaîne 2) — contexte de reprise (état au 30/09/2026, soir)
 
-> **Reprise au 30/09/2026, soir : le sel est prêt à monter, sauf une image.**
+> **Reprise au 30/09/2026, soir : le sel est prêt à monter.**
 > Pour ouvrir une nouvelle session, coller [`PROMPT_NOUVELLE_SESSION.md`](PROMPT_NOUVELLE_SESSION.md).
 > Branche de travail : `claude/zelan-studio-analysis-rws9f6` (en avance sur `main`).
 >
@@ -50,16 +50,25 @@
 >   extrait se reconstitue depuis `voix/cache/`, et **la vidéo entière se
 >   rendra dans Colab** (Drive monté, `rendu/video.mp4` écrit sur place).
 >
+> **Décisions de Franco du 30/09 au soir** :
+> - **Les images restent telles quelles** (040, 046, 054, 062 et 075
+>   comprises) : on monte avec. La règle « surfaces vierges » vaudra pour
+>   les prochaines vidéos.
+> - **La voix de la chaîne** : une **voix d'homme au ton narratif, créée sur
+>   ElevenLabs**, clonée par Qwen3-TTS (c'est celle du sel). Charte mise à
+>   jour (`content-maker/references/chaine.md`, `nouveau_systeme.md`).
+>   **À vérifier** (hypothèse, pas lu) : que l'offre ElevenLabs utilisée
+>   autorise l'usage commercial de cette voix sur une chaîne monétisée.
+> - **Sous-titres animés** : à prévoir au montage, pour mieux suivre la
+>   narration (les mots horodatés de `mots.json` le permettent).
+>
 > **Reste à faire, dans l'ordre** (effort estimé, **hypothèse**) :
-> 1. Franco : refaire 046, 054, 062 et 075 (sans texte), et donner son avis sur l'extrait.
-> 2. **Question posée à Franco le 30/09, en attente** : la voix de la chaîne
->    (ElevenLabs ou son propre clone ; droits commerciaux). Puis mettre la
->    charte à jour (`content-maker/references/chaine.md`, ce document,
->    `nouveau_systeme.md` disent encore « clone de la voix de Franco »).
-> 3. `video-maker` : le notebook Colab `montage_zehon.ipynb` qui emballe
->    `monter.py` (environ 2 h), puis la musique (nappe, déjà codée, à
->    choisir) et le rendu complet du sel par Franco.
-> 4. Relire la vidéo entière, puis publier (`04_publication.md`).
+> 1. **Le montage** (prochaine session, message dans
+>    [`PROMPT_NOUVELLE_SESSION.md`](PROMPT_NOUVELLE_SESSION.md)) : le notebook
+>    Colab `montage_zehon.ipynb` qui emballe `monter.py` (environ 2 h), les
+>    sous-titres animés en option (environ 2 à 3 h), la musique (nappe, déjà
+>    codée, à choisir), puis le rendu complet du sel par Franco dans Colab.
+> 2. Relire la vidéo entière, puis publier (`04_publication.md`).
 
 ---
 
@@ -122,7 +131,7 @@ Ce fichier résume et renvoie. Chaque fait porte son statut : **mesuré**
 | **Système** | **Nouveau, simple** : des instructions dans Drive, utilisables depuis **n'importe quel compte Claude, même gratuit** (questions, recherche, script, prompts d'images) ; les images dans **Gemini** ; la voix dans Colab ; l'assemblage par une nouvelle skill **`video-maker`** (**HyperFrames**, dans **Claude Code web**). Les anciennes skills seront supprimées (point à trancher : voir `nouveau_systeme.md` §8) |
 | **Style** | La grammaire du genre (Zelan, Zenn), **en calme** : bonhomme à tête ronde, décors illustrés, images générées par **Gemini**, légers mouvements de caméra, texte animé sobre. Charte validée : `nouveau_systeme.md` §2 |
 | Preuves | De **vraies photos** sous licence libre pour les pièces à conviction. **Jamais** une image générée qui imite un objet de fouille ou un document réel |
-| Voix | **Clone de la voix de Franco** (Qwen3-TTS, Colab). Il faut un échantillon de référence en français de 15 à 30 s, et son texte exact |
+| Voix | ~~Clone de la voix de Franco~~ → **décision du 30/09 : voix d'homme au ton narratif créée sur ElevenLabs**, clonée par Qwen3-TTS (Colab) à partir d'un échantillon de 7,4 s rangé dans `Charte/voix/` |
 | **Première vidéo** | **Le sel** (Franco a préféré le sel au pain, recommandé) |
 
 Règles de travail : Claude propose, Franco tranche (sujets, nom, charte) ;

@@ -29,10 +29,10 @@ n'était « tout juste pas performant ».
 | Langue | Français |
 | **Ligne** | « De la matière brute à l'objet. » Chaque vidéo raconte comment une matière est devenue un objet du quotidien, de la préhistoire à aujourd'hui, et **montre les preuves** |
 | Format | Vidéo longue en paysage d'environ 8 min (environ 1 480 mots), plus 1 à 2 Shorts ; 1 vidéo par semaine ; 20 h par semaine |
-| Propriété | Chaîne et AdSense au nom d'une connaissance en France ; Franco est gestionnaire, avec un contrat écrit (à signer avant la première vidéo ; il doit couvrir **les droits sur la voix de Franco**) |
+| Propriété | Chaîne et AdSense au nom d'une connaissance en France ; Franco est gestionnaire, avec un contrat écrit (à signer avant la première vidéo ; la voix n'est plus celle de Franco : voir la ligne « Voix ») |
 | **Style** | La grammaire du genre (Zelan, Zenn), **en calme** : des histoires racontées posément, de légers mouvements de caméra de temps en temps, du texte animé sobre |
 | Images | Générées par **Gemini** (Franco a plusieurs comptes) |
-| Voix | **Clone de la voix de Franco** (Qwen3-TTS) |
+| Voix | ~~Clone de la voix de Franco~~ → **décision du 30/09 : une voix d'homme au ton narratif créée sur ElevenLabs**, clonée par Qwen3-TTS dans Colab (référence dans `Charte/voix/`). **À vérifier** : les conditions commerciales de l'offre ElevenLabs utilisée |
 | Première vidéo | **Le sel** (dossier prêt : [`pilote_sel/01_recherche.md`](pilote_sel/01_recherche.md), plan : [`pilote_sel/02_plan_script.md`](pilote_sel/02_plan_script.md)) |
 | Assemblage | Skill **`video-maker`** (HyperFrames), dans **Claude Code web** |
 | Anciennes skills | Franco les supprimera (voir §7, un point à trancher avant) |
