@@ -1,7 +1,19 @@
 # Zehon (chaîne 2) — contexte de reprise (état au 30/09/2026, nuit)
 
-> **Reprise au 30/09/2026, nuit : le montage du sel est prêt, reste le rendu
-> complet dans Colab (par Franco), puis la relecture et la publication.**
+> **Reprise au 30/09/2026, nuit : `rendu/video.mp4` du sel est dans Drive et
+> passe le contrôle (`"pret": true`). Reste : la décision sur la musique,
+> la relecture par Franco, puis la publication.**
+>
+> **Rendu complet du sel (Colab, 30/09, rapport lu par Claude)** : commit
+> `ac28c5c`, sous-titres incrustés, **sans musique** ; 475,3 s (7 min 55 s)
+> pour 475,3 attendues, 1920×1080, 1 piste audio, volume moyen −18,6 dB,
+> crête −4,1 dB ; avertissements : scènes 32 et 80 (plus de 10 s), laissées
+> telles quelles. `video.mp4` : 287 Mo. **Rendu en 2 536 s (42 min)** : mon
+> estimation de 20 à 30 min était fausse ; notebook corrigé (« 45 min
+> environ », essai de 10 scènes environ 5 min), copie Drive remplacée :
+> `Zehon/montage_zehon.ipynb` (`1GHx1JhAHliRl3izhg2NrrREuiQ3eEYhC`).
+> **Pas vu par Claude** : la vidéo complète dépasse la limite de 10 Mo du
+> connecteur (les images ont été vérifiées sur l'extrait 5 à 9, même code).
 > Branche de travail : `claude/zelan-studio-analysis-rws9f6`.
 >
 > **Fait dans la session de montage (30/09, nuit)** :
@@ -18,14 +30,13 @@
 >   1 461 mots, 97 % calés directement sur la voix**. Extrait 5 à 9 avec et
 >   sans, envoyé à Franco ; rendu 27 s en 45 s sur 4 cœurs.
 > - **Notebook `zehon/notebooks/montage_zehon.ipynb`**, copie dans Drive :
->   `Zehon/montage_zehon.ipynb` (`1ovtArNc6LV11ULkUv2HQeCwBTZ4hL9re`). Sans
+>   `Zehon/montage_zehon.ipynb` (remplacée depuis, voir plus haut). Sans
 >   GPU. **Une seule source** : il clone le dépôt (public) sur `BRANCHE` à
 >   chaque lancement. Plan, rendu sur le disque de Colab, copie de
 >   `video.mp4` et `rapport.json` dans `rendu/` (le rapport garde branche,
 >   commit, `rendu_s`). Sous-titres cochés par défaut ; `EXTRAIT` pour un
 >   essai. **Validé ici de bout en bout** sur un faux Drive (clone GitHub
->   compris) ; **pas encore lancé dans Colab**. Durée du rendu complet dans
->   Colab : **20 à 30 min (hypothèse)**.
+>   compris), puis lancé par Franco dans Colab (voir plus haut).
 > - **Musique** : `--musique` / `--volume-musique` (défaut −26 dB, −6 dB de
 >   plus sous la voix), nappe bouclée en fondu de 3 s, entrée 2 s, sortie
 >   3 s. **Mesuré** : avec une nappe à −14 LUFS, elle finit **23 dB sous la
@@ -34,11 +45,11 @@
 >   attribution non requise, ambient calme, sans batterie ni voix).
 > - Conteneur : `apt-get install ffmpeg` échoue sans `apt-get update` avant.
 >
-> **Reste à faire, dans l'ordre** : (1) Franco choisit la nappe, lance un
-> essai `EXTRAIT = 1-10`, puis le rendu complet ; (2) Claude lit
-> `rendu/rapport.json` (`"pret"`, avertissements) ; (3) relire la vidéo
-> entière, vérifier les 8,1 g de sel par jour, puis publier
-> (`04_publication.md`, et le `.srt` dans YouTube Studio).
+> **Reste à faire, dans l'ordre** : (1) Franco décide : publier sans musique,
+> ou choisir une nappe et relancer (42 min) ; (2) Franco regarde la vidéo
+> entière ; (3) vérifier les 8,1 g de sel par jour et l'usage commercial de
+> la voix ElevenLabs ; (4) publier (`04_publication.md`, et
+> `rendu/sous_titres.srt` dans YouTube Studio).
 
 ---
 

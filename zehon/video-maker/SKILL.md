@@ -85,7 +85,7 @@ vérifie et on rend des extraits ; la vidéo entière se rend dans Colab
 
 Le notebook **`montage_zehon.ipynb`** (dans le dépôt, `zehon/notebooks/`, et
 copie dans Drive : `Zehon/montage_zehon.ipynb`) rend la vidéo entière dans
-Colab, sans GPU. Franco remplit le formulaire (vidéo, sous-titres cochés
+Colab, sans GPU (le sel, 7 min 55 s : **42 min de rendu**, mesuré le 30/09). Franco remplit le formulaire (vidéo, sous-titres cochés
 par défaut, musique rangée dans `Charte/musique/`, extrait éventuel) et
 lance **Tout exécuter**. Le notebook :
 
