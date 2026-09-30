@@ -6,6 +6,7 @@ detecte comme skills de projet quand ce depot est ouvert localement.
 Trois sources de verite (§9.2), toutes couvertes :
   - agents/short-*/  : les 7 agents du pipeline (A2 a A7, H1) ;
   - skills/*/        : les skills utilitaires (new-short, short-state...) ;
+  - zehon/*/         : les skills de la chaine Zehon (content-maker...) ;
   - outils/          : les scripts partages par plusieurs agents, deployes
                        sous <skill>/outils/ chez ceux qui les declarent
                        (OUTILS_PAR_SKILL).
@@ -40,6 +41,7 @@ RACINE_DEPOT = Path(__file__).resolve().parent.parent
 AGENTS_DIR = RACINE_DEPOT / "agents"
 SKILLS_DIR = RACINE_DEPOT / "skills"
 OUTILS_DIR = RACINE_DEPOT / "outils"
+ZEHON_DIR = RACINE_DEPOT / "zehon"
 CIBLE_DIR = RACINE_DEPOT / ".claude" / "skills"
 
 # Qui embarque quel outil partage. Un outil declare ici pour un skill
@@ -82,6 +84,11 @@ def dossiers_sources():
     if SKILLS_DIR.is_dir():
         sources += [d for d in SKILLS_DIR.iterdir()
                     if d.is_dir() and not d.name.startswith(("_", "."))]
+    # Zehon (chaine 2) : seuls les dossiers qui portent un SKILL.md, pour
+    # ignorer les espaces de test (zehon/*-workspace/).
+    if ZEHON_DIR.is_dir():
+        sources += [d for d in ZEHON_DIR.iterdir()
+                    if d.is_dir() and (d / "SKILL.md").is_file()]
 
     par_nom = {}
     for dossier in sources:

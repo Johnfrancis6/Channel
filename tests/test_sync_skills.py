@@ -25,6 +25,7 @@ CLAUDE_SKILLS = RACINE_DEPOT / ".claude" / "skills"
 AGENTS = {"short-chercheur", "short-redacteur", "short-filtre-tts", "short-designer",
           "short-monteur", "short-analyse-chaines", "short-amelioration"}
 UTILITAIRES = {"new-short", "short-state", "short-publier"}
+ZEHON = {"content-maker"}
 
 
 def _module():
@@ -48,7 +49,7 @@ class TestEtatDuDepot(unittest.TestCase):
         """La regression d'origine : skills/* n'etait pas couvert par le
         script et sa copie se faisait a la main."""
         noms = {d.name for d in m.dossiers_sources()}
-        self.assertEqual(noms, AGENTS | UTILITAIRES)
+        self.assertEqual(noms, AGENTS | UTILITAIRES | ZEHON)
 
     def test_les_utilitaires_viennent_bien_de_skills(self):
         par_nom = {d.name: d for d in m.dossiers_sources()}
@@ -56,6 +57,8 @@ class TestEtatDuDepot(unittest.TestCase):
             self.assertEqual(par_nom[nom].parent.name, "skills")
         for nom in AGENTS:
             self.assertEqual(par_nom[nom].parent.name, "agents")
+        for nom in ZEHON:
+            self.assertEqual(par_nom[nom].parent.name, "zehon")
 
     def test_tout_le_deploye_est_en_lf(self):
         for chemin in CLAUDE_SKILLS.rglob("*"):
@@ -96,6 +99,7 @@ class TestMecanismeSync(unittest.TestCase):
         self.m = _module()
         self.m.AGENTS_DIR = self.agents
         self.m.SKILLS_DIR = self.skills
+        self.m.ZEHON_DIR = self.tmp / "zehon"
         self.m.CIBLE_DIR = self.cible
 
     def test_la_copie_normalise_en_lf(self):

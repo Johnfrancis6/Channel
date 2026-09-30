@@ -1,0 +1,8 @@
+{
+  "skill_name": "content-maker",
+  "evals": [
+    {"id": 1, "prompt": "nouvelle vidéo zehon. propose moi des sujets", "expected_output": "Étape 1 : 3 sujets « de ___ à ___ » avec paradoxe, preuve phare, demande (datée ou « non vérifiée ») et concurrence (Zelan vérifié), une recommandation, une seule question finale. Pas de fichier.", "files": []},
+    {"id": 2, "prompt": "voici la recherche et le plan du sel, je valide le plan. écris le script", "expected_output": "Étape 3b : 02_script.md (~1480 mots, hook avec question avant la 9e phrase, Sauf que, tutoiement, statuts à l'oral, pas de CTA, fin sur une question) + 02_script_voix.txt (une phrase par ligne, nombres en lettres, pas de symboles), puis pause 4.", "files": ["inputs/01_recherche.md", "inputs/02_plan.md"]},
+    {"id": 3, "prompt": "script validé. continue", "expected_output": "Étape 4 puis 5 sans pause : 03_scenes.md (60-80 scènes, texte dit = script mot pour mot, preuves avec crédit, prompts EN par lots de 10 avec préambule) puis 04_publication.md.", "files": ["02_script.md (sortie de l'éval 2)"]}
+  ]
+}
