@@ -44,18 +44,47 @@ Illustrations générées par IA.
 
 ## Miniature
 
-- **Deux prompts Gemini** (en anglais, avec le résumé français) :
-  1. **avec le bonhomme** (le personnage de la planche), qui tient ou montre
-     la matière brute, l'objet fini à côté ;
-  2. **sans personnage** : deux mains, la matière brute et l'objet fini. C'est
-     la forme de la meilleure miniature mesurée de Zelan (*le fer*).
-  Les deux : composition simple, contraste fort, fond peu chargé, et **de la
-  place pour le texte** (ajouté ensuite, pas généré dans l'image).
-- **3 textes de 2 à 3 mots**, en capitales, à poser en jaune cerné de noir.
-  Recommande-en un. **Le texte doit être vrai** : pas de « PLUS CHER QUE
-  L'OR » si c'est faux.
-- Rappelle que les deux variantes se testent avec l'outil de test de
-  miniatures de YouTube Studio.
+**4 à 5 prompts, chacun sur une idée différente**, puis Franco en teste 3
+dans l'outil de test de miniatures de YouTube Studio (3 au maximum).
+
+**Le style qui marche** (mesuré le 30/09 sur les meilleures miniatures de
+Zelan : *le fer* 438 k vues, *la journée* 279 k, *l'eau sale* 128 k ; sa
+miniature du *sel*, chargée et sans émotion forte, 6 k) :
+- **dessin animé vif** : gros contours noirs, couleurs saturées, ciel bleu,
+  lumière de plein jour, fort contraste. **Jamais sombre ni réaliste** :
+  les deux premières variantes du sel (fond sombre, mains réalistes) ont
+  été jugées « pas accrocheuses » par Franco ;
+- **un gros texte en haut**, 2 à 4 mots en capitales blanches ou jaunes
+  cernées de noir, souvent une question ou une provocation (« IL A BU
+  ÇA », « PAS DE BOULOT ? ») ;
+- **une émotion exagérée** du bonhomme (yeux énormes, bouche ouverte,
+  larmes, panique), ou la **transformation** matière brute → objet tenue
+  par deux mains dessinées (la forme du *fer*) ;
+- **une seule idée**, lisible en tout petit.
+
+**Les idées à décliner** (une par prompt) : l'émotion d'un moment fort
+(« DÉPORTÉ POUR ÇA ? »), le paradoxe du titre (« ON JETTE ÇA ?! »), la
+transformation (« D'OÙ VIENT LE SEL ? »), un chiffre qui frappe
+(« 600 ANS D'IMPÔT ! »), l'effort absurde (« IL A CREUSÉ POUR ÇA ? »).
+
+**Le texte est demandé directement à Gemini**, dans le prompt, entre
+guillemets, avec « Write the text exactly as given, with the accents ».
+C'est la seule exception à « jamais de texte dans les images » : elle
+permet de tester vite. Franco vérifie les accents ; s'ils sont faux, il
+regénère ou pose le texte lui-même. **Le texte doit être vrai** : pas de
+« PLUS CHER QUE L'OR » si c'est faux ; un arrondi (« 600 ANS ») se
+justifie dans le fichier.
+
+**Chaque prompt est complet** (Franco le colle seul, avec la planche en
+pièce jointe, sans le préambule des scènes) et suit ce modèle :
+
+> YouTube thumbnail, 16:9. Bold cartoon illustration with thick black outlines, flat saturated colours, bright blue sky, sunny warm light, high contrast, very simple composition readable at small size. <la scène : décor, action, émotion exagérée du bonhomme>. The round-headed white character from the attached reference sheet <…>. Every person has exactly two arms and two hands. Big bold French text at the top in thick white (or yellow) capital letters with a heavy black outline: "<TEXTE>". Write the text exactly as given, with the accents. No other text, no logos, no watermark.
+
+Recommande **un trio à tester**, chacun portant une idée différente
+(l'émotion, le paradoxe, la transformation) : le test apprend alors
+quelque chose. Note ce trio comme expérience en cours dans
+`Memoire/lecons.md`, avant la publication. Comme pour les scènes,
+**affiche les prompts dans la conversation**, un bloc de code par prompt.
 
 ## Rappel avant publication
 
@@ -67,12 +96,13 @@ Termine le fichier par cette liste, à cocher par Franco :
 - [ ] Crédits des photos vérifiés (s'il y en a)
 - [ ] Case « contenu altéré ou synthétique » de YouTube : vérifier si
       elle s'applique (voix clonée, images générées). Dans le doute, la cocher.
-- [ ] Miniature : les deux variantes chargées dans le test de miniatures
+- [ ] Miniature : les trois variantes retenues chargées dans le test de miniatures
 ```
 
 ## Fin de vidéo
 
 Donne à Franco, en 3 lignes : le lien de `04_publication.md`, ce qui lui
-reste à faire (images Gemini, voix dans Colab, assemblage avec
+reste à faire (planche du bonhomme si elle manque, images et plans animés
+Gemini, voix dans Colab, assemblage avec
 `video-maker`), et ce que tu as mis à jour dans `Memoire/` (voir
 `memoire.md`).

@@ -97,6 +97,13 @@ d'images : **`zehon/content-maker/`**, à installer depuis
   chose à faire.
 - Installer : *Settings > Capabilities > Code execution and file creation*,
   puis *Customize > Skills > Upload*.
+- **v5 (30/09), après la première vidéo réelle (le sel)** : prompts
+  affichés en entier dans le chat ; planche du bonhomme (prompt et contrôle
+  des bras en trop) ; préambule Gemini « image generator » (sans narration,
+  une image par message) ; 6 à 10 plans animés par vidéo (type `video`,
+  prompts `anim_NNN`, contrôlés par le vérificateur) ; miniatures en dessin
+  animé vif avec gros texte, mesurées sur celles de Zelan ;
+  `youtube.py description` pour lire l'angle et le corps d'un concurrent.
 
 **Mesuré le 29/09, à ne pas oublier** :
 - La vidéo *sel* de Zelan (25/09) a pris le paradoxe « personne ne salait

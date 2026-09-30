@@ -1,6 +1,6 @@
 ---
 name: content-maker
-description: Crée le contenu d'une vidéo YouTube longue (environ 8 min, en français) pour la chaîne Zehon — « de la matière brute à l'objet », des histoires qui éveillent la curiosité — en 5 étapes ; choix du sujet, recherche légère, script (version lisible + version pour la voix clonée), scènes et prompts d'images Gemini, publication (titres, description, miniature). Utilise cette skill dès que Franco parle de Zehon, d'une nouvelle vidéo, d'un sujet de vidéo (« vidéo sur le verre », « on fait le pain ? »), de script, de prompts d'images, de scènes, de titre ou de miniature, ou quand il dit « reprends », « continue » ou « suite » sur une vidéo en cours (fichiers 01_recherche.md, 02_script.md, 03_scenes.md dans Drive), même s'il ne nomme pas la skill.
+description: Crée le contenu d'une vidéo YouTube longue (environ 8 min, en français) pour la chaîne Zehon — « de la matière brute à l'objet », des histoires qui éveillent la curiosité — en 5 étapes ; choix du sujet, recherche légère, script (version lisible + version pour la voix clonée), scènes, prompts d'images et de plans animés Gemini (affichés dans le chat), publication (titres, description, miniatures accrocheuses). Utilise cette skill dès que Franco parle de Zehon, d'une nouvelle vidéo, d'un sujet de vidéo (« vidéo sur le verre », « on fait le pain ? »), de script, de prompts d'images, de scènes, de plans animés, de la planche du bonhomme, de titre ou de miniature, ou quand il dit « reprends », « continue » ou « suite » sur une vidéo en cours (fichiers 01_recherche.md, 02_script.md, 03_scenes.md dans Drive), même s'il ne nomme pas la skill.
 ---
 
 # content-maker — le contenu d'une vidéo Zehon
@@ -41,7 +41,13 @@ lisant.
   **mesuré séparé de l'hypothèse**, et **une question à la fois**.
 - **Il tranche les sujets.** Tu proposes, il choisit.
 - Dans la conversation, un **résumé de 5 lignes au plus** par livrable :
-  le détail est dans le fichier, avec son lien.
+  le détail est dans le fichier, avec son lien. **Exception : les prompts
+  d'images** (scènes, plans animés, miniatures, planche du bonhomme)
+  s'affichent **en entier dans le chat**, structurés, un bloc de code par
+  prompt : Franco les copie de là vers Gemini (demandé le 30/09).
+- Il génère les images lui-même dans Gemini et te les montre : **regarde
+  chaque image qu'il t'envoie de près** (bras en trop, texte mal
+  orthographié, personnage qui change) avant de dire qu'elle est bonne.
 - Il répond en français, souvent brièvement : lis ce qu'il dit vraiment,
   et suis-le, même quand ça contredit ta recommandation.
 
@@ -85,7 +91,7 @@ Chaque étape a sa référence : **lis-la au moment de l'étape, pas avant**.
 | 2 | Recherche | [`etape2_recherche.md`](references/etape2_recherche.md) | `01_recherche.md` | **Pause 2** : il valide l'angle et le hook |
 | 3a | Plan en temps | [`etape3_script.md`](references/etape3_script.md) | `02_plan.md` | **Pause 3** : il valide la structure avant les 1 480 mots |
 | 3b | Script | [`etape3_script.md`](references/etape3_script.md) | `02_script.md` + `02_script_voix.txt` | **Pause 4** : il relit |
-| 4 | Scènes et prompts | [`etape4_scenes.md`](references/etape4_scenes.md) | `03_scenes.md` | non, enchaîne |
+| 4 | Scènes, prompts et plans animés | [`etape4_scenes.md`](references/etape4_scenes.md) | `03_scenes.md` + les prompts affichés dans le chat | non, enchaîne |
 | 5 | Publication | [`etape5_publication.md`](references/etape5_publication.md) | `04_publication.md` | fin |
 
 **Pourquoi ces pauses-là** : ce sont les endroits où une erreur coûte cher
@@ -101,8 +107,8 @@ recommandation (« Je recommande le verre : … Tu valides ? »).
 ## Les fichiers dans Drive
 
 - **Où** : `Zehon/Videos/<nn>_<sujet>/` (par exemple `01_sel/`), avec ses
-  sous-dossiers `images/`, `voix/`, `rendu/`. Si le dossier de la vidéo
-  n'existe pas encore (nouveau sujet), crée-le avec ces 3 sous-dossiers, en
+  sous-dossiers `images/`, `clips/`, `voix/`, `rendu/`. Si le dossier de la
+  vidéo n'existe pas encore (nouveau sujet), crée-le avec ces 4 sous-dossiers, en
   prenant le numéro suivant.
 - **Format** : chaque livrable est un **fichier texte** (`.md` ou `.txt`)
   sous son nom exact, **jamais converti en Google Docs** (avec l'outil de
@@ -122,7 +128,13 @@ recommandation (« Je recommande le verre : … Tu valides ? »).
   scènes, écris d'abord le fichier en local (dossier temporaire), lance
   `python3 scripts/verifier.py <fichier>` depuis le dossier de la skill,
   corrige ce qu'il signale, **puis** dépose la version propre dans Drive.
+- **Contrôle le dépôt** : la taille renvoyée par Drive doit être égale à
+  celle du fichier local (`wc -c`) ; sinon, le contenu a été altéré en
+  route : recommence.
 - Après chaque dépôt, donne **le lien Drive** en une ligne.
+- **Les images, tu ne peux pas les déposer** : le connecteur n'accepte un
+  fichier binaire qu'en le recopiant en entier dans l'appel. Franco dépose
+  lui-même la planche, les images et les clips.
 
 **Sans connecteur Drive** : crée des fichiers téléchargeables sous le même
 nom (ou un bloc de code précédé du nom), et dis où les déposer.

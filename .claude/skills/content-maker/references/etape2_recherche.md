@@ -38,9 +38,17 @@ Gemini suffit. N'attribue jamais toi-même une licence à une image.
 
 Vérifie que **Zelan n'a pas déjà construit sa vidéo sur le même
 paradoxe** : `Memoire/sujets.md`, puis `python3 scripts/youtube.py chaine
-@zelanstudio` pour ce qu'il a publié depuis, et la recherche web pour
-l'angle de sa vidéo (titre, description). Si c'est le cas, garde le fait
-dans le corps et trouve un autre paradoxe pour le hook.
+@zelanstudio` pour ce qu'il a publié depuis, et `python3
+scripts/youtube.py description <lien>` pour l'angle de sa vidéo. Si c'est
+le cas, garde le fait dans le corps et trouve un autre paradoxe pour le
+hook.
+
+**Lis sa description jusqu'au bout** : elle liste souvent ses sources et
+les lieux de son corps (sur le sel : Lunca, les pots cassés, l'escalier de
+Hallstatt, le sel iodé). Même avec un autre paradoxe, ce sont des moments
+déjà vus par le même public : note-les dans `01_recherche.md` et dans
+`sujets.md`, passe vite dessus, et donne plus de place à ce qu'il n'a pas
+raconté.
 
 ## Le fichier `01_recherche.md`
 

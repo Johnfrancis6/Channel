@@ -38,7 +38,12 @@ ouverte, rattachée au présent.
 ## La charte visuelle (validée le 29/09/2026)
 
 - **Personnage** : un bonhomme blanc à tête ronde (le style du genre),
-  toujours généré à partir de **la même planche de référence** dans Gemini.
+  toujours généré à partir de **la même planche de référence** dans Gemini
+  (`Charte/planche_bonhomme.png`, validée le 30/09 : tête ronde lisse,
+  yeux en petits ovales, pas de nez, tunique sable à manches courtes et
+  cordon, pantalon marron, bras blancs visibles). Il change d'habit selon
+  l'époque de la scène, jamais de tête. **Deux bras, pas un de plus** :
+  c'est le défaut le plus fréquent de Gemini.
 - **Décors** : illustrés, lumière chaude ; la palette vient de la matière du
   sujet (sel : blancs, gris de saumure, ocre de terre cuite ; fer : rouille
   et charbon ; verre : vert d'eau et sable).
@@ -47,12 +52,20 @@ ouverte, rattachée au présent.
   licence libre ; sinon, une bonne mise en scène suffit.
 - **Caméra** : zoom lent de 3 à 5 % sur chaque image, parfois un
   panoramique lent ; fondus de 0,5 à 1 s ; pas de coupe sèche.
+- **Plans animés** : 6 à 10 par vidéo, de courts clips générés dans
+  Gemini à partir de l'image de la scène, avec un mouvement léger (feu,
+  vapeur, eau, véhicule), caméra fixe. Ils cassent la monotonie sans
+  changer le style (demandé par Franco le 30/09).
 - **Rythme** : une image toutes les 6 à 8 s (60 à 80 images pour 8 min).
 - **Texte animé** : seulement les mots-clés, les dates, les chiffres ;
-  blanc cassé, ombre douce. **Jamais de texte dans les images générées** :
-  c'est `video-maker` qui l'anime.
-- **Miniature** : le style du genre ; 2 à 3 mots en capitales jaunes
-  cernées de noir.
+  blanc cassé, ombre douce. **Jamais de texte dans les images des
+  scènes** : c'est `video-maker` qui l'anime.
+- **Miniature** : **plus vive que la vidéo**. Dessin animé à gros contours
+  noirs, couleurs saturées, ciel bleu, émotion exagérée du bonhomme, et un
+  gros texte de 2 à 4 mots en capitales blanches ou jaunes cernées de
+  noir, demandé directement à Gemini (seule exception au « pas de
+  texte »). Jamais sombre ni réaliste : mesuré sur les miniatures de
+  Zelan le 30/09, voir `etape5_publication.md`.
 
 ## Des faits justes (le seul garde-fou)
 

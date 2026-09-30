@@ -7,6 +7,10 @@ Deux usages :
   python3 youtube.py chercher "histoire du verre" [--langue fr] [--n 10]
       Les vidéos les plus vues sur une requête, avec leurs vues réelles
       (coût : ~101 unités, sur 10 000 par jour).
+  python3 youtube.py description <id ou lien>
+      Titre, durée, tags, lien de la miniature et description complète d'une
+      vidéo (coût : 1 unité). La description d'un concurrent liste souvent
+      les lieux et les faits de son corps : ce qu'il ne faut pas reprendre.
 
 Sortie en Markdown, prête à coller dans Memoire/sujets.md. Chaque relevé
 porte sa date : un nombre de vues sans date ne vaut rien.
@@ -63,6 +67,22 @@ def chercher(requete, langue, n):
     return sorted(details(ids), key=lambda v: v["vues"], reverse=True)
 
 
+def description(ref):
+    vid = ref.rstrip("/").split("v=")[-1].split("/")[-1].split("?")[0]
+    items = api("videos", part="snippet,contentDetails,statistics", id=vid).get("items")
+    if not items:
+        sys.exit(f"Vidéo introuvable : {ref}")
+    v = items[0]
+    sn = v["snippet"]
+    vues = f"{int(v['statistics'].get('viewCount', 0)):,}".replace(",", " ")
+    return "\n".join([
+        f"### {sn['title']} — {sn['channelTitle']} (relevé API du {date.today():%d/%m/%Y})", "",
+        f"- Publiée le {sn['publishedAt'][:10]}, durée {v['contentDetails']['duration']}, {vues} vues",
+        f"- Tags : {', '.join(sn.get('tags', [])) or '—'}",
+        f"- Miniature : https://i.ytimg.com/vi/{vid}/hqdefault.jpg", "",
+        sn.get("description", "")])
+
+
 def tableau(videos, titre):
     lignes = [f"### {titre} (relevé API du {date.today():%d/%m/%Y})", "",
               "| Date | Chaîne | Titre | Vues | Lien |", "|---|---|---|---|---|"]
@@ -83,12 +103,16 @@ def main():
     r.add_argument("requete")
     r.add_argument("--langue", default="fr")
     r.add_argument("--n", type=int, default=10)
+    d = sous.add_parser("description")
+    d.add_argument("ref")
     a = p.parse_args()
 
     if not os.environ.get("YOUTUBE_API_KEY"):
         sys.exit("YOUTUBE_API_KEY absente : demande non mesurable, marque-la « non vérifiée ».")
     if a.cmd == "chaine":
         print(tableau(chaine(a.handle, a.n), f"Dernières vidéos de {a.handle}"))
+    elif a.cmd == "description":
+        print(description(a.ref))
     else:
         print(tableau(chercher(a.requete, a.langue, a.n),
                       f"Les plus vues pour « {a.requete} » ({a.langue})"))

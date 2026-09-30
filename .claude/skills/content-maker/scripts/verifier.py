@@ -8,6 +8,7 @@ Usage :
   python3 verifier.py 02_script.md
   python3 verifier.py 02_script_voix.txt
   python3 verifier.py 03_scenes.md [--script 02_script.md]
+                    (types de scène : image, video, photo, titre)
 
 Sortie : une ligne par problème, préfixée ERREUR (à corriger) ou
 AVERTISSEMENT (à regarder), puis un bilan. Code 1 s'il reste une erreur.
@@ -23,7 +24,8 @@ PHRASE_MAX_SCRIPT = 25
 PHRASE_MAX_VOIX = 22
 PHRASE_MIN_VOIX = 4
 SCENES_CIBLE = (60, 80)
-TYPES = {"image", "photo", "preuve", "titre"}  # « preuve » : ancien nom de « photo »
+TYPES = {"image", "video", "photo", "preuve", "titre"}  # « preuve » : ancien nom de « photo »
+VIDEOS_MAX = 12  # plans animés : quelques-uns par vidéo, pas plus (quota de génération)
 MOUVEMENTS = {"zoom_avant", "zoom_arriere", "pan_gauche", "pan_droite"}
 RE_CTA = re.compile(r"abonne|pouce bleu|\blike\b|la cloche|partage[sz]? (la|cette) vid", re.I)
 RE_LICENCE = re.compile(r"CC0|CC[ -]BY|domaine public|public domain", re.I)
@@ -148,6 +150,8 @@ def verifier_scenes(chemin, chemin_script=None):
         return "0 scène"
 
     prompts = set(int(n) for n in re.findall(r"\*\*scene_(\d{3})\*\*", contenu))
+    anims = set(int(n) for n in re.findall(r"\*\*anim_(\d{3})\*\*", contenu))
+    n_video = 0
     precedent, serie, n_texte = None, 0, 0
     textes = []
     for attendu, c in enumerate(rangees, 1):
@@ -168,6 +172,16 @@ def verifier_scenes(chemin, chemin_script=None):
                 erreur(f"scène {num} : image « {image} », attendu scene_{int(num):03d}.png")
             if int(num) not in prompts:
                 erreur(f"scène {num} : aucun prompt **scene_{int(num):03d}**")
+        elif typ == "video":
+            n_video += 1
+            if image != f"clips/scene_{int(num):03d}.mp4":
+                erreur(f"scène {num} : clip « {image} », attendu clips/scene_{int(num):03d}.mp4")
+            if int(num) not in prompts:
+                erreur(f"scène {num} : aucun prompt **scene_{int(num):03d}** (l'image de départ du clip)")
+            if int(num) not in anims:
+                erreur(f"scène {num} : aucun prompt d'animation **anim_{int(num):03d}**")
+            if mouvement not in ("—", "-", ""):
+                erreur(f"scène {num} : un clip porte son propre mouvement (mouvement « — », pas « {mouvement} »)")
         elif typ in ("photo", "preuve"):
             if not image.startswith(("photos/", "preuves/")):
                 erreur(f"scène {num} : une photo pointe vers photos/…, pas « {image} »")
@@ -177,7 +191,7 @@ def verifier_scenes(chemin, chemin_script=None):
                 erreur(f"scène {num} : photo sans crédit ni licence (« {preuve} ») : sinon, en faire une scène image")
             if int(num) in prompts:
                 avertir(f"scène {num} : prompt présent pour une scène photo (vraie photo attendue)")
-        if typ != "titre":
+        if typ not in ("titre", "video"):
             ok = mouvement in MOUVEMENTS or re.fullmatch(r"zoom_vers:0?\.\d+,0?\.\d+|zoom_vers:[01],[01]", mouvement or "")
             if not ok:
                 erreur(f"scène {num} : mouvement « {mouvement} » inconnu")
@@ -193,6 +207,12 @@ def verifier_scenes(chemin, chemin_script=None):
         elif anime not in ("", "—", "-"):
             n_texte += 1
 
+    for n in sorted(anims):
+        typ_n = next((r[1] for r in rangees if len(r) == 7 and r[0] == str(n)), None)
+        if typ_n != "video":
+            erreur(f"prompt **anim_{n:03d}** pour la scène {n}, qui n'est pas de type video")
+    if n_video > VIDEOS_MAX:
+        avertir(f"{n_video} plans animés (au plus {VIDEOS_MAX} : quota de génération vidéo)")
     total = len(rangees)
     if not SCENES_CIBLE[0] <= total <= SCENES_CIBLE[1]:
         avertir(f"{total} scènes (cible {SCENES_CIBLE[0]}-{SCENES_CIBLE[1]} pour 8 min)")
@@ -209,7 +229,7 @@ def verifier_scenes(chemin, chemin_script=None):
             erreur("le texte dit ne redonne pas le script mot pour mot. Premier écart :\n"
                    f"    script : …{script[max(0, i - 40):i + 40]}…\n"
                    f"    scènes : …{scenes[max(0, i - 40):i + 40]}…")
-    return f"{total} scènes, {len(prompts)} prompts, texte animé sur {n_texte}"
+    return f"{total} scènes dont {n_video} animées, {len(prompts)} prompts d'image, {len(anims)} d'animation, texte animé sur {n_texte}"
 
 
 def main(argv):
