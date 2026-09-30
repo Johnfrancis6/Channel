@@ -5,6 +5,13 @@
 > publication.** La musique (nappe, `--musique`) reste prête pour les
 > vidéos suivantes.
 >
+> **Décidé le 30/09 (fin de soirée) : alléger le système** (prochaine
+> session, message prêt dans `PROMPT_NOUVELLE_SESSION.md`) : lanceur Drive
+> fixe pour les notebooks, `rendu/verdict.json` + `rendu/apercu/` écrits par
+> Colab, `CONTEXTE.md` court. Recommandé ensuite : fusionner dans `main`
+> (le notebook dépend du nom de la branche), script de démarrage du
+> conteneur, un modèle plus léger pour les tâches simples.
+>
 > **Rendu complet du sel (Colab, 30/09, rapport lu par Claude)** : commit
 > `ac28c5c`, sous-titres incrustés, **sans musique** ; 475,3 s (7 min 55 s)
 > pour 475,3 attendues, 1920×1080, 1 piste audio, volume moyen −18,6 dB,
