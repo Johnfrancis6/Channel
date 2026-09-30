@@ -104,6 +104,12 @@ d'images : **`zehon/content-maker/`**, à installer depuis
   prompts `anim_NNN`, contrôlés par le vérificateur) ; miniatures en dessin
   animé vif avec gros texte, mesurées sur celles de Zelan ;
   `youtube.py description` pour lire l'angle et le corps d'un concurrent.
+- **Voix off (30/09)** : notebook [`../../zehon/notebooks/voix_zehon.ipynb`](../../zehon/notebooks/voix_zehon.ipynb)
+  (copie dans Drive, `Zehon/voix_zehon.ipynb`). Qwen3-TTS en français,
+  voix de référence rangée dans `Zehon/Charte/voix/`, cache sur Drive pour
+  reprendre après une coupure, `voix.wav` + `mots.json` + `etat.json` ;
+  la skill lit `etat.json` pour dire si l'audio est prêt. **Pas encore
+  lancé sur un vrai GPU** : le premier run sur le sel le validera.
 
 **Mesuré le 29/09, à ne pas oublier** :
 - La vidéo *sel* de Zelan (25/09) a pris le paradoxe « personne ne salait

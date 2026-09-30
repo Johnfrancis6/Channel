@@ -165,8 +165,12 @@ plans de visage et les mains qui manipulent un objet : c'est là que
 l'animation déforme le personnage.
 
 Chaque clip se génère **à partir de l'image de la scène** : Franco
-produit d'abord `scene_NNN.png` dans son lot, puis, dans Gemini, crée une
-vidéo depuis cette image avec le prompt `anim_NNN`. Il l'enregistre sous
+produit d'abord `scene_NNN.png` dans son lot, puis crée une vidéo depuis
+cette image avec le prompt `anim_NNN` : dans l'app Gemini, l'outil
+**Vidéo** (modèle Veo), l'image en pièce jointe ; à défaut, Google Flow
+(`labs.google/flow`, « images vers vidéo »). La génération vidéo dépend
+de l'abonnement Google et a un quota par jour : c'est pourquoi on s'en
+tient à 6 à 10 clips. Il l'enregistre sous
 `clips/scene_NNN.mp4` et garde l'image : si le clip est raté,
 `video-maker` utilise l'image à la place. Le son du clip n'est pas
 utilisé.

@@ -57,8 +57,10 @@ vraiment mal prononcés doivent rester longtemps.
 - Mots pour 8 min : <recalculé à partir du débit>
 ```
 
-**Ce que Franco remplit** : les chiffres (YouTube Studio) et le débit
-mesuré de sa voix.
+**Ce que Franco remplit** : les chiffres (YouTube Studio). **Ce que tu
+remplis** : le débit de la voix, lu dans `voix/etat.json` (`debit_mots_s`)
+quand le notebook de voix a fini, et les mots pour 8 min qui en découlent
+(8 × 60 × débit).
 
 **La discipline des chiffres** (reprise du plugin *AI YouTube OS*,
 licence MIT, parce qu'elle évite les fausses conclusions) :

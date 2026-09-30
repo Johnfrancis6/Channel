@@ -65,6 +65,7 @@ par Franco, sinon le plus récent qui n'a pas encore de `04_publication.md`.
 | `02_plan.md` sans `02_script.md` | **3b. Script** |
 | `02_script.md` sans `03_scenes.md` | **4. Scènes et prompts** |
 | `03_scenes.md` sans `04_publication.md` | **5. Publication** |
+| `04_publication.md` présent | **L'état des pièces** (voir plus bas) |
 
 **Un sujet nommé est un sujet choisi** : ne repropose pas d'autres
 sujets. Qu'un concurrent l'ait déjà traité ne l'exclut pas ; ça oblige
@@ -107,9 +108,9 @@ recommandation (« Je recommande le verre : … Tu valides ? »).
 ## Les fichiers dans Drive
 
 - **Où** : `Zehon/Videos/<nn>_<sujet>/` (par exemple `01_sel/`), avec ses
-  sous-dossiers `images/`, `clips/`, `voix/`, `rendu/`. Si le dossier de la
-  vidéo n'existe pas encore (nouveau sujet), crée-le avec ces 4 sous-dossiers, en
-  prenant le numéro suivant.
+  sous-dossiers `images/`, `clips/`, `voix/`, `miniatures/`, `rendu/`. Si
+  le dossier de la vidéo n'existe pas encore (nouveau sujet), crée-le avec
+  ces 5 sous-dossiers, en prenant le numéro suivant.
 - **Format** : chaque livrable est un **fichier texte** (`.md` ou `.txt`)
   sous son nom exact, **jamais converti en Google Docs** (avec l'outil de
   création de Drive, passe l'option qui désactive la conversion) :
@@ -138,6 +139,38 @@ recommandation (« Je recommande le verre : … Tu valides ? »).
 
 **Sans connecteur Drive** : crée des fichiers téléchargeables sous le même
 nom (ou un bloc de code précédé du nom), et dis où les déposer.
+
+## Après le contenu : l'état des pièces
+
+Une fois `04_publication.md` déposé, Franco produit les pièces lui-même
+et revient dire « continue » ou « où en est le sel ? ». Liste alors le
+dossier de la vidéo et réponds par un tableau court :
+
+| Pièce | Où | Prête quand |
+|---|---|---|
+| Planche du bonhomme | `Zehon/Charte/planche_bonhomme.png` | le fichier existe |
+| Images | `images/scene_NNN.png` | une par scène `image` **et** `video` de `03_scenes.md` ; nomme celles qui manquent |
+| Plans animés | `clips/scene_NNN.mp4` | un par scène `video` ; un clip manquant n'empêche pas le montage (l'image le remplace), dis-le |
+| Voix off | `voix/etat.json` | `"statut": "pret"` (lis-le en téléchargement brut) ; `en_cours` depuis plus d'une heure = Colab coupé : relancer le notebook, il reprend où il s'était arrêté ; `echec` : donne son champ `erreur` ; pas de fichier = notebook pas encore lancé |
+| Miniatures | `miniatures/` | au moins 3 images |
+
+**La voix se fait avec le notebook `voix_zehon.ipynb`** (dans `Zehon/`, à
+ouvrir avec Google Colab ; source : `zehon/notebooks/` du dépôt). Il lit
+`02_script_voix.txt`, clone la voix rangée dans `Zehon/Charte/voix/` (ou
+une nouvelle, envoyée depuis le notebook avec sa transcription), et
+dépose `voix.wav`, `mots.json` (bornes de chaque phrase et de chaque mot)
+et `etat.json` dans `voix/`.
+
+Quand la voix est prête :
+- si `etat.json` liste des phrases `a_reecouter`, donne leurs numéros et
+  leur texte : Franco les écoute, et relance le notebook avec
+  `REFAIRE_LIGNES` pour celles qui sont vraiment mal dites ;
+- reporte le **débit mesuré** (`debit_mots_s`) dans `Memoire/lecons.md`,
+  et recalcule les mots pour 8 min : c'est le chiffre que l'étape 3
+  utilisera pour les vidéos suivantes.
+
+L'assemblage (`video-maker`) n'est possible que quand toutes les pièces
+sont prêtes ; tant que cette skill n'existe pas, dis-le simplement.
 
 ## Ce que « fini » veut dire
 
