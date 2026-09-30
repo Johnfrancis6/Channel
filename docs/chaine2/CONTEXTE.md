@@ -1,4 +1,64 @@
-# Zehon (chaîne 2) — contexte de reprise (état au 29/09/2026, fin de session, soir)
+# Zehon (chaîne 2) — contexte de reprise (état au 30/09/2026, fin de session)
+
+> **Reprise au 30/09/2026, fin de session : où en est le sel.** Pour ouvrir
+> une nouvelle session, coller [`PROMPT_NOUVELLE_SESSION.md`](PROMPT_NOUVELLE_SESSION.md).
+>
+> **Contenu : terminé** (skill `content-maker`, étapes 1 à 5), dans
+> `Zehon/Videos/01_sel/` : `01_recherche.md`, `02_plan.md`, `02_script.md`
+> (1 464 mots), `02_script_voix.txt` (140 lignes, 1 551 mots),
+> `03_scenes.md` (80 scènes : 68 images, 8 plans animés, 4 titres ; 76
+> prompts d'image et 8 d'animation), `04_publication.md` (titre
+> recommandé « Comment le sel est-il devenu presque gratuit ? », 5
+> miniatures M1 à M5, trio à tester M1, M2, M3). Angle : « le trésor devenu
+> presque gratuit » ; la moitié « prix » (gabelle, Arc-et-Senans, train,
+> Varangéville) fait 52 % du texte, parce que Zelan a déjà montré Lunca,
+> les pots cassés et l'escalier de Hallstatt. **À vérifier avant
+> publication** : les 8,1 g de sel par jour (Esteban), qui donnent les
+> « 3 kilos par an ».
+>
+> **Pièces, produites par Franco** (état déclaré dans la conversation,
+> **à relire dans Drive**) : planche du bonhomme validée (la version
+> retouchée, sans bras en trop), à ranger dans
+> `Zehon/Charte/planche_bonhomme.png` ; images : lot 1 fait (scènes 1 à 11) ;
+> miniatures : les 5 générées ; plans animés : pas encore ; **voix : premier
+> run du notebook `voix_zehon.ipynb` en cours le 30/09**, avec une voix de
+> référence **ElevenLabs** (et non la voix de Franco) : lire
+> `Videos/01_sel/voix/etat.json`.
+>
+> **Outils livrés le 30/09** (branche `claude/zelan-studio-analysis-rws9f6`) :
+> - `content-maker` **v5** : prompts affichés dans le chat, planche du
+>   bonhomme, préambule Gemini sans narration, plans animés (type `video`,
+>   `anim_NNN`), miniatures en dessin animé vif, état des pièces, voix.
+>   Archive à installer sur claude.ai : `zehon/content-maker.skill`
+>   (Franco doit remplacer l'ancienne version).
+> - `zehon/notebooks/voix_zehon.ipynb` : Qwen3-TTS en français, voix de
+>   référence dans `Zehon/Charte/voix/`, cache sur Drive, `voix.wav` +
+>   `mots.json` + `etat.json`. Copie dans Drive : `Zehon/voix_zehon.ipynb`
+>   (`1EMpqhqNcUvWeRoHKE_gQ8k5i2YIcM0pM`), **en retard d'un commit**
+>   (affichage des phrases en entier, message `pad_token_id` masqué) : la
+>   remplacer une fois le run de Franco fini.
+>
+> **Leçons du 30/09** (intégrées à la skill v5) : Gemini ajoute un bras en
+> trop (deux planches sur deux) ; en mode conversation, il raconte une
+> histoire et enchaîne des images non demandées ; les miniatures sombres
+> et réalistes ne plaisent pas à Franco ; les scènes « titre » sans image
+> font croire à un trou dans la numérotation.
+>
+> **Reste à faire, dans l'ordre** :
+> 1. Lire `voix/etat.json` du sel : durée, débit (`debit_mots_s`, à reporter
+>    dans `Memoire/lecons.md`), phrases à réécouter. Remplacer la copie
+>    Drive du notebook.
+> 2. **Construire `video-maker`** (rien n'existe encore) :
+>    `nouveau_systeme.md` §6 et §7, en lisant `03_scenes.md` (types
+>    `image`, `video`, `titre`), `images/`, `clips/`, `voix/voix.wav` et
+>    `voix/mots.json` (bornes par phrase, mots horodatés).
+> 3. **À trancher par Franco** : la voix de la chaîne (ElevenLabs ou son
+>    propre clone ; droits commerciaux de l'offre ElevenLabs). `chaine.md`
+>    et ce document disent encore « clone de la voix de Franco ».
+
+---
+
+# Contexte antérieur (29/09/2026, fin de session, soir)
 
 **À lire en premier.** Le setup est terminé : vision, niche, angle, charte
 et nom sont décidés. **La prochaine session construit le nouveau système**,
