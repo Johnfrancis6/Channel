@@ -146,6 +146,12 @@ Règles des prompts :
 - **Continuité** : quand deux scènes se suivent au même endroit, ajoute
   « Same setting and lighting as scene_0NN. »
 - **Aucun texte dans l'image**, même sur un panneau ou un parchemin.
+  Le préambule ne suffit pas (mesuré sur le sel, le 30/09 : 4 images sur 76
+  portaient du texte **en anglais**, sur un sac, une pierre gravée, un schéma
+  en coupe et l'entrée d'une mine). Dès que la scène contient une surface qui
+  appelle l'écriture (sac, pierre, panneau, enseigne, camion, schéma, carte,
+  livre), le prompt le dit lui-même : « plain unmarked sacks », « a blank
+  uncarved stone », « the layers are shown by colour only, with no labels ».
 - **Mise en scène plutôt que reconstitution d'objet réel** : préfère
   « un atelier de potiers au bord d'une source salée » à la copie d'un
   objet de musée précis.

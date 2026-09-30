@@ -10,8 +10,14 @@
 >
 > **Pièces (relevées dans Drive le 30/09 au soir)** :
 > - planche : `Charte/planche_bonhomme.jpg` ;
-> - images : **75 sur 76**, en `.jpg` ; **manque `scene_061`** (lot 6 :
->   campagne lorraine, tour de forage en bois) ;
+> - images : **76 sur 76**, en `.jpg` (`scene_061` déposée par Franco à
+>   19:57, vérifiée : conforme). **Revue des 76 images** (le 30/09 au soir) :
+>   **4 portent du texte en anglais**, à refaire : 046 (« SALT » sur les
+>   sacs), 054 (« SALINAS 17XX » gravé sur la pierre), 062 (étiquettes
+>   « Topsoil… Rock Salt Layer »), 075 (« MINING ENTRANCE », « ROCK SALT »).
+>   Mineur : 040 (« OED », « DICTIONARY » sur des dos de livres). Prompts
+>   renforcés donnés à Franco dans la conversation ; règle ajoutée à
+>   `content-maker` (`etape4_scenes.md`) ;
 > - plans animés : **8 sur 8**, nommés `clips/anim_NNN.mp4` (1280×720,
 >   24 i/s, 8 s, avec du son, coupé au montage) ;
 > - voix : **prête** (`voix/etat.json`) : 461,8 s, 1 551 mots, **3,36 mots/s
@@ -45,7 +51,7 @@
 >   rendra dans Colab** (Drive monté, `rendu/video.mp4` écrit sur place).
 >
 > **Reste à faire, dans l'ordre** (effort estimé, **hypothèse**) :
-> 1. Franco : générer `scene_061`, et donner son avis sur l'extrait.
+> 1. Franco : refaire 046, 054, 062 et 075 (sans texte), et donner son avis sur l'extrait.
 > 2. **Question posée à Franco le 30/09, en attente** : la voix de la chaîne
 >    (ElevenLabs ou son propre clone ; droits commerciaux). Puis mettre la
 >    charte à jour (`content-maker/references/chaine.md`, ce document,
