@@ -17,8 +17,8 @@ Diagnostic du pipeline **étape par étape**, en cours — décisions transverse
 file d'attente, ce qui reste à examiner :
 [docs/diagnostic_pipeline.md](docs/diagnostic_pipeline.md).
 
-Seconde chaîne (en français, « de la matière brute à l'objet, et comment on
-le sait »), cadrage clos le 29/09 : [docs/lancement_chaine_2_prehistoire.md](docs/lancement_chaine_2_prehistoire.md).
+Seconde chaîne **Zehon** (en français, « de la matière brute à l'objet »),
+cadrage clos le 29/09 : [docs/lancement_chaine_2_prehistoire.md](docs/lancement_chaine_2_prehistoire.md).
 Pour reprendre ce travail, lire d'abord
 [docs/chaine2/CONTEXTE.md](docs/chaine2/CONTEXTE.md).
 

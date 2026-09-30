@@ -31,7 +31,7 @@ autre chose (par exemple un débit mesuré sur la voix de Franco), c'est
 | Bloc | Contenu | Mots |
 |---|---|---|
 | **Hook** | L'objet du quotidien, puis le paradoxe. La question de la vidéo **au plus tard à la 9e phrase** | 85-95 |
-| **Q1 à Q4** | Les 3 à 4 questions d'enquête du dossier, **en 8 à 10 temps au total** (2 à 3 temps par question). Chaque question se referme sur **sa pièce à conviction**, décrite à l'oral pendant qu'elle est montrée | 120-150 par temps |
+| **Q1 à Q4** | Les 3 à 4 questions de la recherche, **en 8 à 10 temps au total** (2 à 3 temps par question). Chaque question culmine sur **un moment fort** (un fait étonnant, un chiffre qui frappe, un mythe démonté) | 120-150 par temps |
 | **Fin** | Retour à l'objet du début, et une **question ouverte** tournée vers le présent. Pas d'appel à s'abonner | 50-60 |
 
 **Total : environ 1 480 mots** (environ 8 min).
@@ -43,7 +43,7 @@ Un tableau, une ligne par bloc :
 ```markdown
 # Plan — <sujet>
 
-| Bloc | Temps | Contenu (renvois au dossier : 1.2, 3.3…) | Obstacle de fin (« Sauf que ») | Pièce / retour au présent | Mots |
+| Bloc | Temps | Contenu | Obstacle de fin (« Sauf que ») | Moment fort / retour au présent | Mots |
 |---|---|---|---|---|---|
 | Hook | — | … | — | Présent : … | 90 |
 | Q1 … | T1 | … | … | … | 130 |
@@ -52,13 +52,13 @@ Un tableau, une ligne par bloc :
 ```
 
 Vérifie avant de livrer : 8 à 10 temps, chaque temps a un obstacle (sauf
-le dernier), chaque question a sa pièce, 5 à 6 retours au présent en tout,
+le dernier), chaque question a son moment fort, 5 à 6 retours au présent en tout,
 total entre 1 400 et 1 560 mots.
 
-**Chaque fait du plan renvoie à une affirmation du dossier** (1.2, 3.3…).
-Un détail frappant qui n'est pas dans le dossier (« les galères », « en
-trois jours ») ne va pas dans le plan : soit tu le retires, soit tu le
-signales comme « à sourcer » pour que Franco décide. Pourquoi : un plan
+**Chaque fait du plan vient de la recherche.** Un détail frappant qui n'y
+est pas (« les galères », « en trois jours ») ne va pas dans le plan : soit
+tu le retires, soit tu le signales comme « à vérifier » pour que Franco
+décide. Pourquoi : un plan
 validé devient la commande du script, et une erreur qui passe le plan
 passe tout le reste. Si tu reprends un plan écrit ailleurs, fais la même
 vérification avant d'écrire, et dis ce que tu as retiré.
@@ -74,19 +74,15 @@ blocs en commentaire (`## Hook`, `## Q1 — T1`…). Règles :
   aucune phrase au-delà de 25 mots.
 - **Calme** : pas de superlatifs criés ni de « incroyable ». Le suspense
   vient des obstacles.
-- **Les statuts passent à l'oral** : établi → énoncé direct ou « on
-  sait que » ; probable → « on pense que », « tout indique que » ;
-  hypothèse → « personne ne sait vraiment, mais… ». **Ne présente jamais
-  un probable comme un établi.**
-- **Au moins un moment « comment on le sait » par question** : dire la
-  méthode (« les cernes du bois donnent l'année exacte où l'arbre a été
-  coupé : 1344 avant notre ère »), ou démonter un mythe.
-- **Les pièces à conviction sont annoncées à l'oral** (« Regarde cet
-  escalier. ») : `video-maker` les montrera à ce moment-là.
+- **Raconte, n'expose pas** : des personnages (« un potier », « les
+  mineurs »), des lieux, des gestes, des problèmes à résoudre. Le
+  spectateur doit se demander « et ensuite ? ».
+- **Quand personne ne sait vraiment**, dis-le simplement (« personne ne
+  sait exactement comment… ») : ça entretient le mystère.
 - **Les chiffres restent en chiffres** dans cette version (elle sert à la
   relecture et au texte animé).
-- **Rien d'inventé** : chaque fait du script vient du dossier. Si tu as
-  besoin d'un fait absent du dossier, signale-le au lieu de l'écrire.
+- **Rien d'inventé** : chaque date, chiffre ou anecdote vient de la
+  recherche. S'il te manque un fait, signale-le au lieu de l'écrire.
 - **On reprend des sujets, jamais des scripts** : ne paraphrase pas une
   vidéo concurrente.
 
@@ -94,8 +90,9 @@ blocs en commentaire (`## Hook`, `## Q1 — T1`…). Règles :
 
 > Regarde la salière sur ta table. C'est sans doute ce qu'il y a de moins
 > cher dans ta cuisine. Chaque hiver, des camions entiers en jettent sur
-> les routes. Sauf qu'il y a deux cent cinquante ans, en France, porter un
-> sac de sel sans payer l'impôt pouvait t'envoyer aux galères…
+> les routes. Sauf qu'il y a moins de trois cents ans, en France, faire
+> passer du sel sans payer l'impôt pouvait t'envoyer de l'autre côté de
+> l'océan…
 > (…)
 > Alors comment une eau salée est devenue cette poudre blanche ? Et
 > comment un trésor est devenu presque gratuit ?

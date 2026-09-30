@@ -7,7 +7,8 @@ connecteur Google Drive activé.
 
 Session de travail : **construire le nouveau système de production** de ma
 chaîne YouTube française **Zehon**. Ligne éditoriale : « de la matière brute
-à l'objet, et comment on le sait ».
+à l'objet » : des histoires qui éveillent la curiosité, racontées
+simplement.
 
 ## Mise en route
 1. Récupère la branche de travail et reste dessus pour toute la session :
@@ -22,12 +23,13 @@ chaîne YouTube française **Zehon**. Ligne éditoriale : « de la matière brut
 
 ## Déjà décidé (29/09/2026)
 - Le setup : nom **Zehon** (handle **@zehonfr**), ligne, format (8 min en
-  paysage), charte (le genre en calme, images Gemini, vraies photos pour
-  les preuves), voix clonée de la mienne. Tout est dans
+  paysage), charte (le genre en calme, tout en images Gemini, une vraie
+  photo seulement si elle se trouve vite ; pas de preuves à l'écran), voix clonée de la mienne. Tout est dans
   `nouveau_systeme.md` §1 et §2.
 - Première vidéo : **le sel**. Recherche et plan dans
   `docs/chaine2/pilote_sel/`.
-- **La skill `content-maker` est faite, testée et validée**
+- **La skill `content-maker` est faite, testée et validée** (v3,
+  « histoire simple », du 30/09)
   (`zehon/content-maker/`, fichier à installer `zehon/content-maker.skill`) :
   elle fait le sujet, la recherche, le script, les scènes et prompts
   Gemini, et la publication, sur n'importe quel compte Claude.

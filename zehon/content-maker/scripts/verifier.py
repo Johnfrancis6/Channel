@@ -23,7 +23,7 @@ PHRASE_MAX_SCRIPT = 25
 PHRASE_MAX_VOIX = 22
 PHRASE_MIN_VOIX = 4
 SCENES_CIBLE = (60, 80)
-TYPES = {"image", "preuve", "titre"}
+TYPES = {"image", "photo", "preuve", "titre"}  # « preuve » : ancien nom de « photo »
 MOUVEMENTS = {"zoom_avant", "zoom_arriere", "pan_gauche", "pan_droite"}
 RE_CTA = re.compile(r"abonne|pouce bleu|\blike\b|la cloche|partage[sz]? (la|cette) vid", re.I)
 RE_LICENCE = re.compile(r"CC0|CC[ -]BY|domaine public|public domain", re.I)
@@ -168,15 +168,15 @@ def verifier_scenes(chemin, chemin_script=None):
                 erreur(f"scène {num} : image « {image} », attendu scene_{int(num):03d}.png")
             if int(num) not in prompts:
                 erreur(f"scène {num} : aucun prompt **scene_{int(num):03d}**")
-        elif typ == "preuve":
-            if not image.startswith("preuves/"):
-                erreur(f"scène {num} : une preuve pointe vers preuves/…, pas « {image} »")
+        elif typ in ("photo", "preuve"):
+            if not image.startswith(("photos/", "preuves/")):
+                erreur(f"scène {num} : une photo pointe vers photos/…, pas « {image} »")
             if preuve.upper().startswith("À TROUVER") or preuve.upper().startswith("A TROUVER"):
                 avertir(f"scène {num} : preuve à trouver ({preuve[:80]}) — rendu impossible tant qu'elle manque")
             elif preuve in ("", "—", "-") or not RE_LICENCE.search(preuve):
-                erreur(f"scène {num} : preuve sans licence ni crédit (« {preuve} »)")
+                erreur(f"scène {num} : photo sans crédit ni licence (« {preuve} ») : sinon, en faire une scène image")
             if int(num) in prompts:
-                avertir(f"scène {num} : prompt présent pour une preuve (vraie photo attendue)")
+                avertir(f"scène {num} : prompt présent pour une scène photo (vraie photo attendue)")
         if typ != "titre":
             ok = mouvement in MOUVEMENTS or re.fullmatch(r"zoom_vers:0?\.\d+,0?\.\d+|zoom_vers:[01],[01]", mouvement or "")
             if not ok:

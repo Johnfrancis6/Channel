@@ -1,6 +1,6 @@
 ---
 name: content-maker
-description: Crée le contenu d'une vidéo YouTube longue (environ 8 min, en français) pour la chaîne Zehon — « de la matière brute à l'objet, et comment on le sait » — en 5 étapes ; choix du sujet, recherche sourcée, script (version lisible + version pour la voix clonée), scènes et prompts d'images Gemini, publication (titres, description, miniature). Utilise cette skill dès que Franco parle de Zehon, d'une nouvelle vidéo, d'un sujet de vidéo (« vidéo sur le verre », « on fait le pain ? »), de script, de prompts d'images, de scènes, de titre ou de miniature, ou quand il dépose des fichiers comme 01_recherche.md, 02_script.md, 03_scenes.md ou le dossier Memoire/ et dit « reprends », « continue » ou « suite », même s'il ne nomme pas la skill.
+description: Crée le contenu d'une vidéo YouTube longue (environ 8 min, en français) pour la chaîne Zehon — « de la matière brute à l'objet », des histoires qui éveillent la curiosité — en 5 étapes ; choix du sujet, recherche légère, script (version lisible + version pour la voix clonée), scènes et prompts d'images Gemini, publication (titres, description, miniature). Utilise cette skill dès que Franco parle de Zehon, d'une nouvelle vidéo, d'un sujet de vidéo (« vidéo sur le verre », « on fait le pain ? »), de script, de prompts d'images, de scènes, de titre ou de miniature, ou quand il dépose des fichiers comme 01_recherche.md, 02_script.md, 03_scenes.md ou le dossier Memoire/ et dit « reprends », « continue » ou « suite », même s'il ne nomme pas la skill.
 ---
 
 # content-maker — le contenu d'une vidéo Zehon
@@ -61,7 +61,7 @@ Chaque étape a sa référence : **lis-la au moment de l'étape, pas avant**.
 | # | Étape | Référence | Livrable | Pause ? |
 |---|---|---|---|---|
 | 1 | Sujet et angle | [`etape1_sujet.md`](references/etape1_sujet.md) | (dans le chat) 3 sujets proposés | **Pause 1** : Franco choisit |
-| 2 | Recherche | [`etape2_recherche.md`](references/etape2_recherche.md) | `01_recherche.md` | **Pause 2** : il valide l'angle, le hook et les pièces à conviction |
+| 2 | Recherche | [`etape2_recherche.md`](references/etape2_recherche.md) | `01_recherche.md` | **Pause 2** : il valide l'angle et le hook |
 | 3a | Plan en temps | [`etape3_script.md`](references/etape3_script.md) | `02_plan.md` | **Pause 3** : il valide la structure avant les 1 480 mots |
 | 3b | Script | [`etape3_script.md`](references/etape3_script.md) | `02_script.md` + `02_script_voix.txt` | **Pause 4** : il relit |
 | 4 | Scènes et prompts | [`etape4_scenes.md`](references/etape4_scenes.md) | `03_scenes.md` | non, enchaîne |
@@ -96,29 +96,25 @@ recommandation (« Je recommande le verre : … Tu valides ? »).
 
 Un livrable n'est fini que si le vérificateur passe sans erreur (ou,
 sans exécution de code, si tu as fait ses contrôles à la main et que tu le
-dis). Ce que tu n'as pas pu vérifier (une source lue en extrait, une date
-citée de mémoire, une pièce à trouver) s'écrit **« non vérifié »** ou
-**« à trouver »** dans le fichier : jamais comme si c'était fait. Franco
-décide sur la foi de tes fichiers ; un trou signalé se comble, un trou
-caché se publie.
+dis). Ce que tu n'as pas pu vérifier (une date citée de mémoire, un chiffre
+sans source) s'écrit **« à vérifier »** dans le fichier : jamais comme si
+c'était sûr.
 
-## Ce qui fait la différence de Zehon (à garder en tête à chaque étape)
+## Ce qui fait une bonne vidéo Zehon
 
+**Une histoire qui donne envie de connaître la suite**, pas un exposé.
 Le style visuel est celui du genre (bonhomme à tête ronde, décors
-illustrés). **La différence tient au fond** : on raconte **un procédé** (la
-matière qui devient un objet), et on montre **comment on le sait**. Les
-concurrents citent désormais leurs sources en description (mesuré le
-29/09/2026 sur Zelan) : chez nous, la preuve est **à l'écran** (une vraie
-photo, un cartel, un statut) et **dans la narration** (« on sait que… »,
-« on pense que… », « personne ne sait vraiment… »).
+illustrés, tout en images Gemini). Ce qui fait la différence, c'est
+**le sujet** (un procédé, la matière qui devient un objet) et **la
+mécanique du récit** mesurée sur le meilleur score du genre : un paradoxe
+dans le hook, un obstacle à chaque étape (« Sauf que »), des retours au
+quotidien du spectateur. **Simple, mais juste** : pas de preuves à
+l'écran, mais aucun fait inventé.
 
-**Ne génère jamais une image qui imite un objet de fouille, un document
-ou un site réel.** Une fausse photo d'objet archéologique serait une
-fausse preuve : exactement ce que la chaîne promet de ne pas faire. Les
-pièces à conviction sont de vraies photos sous licence libre.
-
-## Exemple complet
+## Exemple
 
 Le dossier [`assets/exemple_sel/`](assets/exemple_sel/) contient la
-recherche et le plan de la première vidéo (le sel). Regarde-les quand tu
-hésites sur le niveau de détail attendu, pas systématiquement.
+recherche et le plan de la première vidéo (le sel). **Ils datent d'avant
+la simplification** : ils sont plus lourds que ce qu'on attend désormais
+(statuts, pièces à conviction). Sers-t'en pour le contenu et le ton du
+plan, pas pour la forme de la recherche : suis `etape2_recherche.md`.

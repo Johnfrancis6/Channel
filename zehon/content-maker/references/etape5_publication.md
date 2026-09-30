@@ -32,16 +32,14 @@ CHAPITRES
 --:-- Q4 …
 (les horodatages se remplissent après l'enregistrement de la voix)
 
-SOURCES
-▸ <auteur, titre, revue ou institution, année>
-▸ … (5 à 8 sources principales du dossier)
+POUR ALLER PLUS LOIN
+▸ <2 à 4 sources de la recherche>
 
-CRÉDITS DES PHOTOS
+CRÉDITS DES PHOTOS (seulement si la vidéo contient de vraies photos)
 ▸ <objet> — <auteur>, <licence>, via Wikimedia Commons
-▸ … (une ligne par pièce à conviction : **obligatoire** en CC BY et CC BY-SA)
+  (**obligatoire** en CC BY et CC BY-SA)
 
-Illustrations générées par IA ; les pièces à conviction sont de vraies
-photographies.
+Illustrations générées par IA.
 ```
 
 ## Miniature
@@ -66,7 +64,7 @@ Termine le fichier par cette liste, à cocher par Franco :
 ```markdown
 ## Avant de publier
 - [ ] Horodatages des chapitres remplis
-- [ ] Crédits des photos vérifiés (auteur, licence)
+- [ ] Crédits des photos vérifiés (s'il y en a)
 - [ ] Case « contenu altéré ou synthétique » de YouTube : vérifier si
       elle s'applique (voix clonée, images générées). Dans le doute, la cocher.
 - [ ] Miniature : les deux variantes chargées dans le test de miniatures

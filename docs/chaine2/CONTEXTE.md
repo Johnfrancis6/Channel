@@ -9,6 +9,17 @@ charges, à lire en entier). L'ancien pipeline (agents A2 à A7, Remotion,
 Ce fichier résume et renvoie. Chaque fait porte son statut : **mesuré**
 (relevé, daté) ou **hypothèse** (à tester).
 
+
+> **Décision de Franco du 30/09/2026 : version « histoire simple ».** Les
+> autres chaînes racontent des histoires qui éveillent la curiosité, sans
+> s'attarder sur les preuves. Zehon fait de même : **plus de pièces à
+> conviction, de cartels ni de statuts à l'écran**, tout en images Gemini ;
+> une vraie photo seulement si elle se trouve en quelques minutes. **Un seul
+> garde-fou, invisible** : les faits racontés sont justes (recherche
+> légère, rien d'inventé). La ligne devient **« de la matière brute à
+> l'objet »**. `content-maker` est passée en v3 en conséquence. Les
+> mentions de preuves plus bas dans ce document sont **dépassées**.
+
 ---
 
 ## 1. Décisions de Franco (toutes du 29/09/2026)
@@ -17,7 +28,7 @@ Ce fichier résume et renvoie. Chaque fait porte son statut : **mesuré**
 |---|---|
 | **Nom** | **Zehon** (décision du 29/09, qui remplace Zoook : au moins 6 chaînes « Zoook/ZOOOK » existaient, dont une marque d'électronique « née en France »). **Mesuré le 29/09 (API YouTube)** : **@zehon est pris** (« Zehon Vaz », 135 abonnés, 23 vidéos) ; @zehonfr, @zehon.fr, @zehon_fr sont libres ; **handle retenu par Franco : @zehonfr**. Quelques petites chaînes s'appellent aussi « Zehon » ; une marque « Zehon Tools » (outillage) est vendue en ligne. Vérifier le nom sur la base des marques de l'INPI avant de créer la chaîne |
 | Chaîne | Seconde chaîne, en **français**, à côté de la chaîne IA (anglais, Shorts) |
-| **Ligne éditoriale** | **« De la matière brute à l'objet, et comment on le sait. »** Chaque vidéo raconte comment une matière est devenue un objet du quotidien, de la préhistoire à aujourd'hui, et montre **les preuves** (fouilles, datations, traces). La préhistoire est le premier chapitre de chaque histoire, pas la niche entière |
+| **Ligne éditoriale** | **« De la matière brute à l'objet. »** Chaque vidéo raconte comment une matière est devenue un objet du quotidien, de la préhistoire à aujourd'hui, et montre **les preuves** (fouilles, datations, traces). La préhistoire est le premier chapitre de chaque histoire, pas la niche entière |
 | Format | Vidéo longue en paysage d'environ 8 min (environ 1 480 mots), plus 1 à 2 Shorts ; 1 vidéo par semaine ; **20 h par semaine** |
 | Propriété | Franco réside au **Burkina Faso** (non éligible au Programme Partenaire). **Une connaissance en France est propriétaire** (chaîne et AdSense à son nom). Franco est gestionnaire, avec un **contrat écrit** à signer avant la première vidéo (rémunération, droits sur les vidéos **et sur sa voix**, conditions de sortie) |
 | **Système** | **Nouveau, simple** : des instructions dans Drive, utilisables depuis **n'importe quel compte Claude, même gratuit** (questions, recherche, script, prompts d'images) ; les images dans **Gemini** ; la voix dans Colab ; l'assemblage par une nouvelle skill **`video-maker`** (**HyperFrames**, dans **Claude Code web**). Les anciennes skills seront supprimées (point à trancher : voir `nouveau_systeme.md` §8) |

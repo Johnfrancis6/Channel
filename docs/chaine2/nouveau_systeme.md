@@ -8,6 +8,17 @@ système**. L'ancien pipeline (agents A2 à A7, Remotion, `new-short`,
 Principe de Franco : **simplicité, contenu plus net.** L'ancien système
 n'était « tout juste pas performant ».
 
+
+> **Décision de Franco du 30/09/2026 : version « histoire simple ».** Les
+> autres chaînes racontent des histoires qui éveillent la curiosité, sans
+> s'attarder sur les preuves. Zehon fait de même : **plus de pièces à
+> conviction, de cartels ni de statuts à l'écran**, tout en images Gemini ;
+> une vraie photo seulement si elle se trouve en quelques minutes. **Un seul
+> garde-fou, invisible** : les faits racontés sont justes (recherche
+> légère, rien d'inventé). La ligne devient **« de la matière brute à
+> l'objet »**. `content-maker` est passée en v3 en conséquence. Les
+> mentions de preuves plus bas dans ce document sont **dépassées**.
+
 ---
 
 ## 1. Les fondations (toutes décidées par Franco le 29/09/2026)
@@ -16,7 +27,7 @@ n'était « tout juste pas performant ».
 |---|---|
 | **Nom** | **Zehon** (remplace Zoook, déjà utilisé par une marque d'électronique). **@zehon est pris** (petite chaîne, 135 abonnés) ; **@zehonfr** (retenu par Franco) et @zehon.fr sont libres selon l'API YouTube le 29/09. Vérifier le nom sur la base des marques de l'INPI avant de créer la chaîne |
 | Langue | Français |
-| **Ligne** | « De la matière brute à l'objet, et comment on le sait. » Chaque vidéo raconte comment une matière est devenue un objet du quotidien, de la préhistoire à aujourd'hui, et **montre les preuves** |
+| **Ligne** | « De la matière brute à l'objet. » Chaque vidéo raconte comment une matière est devenue un objet du quotidien, de la préhistoire à aujourd'hui, et **montre les preuves** |
 | Format | Vidéo longue en paysage d'environ 8 min (environ 1 480 mots), plus 1 à 2 Shorts ; 1 vidéo par semaine ; 20 h par semaine |
 | Propriété | Chaîne et AdSense au nom d'une connaissance en France ; Franco est gestionnaire, avec un contrat écrit (à signer avant la première vidéo ; il doit couvrir **les droits sur la voix de Franco**) |
 | **Style** | La grammaire du genre (Zelan, Zenn), **en calme** : des histoires racontées posément, de légers mouvements de caméra de temps en temps, du texte animé sobre |
