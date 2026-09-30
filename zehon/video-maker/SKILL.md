@@ -104,6 +104,25 @@ Colab, puis copie dans `rendu/` de la vidéo, du rapport, de `verdict.json` et
 de `apercu/` (le `.srt` y est écrit directement). Le rapport et le verdict
 gardent la branche, le commit et la durée du rendu (`rendu_s`).
 
+## Les sessions du montage : où t'arrêter
+
+Le montage est la **session 5** (modèle **Haiku 4.5** ; la table des
+sessions et le format de l'arrêt sont dans la skill `content-maker`,
+section « Les sessions »). Elle s'arrête deux fois :
+
+1. **Après le plan** (et un essai `EXTRAIT` s'il est à faire) : Franco
+   lance le rendu dans Colab (45 min environ). Arrête-toi, avec le bloc
+   « ⏹️ Fin de la session », « Avant la suivante : lance le lanceur de
+   montage dans Colab », et ce prompt de relance :
+   `Zehon, vidéo <nn>_<sujet> : session 5, lis le verdict du rendu.`
+   (plus la ligne `git fetch … && git checkout …` de la branche de travail).
+2. **Après la lecture du verdict** : si `"pret": true`, la vidéo est
+   finie ; la session suivante est la publication sur YouTube, ou le sujet
+   de la vidéo d'après (session 1, **Sonnet 5.5**). Si `"pret": false`,
+   reste dans la session pour corriger ; si c'est un bug de `monter.py`,
+   arrête-toi et relance en **Opus 5.5** avec l'erreur dans la ligne de
+   contexte.
+
 ## Ce qu'il faut dire à Franco
 
 - Des recommandations, pas des options ; le mesuré séparé de l'hypothèse ;

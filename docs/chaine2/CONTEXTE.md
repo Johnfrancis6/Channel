@@ -34,6 +34,7 @@ Branche de travail : `claude/zelan-studio-analysis-rws9f6`.
 | Sous-titres | incrustés (style validé) + `sous_titres.srt` pour YouTube Studio |
 | Musique | prête (`MUSIQUE`, −26 dB) ; le sel est sans musique |
 | Outils | `content-maker` (contenu), `video-maker` (montage) ; notebooks du dépôt via les lanceurs Drive |
+| Sessions | une par phase (5 par vidéo) ; à chaque fin, la skill s'arrête et donne le modèle et le prompt de relance (`content-maker`, « Les sessions ») |
 
 Règles de travail : recommandations, pas d'options ; le mesuré séparé de
 l'hypothèse ; une question à la fois ; `.claude/skills/` et `zehon/*.skill`
@@ -42,7 +43,8 @@ sont générés ; `git fetch` avant chaque push.
 ## Suite, dans l'ordre
 
 1. **Essai du lanceur de montage dans Colab** : `EXTRAIT` = `1-10` sur le
-   sel, puis « lis le verdict » (vérifie le lanceur réel et l'aperçu).
+   sel, puis « lis le verdict » en session **Haiku 4.5** (vérifie le
+   lanceur réel et l'aperçu).
 2. Vérifier les 8,1 g de sel par jour et l'usage commercial de la voix
    ElevenLabs.
 3. Publier le sel (`04_publication.md`, `rendu/sous_titres.srt`).
