@@ -1,4 +1,27 @@
-# Zehon (chaîne 2) — contexte de reprise (état au 30/09/2026, fin de session)
+# Zehon (chaîne 2) — contexte de reprise (état au 01/10/2026)
+
+> **Reprise au 01/10/2026 : vidéo 03, l'aluminium, plan validé.** Sujet
+> choisi par Franco le 01/10 (contre le savon et le papier), angle et hook
+> validés, plan validé. Dossier Drive `Zehon/Videos/03_aluminium/`
+> (`1_d4WAgXlr2IeLwFltmSWOPHVsurIhBdp`, avec `images/`, `clips/`, `voix/`,
+> `miniatures/`, `rendu/`) : `01_recherche.md` et `02_plan.md`.
+> **Prochaine étape : 3b, le script** (`02_script.md` et
+> `02_script_voix.txt`), puis la pause 4 (relecture par Franco).
+> - Angle : « partout sous nos pieds (8 % de l'écorce terrestre), et
+>   introuvable » ; la chute du prix arrive comme conséquence (Q3), pour ne
+>   pas refaire le « trésor devenu gratuit » du sel.
+> - Plan : hook, 4 questions en 10 temps, fin ; environ **1 520 mots
+>   écrits** (débit de la voix mesuré sur le sel : 3,36 mots/s, soit
+>   environ 1 610 mots dits pour 8 min).
+> - Garde-fous du plan : le banquet de Napoléon III reste au conditionnel
+>   (« on raconte ») ; le verre incassable de Tibère est un mythe à
+>   démonter ; retirés faute de source : la remise de Hall, la tannerie
+>   Héroult, les barrages des Alpes.
+> - Demande mesurée (API, 01/10) : EN « Why was Aluminium more expensive
+>   than Gold? » 5,2 M, « luxury to affordable overnight » 1,7 M ; en
+>   français, seulement le procédé moderne. Zelan ne l'a pas traité.
+> - `Memoire/sujets.md` est à jour. Le sel et le verre : contenu terminé,
+>   pièces en cours chez Franco (voir les blocs plus bas).
 
 > **Reprise au 30/09/2026, fin de session : où en est le sel.** Pour ouvrir
 > une nouvelle session, coller [`PROMPT_NOUVELLE_SESSION.md`](PROMPT_NOUVELLE_SESSION.md).
