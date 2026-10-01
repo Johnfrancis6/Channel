@@ -35,6 +35,15 @@ la palette, les miniatures de la vidéo), `planche_bonhomme.jpg`.
 - T4 : joindre un autre `prompts.md` dans la conversation suffit pour une
   nouvelle vidéo (sinon : réimporter le dossier, environ 1 min par compte).
 
+**Premier essai de Franco (01/10, soir), mesuré** : `/zehon-images scènes
+1 à 5` lance bien la skill, mais Gemini répond que `prompts.md` et la
+planche « n'ont pas été fournis » : il ne voit pas les fichiers de
+référence. Cause à établir : import du seul `SKILL.md`, ou skill qui ne
+lit pas ses fichiers. Contournement : joindre les 2 fichiers dans la
+conversation. Si la skill ne lit jamais ses fichiers : mettre les prompts
+dans le corps de `SKILL.md` (les instructions, qu'elle lit) et joindre la
+planche à chaque conversation.
+
 **Mode d'emploi du test** (environ 20 min) :
 1. Dans Drive (web), ouvre `Zehon/Videos/03_aluminium/`, clic droit sur
    `zehon-images` > Télécharger. Windows reçoit un `.zip` : clic droit >
