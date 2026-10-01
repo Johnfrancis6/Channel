@@ -146,6 +146,22 @@ class Musique(unittest.TestCase):
         self.assertAlmostEqual(float(boucle[-1]), 0.0)
 
 
+class TexteAnime(unittest.TestCase):
+    def test_lisible_sur_une_image_blanche(self):
+        # Le verre (01/10) : sur les images à fond blanc, le blanc cassé sans bandeau ne se lisait pas.
+        blanche = np.full((300, 900, 3), 250, np.uint8)
+        calque = m.calque_texte("En 1295", m.POLICE_TEXTE, 64, 800, fond=m.FOND_TEXTE)
+        m.poser(blanche, calque, 0, 0, 1.0)
+        h, w = calque.shape[:2]
+        coin = blanche[h // 2, 6].astype(int)  # le bandeau, à côté du texte
+        self.assertLess(coin.mean(), 110)
+        self.assertGreater(int(blanche[:h, :w].max()) - int(coin.max()), 120)  # le texte ressort
+
+    def test_titre_sans_bandeau(self):
+        calque = m.calque_texte("Une question ?", m.POLICE_TITRE, 84, 1500, centre=True)
+        self.assertEqual(int(calque[2, 2, 3]), 0)  # coin transparent : le titre garde son fond flouté
+
+
 class SousTitres(unittest.TestCase):
     def test_mots_affiches_d_un_tenant(self):
         self.assertEqual(m.mots_du_texte("il y a 8 000 ans, 42 % de l'eau ?"),

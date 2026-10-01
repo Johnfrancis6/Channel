@@ -49,8 +49,9 @@ n'était « tout juste pas performant ».
 - **Rythme** : une image toutes les 6 à 8 s, soit 60 à 80 images pour 8 min
   (**hypothèse** : le rythme de Zelan n'est pas mesuré).
 - **Texte animé** : seulement les mots-clés, les dates et les chiffres, qui
-  apparaissent en fondu. Blanc cassé avec une ombre douce ; dates et lieux
-  en chasse fixe. **Le jaune cerné de noir est réservé à la miniature.**
+  apparaissent en fondu. Blanc cassé avec une ombre douce, sur un bandeau
+  sombre transparent (sans lui, les dates disparaissaient sur les images à
+  fond blanc : constaté sur le verre, 01/10) ; dates et lieux en chasse fixe. **Le jaune cerné de noir est réservé à la miniature.**
 - **Pièces à conviction** : de **vraies photos** sous licence libre, avec
   un cartel (objet, lieu, date, méthode de datation, statut établi,
   probable ou hypothèse, crédit et licence). **On ne génère jamais une

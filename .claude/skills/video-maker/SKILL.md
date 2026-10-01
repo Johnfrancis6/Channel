@@ -18,7 +18,7 @@ cette page.
 | Lire | le tableau de `03_scenes.md` (types `image`, `video`, `titre`) ; une erreur nomme la ligne |
 | Valider | une image par scène `image` et `video` (`images/scene_NNN.png` ou `.jpg`) ; le plan animé (`clips/anim_NNN.mp4` ou `scene_NNN.mp4`) peut manquer : l'image le remplace |
 | Caler | chaque scène est retrouvée mot à mot dans `mots.json` (nombres compris : « 8 000 » = « huit mille ») ; les coupes tombent dans les pauses de la voix ; un **titre** ajoute 3 s de silence, le temps de lire la question |
-| Rendre | 1920×1080, 30 i/s ; zoom lent de 5 % ou panoramique, fondu enchaîné de 0,6 s, plans animés recadrés (ralentis puis figés s'ils sont trop courts), texte animé en bas à gauche quand la voix prononce le mot (au moins 2,5 s à l'écran), titres sur l'image suivante floutée ; son normalisé à −14 LUFS, crêtes à −1,5 dB |
+| Rendre | 1920×1080, 30 i/s ; zoom lent de 5 % ou panoramique, fondu enchaîné de 0,6 s, plans animés recadrés (ralentis puis figés s'ils sont trop courts), texte animé en bas à gauche, sur un bandeau sombre transparent (lisible sur une image blanche), quand la voix prononce le mot (au moins 2,5 s à l'écran), titres sur l'image suivante floutée ; son normalisé à −14 LUFS, crêtes à −1,5 dB |
 | Contrôler | image 1920×1080, piste audio, pas de silence (volume moyen > −60 dB), pas de saturation (crête ≤ −0,5 dB), durée attendue. **Un rendu n'est fini que si ce contrôle passe** |
 
 Sorties : `rendu/video.mp4` (ou `rendu/extrait_AAA-BBB.mp4`),

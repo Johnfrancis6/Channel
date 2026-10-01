@@ -1,21 +1,25 @@
-# Zehon — contexte de reprise (30/09/2026, nuit)
+# Zehon — contexte de reprise (01/10/2026)
 
 Court par règle (60 lignes au plus). L'historique complet, avec les
 mesures et les raisons des décisions : [`historique.md`](historique.md).
-Branche de travail : `claude/zelan-studio-analysis-rws9f6`.
+Branche de travail : `claude/optimistic-bohr-5f78k4` (`BRANCHE` des lanceurs).
 
 ## État
 
 - **Le sel** (`Videos/01_sel`) : vidéo **validée par Franco** (sans
   musique, sous-titres incrustés, 7 min 55 s, contrôle passé). Reste la
   publication.
+- **Le verre** (`Videos/02_verre`) : rendu le 01/10 (8:02, contrôle passé,
+  44 min : le lanceur marche). Dates illisibles sur fond blanc → bandeau
+  sombre sous le texte animé, **rendu à refaire**. Mesuré : ~1 phrase sur 6
+  de la voix finit sèche (Qwen3-TTS coupe le dernier son).
 - **Système allégé (30/09, nuit)** :
   - Dans Drive, `Zehon/montage_zehon.ipynb` (`1lG8qLhjCM4C6Kum_zEoTRW45rsuQ5Tpg`)
     et `Zehon/voix_zehon.ipynb` (`1RPyG8c5_Drc1QSql9yHDIs7yj5wDRn05`) sont
     des **lanceurs fixes** (formulaire + clone du dépôt, puis
     `zehon/notebooks/lanceur.py`) : **plus jamais de recopie dans Drive**.
     Anciennes copies à la corbeille. Testé ici de bout en bout sur un faux
-    Drive, clone GitHub compris ; **pas encore lancé dans Colab**.
+    Drive, clone GitHub compris ; lancé dans Colab le 01/10 (verre).
   - `monter.py` écrit `rendu/verdict.json` (moins de 1 Ko) et
     `rendu/apercu/` (6 JPEG de 640 px, environ 5 Ko chacun) ; la skill
     `video-maker` lit ceux-là, plus le rapport en entier ni les pièces ;
@@ -42,9 +46,8 @@ sont générés ; `git fetch` avant chaque push.
 
 ## Suite, dans l'ordre
 
-1. **Essai du lanceur de montage dans Colab** : `EXTRAIT` = `1-10` sur le
-   sel, puis « lis le verdict » en session **Haiku 4.5** (vérifie le
-   lanceur réel et l'aperçu).
+1. **Verre** : rendu à refaire avec le bandeau (`BRANCHE` ci-dessus), puis
+   « lis le verdict » en session **Haiku 4.5**.
 2. Vérifier les 8,1 g de sel par jour et l'usage commercial de la voix
    ElevenLabs.
 3. Publier le sel (`04_publication.md`, `rendu/sous_titres.srt`).
@@ -54,4 +57,4 @@ sont générés ; `git fetch` avant chaque push.
 
 Questions ouvertes : contrat signé ; nom à l'INPI ; budget ; objectif à
 6 mois.
-Sujets suivants candidats : le pain, le verre, le sucre (vérifier Zelan).
+Sujets suivants candidats : le pain, le sucre (vérifier Zelan).

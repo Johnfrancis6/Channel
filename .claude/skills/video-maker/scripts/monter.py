@@ -68,6 +68,7 @@ ST_TENUE_S = 0.6       # un groupe reste après son dernier mot, sauf si le suiv
 ST_FONDU_S = 0.15
 MOT_DIT = (255, 196, 92)       # le mot prononcé
 FOND_ST = (18, 14, 10, 140)    # le bandeau, sombre et transparent
+FOND_TEXTE = (18, 14, 10, 175) # le texte animé a le sien : lisible même sur une image claire
 SRT_CARS_LIGNE = 42    # .srt : deux lignes de 42 caractères au plus (usage courant du sous-titrage)
 PETITS_MOTS = {"le", "la", "les", "un", "une", "des", "de", "du", "au", "aux", "à", "et", "ou", "en", "sur",
                "dans", "par", "pour", "qui", "que", "ce", "cette", "ces", "ne", "se", "son", "sa", "ses",
@@ -456,8 +457,10 @@ def mouvement(nom, u):
     return 1 + ZOOM / 2, 0.5, 0.5
 
 
-def calque_texte(texte, police, taille, largeur_max, centre=False):
-    """Le texte en blanc cassé avec une ombre douce, sur fond transparent : tableau RGBA."""
+def calque_texte(texte, police, taille, largeur_max, centre=False, fond=None):
+    """Le texte en blanc cassé avec une ombre douce : tableau RGBA. Sans `fond`, le reste est
+    transparent ; avec `fond` (RGBA), un bandeau arrondi le porte, pour qu'il se lise aussi sur une
+    image claire (fond blanc de Gemini : le blanc cassé y disparaissait, constaté sur le verre)."""
     fonte = ImageFont.truetype(str(police), taille)
     lignes, ligne = [], ""
     for mot in texte.split():
@@ -480,7 +483,12 @@ def calque_texte(texte, police, taille, largeur_max, centre=False):
         ImageDraw.Draw(ombre).text((x, y + taille * 0.06), l, font=fonte, fill=(0, 0, 0, 190))
         ImageDraw.Draw(texte_seul).text((x, y), l, font=fonte, fill=BLANC_CASSE + (255,))
     ombre = ombre.filter(ImageFilter.GaussianBlur(taille * 0.12))
-    return np.asarray(Image.alpha_composite(ombre, texte_seul))
+    calque = Image.alpha_composite(ombre, texte_seul)
+    if fond is not None:
+        bandeau = Image.new("RGBA", (larg, haut), (0, 0, 0, 0))
+        ImageDraw.Draw(bandeau).rounded_rectangle((0, 0, larg - 1, haut - 1), radius=round(taille * 0.3), fill=fond)
+        calque = Image.alpha_composite(bandeau, calque)
+    return np.asarray(calque)
 
 
 def poser(image, calque, x, y, opacite):
@@ -561,7 +569,8 @@ class Rendu:
             self.calque = calque_texte(s.texte_anime, POLICE_TITRE, round(84 * echelle), round(1500 * echelle), centre=True)
         else:
             self.source = lire_image(s.fichier_image, *grand)
-            self.calque = (calque_texte(s.texte_anime, POLICE_TEXTE, round(64 * echelle), round(1400 * echelle))
+            self.calque = (calque_texte(s.texte_anime, POLICE_TEXTE, round(64 * echelle), round(1400 * echelle),
+                                        fond=FOND_TEXTE)
                            if s.texte_anime not in VIDE else None)
             if s.type == "video" and s.fichier_clip is not None:
                 self.clip = LecteurClip(s.fichier_clip, self.duree_vue, l, h)
