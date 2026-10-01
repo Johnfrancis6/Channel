@@ -10,85 +10,14 @@
 >   d'emploi : un prompt qui renvoie à une image d'un **autre lot** demande
 >   de la joindre (8 cas sur l'aluminium). La planche est
 >   `Charte/planche_bonhomme.jpg` (jpg, pas png) ; les images du sel sont en
->   `.jpg` aussi : le notebook et `video-maker` doivent accepter les deux.
-> - **Chaîne de production** : suivi dans
->   [`chaine_production.md`](chaine_production.md). Fait : la skill Gemini
->   `zehon-images` (modèle dans `zehon/content-maker/assets/zehon-images/`,
->   fabriquée par `scripts/skill_gemini.py`, dossier de l'aluminium dans
->   Drive `Videos/03_aluminium/zehon-images/`, testé par 2 tests
->   unitaires), le dossier `Zehon/a_ranger/` (un seul pour toutes les
->   vidéos), les modes d'emploi (test de la skill, Drive pour ordinateur,
->   clé). **Attendu de Franco** : le test de la skill sur les scènes 1 à 5.
->   **Reste** : le notebook « ranger » (d'abord `google.colab.ai`, sans
->   clé ; test sur les images du sel), puis `content-maker` (étape 4 :
->   produire le dossier de skill ; état des pièces : lire
->   `images/etat.json`).
-> - **Clé API** : mesuré le 01/10, l'offre gratuite ne demande pas de
->   carte et le Burkina Faso est éligible ; Franco s'est vu demander une
->   carte par le passé (hypothèse : console Cloud ou modèle payant).
-
-> **Reprise au 01/10/2026, fin de session : la chaîne de production des
-> pièces (images, clips, miniatures).** Franco perd du temps à copier les
-> prompts, renommer, télécharger et ranger chaque image. Demande : que
-> Gemini enchaîne la génération, que tout arrive rangé dans Drive, avec un
-> vérificateur, une reprise possible sur un autre compte quand le quota est
-> épuisé, et la même chose pour les clips (Flow). **Franco génère sur
-> Windows, dans un navigateur.** Rien n'est encore construit.
->
-> **Vérifié le 01/10 (pages officielles Google)** :
-> - API Gemini : **aucune offre gratuite** pour les modèles d'image
->   (Nano Banana 2, 2 Lite, Pro) ni pour Veo (page des prix, mise à jour
->   le 01/10/2026). Gemini 2.5 Flash Image est arrêté le 02/10/2026.
-> - Essai Google Cloud à 300 $ : ne paie pas l'API Gemini dans AI Studio.
->   Sur Vertex AI : possible selon un blog seulement (non vérifié).
-> - **Gratuits et acceptant des images en entrée** : Gemini 2.5 Flash,
->   2.5 Flash-Lite, 3.5 Flash-Lite (offre gratuite de l'API). C'est ce qui
->   rend un vérificateur gratuit possible.
-> - **Flow** : 50 crédits par jour sans abonnement ; Veo 3.1 Lite = 10
->   crédits, Fast = 20. L'agent Flow sait générer par lots, renommer,
->   regrouper (requêtes gratuites, quota quotidien non chiffré). Pas
->   d'export Drive documenté.
-> - **Skills Gemini** (lancées le 30/09/2026, remplacent les Gems) :
->   gratuites, compte personnel, 18 ans ou plus, « Keep Activity »
->   activé. Un dossier `SKILL.md` + fichiers de référence (png, md, pdf…)
->   jusqu'à 100 Mo, lancé par `/nom`. Import du dossier : web et Mac
->   seulement. Marchent avec les apps connectées Workspace. Ne marchent
->   pas avec : créer une vidéo ou de la musique, Canvas, Deep Research.
->   Ajout de fichiers depuis Drive : « bientôt ».
-> - Gemini ne sait pas enregistrer une image dans un dossier Drive.
->   « Créer des images » dans Drive : AI Pro ou Ultra seulement, en
->   anglais.
-> - Application Gemini gratuite : environ 20 images par jour (site non
->   officiel ; la page officielle ne chiffre pas).
->
-> **Chaîne recommandée, gratuite, à construire** :
-> 1. **Skill Gemini `zehon-images`** : charte, préambule sans narration,
->    règles (deux bras, pas de texte, une image par scène, dans l'ordre),
->    planche du bonhomme en fichier de référence, et les prompts de la
->    vidéo. Franco l'importe une fois par compte, puis tape
->    `/zehon-images scènes 1 à 10`. **À tester** : que la génération
->    d'images marche depuis une skill, qu'elle enchaîne 10 images dans
->    l'ordre, et comment fournir les prompts d'une nouvelle vidéo
->    (réimporter la skill ou joindre le fichier dans la conversation).
-> 2. **Collecte** : Google Drive pour ordinateur sur le PC Windows, et le
->    dossier de téléchargement du navigateur réglé sur
->    `Zehon/Videos/<nn>_<sujet>/a_ranger/`. Les téléchargements arrivent
->    dans Drive, quel que soit le compte Gemini ouvert dans le navigateur.
->    L'extension Chrome « Gemini Image Auto-Downloader » est déconseillée
->    (317 utilisateurs, un seul développeur, note de 3 sur 5).
-> 3. **Notebook gratuit** (Colab, sur le modèle de `voix_zehon.ipynb`) :
->    lit `a_ranger/`, reconnaît la scène de chaque fichier, vérifie les
->    défauts avec un Gemini gratuit qui voit les images, renomme
->    (`scene_NNN.png`, `clips/scene_NNN.mp4`, miniatures), range, tient
->    `images/etat.json`, produit une planche de contrôle et la liste à
->    refaire avec le prompt corrigé. Il dit aussi quel lot générer ensuite.
->    **À tester d'abord sur les images du sel** (le bras en trop).
-> 4. **`content-maker`** : l'étape 4 produit aussi le dossier de skill
->    Gemini et le fichier de prompts ; « l'état des pièces » lit
->    `images/etat.json`.
-> 5. Plus tard, si le gratuit ne suffit pas : clé API payante avec
->    plafond (environ 4 $ d'images et 5 $ de clips Veo par vidéo, prix de
->    sites non officiels, à vérifier).
+>   `.jpg` aussi : `video-maker` devra accepter les deux.
+> - **Chaîne de production des pièces : abandonnée par Franco le 01/10 au
+>   soir**, après un premier essai de la skill Gemini `zehon-images` (Gemini
+>   ne voyait pas les fichiers de la skill). Tout a été retiré : skill,
+>   script `skill_gemini.py`, tests, document de suivi, dossiers Drive
+>   `zehon-images/` et `a_ranger/` (à la corbeille). **Ne pas la
+>   reconstruire sans demande de Franco.** On garde la méthode d'avant :
+>   Franco copie les prompts de `03_scenes.md` dans Gemini, lot par lot.
 
 > **Reprise au 01/10/2026 (après-midi, dépassé par le bloc du haut) : vidéo 03, l'aluminium, script écrit, en
 > attente de relecture (pause 4).** Sujet choisi par Franco le 01/10

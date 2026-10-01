@@ -93,48 +93,5 @@ class VerificateurDeScenes(unittest.TestCase):
         self.assertIn("mot pour mot", r.stdout)
 
 
-SCENES_LOTS = SCENES.replace("**scene_001**", "> You are an image generator. Palette: silver, red. The main character is x.\n\n"
-                             "### Lot 1 — scènes 1 à 4\n**scene_001**").replace("**anim_003**", "## Plans animés\n\n**anim_003**")
-
-PUBLICATION = """# Publication
-
-## Miniatures
-
-Mode d'emploi.
-
-**M1** — *l'émotion* : « ÇA ?! ».
-> YouTube thumbnail, 16:9. Text: "ÇA ?!".
-
-Pourquoi ce texte est juste : vrai.
-
-## Avant de publier
-- [ ] x
-"""
-
-
-class SkillGemini(unittest.TestCase):
-    def setUp(self):
-        self.mod = charger(RACINE / "zehon" / "content-maker" / "scripts" / "skill_gemini.py")
-
-    def test_prompts_des_lots_palette_titres_miniatures(self):
-        texte = self.mod.fabriquer(SCENES_LOTS, PUBLICATION)
-        self.assertIn("Palette: silver, red.", texte)
-        self.assertIn("Sans image (scènes de titre) : 2.", texte)
-        self.assertIn("### Lot 1 — scènes 1 à 4", texte)
-        self.assertEqual(texte.count("**scene_"), 3)
-        self.assertNotIn("anim_003", texte)
-        self.assertIn('**M1** — *l\'émotion* : « ÇA ?! ».\n> YouTube thumbnail', texte)
-        self.assertNotIn("Avant de publier", texte)
-
-    def test_dossier_importable(self):
-        with tempfile.TemporaryDirectory() as d:
-            (Path(d) / "03_scenes.md").write_text(SCENES_LOTS, encoding="utf-8")
-            self.mod.main([str(Path(d) / "03_scenes.md"), "--sortie", str(Path(d) / "sortie")])
-            entete = (Path(d) / "sortie" / "SKILL.md").read_text(encoding="utf-8").splitlines()
-            self.assertEqual(entete[0], "---")
-            self.assertIn("name: zehon-images", entete)
-            self.assertTrue((Path(d) / "sortie" / "prompts.md").is_file())
-
-
 if __name__ == "__main__":
     unittest.main()
