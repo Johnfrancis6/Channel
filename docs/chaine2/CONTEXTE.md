@@ -1,5 +1,68 @@
 # Zehon (chaîne 2) — contexte de reprise (état au 01/10/2026)
 
+> **Reprise au 01/10/2026, fin de session : la chaîne de production des
+> pièces (images, clips, miniatures).** Franco perd du temps à copier les
+> prompts, renommer, télécharger et ranger chaque image. Demande : que
+> Gemini enchaîne la génération, que tout arrive rangé dans Drive, avec un
+> vérificateur, une reprise possible sur un autre compte quand le quota est
+> épuisé, et la même chose pour les clips (Flow). **Franco génère sur
+> Windows, dans un navigateur.** Rien n'est encore construit.
+>
+> **Vérifié le 01/10 (pages officielles Google)** :
+> - API Gemini : **aucune offre gratuite** pour les modèles d'image
+>   (Nano Banana 2, 2 Lite, Pro) ni pour Veo (page des prix, mise à jour
+>   le 01/10/2026). Gemini 2.5 Flash Image est arrêté le 02/10/2026.
+> - Essai Google Cloud à 300 $ : ne paie pas l'API Gemini dans AI Studio.
+>   Sur Vertex AI : possible selon un blog seulement (non vérifié).
+> - **Gratuits et acceptant des images en entrée** : Gemini 2.5 Flash,
+>   2.5 Flash-Lite, 3.5 Flash-Lite (offre gratuite de l'API). C'est ce qui
+>   rend un vérificateur gratuit possible.
+> - **Flow** : 50 crédits par jour sans abonnement ; Veo 3.1 Lite = 10
+>   crédits, Fast = 20. L'agent Flow sait générer par lots, renommer,
+>   regrouper (requêtes gratuites, quota quotidien non chiffré). Pas
+>   d'export Drive documenté.
+> - **Skills Gemini** (lancées le 30/09/2026, remplacent les Gems) :
+>   gratuites, compte personnel, 18 ans ou plus, « Keep Activity »
+>   activé. Un dossier `SKILL.md` + fichiers de référence (png, md, pdf…)
+>   jusqu'à 100 Mo, lancé par `/nom`. Import du dossier : web et Mac
+>   seulement. Marchent avec les apps connectées Workspace. Ne marchent
+>   pas avec : créer une vidéo ou de la musique, Canvas, Deep Research.
+>   Ajout de fichiers depuis Drive : « bientôt ».
+> - Gemini ne sait pas enregistrer une image dans un dossier Drive.
+>   « Créer des images » dans Drive : AI Pro ou Ultra seulement, en
+>   anglais.
+> - Application Gemini gratuite : environ 20 images par jour (site non
+>   officiel ; la page officielle ne chiffre pas).
+>
+> **Chaîne recommandée, gratuite, à construire** :
+> 1. **Skill Gemini `zehon-images`** : charte, préambule sans narration,
+>    règles (deux bras, pas de texte, une image par scène, dans l'ordre),
+>    planche du bonhomme en fichier de référence, et les prompts de la
+>    vidéo. Franco l'importe une fois par compte, puis tape
+>    `/zehon-images scènes 1 à 10`. **À tester** : que la génération
+>    d'images marche depuis une skill, qu'elle enchaîne 10 images dans
+>    l'ordre, et comment fournir les prompts d'une nouvelle vidéo
+>    (réimporter la skill ou joindre le fichier dans la conversation).
+> 2. **Collecte** : Google Drive pour ordinateur sur le PC Windows, et le
+>    dossier de téléchargement du navigateur réglé sur
+>    `Zehon/Videos/<nn>_<sujet>/a_ranger/`. Les téléchargements arrivent
+>    dans Drive, quel que soit le compte Gemini ouvert dans le navigateur.
+>    L'extension Chrome « Gemini Image Auto-Downloader » est déconseillée
+>    (317 utilisateurs, un seul développeur, note de 3 sur 5).
+> 3. **Notebook gratuit** (Colab, sur le modèle de `voix_zehon.ipynb`) :
+>    lit `a_ranger/`, reconnaît la scène de chaque fichier, vérifie les
+>    défauts avec un Gemini gratuit qui voit les images, renomme
+>    (`scene_NNN.png`, `clips/scene_NNN.mp4`, miniatures), range, tient
+>    `images/etat.json`, produit une planche de contrôle et la liste à
+>    refaire avec le prompt corrigé. Il dit aussi quel lot générer ensuite.
+>    **À tester d'abord sur les images du sel** (le bras en trop).
+> 4. **`content-maker`** : l'étape 4 produit aussi le dossier de skill
+>    Gemini et le fichier de prompts ; « l'état des pièces » lit
+>    `images/etat.json`.
+> 5. Plus tard, si le gratuit ne suffit pas : clé API payante avec
+>    plafond (environ 4 $ d'images et 5 $ de clips Veo par vidéo, prix de
+>    sites non officiels, à vérifier).
+
 > **Reprise au 01/10/2026 : vidéo 03, l'aluminium, script écrit, en
 > attente de relecture (pause 4).** Sujet choisi par Franco le 01/10
 > (contre le savon et le papier), angle, hook et plan validés. Dossier
