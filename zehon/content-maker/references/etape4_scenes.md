@@ -93,6 +93,11 @@ regénérer :
 
 > Edit this image: the <position> figure has three arms. Remove the extra arm so he has exactly two arms, one on each side, like the other figures. Keep everything else exactly the same: same character, same outfit, same layout, same colours, same background.
 
+Si une image de scène recopie la planche (des rangées de bonshommes ou de
+têtes à côté de la scène), fais-la corriger dans la même conversation :
+
+> Edit this image: remove the figures and round heads copied from the reference sheet on the <side> side; they must not appear in the scene. Extend the background to fill that space. Keep the main character exactly as he is: same pose, same face, same outfit, same two arms. Same colours, same light, same style. No text.
+
 La planche validée le 30/09 (le sel) : tête ronde blanche lisse, yeux en
 petits ovales, pas de nez, tunique sable à manches courtes avec un cordon
 marron, pantalon et chaussures marron, bras blancs visibles.
@@ -124,8 +129,11 @@ image (voir « Plans animés »).
 **ne rien raconter** et de **faire une seule image par message** : sans
 ça, Gemini répond en mode conversation, écrit une petite histoire autour
 de chaque image et enchaîne des images non demandées (constaté le 30/09).
+Il lui interdit aussi de **recopier la planche** : sans cette phrase, Gemini
+a collé les trois bonshommes debout et les quatre têtes de la planche à
+gauche d'une scène (constaté le 01/10 sur le verre, scene_012).
 
-> You are an image generator. Do not write any story, narration, caption or explanation, ever. Do not generate any image now: reply only "OK" and wait. Then, for each message I send that starts with "scene_", generate exactly ONE image and reply with the image only, no text at all. Style rules for every image: flat 2D digital illustration, warm and calm, soft painterly textures, simple readable shapes, gentle natural light. Palette: <palette of the material>. The main character is the round-headed white figure from the attached reference sheet: keep exactly the same head shape, face, proportions and line style in every image; change only his clothing when the prompt says so, otherwise keep his default outfit from the sheet. Every person in the image has exactly two arms and two hands, no extra limbs. 16:9 landscape composition, the character takes about a third of the frame, with calm empty space for text overlays. No text, no letters, no numbers, no logos, no watermark in the image.
+> You are an image generator. Do not write any story, narration, caption or explanation, ever. Do not generate any image now: reply only "OK" and wait. Then, for each message I send that starts with "scene_", generate exactly ONE image and reply with the image only, no text at all. Style rules for every image: flat 2D digital illustration, warm and calm, soft painterly textures, simple readable shapes, gentle natural light. Palette: <palette of the material>. The main character is the round-headed white figure from the attached reference sheet: keep exactly the same head shape, face, proportions and line style in every image; change only his clothing when the prompt says so, otherwise keep his default outfit from the sheet. The reference sheet is only a model for the character: never copy its layout, its rows of figures or its head close-ups into a scene; each image shows only the scene described in the prompt. Every person in the image has exactly two arms and two hands, no extra limbs. 16:9 landscape composition, the character takes about a third of the frame, with calm empty space for text overlays. No text, no letters, no numbers, no logos, no watermark in the image.
 
 **Chaque prompt** :
 

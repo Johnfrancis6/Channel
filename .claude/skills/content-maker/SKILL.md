@@ -47,7 +47,7 @@ lisant.
   prompt : Franco les copie de là vers Gemini (demandé le 30/09).
 - Il génère les images lui-même dans Gemini et te les montre : **regarde
   chaque image qu'il t'envoie de près** (bras en trop, texte mal
-  orthographié, personnage qui change) avant de dire qu'elle est bonne.
+  orthographié, personnage qui change, planche recopiée dans la scène) avant de dire qu'elle est bonne.
 - Il répond en français, souvent brièvement : lis ce qu'il dit vraiment,
   et suis-le, même quand ça contredit ta recommandation.
 
