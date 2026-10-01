@@ -1,12 +1,28 @@
 # Zehon (chaîne 2) — contexte de reprise (état au 01/10/2026)
 
-> **Reprise au 01/10/2026 : vidéo 03, l'aluminium, plan validé.** Sujet
-> choisi par Franco le 01/10 (contre le savon et le papier), angle et hook
-> validés, plan validé. Dossier Drive `Zehon/Videos/03_aluminium/`
-> (`1_d4WAgXlr2IeLwFltmSWOPHVsurIhBdp`, avec `images/`, `clips/`, `voix/`,
-> `miniatures/`, `rendu/`) : `01_recherche.md` et `02_plan.md`.
-> **Prochaine étape : 3b, le script** (`02_script.md` et
-> `02_script_voix.txt`), puis la pause 4 (relecture par Franco).
+> **Reprise au 01/10/2026 : vidéo 03, l'aluminium, script écrit, en
+> attente de relecture (pause 4).** Sujet choisi par Franco le 01/10
+> (contre le savon et le papier), angle, hook et plan validés. Dossier
+> Drive `Zehon/Videos/03_aluminium/` (`1_d4WAgXlr2IeLwFltmSWOPHVsurIhBdp`,
+> avec `images/`, `clips/`, `voix/`, `miniatures/`, `rendu/`) :
+> `01_recherche.md`, `02_plan.md`, `02_script.md` (1 499 mots) et
+> `02_script_voix.txt` (150 lignes, 1 612 mots dits, soit 8 min au débit
+> mesuré). Vérificateur : 0 erreur, 0 avertissement sur les deux.
+> **Prochaine étape : Franco relit le script** ; après sa validation,
+> étape 4 (scènes et prompts) puis 5 (publication), sans pause.
+> - Script : faits revérifiés le 01/10 (Wikipedia *History of aluminium*,
+>   PDF AluQuébec). Écarts au plan : Davy daté « début du XIXe siècle »
+>   (1807 chez AluQuébec, 1808 chez Wikipedia) ; Napoléon III « montre »
+>   (et non « offre ») les premiers objets à Victoria, comme dans la
+>   source ; ajout de la phrase de Bugeaud (« un kilogramme de trop »,
+>   AluQuébec) ; la pointe de Washington arrondie à « près de 23 cm, près
+>   de 3 kg » ; le procédé Bayer décrit en une phrase (soude, boue rouge).
+> - Points soumis à Franco : le mythe de Tibère était déjà dans le verre
+>   (T2 y fait un clin d'œil, « tu l'as peut-être déjà entendue à propos du
+>   verre ») ; la boîte aux lettres jaune « en aluminium depuis 1950 »
+>   vient d'une légende de photo d'AluQuébec.
+> - `Memoire/lexique.md` : 16 graphies ajoutées (Ørsted, Wöhler, Hall,
+>   Héroult, Kreuzlingen, Coors…), non vérifiées à l'écoute.
 > - Angle : « partout sous nos pieds (8 % de l'écorce terrestre), et
 >   introuvable » ; la chute du prix arrive comme conséquence (Q3), pour ne
 >   pas refaire le « trésor devenu gratuit » du sel.
@@ -20,7 +36,7 @@
 > - Demande mesurée (API, 01/10) : EN « Why was Aluminium more expensive
 >   than Gold? » 5,2 M, « luxury to affordable overnight » 1,7 M ; en
 >   français, seulement le procédé moderne. Zelan ne l'a pas traité.
-> - `Memoire/sujets.md` est à jour. Le sel et le verre : contenu terminé,
+> - `Memoire/sujets.md` est à jour (étape 3b). Le sel et le verre : contenu terminé,
 >   pièces en cours chez Franco (voir les blocs plus bas).
 
 > **Reprise au 30/09/2026, fin de session : où en est le sel.** Pour ouvrir
