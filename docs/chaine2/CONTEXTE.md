@@ -1,5 +1,32 @@
 # Zehon (chaîne 2) — contexte de reprise (état au 01/10/2026)
 
+> **Reprise au 01/10/2026, soir (branche `claude/modest-darwin-gnew9l`).**
+> - **L'aluminium : contenu terminé.** Script validé tel quel par Franco ;
+>   `03_scenes.md` (80 scènes : 76 images dont 10 plans animés, 4 titres ;
+>   vérificateur 0 erreur, 0 avertissement) et `04_publication.md` (titre
+>   recommandé « Pourquoi l'aluminium valait-il plus cher que l'or ? »,
+>   miniatures M1 à M5, trio M1, M2, M3) déposés dans Drive ;
+>   `Memoire/sujets.md` et `lecons.md` à jour. Nouveau dans le mode
+>   d'emploi : un prompt qui renvoie à une image d'un **autre lot** demande
+>   de la joindre (8 cas sur l'aluminium). La planche est
+>   `Charte/planche_bonhomme.jpg` (jpg, pas png) ; les images du sel sont en
+>   `.jpg` aussi : le notebook et `video-maker` doivent accepter les deux.
+> - **Chaîne de production** : suivi dans
+>   [`chaine_production.md`](chaine_production.md). Fait : la skill Gemini
+>   `zehon-images` (modèle dans `zehon/content-maker/assets/zehon-images/`,
+>   fabriquée par `scripts/skill_gemini.py`, dossier de l'aluminium dans
+>   Drive `Videos/03_aluminium/zehon-images/`, testé par 2 tests
+>   unitaires), le dossier `Zehon/a_ranger/` (un seul pour toutes les
+>   vidéos), les modes d'emploi (test de la skill, Drive pour ordinateur,
+>   clé). **Attendu de Franco** : le test de la skill sur les scènes 1 à 5.
+>   **Reste** : le notebook « ranger » (d'abord `google.colab.ai`, sans
+>   clé ; test sur les images du sel), puis `content-maker` (étape 4 :
+>   produire le dossier de skill ; état des pièces : lire
+>   `images/etat.json`).
+> - **Clé API** : mesuré le 01/10, l'offre gratuite ne demande pas de
+>   carte et le Burkina Faso est éligible ; Franco s'est vu demander une
+>   carte par le passé (hypothèse : console Cloud ou modèle payant).
+
 > **Reprise au 01/10/2026, fin de session : la chaîne de production des
 > pièces (images, clips, miniatures).** Franco perd du temps à copier les
 > prompts, renommer, télécharger et ranger chaque image. Demande : que
@@ -63,7 +90,7 @@
 >    plafond (environ 4 $ d'images et 5 $ de clips Veo par vidéo, prix de
 >    sites non officiels, à vérifier).
 
-> **Reprise au 01/10/2026 : vidéo 03, l'aluminium, script écrit, en
+> **Reprise au 01/10/2026 (après-midi, dépassé par le bloc du haut) : vidéo 03, l'aluminium, script écrit, en
 > attente de relecture (pause 4).** Sujet choisi par Franco le 01/10
 > (contre le savon et le papier), angle, hook et plan validés. Dossier
 > Drive `Zehon/Videos/03_aluminium/` (`1_d4WAgXlr2IeLwFltmSWOPHVsurIhBdp`,
