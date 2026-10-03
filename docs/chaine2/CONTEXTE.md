@@ -1,5 +1,13 @@
 # Zehon (chaîne 2) — contexte de reprise (état au 01/10/2026)
 
+> **03/10/2026** : relevé du marché YouTube tunisien,
+> [`tunisie_2026-10-03.md`](tunisie_2026-10-03.md) (rap, football, histoire
+> et podcasts en derja ; aucune chaîne tunisienne de vulgarisation ;
+> recommandation : garder le français, tester un sujet tunisien). Question
+> de Franco : s'identifier avec un numéro tunisien. Mesuré : la validation
+> par téléphone ne fixe pas de pays (2 chaînes par an et par numéro) ; la
+> Tunisie est éligible au Programme Partenaire, pas le Burkina Faso.
+
 > **Reprise au 01/10/2026, soir (branche `claude/modest-darwin-gnew9l`).**
 > - **L'aluminium : contenu terminé.** Script validé tel quel par Franco ;
 >   `03_scenes.md` (80 scènes : 76 images dont 10 plans animés, 4 titres ;
