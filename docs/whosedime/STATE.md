@@ -57,5 +57,4 @@ Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 - **Checker limits**: `chart-source` checks numbers, not words; `prompt-person` sees only the people block;
   `name-first` noisy; two tokenisers (2,103 vs 2,087 words); numbers match by value.
 - Uber eval: beat 3 is the 2016 Saudi investment; no named taxi owner; F05 (an estimate) in 3 of 25 charts.
-- Step 1 uses Zehon's `youtube.py` (French output). Fixture `factcheck_clean.md`: facts from memory. Stale: ROADMAP rule 2
-  branch name. No setup script. No graded critique yet (13 lines, all ungraded).
+- Step 1 uses Zehon's `youtube.py` (French output). Fixture `factcheck_clean.md`: facts from memory. Stale: ROADMAP rule 2 branch. No setup script. Critique log: 26 lines, none graded.
