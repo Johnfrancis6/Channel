@@ -58,7 +58,13 @@ visionnage et la veille concurrentielle sont pour la session 2.
 3. **Les corrections proposées**, classées par effet attendu, chacune
    avec ce qui change, où, et comment on vérifie qu'elle marche. Sépare
    ce qui vaut pour Zehon de ce qu'il faut corriger avant de copier le
-   pipeline pour Whose Dime.
+   pipeline pour Whose Dime. **Attention au changement de narration** :
+   Zehon raconte un procédé de fabrication, en français, sans personnage
+   central. Whose Dime aura un conteur d'histoires de startups et
+   d'industries qui ont réussi, en anglais, centré sur des dirigeants
+   nommés et leurs décisions (série « Who Pays? »). Les étapes et
+   consignes de skill qui supposent un procédé (structure, scènes, version
+   voix, contrôles) doivent être signalées comme à adapter, pas copiées.
 4. **Les questions** qui me permettront d'itérer : pose-les toutes,
    groupées, avec ta recommandation pour chacune.
 5. **Une première ébauche de la skill de détection d'incohérences** :
