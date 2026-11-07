@@ -47,7 +47,7 @@ so the test teaches something:
 |---|---|
 | Text | **1 to 3 words, or one number** (`$7.9 BILLION`, `NOT YOU`). A number carries its `[^Fnn]` in the file (not in the image) |
 | Badge | **"WHO PAYS?"** in the top right corner, same font and colour on every video |
-| Subject | the product big, and a **cartoon caricature, deliberately unrealistic** (thick outlines, exaggerated proportions) of the executive **only if he or she is well known to the public**; otherwise the payer: a rider, a driver, a shopkeeper |
+| Subject | the product big, and a **cartoon caricature, deliberately unrealistic** (thick outlines, exaggerated proportions) of the executive, **named in the prompt** (D12), **only if he or she is in the people block and well known to the public**; otherwise the payer, unnamed: a rider, a driver, a shopkeeper |
 | Colours | warm and bright, light background, the channel palette (as in `03_scenes.md`) |
 | Never | an exact brand logo (keep the colours and the shape of the product), a realistic portrait of a real person, more than 3 words, an infographic, a dark background |
 
@@ -56,13 +56,51 @@ conversation) and follows this model:
 
 > YouTube thumbnail, 16:9. Bold cartoon illustration with thick black outlines, flat saturated warm colours, light cream background, bright and high contrast, very simple composition readable at small size. <the scene: who, doing what, the exaggerated emotion>. <no logo line>. Big bold text <where> in thick white (or yellow) capital letters with a heavy black outline: "<TEXT>". A small round mustard badge in the top right corner with navy capital letters: "WHO PAYS?". Write the texts exactly as given. No other text, no logos, no watermark.
 
+With a named caricature (D12), `<the scene>` starts with the name and the
+role at the time of the decision, then the cartoon instructions, then the
+guard, in this order:
+
+> ... A cartoon caricature of <Full Name>, <Company>'s <role at the time of the decision>: deliberately unrealistic, huge head, tiny body, thick outlines, <one exaggerated gesture tied to the decision>. Not a realistic portrait, not a photo. ...
+
 The text is asked of Gemini directly (the only exception to "no text in
 images": it makes testing fast). Franco checks the spelling; if wrong, he
 regenerates or sets the text himself. **The text must be true**: the
-number of a `verified` fact, rounded only as the registry rounds it. Do not
-name the real person in the prompt: describe the caricature (age, clothes,
-a gesture). Recommend the trio to test and the first one to show; note it
-as the current experiment in `lessons.md` (see `memory.md`).
+number of a `verified` fact, rounded only as the registry rounds it.
+Recommend the trio to test and the first one to show; note it as the
+current experiment in `lessons.md` (see `memory.md`).
+
+### A named caricature (decision D12)
+
+A thumbnail prompt **names the executive** it caricatures, with the role
+at the time of the decision the video tells ("a cartoon caricature of
+Travis Kalanick, Uber's co-founder and chief executive"), so the cartoon
+is recognisable. **Thumbnails only**: scene prompts never name a real
+person (step 4, `prompt-person`). Before showing a named prompt, check
+every line; one "no" and the variant shows the payer, unnamed:
+
+- [ ] The person is in the **people block** of `02b_factcheck.md` and is
+  **well known to the public** (the face of the company in the press,
+  not a manager only insiders know).
+- [ ] **Deliberately unrealistic cartoon**: huge head, thick outlines, an
+  exaggerated gesture; the prompt says "not a realistic portrait, not a
+  photo".
+- [ ] **Tied to the decision the video tells** (the role at that date, a
+  gesture that stands for that decision).
+- [ ] **An obvious metaphor, never a false fact**: no crime, illness,
+  intimate or degrading scene; nothing a viewer could take as something
+  that happened.
+- [ ] **No implied endorsement**: the person does not present, approve or
+  recommend the video or the channel.
+- [ ] **No photo attached** to the image tool: the prompt is text only.
+- [ ] **Never a realistic portrait**, even if it looks better.
+
+**Fallback.** If Gemini refuses the name, or gives a realistic face,
+Franco tries **once** with the name removed and the traits described
+(age, hair, clothes, a known gesture). If that fails too, the fallback is
+an illustrator who draws the caricature once, to reuse over several
+videos. Write the outcome (named prompt worked / traits worked /
+illustrator needed) in the video's `00_state.md` (Pieces row) and as one
+line in `Memory/lessons.md`.
 
 ## Description
 

@@ -140,7 +140,9 @@ Rules of a prompt:
   stylised figures, from behind, in silhouette, or by their hands, an
   empty chair, an object. **Never name a real person** in a prompt: a
   name pulls Gemini towards a likeness, so the checker blocks any person of
-  the people block named in a prompt (`prompt-person`).
+  the people block named in a prompt (`prompt-person`). Decision D12
+  (a named caricature) is for **thumbnails only**, in `## Notes` of
+  `04_publication.md` (step 5): a scene prompt never names a real person.
 - **No exact brand logo**: a black sedan, a ride app on a phone with a
   plain screen, a yellow taxi with no number. Colours and shapes of a
   product are fine; marks, names and logos are not.
