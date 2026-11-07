@@ -1,0 +1,36 @@
+{
+  "skill_name": "whosedime-maker",
+  "_about": "Prompts for whosedime-maker steps 1-3 (build session S04). Files are relative to this folder. Eval 3 was run once in S04 on Uber: files/01_uber/ holds its outputs (see README.md).",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "nouvelle vidéo Whose Dime. propose-moi des sujets",
+      "expected_output": "Step 1, in the chat, no file: 3 topics in the form '[Brand] [free or cheap thing]: Who Pays?' (or 'Who Paid?'), each under 40 characters with its count; for each, the payer lead, the decision to check, a measured demand signal with source and date (docs/finance/marques.md, 2026-11-05, or a fresh API search with its date; never a view count from memory), and a risk line. Starts from the next undone topic of PLAN_ACTION § 3 (Uber first if no video exists). A 2-sentence recommendation, then ONE question ('Which one do we make?'), in French since Franco writes French. Then the self-critique and the grade question come after his choice, not in the same message.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "on fait Uber. lance la recherche et le fact check",
+      "expected_output": "Step 2 for 01_uber: 01_research.md (sources read in full with the date read; payer chain investors -> drivers -> taxi owners or a stated change; the dated decision with its people; three scenes each with a person, a place, a gesture and a sourced line; nuance; leads not used) and 02b_factcheck.md in the FACTCHECK_FORMAT (## Facts, ## People, ## Signature; fact texts written as the script will say them; 'verified' only for sources actually read, with a read date; blocked or unread sources marked [TO VERIFY]; Horan's 41% labelled as his estimate). Does not reuse tests/fixtures/whosedime/factcheck_clean.md. Runs 'checker.py fingerprint' and gives Franco the exact 'Signed: Franco, YYYY-MM-DD, sha256:...' line to paste. Pause 2: 5-line summary, Drive links, one question asking him to read and sign. No outline, no script.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "voici le fact check signé d'Uber. écris le plan puis le script",
+      "expected_output": "Checks the signature hash first (fingerprint matches). Step 3a: 02a_outline.md with the six beats of PLAN_ACTION § 2, word budgets, fact ids, people and scenes, three dollar steps each with payer, amount and fact id, total 2,000-2,250 words; Pause 3 (one question). After 'oui': 02_script.md with the headings '## Cold open', '## Setup', '## The decision', '## Follow the dollar' (three '### Step' parts), '## Consequences', '## Lesson and next', [^Fnn] tags, quotes word for word from the people block, a next-video phrase in the last 60 words; 02_script_voice.txt (same words, numbers and symbols spelled out, lexicon respellings, one sentence per line, blocks of 2-4 sentences); 02c_listen_20s.txt (about 50 words). Acceptance: 'python3 whosedime/common/checker.py all <folder>' exits 0 with at most 3 warnings, each warning explained. E1-E5 self-check with places, then Pause 4 asking Franco to listen to the 20 s sample. Reference run: files/01_uber/ (0 blocks, 1 warning, 2,087 words).",
+      "files": ["files/01_uber/02b_factcheck.md"]
+    },
+    {
+      "id": 4,
+      "prompt": "reprends Uber, j'ai corrigé une date dans le fact check",
+      "expected_output": "Reads the folder; sees 02b_factcheck.md signed but 'checker.py fingerprint' gives a different hash than the Signed line (the voice check says 'registry changed since it was signed'). Does not edit the signature itself: shows what changed if it can (the line Franco edited), checks that the script still matches the registry ('checker.py script'), gives the new 'Signed: Franco, <date>, sha256:...' line and asks Franco, in one question, to re-read and sign again. Does not move on to the voice before the new signature.",
+      "files": ["files/01_uber/02b_factcheck.md (with one verified line edited)"]
+    },
+    {
+      "id": 5,
+      "prompt": "(on claude.ai, with the .skill archive only) le script d'Uber est validé, fais la version voix",
+      "expected_output": "Says in one line that the claude.ai archive has no checker: the signature hash and the voice check need Claude Code with the repo. Stops before the voice version; gives the opening message to continue in Claude Code. Does not produce an unchecked 02_script_voice.txt.",
+      "files": []
+    }
+  ]
+}
