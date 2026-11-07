@@ -1,5 +1,8 @@
 # Zehon — chaîne YouTube « de la matière brute à l'objet »
 
+> **Active channel: Whose Dime** (Zehon frozen on 2026-11-07). Start with
+> [docs/whosedime/STATE.md](docs/whosedime/STATE.md); session S01 rewrites this file in English.
+
 Vidéos de 8 min en français : comment une matière devient un objet du
 quotidien. Franco tranche les sujets et valide aux pauses ; Claude écrit le
 contenu, Franco produit les pièces (images Gemini, voix Colab).
