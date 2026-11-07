@@ -24,5 +24,8 @@ contenu, Franco produit les pièces (images Gemini, voix Colab).
   Modifier `zehon/<skill>/`, puis `python3 zehon/synchroniser_skills.py`.
 - Tests : `python3 -m unittest discover -s tests`.
 - `git fetch` avant chaque push.
+- À chaque livrable généré : critique, grille de Franco et ligne de journal,
+  selon [docs/audit/PROTOCOLE_CRITIQUES.md](docs/audit/PROTOCOLE_CRITIQUES.md).
+- Toujours donner le lien vers chaque rapport rédigé.
 - L'ancienne chaîne (Shorts anglais, agents `short-*`, Remotion) est
   archivée sur la branche `archive/pipeline-shorts-2026-09-30`.
