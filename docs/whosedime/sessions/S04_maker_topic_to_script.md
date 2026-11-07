@@ -5,6 +5,7 @@
 > `whosedime/common/checker.py` reads (`02b_factcheck.md` in the
 > [FACTCHECK_FORMAT](../../../whosedime/common/FACTCHECK_FORMAT.md),
 > `[^Fnn]` tags, `## Cold open`... headings, `02_script_voice.txt`).
+> Added by Franco on 2026-11-07: task 0 fixes two S03 checker gaps first.
 
 ## Context
 
@@ -36,6 +37,27 @@ for the eval facts; never print `YOUTUBE_API_KEY` or `SUPADATA_API_KEY`.
 6. For structure only: `zehon/content-maker/SKILL.md`, `references/etape1_sujet.md` to `etape3_script.md`, `evals/evals.json` (do not edit; do not translate: rewrite for "Who Pays?")
 
 ## Do
+
+0. **Two checker fixes (Franco, 07/11), before the skill.** In
+   `whosedime/common/checker.py`, with tests in `tests/test_checker.py`:
+   - **Signature bound to the content.** The signature line becomes
+     `Signed: Franco, YYYY-MM-DD, sha256:<12 hex>`, the hash taken over the
+     registry text without its `## Signature` section. A new command
+     `checker.py fingerprint 02b_factcheck.md` prints the value to paste.
+     A missing or different hash blocks `voice` ("registry changed since it
+     was signed"). Update `FACTCHECK_FORMAT.md` and the fixtures
+     (`factcheck_clean.md` gets its hash). *Check:* a test edits one
+     verified line of a signed copy and `voice` blocks; the unchanged copy
+     passes.
+   - **Names at the start of a sentence.** A capitalised first word that
+     is in no registry line, not in the not-names lists, and never written
+     in lower case elsewhere in the file is collected; all of them go into
+     **one** `WARN` line (not a block: a common word cannot be told from a
+     name there). *Check:* a test where "Goldman" appears only as a first
+     word gets the warning; the clean Uber script still has at most 3
+     warnings (say the measured count).
+   Then update the checker docstring, `whosedime/common/README.md` and the
+   two lines of "Open issues" in `STATE.md`.
 
 1. **Skill frame.** `whosedime/whosedime-maker/SKILL.md` (English, under
    250 lines): what the skill does, where it runs (Claude Code with the
@@ -71,12 +93,13 @@ for the eval facts; never print `YOUTUBE_API_KEY` or `SUPADATA_API_KEY`.
 
 - Write steps 4-5 (scenes, publication: S05), the voice notebook (S06),
   or anything in Drive (S08).
-- Edit `checker.py`, `style_thresholds.json` or the lists to make an eval
-  pass: a misfire goes to "Open issues" and the critique log.
+- Edit `checker.py` beyond task 0, or `style_thresholds.json` or the lists
+  to make an eval pass: a misfire goes to "Open issues" and the critique log.
 - Touch Zehon files.
 
 ## Deliverables
 
+- Task 0: `checker.py`, `FACTCHECK_FORMAT.md`, `README.md`, tests and fixtures updated
 - `whosedime/whosedime-maker/` (SKILL.md, references 1-3, evals), synced
   mirror and `whosedime/whosedime-maker.skill`
 - `docs/whosedime/STATE.md` updated, one line per deliverable group in

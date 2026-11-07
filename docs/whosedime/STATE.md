@@ -52,9 +52,9 @@ Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
   sentence's first word is not checked; titles and thumbnails are checked
   for numbers, not names; a number matches by value, not unit ("20 minutes"
   passes because "$20 million" is registered).
-- **Signature not bound to the content** (an edited registry stays signed);
+- **Signature not bound to the content** (an edited registry stays signed;
+  fix = S04 task 0, as is a warning for unknown sentence-first names);
   **C2 partial**: a title may cite its fact id (`[^Fnn]`), not required (S05).
 - `tests/fixtures/whosedime/factcheck_clean.md`: facts from memory (labelled), never a source.
-- **Style rules are weak evidence** (n = 30, all `warn`). Re-measure after video 10.
-- Stale: ROADMAP rule 2 (old branch), `whosedime/README.md` ("Only this
-  README exists today"). No container setup script. No graded critique line yet.
+- **Style rules are weak evidence** (n = 30, all `warn`): re-measure after video 10.
+  Stale: ROADMAP rule 2, `whosedime/README.md`. No setup script. No graded critique yet.
