@@ -29,10 +29,10 @@ n'était « tout juste pas performant ».
 | Langue | Français |
 | **Ligne** | « De la matière brute à l'objet. » Chaque vidéo raconte comment une matière est devenue un objet du quotidien, de la préhistoire à aujourd'hui, et **montre les preuves** |
 | Format | Vidéo longue en paysage d'environ 8 min (environ 1 480 mots), plus 1 à 2 Shorts ; 1 vidéo par semaine ; 20 h par semaine |
-| Propriété | Chaîne et AdSense au nom d'une connaissance en France ; Franco est gestionnaire, avec un contrat écrit (à signer avant la première vidéo ; il doit couvrir **les droits sur la voix de Franco**) |
+| Propriété | Chaîne et AdSense au nom d'une connaissance en France ; Franco est gestionnaire, avec un contrat écrit (à signer avant la première vidéo ; la voix n'est plus celle de Franco : voir la ligne « Voix ») |
 | **Style** | La grammaire du genre (Zelan, Zenn), **en calme** : des histoires racontées posément, de légers mouvements de caméra de temps en temps, du texte animé sobre |
 | Images | Générées par **Gemini** (Franco a plusieurs comptes) |
-| Voix | **Clone de la voix de Franco** (Qwen3-TTS) |
+| Voix | ~~Clone de la voix de Franco~~ → **décision du 30/09 : une voix d'homme au ton narratif créée sur ElevenLabs**, clonée par Qwen3-TTS dans Colab (référence dans `Charte/voix/`). **À vérifier** : les conditions commerciales de l'offre ElevenLabs utilisée |
 | Première vidéo | **Le sel** (dossier prêt : [`pilote_sel/01_recherche.md`](pilote_sel/01_recherche.md), plan : [`pilote_sel/02_plan_script.md`](pilote_sel/02_plan_script.md)) |
 | Assemblage | Skill **`video-maker`** (HyperFrames), dans **Claude Code web** |
 | Anciennes skills | Franco les supprimera (voir §7, un point à trancher avant) |
@@ -49,8 +49,9 @@ n'était « tout juste pas performant ».
 - **Rythme** : une image toutes les 6 à 8 s, soit 60 à 80 images pour 8 min
   (**hypothèse** : le rythme de Zelan n'est pas mesuré).
 - **Texte animé** : seulement les mots-clés, les dates et les chiffres, qui
-  apparaissent en fondu. Blanc cassé avec une ombre douce ; dates et lieux
-  en chasse fixe. **Le jaune cerné de noir est réservé à la miniature.**
+  apparaissent en fondu. Blanc cassé avec une ombre douce, sur un bandeau
+  sombre transparent (sans lui, les dates disparaissaient sur les images à
+  fond blanc : constaté sur le verre, 01/10) ; dates et lieux en chasse fixe. **Le jaune cerné de noir est réservé à la miniature.**
 - **Pièces à conviction** : de **vraies photos** sous licence libre, avec
   un cartel (objet, lieu, date, méthode de datation, statut établi,
   probable ou hypothèse, crédit et licence). **On ne génère jamais une
@@ -155,6 +156,14 @@ nomme la ligne).
   fichier (une scène = un prompt), pour que Franco le copie dans Gemini.
 
 ## 7. La skill `video-maker` (Claude Code web, HyperFrames)
+
+> **Construite le 30/09/2026** (`zehon/video-maker/`), **sans HyperFrames** :
+> Python (OpenCV, Pillow) + FFmpeg, le même script dans Claude Code (plan,
+> extraits) et dans Colab (la vidéo entière, écrite dans Drive), parce que le
+> connecteur Drive ne transfère pas plus de 10 Mo par fichier (mesuré). Les
+> preuves et cartels ci-dessous sont dépassés (version « histoire simple ») ;
+> les plans animés (`clips/anim_NNN.mp4`) et les titres sont en place. Détail
+> et mesures : `CONTEXTE.md`, bloc du haut.
 
 **Rôle** : lire un dossier de vidéo, valider, assembler, rendre. Elle
 n'écrit ni le script ni les prompts.
