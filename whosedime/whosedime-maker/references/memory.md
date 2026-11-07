@@ -55,7 +55,7 @@ Pending proposals: lexicon `Rumayyan` -> `Roo-MY-yan` (not agreed yet)
 | 4 Scenes and prompts | done | 2026-11-20 | 03_scenes.md | checker scenes exit 0 (91 scenes) |
 | 5 Publication text | waiting for Franco | 2026-11-20 | 04_publication.md | checker all exit 0 |
 | Pieces | in progress | 2026-11-21 | images/ 31 of 59, clips/ 0 of 5, charts/ 0 of 25 | counted in the folder |
-| Voice | not started | — | voice/ | voice notebook (build S06) |
+| Voice | not started | — | voice/ | voice notebook: `voice/state.json` |
 | Render | not started | — | render/ | assembly and its verdict (build S07) |
 | Publication | not started | — | — | YouTube link, date |
 ```
@@ -66,9 +66,12 @@ Pending proposals: lexicon `Rumayyan` -> `Roo-MY-yan` (not agreed yet)
   count of files, Franco's word with its date. "Done" without proof is not
   done.
 - The **pieces, voice and render** rows are rewritten from what the folder
-  holds (count the files; read the notebooks' own state files, defined by
-  build sessions S06 and S07). The **publication** row is done when Franco
-  gives the YouTube link and the date.
+  holds (count the files; read the notebooks' own state files: for the
+  voice, `voice/listen_20s.json` once the 20 s sample is made, then
+  `voice/state.json`, `status` `running`, `ready` or `failed`, with its
+  flagged dry endings; the render's comes with build session S07). The
+  **publication** row is done when Franco gives the YouTube link and the
+  date.
 - A step redone (a new script) puts every later step back to `redo`, with
   the reason: scenes hold the script's words, the voice its text.
 
@@ -120,8 +123,9 @@ piling them up.
 ```
 
 Franco fills in the YouTube Studio numbers; you write the speaking rate
-read from the voice notebook's output (build session S06) and the word
-target that follows from it. **Number discipline** (kept from Zehon):
+read from the voice notebook's `voice/state.json`: `rate_total_wpm` (the
+whole track, pauses included, the one comparable with the niche's 142-154)
+with `rate_speech_wpm` beside it, and the word target that follows from it. **Number discipline** (kept from Zehon):
 views at 24 h, 72 h and 7 days, separately; a late reading carries its real
 delay ("9 days"); a value still processing is not replaced by 0; **no
 conclusion before 3 videos** (until then a lesson is an observation); **one

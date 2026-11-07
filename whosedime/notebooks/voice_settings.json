@@ -1,0 +1,80 @@
+{
+  "_about": "Settings of the Whose Dime voice notebook (S06). The one place for every number the voice uses (audit C5): the notebook form holds only the video, the mode and Franco's answers. Change a value here, by pull request to main; state.json records the values each run used.",
+  "files": {
+    "voice_text": "02_script_voice.txt",
+    "sample_text": "02c_listen_20s.txt",
+    "script": "02_script.md",
+    "out_dir": "voice",
+    "wav": "voice.wav",
+    "words": "words.json",
+    "state": "state.json",
+    "sample_wav": "listen_20s.wav",
+    "sample_record": "listen_20s.json",
+    "cache": "cache",
+    "blind_dir": "blind_test"
+  },
+  "drive": {
+    "root": "/content/drive/MyDrive/WhoseDime",
+    "videos": "Videos",
+    "voice": "Voice"
+  },
+  "pauses_ms": {
+    "full_stop": 250,
+    "question": 450,
+    "quote": 450,
+    "block": 700
+  },
+  "_pauses_ms_source": "audit C6.2 (250 / 450 / 700 ms); a quoted line as a question: voice_direction.md, assumed. Starting points, to tune by ear on the 20 s sample (D6)",
+  "stretch_inner_pauses": true,
+  "_stretch_inner_pauses_source": "assumed (S06): inside a block the model makes its own pause at a sentence end; when it is shorter than the target above, silence is added at the quietest point of the gap (never shortened). Turn off if it sounds stitched",
+  "trim": {
+    "silence_below_speech_db": 40,
+    "keep_ms": 40,
+    "fade_ms": 8
+  },
+  "_trim_source": "assumed (S06): a block clip keeps 40 ms of its own silence at each edge, then the pauses above are added",
+  "dry_ending": {
+    "word_end_gap_ms": 60,
+    "tail_ms": 30,
+    "tail_loud_db": -25,
+    "retries": 2,
+    "retry_seed_step": 1000
+  },
+  "_dry_ending_source": "audit C6.3: last transcribed word ending less than 60 ms before the clip end, or sound still loud in the last 30 ms; redo with another seed, twice at most, then flag. 'Loud' = the last 30 ms within 25 dB of the clip's speech level (95th percentile of 10 ms frames): assumed, to measure on video 1",
+  "rate_wpm": {
+    "aim": 149,
+    "target": [142, 154],
+    "never_outside": [138, 161]
+  },
+  "_rate_wpm_source": "voice_direction.md, measured on the niche hits (n = 20): median 149, interquartile 142-154, 10th-90th percentile 138-161. Applies to the whole track (rate_total_wpm)",
+  "loudness_lufs": -16.0,
+  "peak_max": 0.95,
+  "_loudness_source": "Zehon voice notebook (YouTube level), kept",
+  "similarity_min": 0.8,
+  "_similarity_min_source": "Zehon voice notebook: a block heard at less than 80 % of its text is listed to re-listen",
+  "seed": 42,
+  "redo_seed_offset": 500,
+  "language": "English",
+  "models": {
+    "design": "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign",
+    "base": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+    "whisper": "large-v3-turbo"
+  },
+  "design": {
+    "descriptions": {
+      "A": "Warm American male narrator in his mid-40s, General American accent. Conversational storyteller, as if telling a friend a story over coffee: relaxed, curious, a little wry. Medium-low pitch, clear consonants, natural rises on questions, lands the end of each sentence without trailing off. Not a newsreader, not a trailer voice, no hype.",
+      "B": "Warm American female narrator in her late 30s, General American accent. Conversational storyteller, as if telling a friend a story over coffee: relaxed, curious, a little wry. Medium-low pitch, clear consonants, natural rises on questions, lands the end of each sentence without trailing off. Not a newsreader, not a trailer voice, no hype.",
+      "C": "Warm American male narrator in his early 30s, General American accent, slightly faster and drier. Conversational storyteller, as if telling a friend a story over coffee: relaxed, curious, a little wry. Medium-low pitch, clear consonants, natural rises on questions, lands the end of each sentence without trailing off. Not a newsreader, not a trailer voice, no hype."
+    },
+    "_descriptions_source": "voice_direction.md, 'VoiceDesign description to try first' (A, checked equal by a test) and its two variants (B: female, late 30s; C: male, early 30s, slightly faster and drier)",
+    "reference_text": "So here's a question nobody asks at the checkout. If the thing is free, who's paying for it? Usually, it's not who you think. Picture an app that loses a million dollars a day. A million! And the people covering it have never even opened the app. Strange, right? Stick around. We're going to follow the money, one dollar at a time, and see where it lands.",
+    "_reference_text_source": "written in S06 for the reference only (never published): about 70 words, 20-30 s, with a statement, two questions, a number, a surprise and a wry aside, so the clone hears several intonations (audit C6, 'hypothesis to test next'; voice_direction.md V5)",
+    "reference_seconds": [20, 30]
+  },
+  "blind_test": {
+    "sentences": 20,
+    "anchors": [0.0, 0.25, 0.5],
+    "old_pause_ms": 300
+  },
+  "_blind_test_source": "voice_direction.md, blind test for video 1 (D7): 20 sentences as 6-7 blocks from the cold open (start), the decision beat (about 25 % of the words) and one gear-step (about 50 %); version A one clip per sentence with 300 ms between"
+}
