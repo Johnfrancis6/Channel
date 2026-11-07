@@ -47,7 +47,7 @@ lisant.
   prompt : Franco les copie de là vers Gemini (demandé le 30/09).
 - Il génère les images lui-même dans Gemini et te les montre : **regarde
   chaque image qu'il t'envoie de près** (bras en trop, texte mal
-  orthographié, personnage qui change) avant de dire qu'elle est bonne.
+  orthographié, personnage qui change, planche recopiée dans la scène) avant de dire qu'elle est bonne.
 - Il répond en français, souvent brièvement : lis ce qu'il dit vraiment,
   et suis-le, même quand ça contredit ta recommandation.
 
@@ -99,11 +99,53 @@ Chaque étape a sa référence : **lis-la au moment de l'étape, pas avant**.
 ensuite. Un mauvais sujet ou un mauvais angle gâche tout le reste ; une
 structure fausse se corrige en 10 lignes au plan, pas en réécrivant 1 480
 mots. Après la relecture du script, les scènes et la publication en
-découlent mécaniquement : ne t'arrête plus, sauf si quelque chose bloque
-vraiment.
+découlent mécaniquement : ne t'arrête plus pour demander, sauf si quelque
+chose bloque vraiment (les fins de session, elles, restent : voir « Les
+sessions »).
 
 À chaque pause, termine par **une seule question**, avec ta
 recommandation (« Je recommande le verre : … Tu valides ? »).
+
+## Les sessions : où t'arrêter, et comment relancer
+
+Une vidéo se fait en **5 sessions**, une par phase : une session courte
+coûte moins de tokens, et chaque phase a son modèle. **À la fin d'une
+phase, arrête-toi** : ne commence pas la phase suivante dans la même
+session, même si Franco dit « continue ». Tout est déjà dans Drive.
+
+| Session | Phases | Modèle | S'arrête quand |
+|---|---|---|---|
+| 1. Sujet et recherche | étapes 1 et 2 (pauses 1 et 2) | **Sonnet 5.5** | Franco a validé l'angle et le hook (pause 2) |
+| 2. Plan et script | étapes 3a et 3b (pauses 3 et 4) | **Opus 5.5** | Franco a validé le script (pause 4) |
+| 3. Scènes et publication | étapes 4 et 5 | **Sonnet 5.5** | `04_publication.md` est déposé : Franco part produire les pièces |
+| 4. Les pièces | l'état des pièces, la relecture des images, la voix | **Sonnet 5.5** | toutes les images sont là et la voix est prête |
+| 5. Le montage | skill `video-maker` | **Haiku 4.5** | voir `video-maker` (plan, puis verdict) |
+
+Pourquoi ces modèles (recommandation, pas mesure) : le script est le
+produit, il mérite le modèle le plus fort ; la recherche, les prompts et la
+relecture d'images demandent un bon modèle sans plus ; le montage ne fait
+que lancer des scripts et lire un verdict court.
+
+**À chaque arrêt**, termine ta réponse par ce bloc, et rien après :
+
+> ⏹️ **Fin de la session N.** Avant la suivante : *(ce que Franco doit
+> faire, en une ligne : « rien », « génère les images dans Gemini »…)*
+> **Prochaine session : modèle <Modèle>**, avec le connecteur Google Drive.
+
+puis le prompt de relance dans un bloc de code, 4 lignes au plus :
+
+```text
+Zehon, vidéo <nn>_<sujet> : session <N>, <nom de la phase>.
+git fetch origin <branche> && git checkout <branche> (reste dessus).
+<une ligne de contexte utile, s'il y en a : « Franco a choisi l'angle X »>
+Économise les tokens : lis seulement ce qui sert.
+```
+
+`<branche>` est la branche de travail donnée dans le bloc du haut de
+`docs/chaine2/CONTEXTE.md` (tant que tout n'est pas fusionné dans `main`,
+les skills à jour n'existent que sur elle). La ligne de contexte ne répète
+pas ce qui est dans Drive. Si Franco ouvre une session avec un autre
+modèle que celui de la table, fais le travail quand même, sans le signaler.
 
 ## Les fichiers dans Drive
 
@@ -148,14 +190,15 @@ dossier de la vidéo et réponds par un tableau court :
 
 | Pièce | Où | Prête quand |
 |---|---|---|
-| Planche du bonhomme | `Zehon/Charte/planche_bonhomme.png` | le fichier existe |
-| Images | `images/scene_NNN.png` | une par scène `image` **et** `video` de `03_scenes.md` ; nomme celles qui manquent |
-| Plans animés | `clips/scene_NNN.mp4` | un par scène `video` ; un clip manquant n'empêche pas le montage (l'image le remplace), dis-le |
+| Planche du bonhomme | `Zehon/Charte/planche_bonhomme.png` (ou `.jpg`) | le fichier existe |
+| Images | `images/scene_NNN.png` (ou `.jpg`) | une par scène `image` **et** `video` de `03_scenes.md` ; nomme celles qui manquent, et réaffiche leur prompt en entier |
+| Plans animés | `clips/anim_NNN.mp4` (ou `scene_NNN.mp4`) | un par scène `video` ; un clip manquant n'empêche pas le montage (l'image le remplace), dis-le |
 | Voix off | `voix/etat.json` | `"statut": "pret"` (lis-le en téléchargement brut) ; `en_cours` depuis plus d'une heure = Colab coupé : relancer le notebook, il reprend où il s'était arrêté ; `echec` : donne son champ `erreur` ; pas de fichier = notebook pas encore lancé |
 | Miniatures | `miniatures/` | au moins 3 images |
 
 **La voix se fait avec le notebook `voix_zehon.ipynb`** (dans `Zehon/`, à
-ouvrir avec Google Colab ; source : `zehon/notebooks/` du dépôt). Il lit
+ouvrir avec Google Colab : un lanceur qui exécute le vrai notebook du dépôt,
+`zehon/notebooks/`, sans jamais être recopié). Il lit
 `02_script_voix.txt`, clone la voix rangée dans `Zehon/Charte/voix/` (ou
 une nouvelle, envoyée depuis le notebook avec sa transcription), et
 dépose `voix.wav`, `mots.json` (bornes de chaque phrase et de chaque mot)
@@ -169,8 +212,9 @@ Quand la voix est prête :
   et recalcule les mots pour 8 min : c'est le chiffre que l'étape 3
   utilisera pour les vidéos suivantes.
 
-L'assemblage (`video-maker`) n'est possible que quand toutes les pièces
-sont prêtes ; tant que cette skill n'existe pas, dis-le simplement.
+L'assemblage se fait avec la skill **`video-maker`** : quand toutes les
+images sont là et la voix prête, propose-la (« je monte le sel ? »).
+Un extrait se monte même avant, avec les pièces de ses scènes.
 
 ## Ce que « fini » veut dire
 

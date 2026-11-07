@@ -22,8 +22,10 @@ avec *le sucre* (une « découverte »).
 - Vidéo longue, **paysage 16:9, environ 8 min, environ 1 480 mots**.
 - 1 vidéo par semaine. Pas de Shorts pour l'instant.
 - Langue : **français**, **tutoiement**.
-- Voix : un clone de la voix de Franco (synthèse vocale). D'où la version
-  voix du script (étape 3).
+- Voix (décision de Franco du 30/09/2026) : **une voix d'homme au ton
+  narratif, créée sur ElevenLabs**, dont un échantillon (`Zehon/Charte/voix/`)
+  sert de référence au clonage par Qwen3-TTS dans Colab. Ce n'est pas la voix
+  de Franco. D'où la version voix du script (étape 3).
 
 ## Le ton
 

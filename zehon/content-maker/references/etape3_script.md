@@ -23,7 +23,7 @@ Mesuré sur *Comment nos ancêtres ont-ils découvert le fer ?* (Zelan,
 
 Ce modèle vient d'**une seule vidéo** : c'est un point de départ, que
 `Memoire/lecons.md` corrigera au fil des vidéos. Si `lecons.md` dit
-autre chose (par exemple un débit mesuré sur la voix de Franco), c'est
+autre chose (par exemple le débit mesuré sur la voix de la chaîne), c'est
 `lecons.md` qui gagne.
 
 ## La structure Zehon
@@ -99,8 +99,8 @@ blocs en commentaire (`## Hook`, `## Q1 — T1`…). Règles :
 
 ## La version voix : `02_script_voix.txt`
 
-La même histoire, préparée pour la synthèse vocale (clone de la voix de
-Franco). Ce fichier remplace l'ancien « filtre TTS » :
+La même histoire, préparée pour la synthèse vocale (la voix de la
+chaîne, clonée par Qwen3-TTS). Ce fichier remplace l'ancien « filtre TTS » :
 
 - **une phrase par ligne**, 8 à 18 mots de préférence, **jamais plus de
   22** : coupe les phrases longues à une articulation naturelle ;
