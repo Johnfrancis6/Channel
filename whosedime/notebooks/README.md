@@ -1,6 +1,6 @@
 # Whose Dime notebooks (Colab)
 
-Built in session S06. Colab always runs `main` (decision D5).
+Voice built in session S06, assembly in S07. Colab always runs `main` (decision D5).
 
 | File | Role |
 |---|---|
@@ -9,6 +9,8 @@ Built in session S06. Colab always runs `main` (decision D5).
 | [`voice_whosedime.py`](voice_whosedime.py) | all the logic, importable, tested without a GPU (`tests/test_voice_whosedime.py`, stub model) |
 | [`voice_settings.json`](voice_settings.json) | **every number** of the voice (pauses, detector, rates, seeds, model names, narrator descriptions): the one place (audit C5) |
 | [`launcher.py`](launcher.py) | runs a notebook's code cells; the launcher's form overrides the `settings` cell |
+| [`assembly_launcher.ipynb`](assembly_launcher.ipynb) | (S07) the Drive copy for the assembly: `VIDEO`, `MODE` (`plan`, `extract`, `full`), `SCENES`, `ROOT`; clones `main`, prints the commit |
+| [`assembly_whosedime.ipynb`](assembly_whosedime.ipynb) | (S07) the assembly notebook: thin cells around [`whosedime-video/scripts/assemble.py`](../whosedime-video/scripts/assemble.py) (skill [`whosedime-video`](../whosedime-video/SKILL.md)); no GPU |
 
 ## What a run writes, in `WhoseDime/Videos/<video>/voice/`
 

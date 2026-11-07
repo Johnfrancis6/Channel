@@ -70,7 +70,7 @@ conversation resumes from the files:
 | `02c_listen_20s.txt` | 3c | the 20 s listening sample (decision D6) |
 | `03_scenes.md` | 4 | the scenes (spoken text = the script word for word), chart specs with fact ids, Gemini and Flow prompts |
 | `04_publication.md` | 5 | titles, thumbnail variants, description, sources, notes (prompts, checklist) |
-| `images/`, `charts/`, `clips/`, `voice/`, `render/` | pieces, voice, render | made by Franco (Gemini, Flow), the voice notebook (S06), the assembly (S07) |
+| `images/`, `charts/`, `clips/`, `voice/`, `render/` | pieces, voice, render | made by Franco (Gemini, Flow), the voice notebook (S06), the assembly (`whosedime-video`) |
 
 The channel's memory (`WhoseDime/Memory/videos.md`, `lessons.md`) is in
 [`memory.md`](references/memory.md).
@@ -184,7 +184,7 @@ starts from the files. Models are a recommendation, not measured.
 | 1 | Topic and research | 1, 2 | Sonnet 5.5 | Pause 2 | reads `02b_factcheck.md` and signs it |
 | 2 | Script | 3a, 3b, 3c | Opus 5.5 | Pause 4 (Pause 3 inside) | listens to the 20 s sample |
 | 3 | Scenes and publication | 4, 5 | Sonnet 5.5 | Pause 5 | picks title and thumbnails; makes the images and clips; voice in Colab (notebook: build S06) |
-| 4 | Assembly and check | the assembly skill (build S07) | Opus 5.5 | render and its verdict | watches the render, uploads, gives the link |
+| 4 | Assembly and check | the skill `whosedime-video` | Opus 5.5 | render and its verdict | watches the render, uploads, gives the link |
 | 5 | Record | `00_state.md`, `videos.md`, `lessons.md` | Haiku 5.5 | memory up to date | views at 24 h, 72 h, 7 days |
 
 When the step you were asked for is done and its pause answered, stop,

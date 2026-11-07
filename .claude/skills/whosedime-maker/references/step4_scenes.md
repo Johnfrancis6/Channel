@@ -1,6 +1,6 @@
 # Step 4: Scenes and prompts
 
-**Goal**: `03_scenes.md`, the file the assembly (build session S07) reads
+**Goal**: `03_scenes.md`, the file the assembly (skill `whosedime-video`) reads
 to build the video, with the image prompts Franco pastes into Gemini and
 the clip prompts for Flow. **The prompts are also shown in full in the
 chat** (end of this file): Franco copies them from there.
@@ -38,7 +38,7 @@ its words.
 | type | How many | What is on screen | `visual` column |
 |---|---|---|---|
 | `image` | **50 to 55** | a Gemini illustration, with a slow camera motion | `images/scene_NNN.png` |
-| `chart` | **25 to 30** | a chart drawn by code from one or more `verified` facts of `02b_factcheck.md` (generator: build session S07) | `charts/scene_NNN.png` |
+| `chart` | **25 to 30** | a chart drawn by code from one or more `verified` facts of `02b_factcheck.md` (`whosedime-video/scripts/charts.py`) | `charts/scene_NNN.png` |
 | `video` | **4 to 5** | a short Flow clip animated from the scene's own Gemini image | `clips/scene_NNN.mp4` |
 | `title` | **1** | the "WHO PAYS?" title card, identical on every video, at the start of `## Setup` (about 0:45) | `—` |
 | `chapter` | **6** | a chapter card: The decision, the three dollar steps, Consequences, Lesson and next | `—` |
@@ -95,7 +95,7 @@ say why.
 # Scenes — 01_uber "Uber Was Cheap. Who Paid?"
 
 **91 scenes**: 54 image, 25 chart, 5 video, 1 title, 6 chapter. ...
-Palette (channel, every image and chart): cream #F4ECDD, dollar green #2F7A55, coral red #E0634F, mustard #E7B33E, navy ink #1E2B45.
+Palette (channel, every image and chart): <prompt_line of whosedime/common/palette.json>.
 
 ## Scenes
 
@@ -125,7 +125,9 @@ conversation per batch keeps the style steady (measured on Zehon,
 
 The one-line summary in italics tells Franco what the image shows. The
 **preamble** (copy it from the reference run; adapt nothing but the
-palette, and only if Franco changes the channel's palette) tells Gemini to
+palette: its `Palette:` sentence is the `prompt_line` of
+[`whosedime/common/palette.json`](../../common/palette.json), the one source
+of the channel colours, which the charts and the cards also read) tells Gemini to
 reply "OK", then make **one image per message with no text**, in the
 channel style: flat 2D editorial illustration, warm light, cream
 background, the palette, simple stylised people, generic products. Without

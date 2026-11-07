@@ -127,8 +127,8 @@ The sources are listed below. The illustrations are machine-made; every chart is
   then one line per `title` and `chapter` scene, in order, labelled with
   the card's text in sentence case (shortened: "The investors" for "PAYER
   ONE: THE INVESTORS"; a capitalised word after `--:--` reads as a name to
-  the checker). Times stay `--:--`: the assembly writes `chapters.txt`
-  (build session S07) and Franco copies the times. YouTube needs 0:00
+  the checker). Times stay `--:--`: the assembly writes `render/chapters.txt`
+  (skill `whosedime-video`) and Franco copies the times. YouTube needs 0:00
   first, at least 3 chapters, each at least 10 s.
 - **No name the registry does not hold**, no "AI" or tool names (the
   checker reads them as names): "machine-made" says it.

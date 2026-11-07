@@ -5,17 +5,17 @@ English YouTube channel **Whose Dime** (`@whosedime`), series **"Who Pays?"**:
 Build plan: [`docs/whosedime/ROADMAP.md`](../docs/whosedime/ROADMAP.md).
 Where we are: [`docs/whosedime/STATE.md`](../docs/whosedime/STATE.md).
 
-## Planned layout
+## Layout
 
-Only this README exists today. Each folder is created by the session named.
+Each folder was created by the session named (S09 still to come).
 
-| Folder | What it will hold | Session |
+| Folder | What it holds | Session |
 |---|---|---|
 | `research/` | storytelling rules, voice direction, transcript corpus | S02 |
-| `common/` | shared checker: fact registry, script vs publication, forbidden phrases | S03 |
+| `common/` | shared checker: fact registry, script vs publication, forbidden phrases; the channel palette (`palette.json`, S07) | S03 |
 | `whosedime-maker/` | the content skill: topic, research, script, scenes, publication | S04, S05 |
-| `notebooks/` | the English voice notebook (Colab) and its launcher | S06 |
-| `video-maker/` | assembly with chart scenes and chapter cards | S07 |
+| `notebooks/` | the voice notebook (S06) and the assembly notebook (S07), with their Colab launchers | S06, S07 |
+| `whosedime-video/` | the assembly skill: charts from the registry, cards, render, verdict (not `video-maker/`: that name is Zehon's skill) | S07 |
 | `watch/` | weekly competitor watch and its reports | S09 |
 
 ## Rules

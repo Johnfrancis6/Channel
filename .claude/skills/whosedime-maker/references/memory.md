@@ -56,7 +56,7 @@ Pending proposals: lexicon `Rumayyan` -> `Roo-MY-yan` (not agreed yet)
 | 5 Publication text | waiting for Franco | 2026-11-20 | 04_publication.md | checker all exit 0 |
 | Pieces | in progress | 2026-11-21 | images/ 31 of 59, clips/ 0 of 5, charts/ 0 of 25 | counted in the folder |
 | Voice | not started | — | voice/ | voice notebook: `voice/state.json` |
-| Render | not started | — | render/ | assembly and its verdict (build S07) |
+| Render | not started | — | render/ | `render/verdict_video.json`: `ready` true, its `code` |
 | Publication | not started | — | — | YouTube link, date |
 ```
 
@@ -69,7 +69,8 @@ Pending proposals: lexicon `Rumayyan` -> `Roo-MY-yan` (not agreed yet)
   holds (count the files; read the notebooks' own state files: for the
   voice, `voice/listen_20s.json` once the 20 s sample is made, then
   `voice/state.json`, `status` `running`, `ready` or `failed`, with its
-  flagged dry endings; the render's comes with build session S07). The
+  flagged dry endings; for the render, `render/verdict_video.json` and its
+  `ready`: an extract's `verdict_extract_*.json` never makes the render done). The
   **publication** row is done when Franco gives the YouTube link and the
   date.
 - A step redone (a new script) puts every later step back to `redo`, with
