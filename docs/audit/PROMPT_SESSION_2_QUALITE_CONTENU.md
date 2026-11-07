@@ -31,17 +31,49 @@ cette session ne le refait pas, elle s'appuie dessus.
    (`YOUTUBE_API_KEY`). Ne les affiche jamais. Reddit et Social Blade
    sont bloqués : pas de contournement.
 
+## Le contexte de narration : ce n'est pas celui de Zehon
+Zehon raconte, en français, comment une matière devient un objet (le sel,
+le verre) : un procédé, sans personnage central. **Whose Dime est un autre
+métier de narrateur** : en anglais américain, un **conteur d'histoires de
+startups et d'industries qui ont réussi**, dans la série « Who Pays? ».
+Chaque vidéo suit des fondateurs et des dirigeants nommés, une décision
+qui a fait gagner l'entreprise, puis l'argent jusqu'à celui qui paie
+(« comment Costco a gagné, et qui paie pour ça »). Toute règle tirée de
+Zehon ou des transcriptions doit donc être **adaptée à ce contexte** :
+- les modèles sont les conteurs du créneau (Crayon Capital, Built On You,
+  CEOzoned, JunkBondInvestor, MagnatesMedia), pas les chaînes de procédés ;
+- l'unité du récit est la personne et sa décision, pas l'étape de
+  fabrication ;
+- le succès se raconte avec sa tension (le prix, le revers, le paradoxe) :
+  les titres de succès pur font 0,84 fois la médiane de leur chaîne,
+  ceux qui portent une tension 1,31 (rapport Crayon) ;
+- le ton est celui d'un narrateur qui raconte, jamais d'un conseiller
+  financier (avis ACVM 31-369, politique YouTube sur les personas experts).
+Pour chaque règle proposée, dis si elle vient de Zehon, des transcriptions
+du créneau, ou des deux, et ce qui change pour « Who Pays? ».
+
 ## Ce que j'attends, dans l'ordre
-1. **Qualité du contenu.** Mes scripts et ma voix off sont robotiques,
-   sans narration humaine, peu nuancés, peu compréhensibles et très
-   formels. Compare, à partir de transcriptions, mes scripts avec les hits
-   du créneau (Crayon Capital, Built On You, CEOzoned, JunkBondInvestor) :
-   personnages, scènes, dialogues, rythme des phrases, registre, nuances,
-   explications. Donne des règles d'écriture mesurables (longueur des
-   phrases, part de scènes, nombre de personnages nommés…) et réécris un
-   passage témoin avant/après. Fais de même pour la voix : ce qui la rend
-   robotique et les réglages ou méthodes qui la corrigent, à tester à
-   l'aveugle.
+1. **Qualité du contenu, pour le narrateur de « Who Pays? ».** Mes scripts
+   et ma voix off actuels (Zehon) sont robotiques, sans narration humaine,
+   peu nuancés, peu compréhensibles et très formels. Analyse, à partir des
+   transcriptions (Supadata), comment les hits du créneau racontent une
+   startup ou une industrie qui réussit :
+   - ouverture (personnage nommé et paradoxe, mesurés chez Crayon) ;
+   - mise en scène du fondateur et de sa décision ;
+   - mini-scènes dialoguées ;
+   - rythme des phrases, registre et humour ;
+   - façon de nuancer (« mais », revers, chiffres contestés) ;
+   - façon d'expliquer un mécanisme d'argent simplement ;
+   - transitions entre étapes.
+   Compare avec mes scripts Zehon pour situer l'écart, sans les prendre
+   pour modèle. Donne des règles d'écriture mesurables pour « Who Pays? »
+   (longueur des phrases, part de scènes, personnages nommés par minute,
+   questions posées au spectateur…). Réécris un passage témoin avant/après
+   **sur un sujet Who Pays?** (par exemple l'ouverture de « Uber Was Cheap.
+   Who Paid? »). Fais de même pour la voix : quelle voix de conteur
+   américain (énergie, débit, pauses, voix des personnages dans les
+   dialogues), ce qui rend la voix actuelle robotique, et les réglages ou
+   méthodes à tester à l'aveugle.
 2. **Veille hebdomadaire sur les concurrents de Whose Dime** (pas Zehon) :
    un outil qui relève chaque semaine, pour environ 300 unités de quota,
    les nouvelles vidéos et les hits (≥5 fois la médiane) des chaînes du
