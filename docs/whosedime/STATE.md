@@ -15,7 +15,7 @@ Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
   session table. Checker: new `scenes` target, new `title-source` rule (C2).
   Uber eval: 91 scenes, `checker.py all` exit 0 (measured). Haiku "where are the videos?" test passed once
   ([evals README](../../whosedime/whosedime-maker/evals/README.md)).
-- **PR to `main` opened in S05** (S02-S05 work): Franco merges. No Drive folder yet (S08).
+- **PR to `main`**: [Johnfrancis6/Channel#3](https://github.com/Johnfrancis6/Channel/pull/3) (S02-S05), Franco merges. No Drive folder yet (S08).
 
 ## Branches
 
