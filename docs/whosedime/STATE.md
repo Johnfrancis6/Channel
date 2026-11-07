@@ -15,14 +15,14 @@ Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
   session table. Checker: new `scenes` target, new `title-source` rule (C2).
   Uber eval: 91 scenes, `checker.py all` exit 0 (measured). Haiku "where are the videos?" test passed once
   ([evals README](../../whosedime/whosedime-maker/evals/README.md)).
-- **PR to `main`**: [Johnfrancis6/Channel#3](https://github.com/Johnfrancis6/Channel/pull/3) (S02-S05), Franco merges. No Drive folder yet (S08).
+- **Merged into `main`**: [Johnfrancis6/Channel#3](https://github.com/Johnfrancis6/Channel/pull/3) (S02-S05). No Drive folder yet (S08).
 
 ## Branches
 
 | Branch | Role |
 |---|---|
-| `claude/blissful-tesla-abtjgt` | **work branch** for build sessions (from S02) |
-| `main` | production (Colab launchers); has S01, gets S02-S05 when the PR is merged |
+| `claude/blissful-tesla-abtjgt` | **work branch** for build sessions (from S02; recreated from `main` after #3) |
+| `main` | production (Colab launchers); has S01 to S05 |
 | `claude/zelan-studio-analysis-rws9f6` | old Zehon Drive launchers; leave it (Zehon frozen) |
 
 ## Tools

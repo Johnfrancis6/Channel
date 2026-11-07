@@ -2,8 +2,8 @@
 
 > Changes from ROADMAP.md: S05 defined the per-video state (`00_state.md`,
 > `whosedime-maker/references/memory.md`): the notebook writes its own
-> state file in `voice/` and the speaking rate that `lessons.md` reads. The
-> S05 pull request to `main` may still be open: work on the branch anyway.
+> state file in `voice/` and the speaking rate that `lessons.md` reads. S02
+> to S05 are merged into `main` (#3); the work branch was recreated from it.
 > Added by Franco on 2026-11-07 (decision D12): task 0 lets thumbnail
 > prompts name the well-known executive they caricature.
 
@@ -94,7 +94,7 @@ Stay on this branch. `git fetch` before every push. Never print
 5. **Launcher** `whosedime/notebooks/voice_launcher.ipynb` (or the shared
    launcher), pointing to `main` (D5), printing the commit it runs.
 6. **Sync and tests**: tests green; no PR this session (S07 ends with one,
-   ROADMAP rule 2), unless the S05 PR is merged and Franco asks.
+   ROADMAP rule 2), unless Franco asks.
 
 ## Do not
 
