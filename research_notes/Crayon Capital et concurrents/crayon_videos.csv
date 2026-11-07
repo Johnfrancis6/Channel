@@ -1,0 +1,34 @@
+n,date,titre,duree_min,vues,likes,commentaires,sponsor,document_sources
+1,2025-04-22,Every Financial Crisis Explained in 10 Minutes,10.9,77280,1853,70,,non
+2,2025-05-08,How One Man Pulled Off a $65 Billion Scam,11.6,238765,5214,256,,non
+3,2025-06-15,The 2008 Financial Crisis Explained Like You’re 5,13.4,2364711,50272,2989,,non
+4,2025-06-25,The Rise of Paypal Explained Like You're 5,12.6,126916,3762,108,,non
+5,2025-07-12,Bitcoin Explained Like You're 5,10.2,147219,3534,249,,non
+6,2025-07-19,The $63 BILLION Company That Sold Nothing,13.2,1095124,19522,1223,,non
+7,2025-08-15,The Great Depression Explained Like You’re 5,16.5,3003544,45558,2956,,non
+8,2025-09-08,The ENTIRE History of Elizabeth Holmes Explained Like You're 5,16.4,845283,9536,755,,non
+9,2025-10-03,The Wolf of Wall Street Scam Explained Like You're 5,16.6,4287110,80035,3387,,non
+10,2025-10-27,The Dot-Com Bubble Explained Like You're 5,12.2,466388,10788,411,,non
+11,2025-11-28,How Jeff Bezos Actually Built Amazon,20.2,1176006,20400,760,,non
+12,2025-12-12,The AI Bubble Explained Like You're 5,12.2,524935,13946,770,,non
+13,2025-12-27,The Man Who Built Singapore in One Generation,16.1,1182464,21919,1343,nordvpn.com,non
+14,2026-01-10,Palantir Technologies Explained Like You’re 5,15.3,1056971,23470,1402,incogni.com,non
+15,2026-01-31,5000 Years of Gold Explained in 16 Minutes,16.1,171710,4357,378,learn.lingopie.com,non
+16,2026-02-10,Xi Jinping Explained Like You’re 5,21.0,291858,6984,565,okara.ai,non
+17,2026-02-28,Rockefeller: The First Confirmed Billionaire (And How He Did It),20.3,1679092,26171,781,incogni.com,non
+18,2026-03-09,The Worst Time to be Rich as a Human,20.5,506661,14605,942,chatllm.abacus.ai,non
+19,2026-03-30,Margin Call Scandal Explained Like You're 5,13.8,482434,7471,492,incogni.com,non
+20,2026-04-19,Iran War Explained Like You're 5,12.2,193121,6393,722,chatllm.abacus.ai,oui
+21,2026-04-30,Petrodollar Explained Like You're 5,11.3,349312,8594,444,incogni.com,non
+22,2026-05-23,The Economic Secret of WW2,13.4,65261,1709,121,chatllm.abacus.ai,oui
+23,2026-06-24,Why The Richest Company in History Went Bankrupt,15.6,187245,5573,231,tramatm.com?affiliate=crayoncapital,oui
+24,2026-06-28,The Greatest Slave System Ever Created,12.3,64439,2278,180,cape.co,non
+25,2026-07-09,NVIDIA Explained Like You're 5,14.5,1493357,24306,560,betterhelp.com,oui
+26,2026-07-21,"How Jeffrey Epstein Actually Got So Rich,",12.6,65339,1931,137,incogni.com,oui
+27,2026-08-01,Ozempic Explained Like You're 5,12.7,143210,3902,279,zocdoc.com,oui
+28,2026-08-11,Elon Musk: The First Confirmed Trillionaire (and How He Did It),19.2,555615,8606,619,zocdoc.com,oui
+29,2026-08-22,TSMC Explained Like You're 5,20.6,293667,5012,236,incogni.com,oui
+30,2026-09-09,BYD: The Copycat That Beat Tesla (And How It Did It),16.7,282533,4182,315,chatllm.abacus.ai,non
+31,2026-10-06,The First Big Victim of the AI Bubble,18.8,445193,3465,233,chatllm.abacus.ai,non
+32,2026-10-16,The Rise of Anthropic Explained Like You're 5,17.9,916756,10623,337,incogni.com,oui
+33,2026-10-31,How Steve Jobs Actually Built Apple,21.4,183711,2688,144,betterhelp.com,oui
