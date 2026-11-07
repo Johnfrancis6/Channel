@@ -1,3 +1,5 @@
+> Superseded by docs/whosedime/ROADMAP.md, sessions S02 and S09
+
 # Message d'ouverture de la session 2 : qualité du contenu et veille
 
 À lancer **après** la session 1 (audit du pipeline,

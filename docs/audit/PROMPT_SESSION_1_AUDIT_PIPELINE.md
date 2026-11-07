@@ -1,3 +1,5 @@
+> Done on 07/11: see reports/Audit pipeline de production.md
+
 # Message d'ouverture de la session 1 : audit du pipeline de production
 
 À copier tel quel dans une nouvelle discussion Claude Code web, dans ce

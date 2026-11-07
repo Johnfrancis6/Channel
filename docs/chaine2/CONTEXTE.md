@@ -4,26 +4,24 @@ Court par règle (60 lignes au plus). L'historique complet, avec les
 mesures et les raisons des décisions : [`historique.md`](historique.md).
 Branche de travail : `claude/optimistic-bohr-5f78k4` (`BRANCHE` des lanceurs).
 
-## État
+## État : chaîne gelée
 
-- **Le sel** (`Videos/01_sel`) : vidéo **validée par Franco** (sans
-  musique, sous-titres incrustés, 7 min 55 s, contrôle passé). Reste la
-  publication.
-- **Le verre** (`Videos/02_verre`) : rendu le 01/10 (8:02, contrôle passé,
-  44 min : le lanceur marche). Dates illisibles sur fond blanc → bandeau
-  sombre sous le texte animé, **rendu à refaire**. Mesuré : ~1 phrase sur 6
-  de la voix finit sèche (Qwen3-TTS coupe le dernier son).
-- **Système allégé (30/09, nuit)** :
-  - Dans Drive, `Zehon/montage_zehon.ipynb` (`1lG8qLhjCM4C6Kum_zEoTRW45rsuQ5Tpg`)
-    et `Zehon/voix_zehon.ipynb` (`1RPyG8c5_Drc1QSql9yHDIs7yj5wDRn05`) sont
-    des **lanceurs fixes** (formulaire + clone du dépôt, puis
-    `zehon/notebooks/lanceur.py`) : **plus jamais de recopie dans Drive**.
-    Anciennes copies à la corbeille. Testé ici de bout en bout sur un faux
-    Drive, clone GitHub compris ; lancé dans Colab le 01/10 (verre).
-  - `monter.py` écrit `rendu/verdict.json` (moins de 1 Ko) et
-    `rendu/apercu/` (6 JPEG de 640 px, environ 5 Ko chacun) ; la skill
-    `video-maker` lit ceux-là, plus le rapport en entier ni les pièces ;
-    les extraits se rendent dans Colab (`EXTRAIT`).
+**Chaîne gelée le 07/11/2026 (décision D1) : tout l'effort va à Whose
+Dime. Reprendre ici seulement si Franco relance Zehon.**
+
+- **Le sel** (`Videos/01_sel`) : rendu et validé par Franco le 30/09,
+  **pas publié**.
+- **Le verre** (`Videos/02_verre`) : rendu le 01/10 depuis
+  `claude/zelan-studio-analysis-rws9f6@15b0fe0` ; **rendu à refaire** avec
+  le bandeau sombre sous le texte animé.
+- **L'aluminium** (`Videos/03_aluminium`) : contenu fini le 01/10 (de la
+  recherche à la publication), aucune pièce produite.
+- Décisions en attente si Zehon reprend (`docs/whosedime/DECISIONS.md`) :
+  Z1 couper « Toi, tu en manges environ 3 kilos par an » (8,1 g/jour
+  jamais vérifié) ; Z2 garder le titre et la miniature « NÉE EN 1959 ?! »
+  du verre ; Z3 refaire le rendu du verre avec le bandeau.
+- Lanceurs Drive fixes : `Zehon/montage_zehon.ipynb` et
+  `Zehon/voix_zehon.ipynb` (clone du dépôt, puis `zehon/notebooks/lanceur.py`).
 
 ## Décisions en vigueur
 
@@ -43,17 +41,6 @@ Branche de travail : `claude/optimistic-bohr-5f78k4` (`BRANCHE` des lanceurs).
 Règles de travail : recommandations, pas d'options ; le mesuré séparé de
 l'hypothèse ; une question à la fois ; `.claude/skills/` et `zehon/*.skill`
 sont générés ; `git fetch` avant chaque push.
-
-## Suite, dans l'ordre
-
-1. **Verre** : rendu à refaire avec le bandeau (`BRANCHE` ci-dessus), puis
-   « lis le verdict » en session **Haiku 4.5**.
-2. Vérifier les 8,1 g de sel par jour et l'usage commercial de la voix
-   ElevenLabs.
-3. Publier le sel (`04_publication.md`, `rendu/sous_titres.srt`).
-4. Recommandé ensuite : fusionner dans `main` (puis `BRANCHE` = `main`
-   dans les deux lanceurs, une fois), script de démarrage du conteneur
-   (ffmpeg, OpenCV), un modèle plus léger pour les tâches simples.
 
 Questions ouvertes : contrat signé ; nom à l'INPI ; budget ; objectif à
 6 mois.
