@@ -1,6 +1,6 @@
 {
   "skill_name": "whosedime-maker",
-  "_about": "Prompts for whosedime-maker steps 1-3 (build session S04). Files are relative to this folder. Eval 3 was run once in S04 on Uber: files/01_uber/ holds its outputs (see README.md).",
+  "_about": "Prompts for whosedime-maker steps 1-5 and the state (build sessions S04, S05). Files are relative to this folder. Eval 3 was run once in S04 on Uber, evals 6 and 7 once in S05 on the same folder: files/01_uber/ holds their outputs (see README.md).",
   "evals": [
     {
       "id": 1,
@@ -30,6 +30,24 @@
       "id": 5,
       "prompt": "(on claude.ai, with the .skill archive only) le script d'Uber est validé, fais la version voix",
       "expected_output": "Says in one line that the claude.ai archive has no checker: the signature hash and the voice check need Claude Code with the repo. Stops before the voice version; gives the opening message to continue in Claude Code. Does not produce an unchecked 02_script_voice.txt.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "le script d'Uber est validé à l'écoute. fais les scènes et les prompts",
+      "expected_output": "Reads 00_state.md and the folder; checks that 'checker.py all' exits 0 on script and voice. Step 4: 03_scenes.md with the table '| n | type | spoken text | visual | motion | on-screen text | chart |', 85-95 scenes: 50-55 image, 25-30 chart, 4-5 video (never two in a row), 1 title card 'WHO PAYS?' at the start of the setup, 6 chapter cards (the decision, the three dollar steps, consequences, lesson); the spoken text of the non-card scenes is 02_script.md word for word (no tags, no headings); every chart cites verified fact ids and only their numbers ('F07 · compare · ...'); image prompts in English in batches of 10 after a preamble, no real person named or drawn realistically, no exact logo, no text in images; one anim_NNN prompt per video scene. Acceptance: 'checker.py scenes' exits 0 (reference: 91 scenes, 0 blocks, 0 warnings). Then shows the preamble and every prompt in the chat, one code block each, names the chart and card scenes that have no prompt, writes the step 4 self-critique and log line (Franco's grade null until he has seen the images), and goes on to step 5 without a pause.",
+      "files": ["files/01_uber/02b_factcheck.md", "files/01_uber/02_script.md", "files/01_uber/02_script_voice.txt"]
+    },
+    {
+      "id": 7,
+      "prompt": "continue : la publication d'Uber",
+      "expected_output": "Step 5: 04_publication.md with '## Titles' (3 titles, each <= 40 characters, the plan's 'Uber Was Cheap. Who Paid?' first, a title holding a number cites its fact as [^Fnn]), '## Thumbnail' (3 variants with one idea each, 1-3 words or one number with its [^Fnn], the 'WHO PAYS?' badge, cartoon caricature only of a well-known executive and unnamed in the prompt, no exact logo), '## Description' (hook with registered names only, chapters 0:00 Cold open then one --:-- line per title and chapter card, next video, the channel promise), '## Sources' (sources read, with links), '## Notes' (recommended title with its count, thumbnail trio, three complete thumbnail prompts, chapters note, end screen and playlist, the before-publishing checklist). Acceptance: 'checker.py all' on the folder exits 0 (reference run: 0 blocks; 1 name-first warning on the script, 1 on the publication). Pause 5: three lines, the Drive link, the thumbnail prompts in code blocks, one question on title and thumbnails; then the critique line, 00_state.md and videos.md rewritten.",
+      "files": ["files/01_uber/02b_factcheck.md", "files/01_uber/02_script.md", "files/01_uber/03_scenes.md"]
+    },
+    {
+      "id": 8,
+      "prompt": "où en sont les vidéos ?",
+      "expected_output": "Reads WhoseDime/Memory/videos.md, then the 00_state.md of each video in progress, and lists the folder of each; answers in French, one line per video: folder, step reached, next action, who does it, date of the state; flags any disagreement between a state file and its folder and says the folder wins. Writes nothing unless a state is wrong (then rewrites it and says so). Tested in S05 with a fresh Haiku agent on a fake Drive tree (see README.md).",
       "files": []
     }
   ]

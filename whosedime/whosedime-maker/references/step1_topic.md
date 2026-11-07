@@ -46,8 +46,8 @@ Venmo, Apple Pay, Red Bull, Crocs, Starbucks, DoorDash, Zillow, Southwest,
 Delta, Klarna; TurboTax in early February.
 
 **Default**: propose the **next undone topic of the list** first, then two
-others. A topic is done only if its video folder has a `04_publication.md`
-(or, after S05, if the state file says published). The plan puts brands
+others. A topic is done when `Memory/videos.md` lists it (in progress or
+published; see `memory.md`), or its folder's `00_state.md` exists. The plan puts brands
 with the highest demand (`D = 5`) first for videos 1 to 5: keep that order
 unless a measurement below says otherwise.
 
@@ -96,7 +96,8 @@ When Franco has picked:
 
 1. create the video folder `WhoseDime/Videos/<nn>_<topic>/` in Drive
    (`nn` = next number; until the S08 tree exists, the local work folder
-   only) and say its name in one line;
+   only), with its `00_state.md` (step 1 done) and its row in
+   `Memory/videos.md` (`memory.md`), and say its name in one line;
 2. append the critique line for step 1 (`"step": "1_topic"`,
    `"deliverable": "topic proposal"`) after his grade question;
 3. go on with step 2 (research), unless the session ends there.

@@ -17,7 +17,7 @@ niche hits' median measured in S02). Budgets below are at that rate.
 | # | Heading in the script | Time | Words | What it does | Its rule |
 |---|---|---|---|---|---|
 | 1 | `## Cold open` | 0:00-0:45 | 100-120 | A named person at one moment (place, gesture, line), the free or cheap thing as the customer saw it, then the result: how much someone paid, and a hint of who | A sourced number in the first 30 s (60 words; 1 to 4 numbers: S8). The title's question asked before 0:40 (about 100 words; S9: a "but" within 100 words). No logo, no intro |
-| 2 | `## Setup` | 0:45-2:30 | 240-280 | The brand, its size, the market; the "WHO PAYS?" title card | 2 or 3 numbers a chart can show (charts come in S05-S07) |
+| 2 | `## Setup` | 0:45-2:30 | 240-280 | The brand, its size, the market; the "WHO PAYS?" title card | 2 or 3 numbers a chart can show (step 4 ties each chart to a fact id) |
 | 3 | `## The decision` | 2:30-5:00 | 360-400 | The moment the brand chose to make the thing free or cheap: date, people, numbers | **The beat that carries the video**: a scene told, not a lecture; a quoted line if the registry has one |
 | 4 | `## Follow the dollar` | 5:00-9:00 | 580-640 | The dollar in 3 steps (`### Step 1: <payer>` ...), each with **a payer, an amount and a source** | One YouTube chapter per step; each step ends on a small cliffhanger (E5) |
 | 5 | `## Consequences` | 9:00-12:00 | 420-480 | Who won, who lost, what changed (rulings, laws, prices) | Facts, no political verdict; the "but" of the research's nuance |
@@ -156,5 +156,7 @@ passage, then through the checker again.
 
 Then the critique line for step 3 (`"step": "3b_script"` for the outline
 and script, `"3c_voice"` for the voice version; one line per deliverable
-group), after his grade question. Step 3 is the end of this skill for now:
-**stop** (scenes and publication come with build session S05).
+group), after his grade question. Then rewrite `00_state.md` and the
+video's row of `videos.md` (`memory.md`) and **stop**: steps 4 and 5
+(scenes and publication) are the next session (session table in
+`SKILL.md`).

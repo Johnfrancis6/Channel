@@ -65,7 +65,9 @@ change.
   for word inside one `verified` quote of the people block (case and
   punctuation aside). `...` or `…` in the script may cut words out.
 - **Tags**: the script and the publication may cite a line as `[^F04]`
-  (Markdown footnote). A tag to an unknown id or to a line that is not
+  (Markdown footnote). A title or thumbnail line that holds a number
+  **must** cite a fact holding that number (S05, audit C2); a chart scene of
+  `03_scenes.md` cites its facts as bare ids (`F07 · compare · ...`). A tag to an unknown id or to a line that is not
   `verified` blocks. Footnote definitions (`[^F04]: ...`) and `## Sources`
   sections are not checked for facts, but a `[TO VERIFY]` anywhere blocks.
 - **Format errors block**: a fact without a source, a duplicate id, an

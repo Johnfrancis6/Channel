@@ -1,6 +1,6 @@
 ---
 name: whosedime-maker
-description: Makes the content of a Whose Dime video (English YouTube channel, series "Who Pays?", 13-15 min stories of famous companies and who really paid for them), step by step with Franco - topic, research and signed fact check (02b_factcheck.md), six-beat outline, script and voice version, 20 s listening check. Use it whenever Franco talks about Whose Dime, "Who Pays?", a new video or topic ("Uber", "the Amex video", "do Spotify"), research, fact check, signing the registry, outline, script, voice version, or says "resume", "continue", "next" (or « reprends », « continue », « suite ») about a video in progress, even if he does not name the skill.
+description: Makes the content of a Whose Dime video (English YouTube channel, series "Who Pays?", 13-15 min stories of famous companies and who really paid for them), step by step with Franco - topic, research and signed fact check (02b_factcheck.md), six-beat outline, script and voice version, 20 s listening check, scenes with charts tied to verified facts and Gemini image prompts, publication (titles, thumbnails, description), and the per-video state. Use it whenever Franco talks about Whose Dime, "Who Pays?", a new video or topic ("Uber", "the Amex video", "do Spotify"), research, fact check, signing the registry, outline, script, voice version, scenes, image prompts, charts, Flow clips, title, thumbnail, description, asks "where are the videos?" (« où en sont les vidéos ? »), or says "resume", "continue", "next" (or « reprends », « continue », « suite ») about a video in progress, even if he does not name the skill.
 ---
 
 # whosedime-maker: the content of a "Who Pays?" video
@@ -19,7 +19,7 @@ Franco in the language he writes in (French so far).
 | Place | What you have | What it changes |
 |---|---|---|
 | **Claude Code with the repo** (normal case) | the repo `Johnfrancis6/Channel`, the Google Drive connector, web search, code execution, `YOUTUBE_API_KEY` | you run the checker yourself, from the repo root: `python3 whosedime/common/checker.py ...` |
-| **claude.ai** (the `.skill` archive) | this skill only: **no checker**, no repo | do steps 1 to 3 up to the script, check by hand and say so; **stop before the voice version** (step 3c): the signature hash and the voice check need the checker. Franco finishes in Claude Code |
+| **claude.ai** (the `.skill` archive) | this skill only: **no checker**, no repo | do steps 1 to 3 up to the script, check by hand and say so; **stop before the voice version** (step 3c): the signature hash, the voice, scenes and publication checks need the checker. Franco finishes in Claude Code. Answering "where are the videos?" works anywhere with Drive |
 
 Never print `YOUTUBE_API_KEY` or `SUPADATA_API_KEY`. If a tool is missing
 (connector off, no web), say it in one line and go on without it, marking
@@ -39,12 +39,15 @@ From the repo root, with `F` the local video folder:
 |---|---|---|
 | `python3 whosedime/common/checker.py fingerprint F/02b_factcheck.md` | Franco signs the fact check | prints `sha256:<12 hex>` |
 | `python3 whosedime/common/checker.py script F/02_script.md` | after each script draft | 0 = no block |
-| `python3 whosedime/common/checker.py all F` | end of step 3: script, voice (and publication if present) | **0 required** |
+| `python3 whosedime/common/checker.py scenes F/03_scenes.md` | step 4 | 0 = no block |
+| `python3 whosedime/common/checker.py all F` | end of steps 3, 4 and 5: script, voice, scenes, publication (each if present) | **0 required** |
 
 `BLOCK` lines must be fixed: a number, date, name or quote that is in no
 `verified` line of `02b_factcheck.md`, a `[TO VERIFY]` tag, a forbidden
 phrase (financial advice), an unsigned or changed registry (voice), a voice
-version that drifts from the script. `WARN` lines are style rules
+version that drifts from the script, a scene text that is not the script
+word for word, a chart citing no verified fact, a title or thumbnail number
+without its `[^Fnn]`, a real person named in an image prompt. `WARN` lines are style rules
 (S1-S14 of `whosedime/research/storytelling_rules.md`) and the
 `name-first` list: read them, fix what is real, and say in one line why you
 keep the rest. Never edit the checker, its lists or the thresholds to make a
@@ -58,15 +61,27 @@ conversation resumes from the files:
 
 | File | Step | What it is |
 |---|---|---|
+| `00_state.md` | every step | the video's state: every step (content, pieces, voice, render, publication), rewritten at the end of each step ([`memory.md`](references/memory.md)) |
 | `01_research.md` | 2 | sources read in full, the payer chain, the decision, 3 scenes, nuances |
 | `02b_factcheck.md` | 2 | the fact registry (format: `whosedime/common/FACTCHECK_FORMAT.md` in the repo), **signed by Franco** |
 | `02a_outline.md` | 3a | the six beats, with fact ids, people and word budget |
 | `02_script.md` | 3b | the script as it will be said, `## ` heading per beat, `[^Fnn]` tags |
 | `02_script_voice.txt` | 3c | the same words for the voice: numbers and symbols spelled out, respellings |
 | `02c_listen_20s.txt` | 3c | the 20 s listening sample (decision D6) |
-| `03_scenes.md`, `04_publication.md` | 4, 5 | written by session S05 of the build: not in this skill yet |
+| `03_scenes.md` | 4 | the scenes (spoken text = the script word for word), chart specs with fact ids, Gemini and Flow prompts |
+| `04_publication.md` | 5 | titles, thumbnail variants, description, sources, notes (prompts, checklist) |
+| `images/`, `charts/`, `clips/`, `voice/`, `render/` | pieces, voice, render | made by Franco (Gemini, Flow), the voice notebook (S06), the assembly (S07) |
+
+The channel's memory (`WhoseDime/Memory/videos.md`, `lessons.md`) is in
+[`memory.md`](references/memory.md).
 
 ## Resume: the step comes from the files
+
+Start every session by reading `Memory/videos.md` and the video's
+`00_state.md`, then list its folder: **the files decide** (a state that
+disagrees with the folder is rewritten, [`memory.md`](references/memory.md)).
+"Where are the videos?" is answered from these files alone, one line per
+video.
 
 | Files in the folder | Step to run |
 |---|---|
@@ -77,7 +92,9 @@ conversation resumes from the files:
 | signed registry, no `02a_outline.md` | **3a. Outline** |
 | `02a_outline.md`, no `02_script.md` | **3b. Script** |
 | `02_script.md`, no `02_script_voice.txt` | **3c. Voice version and listening** |
-| `checker.py all` exits 0 and Franco validated by ear | step 3 done: **stop** (steps 4-5 come with S05) |
+| `checker.py all` exits 0, Franco validated by ear, no `03_scenes.md` | **4. Scenes** |
+| `03_scenes.md`, no `04_publication.md` | **5. Publication** |
+| `04_publication.md`, `checker.py all` exits 0 | content done: `00_state.md` says what is next (pieces, voice, render, publication) |
 
 **A topic named is a topic chosen**: do not propose others. If Franco
 names a step ("redo the cold open", "just the outline"), do that step; an
@@ -96,11 +113,17 @@ Read each reference **when its step starts**, not before.
 | 3a | Outline | [`step3_script.md`](references/step3_script.md) | `02a_outline.md` | **Pause 3**: Franco validates the beats |
 | 3b | Script | same | `02_script.md` | no pause: the checker is the gate |
 | 3c | Voice version and listening | same | `02_script_voice.txt`, `02c_listen_20s.txt` | **Pause 4**: Franco listens (E1-E5) and validates |
+| 4 | Scenes and prompts | [`step4_scenes.md`](references/step4_scenes.md) | `03_scenes.md`, prompts shown in the chat | no pause: the checker is the gate |
+| 5 | Publication | [`step5_publication.md`](references/step5_publication.md) | `04_publication.md`, thumbnail prompts in the chat | **Pause 5**: Franco picks the title and the thumbnail trio |
+
+At the end of **every** step: rewrite `00_state.md` and the video's row
+of `videos.md` ([`memory.md`](references/memory.md)).
 
 Why these pauses: a wrong topic or payer spoils everything after it; a
 fact that is wrong in the registry is said aloud in every later file; a
-wrong beat costs ten lines at the outline and 2,000 words after; and a
-script is judged by ear, not on the page (audit C7, decision D6).
+wrong beat costs ten lines at the outline and 2,000 words after; a
+script is judged by ear, not on the page (audit C7, decision D6); and a
+title or a thumbnail is a choice of the channel, not of a check.
 
 **One question at a time.** End every pause with a single question that
 carries your recommendation ("I recommend Uber: ... Shall we do it?").
@@ -151,10 +174,21 @@ dollar followed step by step with a payer, an amount and a source at each
 step, real nuance ("but"), and an ending that points to the next episode.
 Simple, but exact.
 
-## At the end of a session
+## The sessions of a video
 
-Franco works in short sessions. When the step you were asked for is done
-and its pause answered, stop, even if he says "continue", and end with:
+Franco works in short sessions; each one ends at a pause, so the next one
+starts from the files. Models are a recommendation, not measured.
+
+| # | Session | Steps | Model | Stops at | Franco, before the next one |
+|---|---|---|---|---|---|
+| 1 | Topic and research | 1, 2 | Sonnet 5.5 | Pause 2 | reads `02b_factcheck.md` and signs it |
+| 2 | Script | 3a, 3b, 3c | Opus 5.5 | Pause 4 (Pause 3 inside) | listens to the 20 s sample |
+| 3 | Scenes and publication | 4, 5 | Sonnet 5.5 | Pause 5 | picks title and thumbnails; makes the images and clips; voice in Colab (notebook: build S06) |
+| 4 | Assembly and check | the assembly skill (build S07) | Opus 5.5 | render and its verdict | watches the render, uploads, gives the link |
+| 5 | Record | `00_state.md`, `videos.md`, `lessons.md` | Haiku 5.5 | memory up to date | views at 24 h, 72 h, 7 days |
+
+When the step you were asked for is done and its pause answered, stop,
+even if Franco says "continue", and end with:
 
 > ⏹️ **End of the session.** Before the next one: *(what Franco must do,
 > one line)*. **Next session: model <Model>**, with the Google Drive
@@ -162,6 +196,4 @@ and its pause answered, stop, even if he says "continue", and end with:
 
 then the opening message of the next session in a code block (4 lines at
 most): video folder, step, branch, one line of context that is not in the
-files. Model: **Opus 5.5** for the script (steps 3a-3c), **Sonnet 5.5**
-for topic and research (recommendation, not measured). The full session
-table and the per-video state file come with build session S05.
+files.

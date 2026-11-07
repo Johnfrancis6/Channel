@@ -10,7 +10,7 @@
 ## Thumbnail
 
 - WHO PAID?
-- $9.1 BILLION
+- $9.1 BILLION [^F22]
 
 ## Description
 

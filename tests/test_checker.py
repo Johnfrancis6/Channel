@@ -273,6 +273,103 @@ class TestNothingHardCoded(unittest.TestCase):
         self.assertIn(rule["id"], after.codes("WARN"))
 
 
+UBER = ROOT / "whosedime" / "whosedime-maker" / "evals" / "files" / "01_uber"
+
+
+class TestScenes(unittest.TestCase):
+    """S05: the scenes check, on faulty copies of the Uber reference run's 03_scenes.md."""
+
+    def check(self, edit=None):
+        with tempfile.TemporaryDirectory() as d:
+            for name in ("02b_factcheck.md", "02_script.md", "03_scenes.md"):
+                shutil.copy(UBER / name, Path(d) / name)
+            path = Path(d) / "03_scenes.md"
+            if edit:
+                path.write_text(edit(path.read_text()))
+            return C.check_scenes(path)
+
+    def faulty(self, old, new, code, count=1):
+        def edit(text):
+            self.assertIn(old, text)
+            return text.replace(old, new, count)
+        report = self.check(edit)
+        self.assertIn(code, blocks(report), report.render())
+        return report
+
+    def test_reference_run_passes(self):
+        report = self.check()
+        self.assertEqual(report.items, [], report.render())
+
+    def test_chart_without_fact_id_blocks(self):
+        report = self.faulty("| F04 · timeline · launch", "| timeline · launch", "chart-source")
+        self.assertEqual(blocks(report), {"chart-source"})
+
+    def test_chart_citing_an_unverified_fact_blocks(self):
+        self.faulty("| F04 · timeline · launch", "| F27 · timeline · launch", "chart-source")
+
+    def test_chart_number_not_in_its_fact_blocks(self):
+        report = self.faulty("F07 · number · $3.5 billion", "F07 · number · $4.5 billion", "chart-source")
+        self.faulty("F05 · split · riders paid 41%", "F06 · split · riders paid 41%", "chart-source")
+        self.assertNotIn("number", blocks(report))       # a chart number is checked against its own fact
+
+    def test_spoken_text_must_be_the_script(self):
+        report = self.faulty("Two friends, one cold street, no taxi.", "Two friends, one street, no taxi.", "scene-text")
+        self.assertIn("from scene 2", report.render())
+
+    def test_real_person_named_in_a_prompt_blocks(self):
+        self.faulty("Two young men in winter coats", "Travis Kalanick and a friend in winter coats", "prompt-person")
+        self.faulty("one raises his hand", "Kalanick raises his hand", "prompt-person")
+
+    def test_sentence_first_common_word_is_not_a_person(self):
+        report = self.check(lambda t: t.replace("Plain cream background.", "Rich cream background."))
+        self.assertNotIn("prompt-person", blocks(report), report.render())
+
+    def test_missing_prompts_block(self):
+        self.faulty("**anim_001**", "**note_001**", "prompt")
+        self.faulty("**scene_002**", "**scene_x02**", "prompt")
+
+    def test_cards_numbers_visuals_and_on_screen_numbers(self):
+        self.faulty("| 7 | title | — |", "| 7 | title | Who pays? |", "scene-card")
+        self.faulty("| 3 | image |", "| 4 | image |", "scene-number")
+        self.faulty("| images/scene_002.png |", "| images/scene_2.png |", "scene-visual")
+        self.faulty("| zoom_in | — | — |", "| dolly | — | — |", "scene-motion")
+        self.faulty("| PARIS, 2008 |", "| PARIS, 2007 |", "number")
+
+    def test_mix_only_warns(self):
+        report = self.check(lambda t: t.replace("| image |", "| chart |", 1).replace(
+            "| images/scene_002.png | zoom_in | — | — |", "| charts/scene_002.png | — | — | F01 · timeline · 2008 |"))
+        self.assertEqual(blocks(report), set(), report.render())
+        self.assertIn("prompt", report.codes("WARN"))         # its image prompt is now unused
+
+    def test_cli_and_all(self):
+        self.assertEqual(run(["scenes", str(UBER / "03_scenes.md")])[0], 0)
+        self.assertEqual([r.target for r in C.check_all(UBER)], ["script", "voice", "scenes", "publication"])
+
+
+class TestTitleSource(unittest.TestCase):
+    """S05, audit C2: a number in a title or a thumbnail text cites the fact that holds it."""
+
+    def check(self, titles, thumbnail="- WHO PAID?"):
+        with tempfile.TemporaryDirectory() as d:
+            shutil.copy(FACTS, Path(d) / "02b_factcheck.md")
+            path = Path(d) / "04_publication.md"
+            path.write_text(f"# Publication\n\n## Titles\n\n{titles}\n\n## Thumbnail\n\n{thumbnail}\n\n"
+                            "## Description\n\nWe follow the dollar.\n")
+            return C.check_publication(path)
+
+    def test_number_without_tag_blocks(self):
+        self.assertIn("title-source", blocks(self.check("1. Uber Lost $9.1 Billion. Who Paid?")))
+        self.assertIn("title-source", blocks(self.check("1. Uber Was Cheap. Who Paid?", "- $9.1 BILLION")))
+
+    def test_tag_of_another_fact_blocks(self):
+        self.assertIn("title-source", blocks(self.check("1. Uber Lost $9.1 Billion. Who Paid? [^F23]")))
+
+    def test_right_tag_and_no_number_pass(self):
+        report = self.check("1. Uber Lost $9.1 Billion. Who Paid? [^F22]\n2. Uber Was Cheap. Who Paid?",
+                            "- $9.1 BILLION [^F22]")
+        self.assertEqual(report.blocks, [], report.render())
+
+
 class TestCanon(unittest.TestCase):
     def same(self, a, b):
         self.assertEqual([t for t, _ in C.canon(a)], [t for t, _ in C.canon(b)])

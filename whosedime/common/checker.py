@@ -3,12 +3,14 @@
 
     python3 whosedime/common/checker.py script      SCRIPT        [--facts F] [--thresholds J]
     python3 whosedime/common/checker.py voice       SCRIPT VOICE  [--facts F]
+    python3 whosedime/common/checker.py scenes      SCENES        [--facts F]
     python3 whosedime/common/checker.py publication PUBLICATION   [--facts F]
     python3 whosedime/common/checker.py all         FOLDER        [--thresholds J]
     python3 whosedime/common/checker.py fingerprint 02b_factcheck.md
 
 --facts defaults to 02b_factcheck.md next to the checked file; `all` reads the
-file names of settings.json in FOLDER (voice and publication only if present).
+file names of settings.json in FOLDER (voice, scenes and publication only if
+present). `scenes` reads 02_script.md next to 03_scenes.md.
 
 Exit code: 0 no block (warnings allowed), 1 at least one BLOCK, 2 usage error.
 
@@ -22,7 +24,15 @@ BLOCK (decision D4 and the S03 prompt):
   "registry changed since it was signed");
 - a title longer than settings.json allows; a phrase of forbidden_phrases.txt;
 - a voice version that differs from the script beyond allowed rewrites
-  (numbers, $ and % spelled out, respellings of lexicon.tsv).
+  (numbers, $ and % spelled out, respellings of lexicon.tsv);
+- (S05) a title or thumbnail line holding a number without the [^Fnn] tag of a
+  fact that holds that number (audit C2);
+- (S05) scenes: a spoken text that is not the script word for word; a chart
+  scene citing no verified fact id, or showing a number its cited facts do not
+  hold; a bad table, type, visual name or motion; a card with spoken text; an
+  image or clip without its prompt; a real person of the people block named in
+  a prompt; on-screen numbers as for facts. The scene mix of settings.json
+  (counts, words per scene, motions, on-screen share) only warns.
 WARN: every rule of style_thresholds.json (metrics from measure.py, imported,
 not copied), on the whole script, as the thresholds were calibrated. Metrics
 counted from the first word (first person, first turn, numbers in the first
@@ -634,7 +644,8 @@ def check_publication(path, facts=None):
     lines = text_lines(raw, SETTINGS["unspoken_sections"])
     report = Report("publication", path)
     check_common(raw, lines, report, registry, measure, title_case=SETTINGS["title_case_sections"])
-    titles = [(n, TAG_RE.sub("", t).strip().strip('"“”')) for n, sec, t in lines
+    check_titles_sourced(lines, registry, report)
+    titles =[(n, TAG_RE.sub("", t).strip().strip('"“”')) for n, sec, t in lines
               if any(sec.startswith(s) for s in SETTINGS["title_sections"])]
     if not titles:
         report.block("title", "no title found (list items under '## Titles')")
@@ -645,12 +656,213 @@ def check_publication(path, facts=None):
     return report
 
 
+def fact_numbers(text):
+    """Number keys of a text (words one to ten left out), cleaned as check_facts cleans it."""
+    text = TIME_RE.sub(" ", URL_RE.sub(" ", TAG_RE.sub("", TO_VERIFY_TAG_RE.sub(" ", text))))
+    return [key for key, kind in number_keys(canon(CODE_RE.sub(" ", text))) if kind != "small"]
+
+
+def check_sourced(text, ids, registry, report, code, n, what):
+    """Every number of `text` must be in one of the facts `ids` (S05, audit C2)."""
+    keys = fact_numbers(text)
+    if keys and not ids:
+        report.block(code, f"{what} holds a number but cites no fact id: {text.strip()[:90]}", n)
+        return
+    for key in keys:
+        if ids and not registry.numbers.get(key, set()) & set(ids):
+            report.block(code, f"'{key}' is not in the fact(s) it cites ({', '.join(ids)}): {text.strip()[:90]}", n)
+
+
+def check_titles_sourced(lines, registry, report):
+    """A title or thumbnail text holding a number cites, as [^Fnn], the fact that holds it."""
+    for n, sec, text in lines:
+        if any(sec.startswith(s) for s in SETTINGS["sourced_sections"]):
+            check_sourced(text, TAG_RE.findall(text), registry, report, "title-source", n, "this line")
+
+
+def _cells(line):
+    return [c.strip() for c in re.split(r"(?<!\\)\|", line.strip())[1:-1]]
+
+
+def scene_table(raw):
+    """(rows, error): rows are (line number, {column: cell}) of the first table whose
+    header holds the columns of settings.json (scenes.columns)."""
+    cols = SETTINGS["scenes"]["columns"]
+    rows, header = [], None
+    for n, line in enumerate(raw.splitlines(), 1):
+        if not line.strip().startswith("|"):
+            if header and rows:
+                break
+            continue
+        cells = _cells(line)
+        if header is None:
+            if [c.lower() for c in cells] == cols:
+                header = cols
+            continue
+        if all(re.fullmatch(r":?-{2,}:?", c) for c in cells if c):
+            continue
+        if len(cells) != len(cols):
+            return rows, (n, f"{len(cells)} columns, the table has {len(cols)}: {' | '.join(cols)}")
+        rows.append((n, dict(zip(cols, cells))))
+    if header is None:
+        return [], (None, f"no scene table (header | {' | '.join(cols)} |)")
+    return rows, None
+
+
+def scene_prompts(raw):
+    """{'scene': {n: (line, text)}, 'anim': {...}}: the quoted ('> ') lines after each
+    **scene_NNN** or **anim_NNN** label."""
+    out, cur = {"scene": {}, "anim": {}}, None
+    for n, line in enumerate(raw.splitlines(), 1):
+        m = re.match(r"^\s*\*\*(scene|anim)_(\d{3})\*\*", line)
+        if m:
+            cur = (m.group(1), int(m.group(2)))
+            out[cur[0]][cur[1]] = (n, "")
+        elif cur and line.lstrip().startswith(">"):
+            ln, text = out[cur[0]][cur[1]]
+            out[cur[0]][cur[1]] = (ln, (text + " " + line.lstrip()[1:].strip()).strip())
+        elif cur and line.strip() and out[cur[0]][cur[1]][1]:
+            cur = None
+    return out
+
+
+def empty(cell):
+    return cell.strip() in ("", "-", "—")
+
+
+def check_scenes(path, script=None, facts=None):
+    """03_scenes.md (S05): table, spoken text = script word for word, a verified fact id on
+    every chart (its numbers in that fact), card and file names, one prompt per image or
+    clip, no real person named in a prompt (block); the scene mix (warn)."""
+    path = Path(path)
+    cfg = SETTINGS["scenes"]
+    registry = Registry(facts or path.parent / SETTINGS["files"]["facts"])
+    _, measure = load_thresholds()
+    raw = norm(path.read_text(encoding="utf-8"))
+    report = Report("scenes", path)
+    rows, error = scene_table(raw)
+    if error:
+        report.block("scene-table", error[1], error[0])
+    if not rows:
+        report.summary = "0 scenes. "
+        return report
+    prompts = scene_prompts(raw)
+    counts, spoken, on_screen_lines, n_on_screen = {}, [], [], 0
+    long_short, motions_run, last_motion, run, last_video = [], [], None, 0, None
+    for k, (ln, row) in enumerate(rows, 1):
+        typ, num = row["type"].lower(), row["n"]
+        counts[typ] = counts.get(typ, 0) + 1
+        if not num.isdigit() or int(num) != k:
+            report.block("scene-number", f"scene '{num}' where {k} was expected", ln)
+        n = k
+        if typ not in cfg["visuals"]:
+            report.block("scene-type", f"scene {n}: type '{typ}' is not {', '.join(cfg['visuals'])}", ln)
+            continue
+        want = cfg["visuals"][typ].format(n=n)
+        if (row["visual"] != want) and not (empty(want) and empty(row["visual"])):
+            report.block("scene-visual", f"scene {n}: visual '{row['visual']}', expected {want}", ln)
+        if typ in cfg["cards"]:
+            if not empty(row["spoken text"]):
+                report.block("scene-card", f"scene {n}: a {typ} card is not spoken (spoken text '—')", ln)
+            if empty(row["on-screen text"]):
+                report.block("scene-card", f"scene {n}: a {typ} card needs its on-screen text", ln)
+        else:
+            words = _words(TAG_RE.sub("", row["spoken text"]))
+            spoken += [(w, n) for w in words]
+            low, high = cfg["words_per_scene"]
+            if not low <= len(words) <= high:
+                long_short.append(f"{n} ({len(words)})")
+            if not empty(row["on-screen text"]):
+                n_on_screen += 1
+        if not empty(row["on-screen text"]):
+            on_screen_lines.append((ln, "on-screen", row["on-screen text"]))
+        if typ == "image":
+            if row["motion"] not in cfg["motions"]:
+                report.block("scene-motion", f"scene {n}: motion '{row['motion']}' is not {', '.join(cfg['motions'])}", ln)
+            run = run + 1 if row["motion"] == last_motion else 1
+            last_motion = row["motion"]
+            if run == cfg["same_motion_max"] + 1:
+                motions_run.append(str(n))
+        elif not empty(row["motion"]):
+            report.block("scene-motion", f"scene {n}: a {typ} scene has no camera motion ('—')", ln)
+        if typ == "chart":
+            ids = re.findall(r"\bF\d{2,}\b", row["chart"])
+            if not ids:
+                report.block("chart-source", f"scene {n}: a chart cites no fact id of the registry (e.g. 'F07 · compare · ...')", ln)
+            for i in ids:
+                st = registry.status(i)
+                if st != "verified":
+                    report.block("chart-source", f"scene {n}: {i} is {'not an id of the registry' if st is None else st.replace('_', ' ')}", ln)
+            check_sourced(re.sub(r"\bF\d{2,}\b", " ", row["chart"]), ids, registry, report, "chart-source", ln, f"scene {n}'s chart")
+            parts = [p.strip().lower() for p in re.split(r"[·|]", row["chart"])]
+            if len(parts) < 3 or parts[1] not in cfg["chart_kinds"]:
+                report.warn("chart-kind", f"scene {n}: chart is not 'Fnn · <kind> · <what it shows>' with a kind of "
+                            f"{', '.join(cfg['chart_kinds'])}: {row['chart'][:60]}", ln)
+        elif not empty(row["chart"]):
+            report.warn("chart-kind", f"scene {n}: a {typ} scene with a chart cell", ln)
+        if typ in ("image", "video") and n not in prompts["scene"]:
+            report.block("prompt", f"scene {n}: no image prompt **scene_{n:03d}**", ln)
+        if typ == "video":
+            if n not in prompts["anim"]:
+                report.block("prompt", f"scene {n}: no clip prompt **anim_{n:03d}**", ln)
+            if last_video == k - 1:
+                report.warn("scene-mix", f"scenes {k - 1} and {n}: two clips in a row", ln)
+            last_video = k
+        elif typ in ("chart",) + tuple(cfg["cards"]) and n in prompts["scene"]:
+            report.warn("prompt", f"scene {n}: a {typ} scene has an image prompt (not used)", ln)
+    types = {int(r["n"]): r["type"].lower() for _, r in rows if r["n"].isdigit()}
+    for n, (ln, _) in prompts["anim"].items():
+        if types.get(n) != "video":
+            report.block("prompt", f"**anim_{n:03d}** is for scene {n}, which is not a video scene", ln)
+    persons = [p["name"] for p in registry.people if p["role"].strip().lower() != "organisation" and p["name"]]
+    for kind in ("scene", "anim"):
+        for n, (ln, text) in sorted(prompts[kind].items()):
+            for name in persons:
+                last = name.split()[-1]
+                inside = [m for m in re.finditer(rf"\b{re.escape(last)}\b", text)      # capitalised, not sentence-first
+                          if not re.search(r"(?:^|[.!?]\s+)$", text[:m.start()])]
+                if re.search(re.escape(name), text, re.I) or inside:
+                    report.block("prompt-person", f"**{kind}_{n:03d}** names {name}: a real person is never named in an image prompt", ln)
+            if re.search(r"\b(?:text|letters|words|caption|sign|label)s? (?:reading|saying|that says|with the words)", text, re.I):
+                report.warn("prompt-text", f"**{kind}_{n:03d}** seems to ask for text in the image", ln)
+
+    script = Path(script) if script else path.parent / SETTINGS["files"]["script"]
+    s_words = _words(spoken_text(text_lines(norm(script.read_text(encoding="utf-8")), SETTINGS["unspoken_sections"])))
+    c_words = [w for w, _ in spoken]
+    if s_words != c_words:
+        i = next((k for k, (a, b) in enumerate(zip(s_words, c_words)) if a != b), min(len(s_words), len(c_words)))
+        where = spoken[i][1] if i < len(spoken) else (spoken[-1][1] if spoken else 0)
+        report.block("scene-text", f"the spoken text is not {script.name} word for word: from scene {where}, "
+                     f"script \"{' '.join(s_words[max(0, i - 3):i + 6])}\", scenes \"{' '.join(c_words[max(0, i - 3):i + 6])}\"")
+    check_common(raw, on_screen_lines, report, registry, measure, title_case=("on-screen",), first_words_warn=False)
+
+    total, n_spoken = len(rows), sum(v for t, v in counts.items() if t not in cfg["cards"])
+    for key, (low, high) in cfg["counts"].items():
+        value = total if key == "total" else counts.get(key, 0)
+        if not low <= value <= high:
+            report.warn("scene-mix", f"{value} {'scenes' if key == 'total' else key + ' scene(s)'}, target {low}-{high}")
+    if long_short:
+        report.warn("scene-mix", f"spoken words outside {cfg['words_per_scene'][0]}-{cfg['words_per_scene'][1]} "
+                    f"in scene(s) {', '.join(long_short)}")
+    if motions_run:
+        report.warn("scene-mix", f"same motion more than {cfg['same_motion_max']} times in a row at scene(s) {', '.join(motions_run)}")
+    if n_spoken and n_on_screen / n_spoken > cfg["on_screen_share_max"]:
+        report.warn("scene-mix", f"on-screen text on {n_on_screen} of {n_spoken} spoken scenes "
+                    f"(at most {cfg['on_screen_share_max']:.0%})")
+    mix = ", ".join(f"{counts.get(t, 0)} {t}" for t in cfg["visuals"])
+    report.summary = (f"{total} scenes ({mix}), {len(c_words):,} words spoken, {len(prompts['scene'])} image "
+                      f"prompt(s), {len(prompts['anim'])} clip prompt(s). ")
+    return report
+
+
 def check_all(folder, thresholds=None):
     folder, files = Path(folder), SETTINGS["files"]
     facts = folder / files["facts"]
     reports = [check_script(folder / files["script"], facts, thresholds)]
     if (folder / files["voice"]).exists():
         reports.append(check_voice(folder / files["script"], folder / files["voice"], facts))
+    if (folder / files["scenes"]).exists():
+        reports.append(check_scenes(folder / files["scenes"], folder / files["script"], facts))
     if (folder / files["publication"]).exists():
         reports.append(check_publication(folder / files["publication"], facts))
     return reports
@@ -659,12 +871,12 @@ def check_all(folder, thresholds=None):
 # ------------------------------------------------------------------ command line
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("target", choices=["script", "voice", "publication", "all", "fingerprint"])
+    ap.add_argument("target", choices=["script", "voice", "scenes", "publication", "all", "fingerprint"])
     ap.add_argument("paths", nargs="+")
     ap.add_argument("--facts")
     ap.add_argument("--thresholds")
     a = ap.parse_args(argv)
-    need = {"script": 1, "voice": 2, "publication": 1, "all": 1, "fingerprint": 1}[a.target]
+    need = {"script": 1, "voice": 2, "scenes": 1, "publication": 1, "all": 1, "fingerprint": 1}[a.target]
     if len(a.paths) != need:
         ap.print_usage(sys.stderr)
         return 2
@@ -678,6 +890,8 @@ def main(argv=None):
     folder = Path(a.paths[0]) if a.target == "all" else None
     required = [Path(p) for p in a.paths] if folder is None else \
         [folder / SETTINGS["files"]["facts"], folder / SETTINGS["files"]["script"]]
+    if a.target == "scenes":
+        required.append(Path(a.paths[0]).parent / SETTINGS["files"]["script"])
     if a.facts:
         required.append(Path(a.facts))
     elif folder is None:
@@ -690,6 +904,8 @@ def main(argv=None):
         reports = [check_script(a.paths[0], a.facts, a.thresholds)]
     elif a.target == "voice":
         reports = [check_voice(a.paths[0], a.paths[1], a.facts)]
+    elif a.target == "scenes":
+        reports = [check_scenes(a.paths[0], facts=a.facts)]
     elif a.target == "publication":
         reports = [check_publication(a.paths[0], a.facts)]
     else:
