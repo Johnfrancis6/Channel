@@ -65,7 +65,7 @@ written to these rules, with quotation marks, avoids both.
 | S10 | Use 'but' and 'however' for real nuance: some, not none, and not as a tic. | `contrast_per_1000` | **≥ 1.6 and ≤ 10.6** (hits P10 / hits P90) | 5.12 [3.39–8.47] | 6.25 [4.03–9.48] | 20 / 10 | `warn` |
 | S11 | Talk to the viewer: 'you', 'your' (what you pay, what you'd do). | `you_per_1000` | **≥ 4.1** (hits Q1) | 7.18 [4.08–10.79] | 5.56 [4.94–7.39] | 20 / 10 | `warn` |
 | S12 | Do not lean on one sentence opener ('And', 'But', 'So') more than hits do. | `top_connector_per_1000` | **≤ 8.7** (hits P90) | 5.9 [4.32–7.77] | 3.64 [3.02–6.48] | 20 / 10 | `warn` |
-| S13 | Keep finance jargon rare. | `jargon_per_1000` | **≤ 5.8** (hits P90) | 0.87 [0.47–2.85] | 1.12 [0.56–2.61] | 20 / 10 | `warn` |
+| S13 | Keep finance jargon rare. | `jargon_per_1000` | **≤ 5.8** (hits P90) | 0.94 [0.47–2.85] | 1.12 [0.62–2.61] | 20 / 10 | `warn` |
 | S14 | Explain every finance term in plain words the first time it comes ('which means...', 'think of it as...'). | `jargon_explained_share` | **≥ 1** (set by source) | 0 [0–0] | 0 [0–0] | 16 / 9 | `warn` |
 
 | Id | Source | What changes from Zehon | Zehon (glass, aluminium) |

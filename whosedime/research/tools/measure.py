@@ -83,7 +83,7 @@ neil nick nicholas noah oliver oscar pat patricia patrick paul peter phil philip
 ralph ray raymond reed richard rick robert robin roger ronald rose roy russell ruth ryan sam
 samuel sarah scott sean sergey shawn sophie stanley stephen steve steven susan ted terry thomas
 tim timothy todd tom tony travis victor vincent walt walter warren wayne william
-alastair angelo
+alastair angelo garrett dara
 """.split())
 NOT_NAMES = set("""
 i i'm i've i'll i'd you you're he he's she she's we we're they they're it it's this that these
@@ -122,7 +122,8 @@ JARGON = [
     "ebitda", "valuation", "ipo", "equity", "private equity", "venture capital",
     "venture capitalist", "leverage", "leveraged", "liquidity", "dividend", "dividends",
     "shareholder", "shareholders", "buyback", "buybacks", "market cap", "market capitalization",
-    "cash flow", "balance sheet", "gross margin", "profit margin", "margins", "operating loss",
+    "cash flow", "balance sheet", "gross margin", "profit margin", "operating loss",
+    "operating profit", "operating income",
     "net loss", "write-down", "burn rate", "unit economics", "interest rate", "interest rates",
     "junk bond", "junk bonds", "bond sale", "collateral", "derivatives", "securities",
     "mortgage-backed", "credit default swap", "credit default swaps", "hedge fund",
