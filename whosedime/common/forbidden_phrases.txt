@@ -1,0 +1,54 @@
+# Phrases a Whose Dime script or publication never says (they block).
+# Source: PLAN_ACTION section 2, "what the channel never does": tell anyone to
+# buy or sell a security, give a price target, call a stock "undervalued",
+# or present the narrator as an adviser (CSA/CIRO notice 31-369: a disclaimer
+# is not enough; YouTube policy of July 2026 on expert personas).
+# One phrase per line, matched case-insensitively on whole words.
+# A line starting with "re:" is a Python regular expression instead.
+
+# buy / sell advice
+you should buy
+you should sell
+should you buy
+should you sell
+you should invest
+you should be investing
+buy the stock
+sell the stock
+buy this stock
+sell this stock
+buy the shares
+sell the shares
+time to buy
+time to sell
+buy now
+sell now
+strong buy
+strong sell
+good investment
+great investment
+worth investing in
+worth buying
+load up on
+re:\bi(?:'d| would| am going to|'m going to) (?:buy|sell|short)\b
+re:\bi (?:recommend|suggest) (?:buying|selling|investing)\b
+
+# price targets and valuation verdicts
+price target
+target price
+undervalued
+overvalued
+under-valued
+over-valued
+cheap stock
+re:\bstock (?:is|looks) (?:cheap|a bargain|a steal)\b
+
+# the narrator as an adviser
+my advice
+our advice
+investment advice for you
+as your adviser
+as your advisor
+as your financial adviser
+as your financial advisor
+take it from me

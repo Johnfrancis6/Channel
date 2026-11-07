@@ -1,0 +1,25 @@
+{
+  "_about": "Settings of checker.py. Every number and file name the checker uses lives here or in the lists next to it; style thresholds live only in style_thresholds.json.",
+  "files": {
+    "facts": "02b_factcheck.md",
+    "script": "02_script.md",
+    "voice": "02_script_voice.txt",
+    "publication": "04_publication.md"
+  },
+  "style_thresholds": "whosedime/research/style_thresholds.json",
+  "title_max_chars": 40,
+  "_title_max_chars_source": "PLAN_ACTION section 2 (title template under 40 characters)",
+  "ending_words": 60,
+  "_ending_words_source": "S03 prompt; PLAN_ACTION beat 6 asks the last 20 s (about 50 words) to announce the next video",
+  "quote_min_words": 2,
+  "_quote_min_words_source": "same as measure.py dialogue: a quoted span of two words or more is a quotation; one quoted word is a scare quote",
+  "unspoken_sections": ["sources", "notes"],
+  "title_case_sections": ["titles", "thumbnail"],
+  "title_sections": ["titles"],
+  "lists": {
+    "forbidden": "forbidden_phrases.txt",
+    "next_video": "next_video_markers.txt",
+    "not_names": "not_names.txt",
+    "lexicon": "lexicon.tsv"
+  }
+}
