@@ -46,4 +46,4 @@ NOT checked against their sources. Never use this file as video 1's registry. --
 
 ## Signature
 
-Signed: Test Fixture, 2026-11-07
+Signed: Test Fixture, 2026-11-07, sha256:15c344f88f93

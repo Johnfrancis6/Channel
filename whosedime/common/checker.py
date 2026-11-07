@@ -5,6 +5,7 @@
     python3 whosedime/common/checker.py voice       SCRIPT VOICE  [--facts F]
     python3 whosedime/common/checker.py publication PUBLICATION   [--facts F]
     python3 whosedime/common/checker.py all         FOLDER        [--thresholds J]
+    python3 whosedime/common/checker.py fingerprint 02b_factcheck.md
 
 --facts defaults to 02b_factcheck.md next to the checked file; `all` reads the
 file names of settings.json in FOLDER (voice and publication only if present).
@@ -16,7 +17,9 @@ BLOCK (decision D4 and the S03 prompt):
   [TO VERIFY] or withdrawn; a [^Fnn] tag naming no verified fact;
 - a quotation (two words or more in quotation marks) that is not word for
   word in the people block ("..." or an ellipsis may cut words out);
-- any [TO VERIFY] tag; a malformed registry; an unsigned registry (voice);
+- any [TO VERIFY] tag; a malformed registry; an unsigned registry (voice), or
+  one whose signature hash is missing or no longer matches its content (voice:
+  "registry changed since it was signed");
 - a title longer than settings.json allows; a phrase of forbidden_phrases.txt;
 - a voice version that differs from the script beyond allowed rewrites
   (numbers, $ and % spelled out, respellings of lexicon.tsv).
@@ -25,15 +28,24 @@ not copied), on the whole script, as the thresholds were calibrated. Metrics
 counted from the first word (first person, first turn, numbers in the first
 60 words) thus measure the cold open; cutting the cold open out first would
 make "no person found" read as the cold open's length and pass. Also warned:
-an ending without a next-video phrase; digits or symbols left in the voice.
+an ending without a next-video phrase; digits or symbols left in the voice;
+capitalised sentence-first words that may be unregistered names (one line).
 
-Names are capitalised words inside a sentence. A sentence's first word is
-checked only if it is a given name of measure.py (a capitalised common word
-cannot be told from a name there). Titles and thumbnail texts are in title
-case, so only their numbers are checked, not their names.
+Signature: `Signed: Franco, YYYY-MM-DD, sha256:<12 hex>`. The hash is taken over
+the registry text without its `## Signature` section (and without any
+`Signed:` line), each line stripped on the right; `fingerprint` prints it.
+
+Names are capitalised words inside a sentence. A sentence's first word blocks
+only if it is a given name of measure.py. Any other capitalised first word that
+is in no registry line, not in the not-names lists, not a number word, and
+never written in lower case elsewhere in the file is collected into ONE warning
+line (a capitalised common word cannot be told from a name there, so it cannot
+block). Titles and thumbnail texts are in title case, so only their numbers
+are checked, not their names.
 """
 import argparse
 import difflib
+import hashlib
 import importlib.util
 import json
 import re
@@ -57,6 +69,8 @@ LIST_RE = re.compile(r"^\s*(?:\d+[.)]|[-*+])\s+")
 FOOTDEF_RE = re.compile(r"^\[\^[^\]]+\]:")
 DATE_RE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
 FACT_ID_RE = re.compile(r"^F\d{2,}$")
+SIGNED_RE = re.compile(r"^\s*signed:", re.I)
+SIGN_HASH_RE = re.compile(r"sha256:[0-9a-f]+", re.I)
 ELLIPSIS_RE = re.compile(r"\.\.\.|…")
 CODE_RE = re.compile(r"(?<![\w$.])(?!\d+(?:st|nd|rd|th|s)\b)(?=[\w-]*[A-Za-z])(?=[\w-]*\d)[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*")
 STATUSES = {"verified": "verified", "[to verify]": "to_verify", "to verify": "to_verify",
@@ -169,6 +183,7 @@ ORDS.update(zip("twentieth thirtieth fortieth fiftieth sixtieth seventieth eight
 PLURAL_TENS = dict(zip("twenties thirties forties fifties sixties seventies eighties nineties".split(),
                        range(20, 100, 10)))
 SCALES = {"million", "billion", "trillion"}
+NUMBER_WORDS = set(UNITS) | set(TENS) | set(ORDS) | set(PLURAL_TENS) | SCALES | {"hundred", "thousand"}
 CURRENCY = {"$": "dollars", "€": "euros", "£": "pounds"}
 SAME_WORD = {"dollar": "dollars", "euro": "euros", "pound": "pounds", "percentage": "percent"}
 TOKEN_RE = re.compile(r"\d+(?:,\d{3})*(?:\.\d+)?[a-z]*|[a-z]+(?:'[a-z]+)*")
@@ -308,8 +323,10 @@ class Registry:
     def __init__(self, path):
         self.path = Path(path)
         self.facts, self.people, self.errors = {}, [], []
-        self.signed = None
-        self._parse(norm(self.path.read_text(encoding="utf-8")))
+        self.signed = self.signed_hash = None
+        raw = norm(self.path.read_text(encoding="utf-8"))
+        self.fingerprint = fingerprint(raw)
+        self._parse(raw)
         self.numbers, self.names = {}, {}       # key -> {fact ids}; name token -> {ids}
         for f in self.facts.values():
             for key, _ in number_keys(canon(f["text"])):
@@ -340,8 +357,10 @@ class Registry:
             s = re.match(r"^\s*signed:\s*(.*)$", line, re.I)
             if s:
                 value = s.group(1).strip()
-                if DATE_RE.search(value) and re.search(r"[A-Za-z]", DATE_RE.sub("", value)):
-                    self.signed = value
+                h = SIGN_HASH_RE.search(value)
+                rest = SIGN_HASH_RE.sub("", value)
+                if DATE_RE.search(rest) and re.search(r"[A-Za-z]", DATE_RE.sub("", rest)):
+                    self.signed, self.signed_hash = value, h.group(0).lower() if h else None
                 continue
             if not line.strip().startswith("|"):
                 continue
@@ -390,6 +409,22 @@ class Registry:
                                     status=status or "to_verify", line=n, ref=f"people line {n}"))
 
 
+def fingerprint(raw):
+    """sha256:<12 hex> of a registry's text without its '## Signature' section
+    and without any 'Signed:' line; lines stripped on the right, so trailing
+    spaces and line endings do not count."""
+    keep, in_sig = [], False
+    for line in norm(raw).splitlines():
+        h = HEADING_RE.match(line)
+        if h and line.lstrip().startswith("##"):
+            in_sig = h.group(1).strip().lower().startswith("signature")
+        if in_sig or SIGNED_RE.match(line):
+            continue
+        keep.append(line.rstrip())
+    text = "\n".join(keep).strip("\n") + "\n"
+    return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()[:SETTINGS["signature_hash_chars"]]
+
+
 def name_tokens(text, all_words=False):
     """Lower-case name tokens of a text: capitalised words (or every word if
     all_words), possessive stripped, split on hyphens unless they hold digits."""
@@ -431,9 +466,11 @@ def quote_ok(quote, registry):
     return False
 
 
-def check_facts(lines, registry, report, measure, names=True, title_case=()):
+def check_facts(lines, registry, report, measure, names=True, title_case=(), first_words_warn=True):
     """Numbers, dates, names, quotations and [^F..] tags of text lines against the registry."""
     not_names = set(read_list("not_names")) | measure.NOT_NAMES | measure.TITLES
+    lower_words = {w for _, _, t in lines for w in re.findall(r"(?<![\w'])[a-z][a-z'-]*", norm(t))}
+    first_words = {}                           # sentence-first words that may be names -> first line
     for n, section, text in lines:
         for ref in TAG_RE.findall(text):
             st = registry.status(ref)
@@ -471,15 +508,21 @@ def check_facts(lines, registry, report, measure, names=True, title_case=()):
                 if tok == "quote" or tok in not_names or re.fullmatch(r"[\d.,]+[a-z]{0,2}", tok):
                     continue
                 if start and tok not in measure.GIVEN_NAMES:
+                    if (tok not in registry.names and tok not in lower_words and tok not in NUMBER_WORDS
+                            and tok[0].isalpha()):
+                        first_words.setdefault(raw.strip(".,;:!?\"“”()[]*_'"), n)
                     continue
                 ids = registry.names.get(tok)
                 if not ids:
                     report.block("name", f"'{raw.strip('.,;:!?()')}' is a name in no line of the registry", n)
                 elif not any(registry.status(i) == "verified" for i in ids):
                     report.block("name", f"'{tok}' is only in {', '.join(sorted(ids))}, not verified", n)
+    if first_words and first_words_warn:
+        report.warn("name-first", "sentence-first word(s) in no registry line and never in lower case; "
+                    "register any that is a name: " + ", ".join(f"{w} (line {n})" for w, n in first_words.items()))
 
 
-def check_common(raw, lines, report, registry, measure, title_case=()):
+def check_common(raw, lines, report, registry, measure, title_case=(), first_words_warn=True):
     """Blocks shared by every target: registry errors, [TO VERIFY], forbidden phrases, facts."""
     for line, msg in registry.errors:
         report.block("registry", f"{registry.path.name}{f' line {line}' if line else ''}: {msg}")
@@ -491,7 +534,7 @@ def check_common(raw, lines, report, registry, measure, title_case=()):
         for phrase, rx in patterns:
             if rx.search(text):
                 report.block("forbidden", f"forbidden phrase '{phrase}': {text.strip()[:90]}", n)
-    check_facts(lines, registry, report, measure, title_case=title_case)
+    check_facts(lines, registry, report, measure, title_case=title_case, first_words_warn=first_words_warn)
 
 
 # ------------------------------------------------------------------ targets
@@ -554,9 +597,14 @@ def check_voice(script, voice, facts=None):
     report = Report("voice", voice)
     if not registry.signed:
         report.block("signature", f"{registry.path.name} is not signed: Franco signs the fact check before the voice")
+    elif registry.signed_hash != registry.fingerprint:
+        why = (f"signed {registry.signed_hash}, content is now {registry.fingerprint}" if registry.signed_hash
+               else "the signature has no sha256 hash")
+        report.block("signature", f"{registry.path.name}: registry changed since it was signed ({why}); "
+                     f"Franco re-reads it and signs again with `checker.py fingerprint`")
     s_raw, v_raw = script.read_text(encoding="utf-8"), voice.read_text(encoding="utf-8")
     s_lines = text_lines(s_raw, SETTINGS["unspoken_sections"])
-    check_common(s_raw, s_lines, report, registry, measure)
+    check_common(s_raw, s_lines, report, registry, measure, first_words_warn=False)   # the script report has it
     for n, line in enumerate(norm(v_raw).splitlines(), 1):
         if TO_VERIFY_RE.search(line):
             report.block("to-verify", f"[TO VERIFY] tag in the voice version: {line.strip()[:90]}", n)
@@ -611,15 +659,22 @@ def check_all(folder, thresholds=None):
 # ------------------------------------------------------------------ command line
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("target", choices=["script", "voice", "publication", "all"])
+    ap.add_argument("target", choices=["script", "voice", "publication", "all", "fingerprint"])
     ap.add_argument("paths", nargs="+")
     ap.add_argument("--facts")
     ap.add_argument("--thresholds")
     a = ap.parse_args(argv)
-    need = {"script": 1, "voice": 2, "publication": 1, "all": 1}[a.target]
+    need = {"script": 1, "voice": 2, "publication": 1, "all": 1, "fingerprint": 1}[a.target]
     if len(a.paths) != need:
         ap.print_usage(sys.stderr)
         return 2
+    if a.target == "fingerprint":
+        path = Path(a.paths[0])
+        if not path.exists():
+            print(f"file not found: {path}", file=sys.stderr)
+            return 2
+        print(fingerprint(path.read_text(encoding="utf-8")))
+        return 0
     folder = Path(a.paths[0]) if a.target == "all" else None
     required = [Path(p) for p in a.paths] if folder is None else \
         [folder / SETTINGS["files"]["facts"], folder / SETTINGS["files"]["script"]]

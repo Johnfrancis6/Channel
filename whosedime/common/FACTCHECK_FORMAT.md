@@ -33,9 +33,22 @@ several. Names here are registered; so are the quotations.
 | `source` | where the quotation was read (required with a quote) |
 | `status` | `verified`, `[TO VERIFY]` or `withdrawn`, as for facts |
 
-**`## Signature`**: one line, `Signed: Franco, YYYY-MM-DD`. Any other
-value (`Signed:` alone, `Signed: (not signed yet)`) counts as unsigned.
-Re-sign after any change to a `verified` line.
+**`## Signature`**: one line, `Signed: Franco, YYYY-MM-DD, sha256:<12 hex>`.
+The hash binds the signature to the content: it is taken over the registry
+text without its `## Signature` section (and without any `Signed:` line),
+each line stripped on the right. To sign, Franco reads the registry, then
+runs, from the repo root,
+
+```bash
+python3 whosedime/common/checker.py fingerprint 02b_factcheck.md
+```
+
+and pastes the printed value (`sha256:...`) at the end of the line. Any
+other value (`Signed:` alone, `Signed: (not signed yet)`) counts as
+unsigned. A signature without a hash, or with a hash that no longer matches
+(any character changed above the signature, a comment included), blocks the
+voice: "registry changed since it was signed". Re-read and re-sign after any
+change.
 
 ## How the checker reads it
 
@@ -45,6 +58,9 @@ Re-sign after any change to a `verified` line.
   are not checked (same rule as `measure.py`); digits always are.
 - **Names**: capitalised words inside a sentence (see the checker's
   docstring for the limits). `10-K`, `S-1`, `Q3` are names, not numbers.
+  A capitalised sentence-first word that is in no registry line and never
+  written in lower case in the file is listed in **one** warning line
+  (`name-first`): register it if it is a name.
 - **Quotations**: two words or more between quotation marks must sit word
   for word inside one `verified` quote of the people block (case and
   punctuation aside). `...` or `…` in the script may cut words out.

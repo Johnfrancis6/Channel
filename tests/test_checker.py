@@ -133,7 +133,8 @@ class TestCleanPair(unittest.TestCase):
         voice = C.check_voice(FIX / "script_clean.md", FIX / "voice_clean.txt", FACTS)
         self.assertEqual(voice.items, [], voice.render())
         pub = C.check_publication(FIX / "publication_clean.md", FACTS)
-        self.assertEqual(pub.items, [], pub.render())      # title 2 is exactly 40 characters
+        self.assertEqual(pub.blocks, [], pub.render())     # title 2 is exactly 40 characters
+        self.assertEqual(pub.codes("WARN"), ["name-first"], pub.render())   # S04: measured 1 warning
 
     def test_all_command_and_exit_codes(self):
         with tempfile.TemporaryDirectory() as d:
@@ -186,6 +187,69 @@ class TestRules(unittest.TestCase):
 
     def test_to_verify_in_a_comment_still_blocks(self):
         self.assertEqual(blocks(self.check("Uber grew.\n<!-- [TO VERIFY: growth] -->\n")), {"to-verify"})
+
+
+class TestSignatureHash(unittest.TestCase):
+    """S04 task 0: the signature is bound to the registry's content."""
+
+    def voice_with(self, registry_text):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "02b_factcheck.md"
+            path.write_text(registry_text)
+            return C.check_voice(FIX / "script_clean.md", FIX / "voice_clean.txt", path)
+
+    def test_fixture_hash_matches_its_content(self):
+        reg = C.Registry(FACTS)
+        self.assertRegex(reg.signed_hash, r"^sha256:[0-9a-f]{12}$")
+        self.assertEqual(reg.signed_hash, reg.fingerprint)
+        code, out = run(["fingerprint", str(FACTS)])
+        self.assertEqual((code, out.strip()), (0, reg.fingerprint))
+
+    def test_unchanged_copy_passes(self):
+        self.assertEqual(self.voice_with(FACTS.read_text()).items, [])
+
+    def test_edited_verified_line_blocks_voice(self):
+        text = FACTS.read_text()
+        edited = text.replace("Reuters, 2016-08-01", "Reuters, 2016-08-02")   # F09, verified
+        self.assertNotEqual(edited, text)
+        report = self.voice_with(edited)
+        self.assertEqual(blocks(report), {"signature"}, report.render())
+        self.assertIn("registry changed since it was signed", report.render())
+
+    def test_signature_without_hash_blocks_voice(self):
+        text = re.sub(r", sha256:[0-9a-f]+", "", FACTS.read_text())
+        report = self.voice_with(text)
+        self.assertEqual(blocks(report), {"signature"}, report.render())
+        self.assertIn("no sha256 hash", report.render())
+
+    def test_hash_ignores_the_signature_section_and_line_endings(self):
+        text = FACTS.read_text()
+        resigned = re.sub(r"Signed: .*", "Signed: Franco, 2026-12-01, " + C.fingerprint(text), text)
+        self.assertEqual(C.fingerprint(resigned), C.fingerprint(text))
+        self.assertEqual(C.fingerprint(text.replace("\n", "  \r\n")), C.fingerprint(text))
+
+
+class TestSentenceFirstNames(unittest.TestCase):
+    """S04 task 0: unknown capitalised first words go into one warning line."""
+
+    def check(self, text):
+        return TestRules.check(self, text)
+
+    def test_name_only_as_first_word_warns_once(self):
+        report = self.check("Uber needed money. Goldman found it. Riders came back. Bankers called.")
+        self.assertEqual(blocks(report), set())
+        warns = [m for lv, c, m in report.items if c == "name-first"]
+        self.assertEqual(len(warns), 1, report.render())
+        self.assertIn("Goldman", warns[0])
+        self.assertIn("Bankers", warns[0])
+
+    def test_word_in_lower_case_elsewhere_or_registered_is_not_collected(self):
+        report = self.check("Riders came back. Then the riders paid. Kalanick smiled. Twenty friends waited.")
+        self.assertNotIn("name-first", report.codes())
+
+    def test_clean_script_measured_count(self):
+        report = C.check_script(FIX / "script_clean.md", FACTS)
+        self.assertEqual(report.codes("WARN"), ["name-first"], report.render())   # measured 07/11: 1 warning
 
 
 class TestNothingHardCoded(unittest.TestCase):

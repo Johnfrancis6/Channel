@@ -5,9 +5,10 @@
 | Command | Checks |
 |---|---|
 | `python3 whosedime/common/checker.py script 02_script.md` | facts, quotes, `[TO VERIFY]`, forbidden phrases (block); style rules and next-video ending (warn) |
-| `... voice 02_script.md 02_script_voice.txt` | the script's blocks, signed registry, voice = script up to spelled numbers and respellings (block) |
+| `... voice 02_script.md 02_script_voice.txt` | the script's blocks, signed registry whose `sha256:` hash matches its content, voice = script up to spelled numbers and respellings (block) |
 | `... publication 04_publication.md` | facts, quotes, `[TO VERIFY]`, forbidden phrases, title length (block). Sections: `## Titles` (list), `## Thumbnail`, `## Description`; `## Sources` is skipped |
 | `... all FOLDER` | the three, with the file names of `settings.json` (voice and publication if present) |
+| `... fingerprint 02b_factcheck.md` | prints the `sha256:<12 hex>` hash Franco pastes on the `Signed:` line (S04) |
 
 `--facts FILE` overrides the registry (default: `02b_factcheck.md` next to the file); `--thresholds FILE` the style JSON.
 **Exit codes**: 0 no block (warnings allowed), 1 at least one `BLOCK`, 2 usage error or missing file.
@@ -17,4 +18,4 @@ Where each list lives (edit the file, never the code): style rules and threshold
 [`forbidden_phrases.txt`](forbidden_phrases.txt); next-video phrases in [`next_video_markers.txt`](next_video_markers.txt);
 capitalised non-names in [`not_names.txt`](not_names.txt); voice respellings in [`lexicon.tsv`](lexicon.tsv);
 title length, ending length, file names in [`settings.json`](settings.json). Tests: `tests/test_checker.py`.
-Limits: a name used only as a sentence's first word is not checked; titles and thumbnails are checked for numbers, not names.
+Limits: a name used only as a sentence's first word cannot block (it cannot be told from a common word); unknown sentence-first words are listed in one `name-first` warning, which also lists common words (measured on the clean Uber script: 1 warning line, 8 words, none a name). Titles and thumbnails are checked for numbers, not names.
