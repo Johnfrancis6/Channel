@@ -1,0 +1,104 @@
+{
+  "version": "S02 2026-11-07",
+  "measure": "whosedime/research/tools/measure.py",
+  "rules": [
+    {
+      "id": "S1",
+      "metric": "words_before_first_person",
+      "min": null,
+      "max": 160,
+      "level": "warn"
+    },
+    {
+      "id": "S2",
+      "metric": "people_mentions_per_150",
+      "min": 0.2,
+      "max": null,
+      "level": "warn"
+    },
+    {
+      "id": "S3",
+      "metric": "dialogue_per_1000",
+      "min": 1.0,
+      "max": null,
+      "level": "warn"
+    },
+    {
+      "id": "S4",
+      "metric": "sentence_sd",
+      "min": 5.3,
+      "max": null,
+      "level": "warn"
+    },
+    {
+      "id": "S5",
+      "metric": "sentence_mean",
+      "min": null,
+      "max": 17.9,
+      "level": "warn"
+    },
+    {
+      "id": "S6",
+      "metric": "share_over_25",
+      "min": null,
+      "max": 0.16,
+      "level": "warn"
+    },
+    {
+      "id": "S7",
+      "metric": "numbers_per_100",
+      "min": null,
+      "max": 2.6,
+      "level": "warn"
+    },
+    {
+      "id": "S8",
+      "metric": "numbers_first_60",
+      "min": 1,
+      "max": 4,
+      "level": "warn"
+    },
+    {
+      "id": "S9",
+      "metric": "words_before_first_tension",
+      "min": null,
+      "max": 100,
+      "level": "warn"
+    },
+    {
+      "id": "S10",
+      "metric": "contrast_per_1000",
+      "min": 1.6,
+      "max": 10.6,
+      "level": "warn"
+    },
+    {
+      "id": "S11",
+      "metric": "you_per_1000",
+      "min": 4.1,
+      "max": null,
+      "level": "warn"
+    },
+    {
+      "id": "S12",
+      "metric": "top_connector_per_1000",
+      "min": null,
+      "max": 8.7,
+      "level": "warn"
+    },
+    {
+      "id": "S13",
+      "metric": "jargon_per_1000",
+      "min": null,
+      "max": 5.8,
+      "level": "warn"
+    },
+    {
+      "id": "S14",
+      "metric": "jargon_explained_share",
+      "min": 1.0,
+      "max": null,
+      "level": "warn"
+    }
+  ]
+}
