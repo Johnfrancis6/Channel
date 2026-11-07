@@ -12,7 +12,7 @@ Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
   is merged into the work branch; Zehon is frozen (note at the top of
   `docs/chaine2/CONTEXTE.md`); `CLAUDE.md` is in English;
   `whosedime/README.md` lays out the folders to come.
-- **Pull request to `main` open, not merged**: PR_LINK. Until
+- **Pull request to `main` open, not merged**: [Johnfrancis6/Channel#2](https://github.com/Johnfrancis6/Channel/pull/2). Until
   Franco merges it, `main` is still the 30/09 state (`f5ceed8`).
 - Nothing of the Whose Dime content pipeline is built yet (S02 onwards).
 - No Whose Dime Drive folder exists yet (S08).
