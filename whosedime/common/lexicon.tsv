@@ -1,0 +1,15 @@
+# Voice respellings: how the narrator must say a written form.
+# written<TAB>spoken. The voice version may use either form; the checker
+# accepts the respelling as an allowed rewrite (S06's notebook can read this file).
+# Numbers, dollar and percent signs need no line: the checker reads them.
+Kalanick	Kuh-LAN-ick
+Khosrowshahi	Koz-roh-SHAH-hee
+Didi	Dee-dee
+10-K	ten-K
+S-1	S-one
+SEC	S-E-C
+U.S.	U-S
+Mr.	Mister
+IPO	I-P-O
+UberCab	Uber Cab
+UberX	Uber X

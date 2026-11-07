@@ -1,0 +1,17 @@
+# Capitalised words that are not names the fact registry must hold.
+# Pronouns, articles and titles come from measure.py (NOT_NAMES, TITLES).
+# One word per line, case-insensitive.
+i
+ok
+ceo
+cfo
+coo
+cto
+ipo
+tv
+app
+who
+pays
+paid
+whose
+dime

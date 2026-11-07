@@ -1,0 +1,6 @@
+<!-- TEST FIXTURE for tests/test_checker.py: the Zehon-style Uber cold open of S02
+(whosedime/research/examples/uber_before.txt), as a script. Expect style warnings. -->
+
+## Cold open
+
+You open the app. You tap a button, and a car arrives in four minutes. You pay a few dollars, and you get out without thinking about it. This service exists in more than 70 countries. It carries millions of people every day. In 2015, the rider paid only 41% of the real cost of a ride. In 2022, the company still lost $9.1 billion. In 2023, it made its first operating profit: $1.1 billion. So how can a ride cost less than it costs? And who pays the difference? The idea is simple. A driver uses his own car. The company connects him to a rider. It keeps a commission on each ride. Except that the commission does not cover the costs.
