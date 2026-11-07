@@ -42,8 +42,8 @@ Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 ## Open issues
 
 - **For Franco** (S05 choices, assumed): a 5th scene type `title` (the "WHO PAYS?" card) so that
-  `chapter` stays at 6; the channel palette (cream, dollar green, coral, mustard, navy); the
-  thumbnail caricature is not named in its prompt (may not read as the executive).
+  `chapter` stays at 6; the channel palette (cream, dollar green, coral, mustard, navy).
+- **D12** (Franco, 07/11): thumbnail prompts name the well-known executive: built in S06, task 0.
 - **For Franco**: respellings for `lexicon.tsv`? `UK` → U-K, `LeWeb` → Luh-WEB, `Rumayyan` → Roo-MY-yan (not added).
 - **Checker limits**: `chart-source` checks a chart's numbers, not its words; `prompt-person` sees only
   the people block (a person named only in a fact, e.g. Mr Aslam, is not caught); `name-first` stays

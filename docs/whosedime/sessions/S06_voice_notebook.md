@@ -4,6 +4,8 @@
 > `whosedime-maker/references/memory.md`): the notebook writes its own
 > state file in `voice/` and the speaking rate that `lessons.md` reads. The
 > S05 pull request to `main` may still be open: work on the branch anyway.
+> Added by Franco on 2026-11-07 (decision D12): task 0 lets thumbnail
+> prompts name the well-known executive they caricature.
 
 ## Context
 
@@ -33,8 +35,40 @@ Stay on this branch. `git fetch` before every push. Never print
 4. `whosedime/whosedime-maker/evals/files/01_uber/02_script_voice.txt`, `02c_listen_20s.txt` (the test input)
 5. `reports/Audit pipeline de production.md` § 2.1 symptom 2 (V1-V7) and § 3 C5, C6 — in French
 6. For structure only: `zehon/notebooks/voix_zehon.ipynb`, `lanceur_voix.ipynb`, `lanceur.py` (do not edit; rewrite, do not translate)
+7. For task 0 only: `DECISIONS.md` D12; `whosedime/whosedime-maker/references/step5_publication.md` § Thumbnail; `evals/files/01_uber/04_publication.md` § Notes; `references/step4_scenes.md` § "The image prompts" (rules of a prompt)
 
 ## Do
+
+0. **Named caricatures on thumbnails (D12), first, in about 30 minutes.**
+   - `step5_publication.md` § Thumbnail: replace "Do not name the real
+     person in the prompt" by the rule of D12. The prompt **names the
+     executive** with the role at the time of the decision ("a cartoon
+     caricature of Travis Kalanick, Uber's co-founder"), only for a person
+     of the people block who is **well known to the public**; otherwise the
+     payer, unnamed, as today. Write the limits as a short checklist the
+     skill applies before showing a prompt: deliberately unrealistic
+     cartoon (huge head, thick outlines, exaggerated gesture); tied to the
+     decision the video tells; an obvious metaphor, never a false fact (no
+     crime, illness, intimate or degrading scene); no implied endorsement;
+     **no photo attached** to the tool; never a realistic portrait.
+   - Update the prompt model in that section: the name, then the cartoon
+     instructions, then "not a realistic portrait, not a photo".
+   - **Fallback**, written in the same section: if Gemini refuses the name
+     or gives a realistic face, Franco tries once with described traits
+     (age, hair, clothes, a known gesture), then an illustrator drawing
+     the caricature once for several videos; the skill notes the outcome
+     in the video's `00_state.md` and in `lessons.md`.
+   - `evals/files/01_uber/04_publication.md`: rewrite **Thumbnail prompt
+     A** with the name, and the Notes sentence that explains why it was
+     unnamed. Prompts B and C stay unnamed (a rider, a cab owner).
+   - `step4_scenes.md`: one sentence saying that D12 is for thumbnails
+     only; scene prompts never name a real person. **Do not change**
+     `checker.py` (`prompt-person` stays a block for scenes; the checker
+     skips `## Notes`, where thumbnail prompts live).
+   - *Check:* `checker.py all` on `evals/files/01_uber` exits 0; tests
+     green; `python3 tools/sync_skills.py`, `--check` clean; one critique
+     line (`build_S06_thumbnails`). No image is generated in this session:
+     the first real try is Franco's, on video 1 (S08).
 
 1. **The notebook** `whosedime/notebooks/voice_whosedime.ipynb`, with its
    logic in an importable module (tests cannot run a notebook): reads
@@ -70,6 +104,7 @@ Stay on this branch. `git fetch` before every push. Never print
 
 ## Deliverables
 
+- task 0: `step5_publication.md`, `step4_scenes.md` (one sentence), `01_uber/04_publication.md`; synced mirror and `.skill`
 - `whosedime/notebooks/` (notebook, module, launcher), tests
 - `docs/whosedime/STATE.md` updated, one line per deliverable group in `docs/whosedime/critique_log.jsonl`
 - `docs/whosedime/sessions/S07_charts_and_assembly.md`
@@ -78,5 +113,5 @@ Stay on this branch. `git fetch` before every push. Never print
 
 Follow `ROADMAP.md` § "The hand-off". Next session: **S07 — Charts and
 assembly, model Opus 5.5**. Carry over: the S05 choices waiting for Franco
-(the `title` card type, the channel palette, the unnamed caricature) and
+(the `title` card type, the channel palette) and
 the lexicon proposals (UK, LeWeb, Rumayyan).
