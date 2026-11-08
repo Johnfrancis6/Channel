@@ -4,6 +4,14 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-08 — the ElevenLabs reference on the free plan (after S12)
+
+Source: Franco, session `session_01Cw13LhWRZyGn7FWUAAzMb1`: "Pas besoin d'un starter. J'utiliserai l'essai gratuit."
+
+| # | Decision | Applies to |
+|---|---|---|
+| D23 | **The narrator's reference clip is made on ElevenLabs' free plan**, not Starter. Known risk, told to Franco: the terms S12 read on 2026-11-08 make free-plan output non-commercial with attribution, and output made on the free plan stays non-commercial after subscribing; a monetised channel is commercial use. The free Qwen VoiceDesign voice (D8) remains the no-condition fallback. | voice, D22 |
+
 ## 2026-11-08 — ElevenLabs designs the narrator, Qwen3-TTS clones it (clarifies D21)
 
 Source: Franco, session `session_01Cw13LhWRZyGn7FWUAAzMb1`: "ElevenLabs sert à générer la voix et Qwen TTS à la
