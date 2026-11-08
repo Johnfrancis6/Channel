@@ -207,6 +207,15 @@ class Charts(unittest.TestCase):
                 self.assertAlmostEqual(b.grid[2] - b.grid[0], gw, places=3)
         self.assertEqual([(b.cols, b.rows) for b in C.icons_layout(self.spec(61), *C.Canvas().frame(self.spec(61)))][1],
                          (5, 3))                                   # 15 days: 5 x 3, no ragged row
+        s = self.spec(61)                                          # S07c: a short area shrinks the figures to fit
+        cv = C.Canvas()
+        cv.c = dict(cv.c, icons_min_cell=30)
+        top, _ = cv.frame(s)
+        blocks = C.icons_layout(s, top, top + 700, cv)
+        self.assertLessEqual(max(b.box[3] for b in blocks) - min(b.box[1] for b in blocks), 700 + 1e-6)
+        with self.assertRaisesRegex(C.ChartError, "under 52 px"):
+            C.icons_layout(s, top, top + 700, C.Canvas())
+        self.assertEqual(C.icons_layout(s, *C.Canvas().frame(s))[0].parts[-1][0], ["Medallion owners", "bankrupt by 2019"])
 
     def test_source_line_follows_same_as(self):
         self.assertEqual(C.short_source("F08", self.registry), "Fortune, 2016-06-01")

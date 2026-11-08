@@ -298,6 +298,20 @@ def wrap(draw, text, f, max_w):
     return lines
 
 
+def balanced(draw, text, f, max_w):
+    """wrap() with the same number of lines, but as even as they can be: 'Medallion owners / bankrupt by 2019',
+    not 'Medallion owners bankrupt by / 2019' (no lone word on the last line)."""
+    lines = wrap(draw, text, f, max_w)
+    lo, hi = max(width(draw, w, f) for w in text.split()), max_w
+    while len(lines) > 1 and hi - lo > 1:
+        mid = (lo + hi) / 2
+        if len(wrap(draw, text, f, mid)) == len(lines):
+            hi = mid
+        else:
+            lo = mid
+    return wrap(draw, text, f, hi) if len(lines) > 1 else lines
+
+
 def fit(draw, text, size, max_w, min_size=24, mono=False):
     """The largest font (down to min_size) that fits text on one line in max_w."""
     while size > min_size and width(draw, text, font(size, mono)) > max_w:
@@ -588,23 +602,24 @@ def icons_layout(spec, top, bottom, cv=None):
         if sub:
             cut = sub.start
             head = it.text[:cut] if it.text[:main.start].strip() else it.text[main.end:cut]
-            parts.append((wrap(cv.d, cap(tidy(head)), lab, rw), lab, PAL["ink"], 0))
-            parts.append((wrap(cv.d, tidy(it.text[cut:]), lab, rw), lab, mix(PAL["highlight"], PAL["ink"], 0.35), 0))
+            parts.append((balanced(cv.d, cap(tidy(head)), lab, rw), lab, PAL["ink"], 0))
+            parts.append((balanced(cv.d, tidy(it.text[cut:]), lab, rw), lab, mix(PAL["highlight"], PAL["ink"], 0.35), 0))
         else:
             caption = it.text if it.text[:main.start].strip() else it.text[main.end:]
-            parts.append((wrap(cv.d, cap(tidy(caption)), lab, rw), lab, PAL["ink"], 0))
+            parts.append((balanced(cv.d, cap(tidy(caption)), lab, rw), lab, PAL["ink"], 0))
         ch = cv.block_height(parts)
         qual.append(cv.block_height(parts[:1]) if main.qualifier else 0)
         gh_max = min(bottom - top - between - ch, (bottom - top) * c["icons_grid_share"])
         cell, cols, rows = best_grid(n_icons, rw, gh_max, gap, c["icons_max_cell"])
         found.append((cv.m + region * k + pad, n_icons, n_sub, bool(PEOPLE_RE.search(it.text)), parts, ch, cell, cols, rows))
     cell = min(f[6] for f in found)        # one figure size for the whole chart: 95 owners and 15 days, same scale
-    need(cell >= c["icons_min_cell"], spec, f"figures of {cell:.0f} px, under {c['icons_min_cell']} px: lower icons_max")
     found = [f if f[6] == cell else (*f[:7], *even_grid(f[1], cell, rw, gap)) for f in found]
-    above = max(q + between + grid_size(cell, f[7], f[8], gap)[1] for q, f in zip(qual, found))
     below = max(f[5] - q for q, f in zip(qual, found))
-    need(above + below <= bottom - top + 0.5, spec, f"figures and captions {above + below:.0f} px high, "
-         f"{bottom - top:.0f} px free: lower icons_max")
+    for q, f in zip(qual, found):          # values on one line (D15): shrink the figures until the whole fits
+        rows = f[8] + gap * (f[8] - 1)
+        cell = min(cell, (bottom - top - below - between - q) / rows)
+    need(cell >= c["icons_min_cell"], spec, f"figures of {cell:.0f} px, under {c['icons_min_cell']} px: lower icons_max")
+    above = max(q + between + grid_size(cell, f[7], f[8], gap)[1] for q, f in zip(qual, found))
     value_y = top + max(0, (bottom - top - above - below) / 2) + above
     blocks = []
     for q, (x0, n_icons, n_sub, people, parts, ch, _, cols, rows) in zip(qual, found):
