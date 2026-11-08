@@ -79,7 +79,14 @@
     "small_size": 30,
     "source_size": 26,
     "icons_max": 100,
-    "bar_ratio_max": 50
+    "icons_gap": 0.15,
+    "icons_min_cell": 36,
+    "icons_max_cell": 110,
+    "icons_grid_share": 0.6,
+    "bar_ratio_max": 50,
+    "gain_words": ["profit", "revenue"],
+    "loss_words": ["loss", "losses", "lost", "deficit", "bankrupt*", "crash*"]
   },
-  "_charts_source": "assumed (S07): sizes for 1920x1080 read on a phone; icons_max: a count is drawn as at most 100 figures (one figure = a power of ten, never written); bar_ratio_max: values further apart than 50x are shown as numbers without bars (a bar of $45 next to one of $8.1 billion says nothing)"
+  "_charts_source": "assumed (S07): sizes for 1920x1080 read on a phone; icons_max: a count is drawn as at most 100 figures (one figure = a power of ten, never written); bar_ratio_max: values further apart than 50x are shown as numbers without bars (a bar of $45 next to one of $8.1 billion says nothing)",
+  "_charts_tone_source": "Franco, 2026-11-08 (S07b): a figure is coloured by meaning, not guessed. gain_words: gain green only for the company's money coming in; loss_words: loss coral only for money lost ('*' = any ending: bankrupt, bankruptcy); every other figure in navy ink, and in a compare with bars and neither gain nor loss, the last bar in mustard (the figure to look at). icons_gap: space between figures, as a share of the figure's cell (assumed); icons_min_cell: the smallest figure at 1920x1080, in px (S07b prompt); icons_max_cell: the largest (S07); icons_grid_share: the grid takes at most 60 % of the free height, the rest goes to its value and caption (assumed; S07 used 55 %)"
 }

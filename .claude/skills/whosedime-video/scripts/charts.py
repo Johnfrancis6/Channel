@@ -87,8 +87,18 @@ SCALE_WORDS = {"thousand": 10 ** 3, "million": 10 ** 6, "billion": 10 ** 9, "tri
 VALUE_RE = re.compile(
     rf"(?:\b(?P<q>{QUALIFIERS})\s+)?(?P<v>(?P<cur>[$€£])\d[\d,]*(?:\.\d+)?(?:\s(?:thousand|million|billion|trillion)\b)?"
     rf"|\d[\d,]*(?:\.\d+)?(?:\s?%|\s(?:percent|thousand|million|billion|trillion)\b)?)", re.I)
-LOSS_RE = re.compile(r"\b(?:loss|losses|lost|deficit|bankrupt\w*|crash\w*|fell|cut off|warnings?)\b", re.I)
-GAIN_RE = re.compile(r"\b(?:profit|revenue|raised|valuation|invested|earned)\b", re.I)
+
+
+def word_re(words):
+    """One regex for a word list of settings.json: whole words, '*' at the end = any ending ('bankrupt*')."""
+    alts = [re.escape(w[:-1]) + r"\w*" if w.endswith("*") else re.escape(w) for w in words]
+    return re.compile(r"\b(?:" + "|".join(alts) + r")\b", re.I)
+
+
+# The colour of a figure says what it means (Franco, 08/11): gain green only for the company's money coming
+# in, loss coral only for money lost, everything else navy ink. The words are in settings.json (charts).
+LOSS_RE = word_re(SETTINGS["charts"]["loss_words"])
+GAIN_RE = word_re(SETTINGS["charts"]["gain_words"])
 PEOPLE_RE = re.compile(r"\b(?:owners?|drivers?|people|workers?|riders?|passengers?|users?|employees?)\b", re.I)
 FALL_RE = re.compile(r"\b(?:crash\w*|fell|fall\w*|drop\w*|collaps\w*|sank|plung\w*)\b", re.I)
 
@@ -409,10 +419,11 @@ def draw_compare(cv, spec, top, bottom):
         bar_top = top + 150
         biggest = max(i.value.amount for i in items)
         bw = min(260, col * 0.5)
+        toned = any(i.tone != "ink" for i in items)   # gain or loss somewhere: no mustard (it would read as a third meaning)
         for k, it in enumerate(items):
             cx = cv.m + col * (k + 0.5)
             h = float(it.value.amount / biggest) * (base - bar_top)
-            color = PAL[it.tone] if it.tone != "ink" else (PAL["highlight"] if k == n - 1 else PAL["ink"])
+            color = PAL[it.tone] if toned else (PAL["highlight"] if k == n - 1 else PAL["ink"])
             cv.d.rounded_rectangle((cx - bw / 2, base - max(h, 12), cx + bw / 2, base), 14, fill=color)
             cv.d.rectangle((cx - bw / 2, base - min(max(h, 12), 14), cx + bw / 2, base), fill=color)
             fv = fit(cv.d, it.value.shown, 96, col - 30, 40)
@@ -498,49 +509,117 @@ def tile(d, x, y, s, fill):
     d.rounded_rectangle((x + s * 0.12, y + s * 0.12, x + s * 0.88, y + s * 0.88), s * 0.14, fill=fill)
 
 
-def draw_icons(cv, spec, top, bottom):
+@dataclass
+class IconBlock:
+    """The layout of one item of an `icons` chart, measured before anything is drawn."""
+    cell: float          # side of one figure's cell, px (the same for every item of the chart)
+    cols: int
+    rows: int
+    grid: tuple          # (x0, y0, x1, y1) of the figures
+    caption: tuple       # (x0, y0, x1, y1) of qualifier + value + caption
+    n_icons: int
+    n_sub: int           # the first n_sub figures in mustard (a part of the count: "30,000 of them")
+    people: bool
+    parts: list          # [(lines, font, fill, gap after)] of the caption, top to bottom
+
+    @property
+    def box(self):
+        return (min(self.grid[0], self.caption[0]), self.grid[1], max(self.grid[2], self.caption[2]), self.caption[3])
+
+
+def best_grid(n, w, h, gap, max_cell):
+    """(cell, cols, rows): the largest square cell for n figures in w x h, figures `gap` x cell apart."""
+    best = (0.0, 1, n)
+    for cols in range(1, n + 1):
+        rows = math.ceil(n / cols)
+        cell = min(w / (cols + gap * (cols - 1)), h / (rows + gap * (rows - 1)), max_cell)
+        if cell > best[0] + 1e-9:
+            best = (cell, cols, rows)
+    return best
+
+
+def even_grid(n, cell, w, gap):
+    """(cols, rows) for n figures of a given cell in width w: from a square grid wider, the first without a
+    ragged last row ('15 days' as 5 x 3, not 4 + 4 + 4 + 3), else the square one."""
+    fit_cols = max(1, int((w / cell + gap) / (1 + gap)))
+    square = min(fit_cols, math.ceil(math.sqrt(n)))
+    for cols in range(square, min(fit_cols, n) + 1):
+        if n % cols == 0 and n // cols <= cols:
+            return cols, n // cols
+    return square, math.ceil(n / square)
+
+
+def grid_size(cell, cols, rows, gap):
+    return cell * (cols + gap * (cols - 1)), cell * (rows + gap * (rows - 1))
+
+
+def icons_layout(spec, top, bottom, cv=None):
+    """[IconBlock] of an `icons` chart between top and bottom, without drawing: one cell size for the whole
+    chart (the smaller of the items' best), each block (grid, value, caption) centred as one block, and the
+    blocks of two items on the same top line."""
     need(1 <= len(spec.items) <= 2, spec, "one or two items expected")
+    cv = cv or Canvas()
+    c = cv.c
     n = len(spec.items)
     region = (cv.w - 2 * cv.m) / n
-    lab = font(cv.c["label_size"] - (6 if n > 1 else 0))
+    lab, small = font(c["label_size"] - (6 if n > 1 else 0)), font(c["small_size"])
+    gap, pad, between = c["icons_gap"], 40, 30
+    rw = region - 2 * pad
+    found = []
     for k, it in enumerate(spec.items):
         counts = [v for v in it.values if not v.is_date and v.unit == "n"]
         need(counts, spec, f"no count in '{it.text[:40]}'")
         main = counts[0]
         sub = next((v for v in counts[1:] if v.amount < main.amount), None)
         unit = 1
-        while main.amount / unit > cv.c["icons_max"]:
+        while main.amount / unit > c["icons_max"]:
             unit *= 10
         n_icons = max(1, int(round(main.amount / unit)))
         n_sub = int(round(sub.amount / unit)) if sub else 0
-        x0 = cv.m + region * k + 40
-        rw = region - 80
-        gh = (bottom - top) * 0.55
-        cols = max(1, math.ceil(math.sqrt(n_icons * rw / gh)))
-        rows = math.ceil(n_icons / cols)
-        s = min(rw / cols, gh / rows, 110)
-        gx = x0 + (rw - cols * s) / 2
-        draw = person if PEOPLE_RE.search(it.text) else tile
-        for i in range(n_icons):
-            r_, c_ = divmod(i, cols)
-            draw(cv.d, gx + c_ * s, top + r_ * s, s, PAL["highlight"] if i < n_sub else PAL["ink"])
-        cx = x0 + rw / 2
-        y = top + rows * s + 30
-        fv = fit(cv.d, main.shown, 96, rw, 40)
+        parts = []
         if main.qualifier:
-            cv.d.text((cx, y), main.qualifier.upper(), font=font(cv.c["small_size"]),
-                      fill=mix(PAL["ink"], PAL["background"], 0.3), anchor="ma")
-            y += cv.c["small_size"] * 1.2
-        cv.d.text((cx, y), main.shown, font=fv, fill=PAL["ink"], anchor="ma")
-        y += fv.size * 1.15
+            parts.append(([main.qualifier.upper()], small, mix(PAL["ink"], PAL["background"], 0.3), 0))
+        fv = fit(cv.d, main.shown, 96, rw, 40)
+        parts.append(([main.shown], fv, PAL["ink"], 0))
         if sub:
             cut = sub.start
             head = it.text[:cut] if it.text[:main.start].strip() else it.text[main.end:cut]
-            y = cv.lines(wrap(cv.d, cap(tidy(head)), lab, rw), lab, cx, y, PAL["ink"])
-            cv.lines(wrap(cv.d, tidy(it.text[cut:]), lab, rw), lab, cx, y, mix(PAL["highlight"], PAL["ink"], 0.35))
+            parts.append((wrap(cv.d, cap(tidy(head)), lab, rw), lab, PAL["ink"], 0))
+            parts.append((wrap(cv.d, tidy(it.text[cut:]), lab, rw), lab, mix(PAL["highlight"], PAL["ink"], 0.35), 0))
         else:
             caption = it.text if it.text[:main.start].strip() else it.text[main.end:]
-            cv.lines(wrap(cv.d, cap(tidy(caption)), lab, rw), lab, cx, y, PAL["ink"])
+            parts.append((wrap(cv.d, cap(tidy(caption)), lab, rw), lab, PAL["ink"], 0))
+        ch = cv.block_height(parts)
+        gh_max = min(bottom - top - between - ch, (bottom - top) * c["icons_grid_share"])
+        cell, cols, rows = best_grid(n_icons, rw, gh_max, gap, c["icons_max_cell"])
+        found.append((cv.m + region * k + pad, n_icons, n_sub, bool(PEOPLE_RE.search(it.text)), parts, ch, cell, cols, rows))
+    cell = min(f[6] for f in found)        # one figure size for the whole chart: 95 owners and 15 days, same scale
+    need(cell >= c["icons_min_cell"], spec, f"figures of {cell:.0f} px, under {c['icons_min_cell']} px: lower icons_max")
+    found = [f if f[6] == cell else (*f[:7], *even_grid(f[1], cell, rw, gap)) for f in found]
+    heights = [grid_size(cell, f[7], f[8], gap)[1] + between + f[5] for f in found]
+    y0 = top + max(0, (bottom - top - max(heights)) / 2)
+    blocks = []
+    for x0, n_icons, n_sub, people, parts, ch, _, cols, rows in found:
+        gw, gh = grid_size(cell, cols, rows, gap)
+        gx = x0 + (rw - gw) / 2
+        cy = y0 + gh + between
+        blocks.append(IconBlock(cell, cols, rows, (gx, y0, gx + gw, y0 + gh), (x0, cy, x0 + rw, cy + ch),
+                                n_icons, n_sub, people, parts))
+    return blocks
+
+
+def draw_icons(cv, spec, top, bottom):
+    gap = cv.c["icons_gap"]
+    for b in icons_layout(spec, top, bottom, cv):
+        draw = person if b.people else tile
+        step = b.cell * (1 + gap)
+        for i in range(b.n_icons):
+            r_, c_ = divmod(i, b.cols)
+            draw(cv.d, b.grid[0] + c_ * step, b.grid[1] + r_ * step, b.cell, PAL["highlight"] if i < b.n_sub else PAL["ink"])
+        y = b.caption[1]
+        cx = (b.caption[0] + b.caption[2]) / 2
+        for lines, f, fill, g in b.parts:
+            y = cv.lines(lines, f, cx, y, fill) + g
 
 
 def star(d, cx, cy, r, fill):
