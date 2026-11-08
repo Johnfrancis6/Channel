@@ -4,6 +4,15 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-08 — ElevenLabs designs the narrator, Qwen3-TTS clones it (clarifies D21)
+
+Source: Franco, session `session_01Cw13LhWRZyGn7FWUAAzMb1`: "ElevenLabs sert à générer la voix et Qwen TTS à la
+cloner pour un usage gratuit, pas besoin de son API."
+
+| # | Decision | Applies to |
+|---|---|---|
+| D22 | **ElevenLabs only makes the narrator's reference clip** (Franco, in the app, once); **Qwen3-TTS clones it** on the Base model in Colab for every sample and full voice, free. It replaces D8's VoiceDesign step, not the clone; no ElevenLabs API. Open: what ElevenLabs' terms allow for a monetised channel and for using an output as a cloning reference (S12 reads and reports; Franco decides). | voice notebook, S12 |
+
 ## 2026-11-08 — the narrator's voice comes from ElevenLabs (video 1, session 2b)
 
 Source: Franco, session `session_01Cw13LeV77hvzZuF2iSsKfA`, after validating the 20 s sample by ear:

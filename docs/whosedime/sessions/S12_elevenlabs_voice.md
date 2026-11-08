@@ -1,5 +1,11 @@
 # S12 — ElevenLabs voice route (D21)
 
+> **Corrected by D22 while running** (Franco): ElevenLabs makes only the narrator's reference clip;
+> Qwen3-TTS clones it. Tasks 1, 2 and 5 below are replaced by: `MODE = "reference"` (Franco's clip →
+> `ref.wav`, `ref.txt`, `ref.json` for the existing clone), his guide for recording the reference, the
+> clone's speaking rate (S11: 206 wpm), and a dated reading of ElevenLabs' terms (commercial use,
+> cloning reference). The orchestrator's message to the session holds the full list.
+
 > Changes from ROADMAP.md: a new build session. Franco decided at video 1's Pause 4 (D21) that the
 > narrator is an ElevenLabs voice he picks, not the Qwen3-TTS clone of D8. Under D20 (no paid API
 > while the channel earns nothing), **the default route is Franco in the ElevenLabs app**; Claude

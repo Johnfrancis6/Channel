@@ -50,7 +50,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 - **For Franco, video 1**: F33 (Mamdani) left out. Lexicon proposals: `UK` → U-K, `LeWeb` → Luh-WEB, `Rumayyan` →
   Roo-MY-yan, `Kamel` → Kuh-MEL, `Bhairavi Desai` → BY-ruh-vee Deh-SIGH. S05 choices (title card, palette) assumed.
 - **Generation by API parked (D20)**: if revived, merge to `main`, Colab secret `GEMINI_API_KEY`, `MODE = "test"` ($0.98) first.
-- **Voice (D21)**: ElevenLabs voice, made by Franco in the app (D20); **S12 opened** to build the import route, [`sessions/S12_elevenlabs_voice.md`](sessions/S12_elevenlabs_voice.md).
+- **Voice (D21, D22)**: Franco makes a reference clip in the ElevenLabs app; Qwen3-TTS clones it (free); **S12** builds it, [`sessions/S12_elevenlabs_voice.md`](sessions/S12_elevenlabs_voice.md).
 - **Drive editor** re-escapes a `.md` it saves (breaks the hash): never edit video files there; no checker warning built.
 - **Watch, assumed**: 48 channels; hits from 10 K views over 28 days; medians frozen at 5 Nov; no schedule.
 - **Voice / assembly, to check on video 1**: qwen-tts ran on CPU (S11, similarity 1.0), not on a T4; 25 dB threshold; T4 time; Colab render time; clips x1.35;
