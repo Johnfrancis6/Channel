@@ -50,7 +50,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 - **For Franco, video 1**: F33 (Mamdani) left out. Lexicon proposals: `UK` → U-K, `LeWeb` → Luh-WEB, `Rumayyan` →
   Roo-MY-yan, `Kamel` → Kuh-MEL, `Bhairavi Desai` → BY-ruh-vee Deh-SIGH. S05 choices (title card, palette) assumed.
 - **Generation by API parked (D20)**: if revived, merge to `main`, Colab secret `GEMINI_API_KEY`, `MODE = "test"` ($0.98) first.
-- **Voice (S12)**: PR to `main` needed; free plan non-commercial; use policy § 12 unclear for a cloning reference (guide § 4). *Assumed*: clone pace follows the reference.
+- **Voice (S12, D23)**: PR to `main` needed; Franco chose the free plan (non-commercial terms, risk told); use policy § 12 unclear for a cloning reference (guide § 4). *Assumed*: clone pace follows the reference.
 - **Drive editor** re-escapes a `.md` it saves (breaks the hash): never edit video files there; no checker warning built.
 - **Watch, assumed**: 48 channels; hits from 10 K views over 28 days; medians frozen at 5 Nov; no schedule.
 - **Voice / assembly, to check on video 1**: qwen-tts ran on CPU (S11, similarity 1.0), not on a T4; 25 dB threshold; T4 time; Colab render time; clips x1.35;
