@@ -11,6 +11,8 @@ Voice built in session S06, assembly in S07. Colab always runs `main` (decision 
 | [`launcher.py`](launcher.py) | runs a notebook's code cells; the launcher's form overrides the `settings` cell |
 | [`assembly_launcher.ipynb`](assembly_launcher.ipynb) | (S07) the Drive copy for the assembly: `VIDEO`, `MODE` (`plan`, `extract`, `full`), `SCENES`, `ROOT`; clones `main`, prints the commit |
 | [`assembly_whosedime.ipynb`](assembly_whosedime.ipynb) | (S07) the assembly notebook: thin cells around [`whosedime-video/scripts/assemble.py`](../whosedime-video/scripts/assemble.py) (skill [`whosedime-video`](../whosedime-video/SKILL.md)); no GPU |
+| [`generate_launcher.ipynb`](generate_launcher.ipynb) | (S11) the Drive copy for the images and clips by the Gemini API: `VIDEO`, `MODE` (`estimate`, `test`, `full`), `APPROVED_USD`; key in the Colab secret `GEMINI_API_KEY`; clones `main`, prints the commit |
+| [`generate_whosedime.ipynb`](generate_whosedime.ipynb) | (S11) thin cells around [`whosedime/generate/run.py`](../generate/run.py) ([README](../generate/README.md)); writes `images/`, `clips/`, `generate/ledger.jsonl`, `generate/status.json`; no GPU |
 
 ## What a run writes, in `WhoseDime/Videos/<video>/voice/`
 

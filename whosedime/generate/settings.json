@@ -1,0 +1,48 @@
+{
+  "_about": "Settings of the Whose Dime generation pipeline (S11): the one place for every number it uses (audit C5). Change a value here, by pull request to main; each ledger line records the model and price it used.",
+  "api": {
+    "base": "https://generativelanguage.googleapis.com/v1beta",
+    "revision": "2026-05-20",
+    "key_env": "GEMINI_API_KEY",
+    "timeout_image_s": 180,
+    "timeout_clip_s": 900,
+    "retries": 3,
+    "retry_wait_s": [5, 20, 60],
+    "stop_after_failures": 3
+  },
+  "_api_source": "Interactions API, REST examples of ai.google.dev/gemini-api/docs/image-generation and /docs/omni, read 2026-11-08. The key comes from GEMINI_API_KEY (Colab secret) or, with no variable, from the session's network proxy; it is never printed",
+  "images": {
+    "model": "gemini-nano-banana-2.1",
+    "aspect_ratio": "16:9",
+    "image_size": "2K",
+    "expect_px": [2752, 1536],
+    "min_px": [2112, 1188],
+    "ref_max_px": 1376,
+    "usd_per_image": 0.0504,
+    "usd_per_input_image": 0.0011,
+    "dir": "images"
+  },
+  "_images_source": "ai.google.dev/gemini-api/docs/pricing, read 2026-11-08: Nano Banana 2.1 paid tier, 2K image 1,680 tokens at $30/M = $0.0504 (1K $0.0336, 4K $0.113; Batch half price); no free tier. 16:9 at 2K = 2752x1536 (image-generation docs). min_px: the assembly's 1920x1080 times its source_margin 1.1 (whosedime-video/settings.json); a 1K image (1376x768) would be enlarged 1.5x. The input-image price is an upper bound (Gemini 3 Pro Image's $0.0011), used only for a continuity reference",
+  "clips": {
+    "model": "gemini-omni-1.2-flash",
+    "resolution": "1080p",
+    "duration_s": 8,
+    "aspect_ratio": "16:9",
+    "usd_per_second": 0.104,
+    "dir": "clips"
+  },
+  "_clips_source": "ai.google.dev/gemini-api/docs/pricing, read 2026-11-08: Gemini Omni 1.2 Flash, 5,792 tokens per second of 720p at $12/M = about $0.07/s; 1080p with upsampling $0.104/s; 3-15 s, 24 fps, native audio (unused). Veo 3.1 Preview was shut down in the Gemini API on 2026-10-22 (docs/video). 8 s: a 9-10 s scene with the assembly's x1.35 slow-down (assumed, like Flow's 8 s clips)",
+  "budget": {
+    "test_images": 3,
+    "test_clips": 1,
+    "approved_usd": 0
+  },
+  "_budget_source": "S11 prompt and D18: money is Franco's. Without his word only the test budget runs (3 images, 1 clip, about $0.98); a full run needs --approved-usd, never above what Franco agreed, and stops before a call that would pass it",
+  "files": {
+    "dir": "generate",
+    "ledger": "ledger.jsonl",
+    "status": "status.json"
+  },
+  "preamble_drop": "(?i)(reply only|reply with|\\bwait\\b|each message I send|generate any image now|You are an image generator)",
+  "_preamble_drop_source": "The batch preamble of step4_scenes.md is written for a Gemini chat (reply OK, wait, one image per message). Each API call is one image, so the sentences matching this pattern are dropped and the style sentences kept, prefixed to every prompt"
+}
