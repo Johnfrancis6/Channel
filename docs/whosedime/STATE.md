@@ -38,7 +38,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 | # | Status |
 |---|---|
 | S01 to S09, video 1 session 2a | **done** |
-| Video 1, session 2b | **opened**: script, voice version, 20 s sample (Opus 5.5), [`sessions/V1_S2b_script.md`](sessions/V1_S2b_script.md); Pause 4 is Franco's |
+| Video 1, session 2b | **at Pause 4** (`session_01Cw13LeV77hvzZuF2iSsKfA`): `02_script.md` (2,096 words), `02_script_voice.txt`, `02c_listen_20s.txt` in Drive; `checker.py all` exit 0, 1 warning (`name-first`, common words); waits for Franco's ear |
 | S10 Live guard | **opened** (D15, Opus 5.5), [`sessions/S10_live_guard.md`](sessions/S10_live_guard.md) |
 | S11 Generation pipeline | **opened** (D17-D19, Opus 5.5), [`sessions/S11_generation_pipeline.md`](sessions/S11_generation_pipeline.md): images, clips, voice, Drive transfer |
 | Video 1, session 3 | opened by 2b after Pause 4: scenes and publication (Sonnet 5.5) |
