@@ -2,8 +2,8 @@
 
 > Changes from ROADMAP.md: a small build session added after S07b, at Franco's request
 > (2026-11-08): it fixes the four defects of S07b's self-critique (`critique_log.jsonl`,
-> `build_S07b_charts`). It runs once the S07b pull request is merged
-> (Johnfrancis6/Channel#5) and before the first real assembly of video 1 (the skill's
+> `build_S07b_charts`). S07b is merged (Johnfrancis6/Channel#5); it runs
+> once this prompt is in `main`, before the first real assembly of video 1 (the skill's
 > session 4). It does not block S08. Model: Sonnet 5.5.
 
 ## Context

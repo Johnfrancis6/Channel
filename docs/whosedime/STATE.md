@@ -7,7 +7,7 @@ Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
 ## Where we are
 
-- **S01 to S07 in `main`** (S06 + S07 merged 08/11). **S07b on the work branch**, pull request to `main` (Franco merges).
+- **S01 to S07b in `main`** (merged 08/11). The S07c prompt is on the work branch (pull request to `main`).
 - **S07b done.** Colour by meaning (D13, words in `whosedime-video/settings.json` `charts`); `icons_layout`: one figure
   size, block centred, 15 % gap. **Measured**: scene 50 has no green; 61 at 54 px (both grids), 70 at 110 px, centre
   0 px off. **Assumed**: 36 px reads on a phone; grid at most 60 % of the free height.
@@ -23,8 +23,8 @@ Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
 | Branch | Role |
 |---|---|
-| `claude/funny-dijkstra-js9xbz` | **work branch** of S07b (on top of `main`); pull request open |
-| `main` | production (Colab launchers); has S01 to S07; S07b once Franco merges |
+| `claude/funny-dijkstra-js9xbz` | **work branch**: S07c prompt, on top of `main` |
+| `main` | production (Colab launchers); has S01 to S07b |
 | `claude/zelan-studio-analysis-rws9f6` | old Zehon Drive launchers; leave it (Zehon frozen) |
 
 ## Tools
@@ -38,10 +38,9 @@ Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
 | # | Status |
 |---|---|
-| S01 to S07 | **done** 07/11, merged 08/11 |
-| S07b Chart fixes | **done** 08/11 (waits for Franco's merge) |
-| S07c Chart follow-ups | prompt ready: [`sessions/S07c_chart_followups.md`](sessions/S07c_chart_followups.md) (S07b's critique); after #5's merge, before video 1's assembly |
-| S08 Drive and pilot | **next** — prompt ready: [`sessions/S08_drive_and_pilot.md`](sessions/S08_drive_and_pilot.md); S07b's merge not needed to start |
+| S01 to S07b | **done**, merged 08/11 |
+| S07c Chart follow-ups | prompt ready: [`sessions/S07c_chart_followups.md`](sessions/S07c_chart_followups.md) (S07b's critique); after this prompt's merge, before video 1's assembly |
+| S08 Drive and pilot | **next** — prompt ready: [`sessions/S08_drive_and_pilot.md`](sessions/S08_drive_and_pilot.md); S07c can run before or after |
 | S09 | planned in `ROADMAP.md` |
 
 ## Open issues
