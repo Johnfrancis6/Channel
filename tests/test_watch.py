@@ -39,17 +39,25 @@ VIDEOS = {
 PLAYLISTS = {"UUa": ["hit1", "ren1", "short1", "old1"], "UUb": ["b1"]}
 
 
+HANDLES = {"UCa": "@chanA", "UCb": "@chanB"}
+
+
 class FakeApi:
-    def __init__(self, renamed=None):
+    def __init__(self, renamed=None, handles=None, playlists=None):
         self.renamed = renamed or {}
+        self.handles = dict(HANDLES, **(handles or {}))
+        self.playlists = dict(PLAYLISTS, **(playlists or {}))
         self.log = []
 
     def __call__(self, endpoint, params):
         self.log.append(endpoint)
+        if endpoint == "channels":
+            return {"items": [{"id": c, "snippet": {"customUrl": self.handles[c].lower()}}
+                              for c in params["id"].split(",")]}
         if endpoint == "playlistItems":
             return {"items": [{"contentDetails": {
                 "videoId": i, "videoPublishedAt": VIDEOS[i]["d"] + "T12:00:00Z"}}
-                for i in PLAYLISTS[params["playlistId"]]]}
+                for i in self.playlists[params["playlistId"]]]}
         if endpoint == "videos":
             items = []
             for i in params["id"].split(","):
@@ -83,11 +91,11 @@ class WatchTest(unittest.TestCase):
         self.state = self.tmp / "last_run.json"
         self.reports = self.tmp / "reports"
 
-    def run_watch(self, fake, search=True, date=RUN):
+    def run_watch(self, fake, search=True, date=RUN, force=False):
         api = W.Api(fetch=fake)
         result, path = W.run(api, date, channels_path=self.channels, state_path=self.state,
                              report_dir=self.reports, brands_path=W.BRANDS_MD,
-                             search=search, scan_dir=self.tmp)
+                             search=search, scan_dir=self.tmp, force=force)
         return api, result, path.read_text()
 
     def test_first_run_then_hit_rename_and_no_short(self):
@@ -115,8 +123,9 @@ class WatchTest(unittest.TestCase):
     def test_units_counted_and_written(self):
         fake = FakeApi()
         api, result, report = self.run_watch(fake)
-        # 2 playlistItems + 1 videos (tracked) + 2 search + 1 videos (search)
-        self.assertEqual(api.units, 2 + 1 + 200 + 1)
+        # 1 channels (handles) + 2 playlistItems + 1 videos (tracked) + 2 search
+        # + 1 videos (search)
+        self.assertEqual(api.units, 1 + 2 + 1 + 200 + 1)
         self.assertEqual(fake.log.count("search"), 2)
         self.assertIn(f"**Quota: {api.units} units** of 300", report)
         self.assertEqual(json.loads(self.state.read_text())["units"], api.units)
@@ -189,6 +198,59 @@ class WatchTest(unittest.TestCase):
         warnings = W.resolve_ids(W.Api(fetch=fake), rows, self.tmp)
         self.assertEqual(rows[0]["handle"], "@chana114")
         self.assertIn("@chanA is now @chana114", warnings[0])
+
+    # ------------------------------------------------- checks (S10)
+    def checks_line(self, report):
+        lines = report.splitlines()
+        self.assertTrue(lines[2].startswith("**Checks**"), lines[:3])   # top of the report
+        return lines[2]
+
+    def test_checks_none_flagged(self):
+        api, result, report = self.run_watch(FakeApi())
+        self.assertEqual(result["checks"], [])
+        self.assertIn("none flagged", self.checks_line(report))
+
+    def test_second_run_same_date_refused_without_force(self):
+        self.run_watch(FakeApi())
+        fake = FakeApi()
+        with self.assertRaises(W.AlreadyReported) as cm:
+            self.run_watch(fake)
+        self.assertEqual(fake.log, [])                    # refused before any API call
+        self.assertIn("--force", str(cm.exception.code))
+        api, result, report = self.run_watch(FakeApi(), force=True)
+        line = self.checks_line(report)
+        self.assertIn("run date already reported", line)
+        self.assertIn(f"units over budget: {2 * api.units} spent on {RUN}", line)
+        self.assertNotIn("units over budget", " ".join(
+            self.run_watch(FakeApi(), date=RUN + dt.timedelta(days=7))[1]["checks"]))
+
+    def test_thin_median_flagged(self):
+        rows = [dict(CHANNELS[0], median_n="2"), dict(CHANNELS[1], median_n="40")]
+        W.save_channels(rows, self.channels)
+        api, result, report = self.run_watch(FakeApi())
+        self.assertIn("median on fewer than 5 videos: @chanA (2)", self.checks_line(report))
+        self.assertNotIn("@chanB", self.checks_line(report))
+        self.assertEqual(W.median_n(dict(median_source="latest 50 uploads (3 long)")), 3)
+        self.assertIsNone(W.median_n(dict(median_source="full catalogue")))
+
+    def test_handle_moved_flagged_and_updated(self):
+        api, result, report = self.run_watch(FakeApi(handles={"UCb": "@chanB_new"}))
+        self.assertIn("handle moved: @chanB → @chanb_new", self.checks_line(report))
+        self.assertEqual([r["handle"] for r in W.load_channels(self.channels)],
+                         ["@chanA", "@chanb_new"])
+
+    def test_silent_channel_flagged(self):
+        api, result, report = self.run_watch(FakeApi(playlists={"UUb": ["old1"]}))
+        line = self.checks_line(report)
+        self.assertIn("no upload for 60 days: @chanB (last 2026-09-01)", line)
+        self.assertNotIn("@chanA (last", line)
+
+    def test_units_over_budget_flagged(self):
+        prev = {"run_date": RUN.isoformat(), "units": 250, "videos": {}, "hits": []}
+        checks = W.run_checks(RUN, CHANNELS, {}, prev, units=60)
+        self.assertEqual(checks, [f"units over budget: 310 spent on {RUN} (budget 300 a run)"])
+        self.assertEqual(W.run_checks(RUN, CHANNELS, {}, dict(prev, run_date="2026-11-01"),
+                                      units=60), [])
 
     def test_parse_duration(self):
         self.assertEqual(W.parse_duration("PT3M"), 180)

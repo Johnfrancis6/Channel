@@ -34,6 +34,7 @@ Read first: [`STATE.md`](STATE.md) (where we are), [`DECISIONS.md`](DECISIONS.md
    environment: never print them. Reddit and Social Blade are blocked from
    the cloud: no workaround.
 9. **Stop at the end of the scope**, even if Franco says "continue".
+10. **Live guard** (S10): `tools/guard/guard.py` runs on every tool call and blocks rules 2, 4, 5 and 8 broken (and a second watch run on a reported date), warns on `STATE.md` over 60 lines, a watch report over 100, French in a new file, a commit with no critique line; log in `guard_log.jsonl`. A wrong block is a bug of the guard: fix its table, say so in `STATE.md`.
 
 ## The hand-off (last 15 minutes of every session)
 

@@ -29,6 +29,10 @@ Claude writes the content and builds the tools; Franco produces the pieces
 - Say what is measured and what is assumed. Recommend; one question at a time.
 - Never print `YOUTUBE_API_KEY` or `SUPADATA_API_KEY`. Always give the
   link to every report written.
+- A live guard (`tools/guard/guard.py`, hooks in `.claude/settings.json`) blocks
+  skill-mirror edits, pushes to `main` or another branch, printing the keys, a second
+  watch run on a reported date and commits with failing or missing tests; it warns on
+  lengths, French text and missing critique lines. Log: `docs/whosedime/guard_log.jsonl`.
 
 ## Other channels
 
