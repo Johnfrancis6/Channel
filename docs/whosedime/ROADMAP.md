@@ -93,6 +93,7 @@ C6 voice, C7 non-robotic writing, C8 names, versions, tests.
 | S07 | **Charts and assembly** | Charts generated from `02b_factcheck.md`; assembly adapted (chart scenes, chapter cards, `chapters.txt`, verdict named after its output) | `whosedime/video-maker/`, chart tool, tests; PR to `main` | a short test render passes the technical check; an extract no longer overwrites the full verdict | C4 | Opus 5.5 |
 | S08 | **Drive and pilot launch** | Create the `WhoseDime/` Drive tree, place the launchers, then start video 1 ("Uber Was Cheap. Who Paid?") with the skill's own session 1. The blind voice test (D7) happens during this first video | Drive tree, first video folder | Franco has validated topic and angle; production then follows the skill's session table | — | Sonnet 5.5 |
 | S09 | **Weekly competitor watch** | The weekly tool from the old session-2 brief: new videos, hits (≥ 5× channel median), new entrants, title changes, for about 300 quota units | `whosedime/watch/`, first weekly report | one run under 300 units, report written | — | Sonnet 5.5 |
+| S10 | **Live guard** (added after S09, D15) | Flag incoherent actions while the agent works: hooks that block or warn at the tool call, a guard log; the watch checks its own run | `tools/guard/`, `.claude/settings.json`, `guard_log.jsonl` | each rule caught on a faulty call in tests and live | C4 | Opus 5.5 |
 
 **After S09**: the incoherence-detection skill is designed once
 `critique_log.jsonl` holds about 30 graded lines (plan in § 5 of the audit).

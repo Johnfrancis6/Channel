@@ -4,14 +4,24 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
-## 2026-11-08 — animated charts (after S07b)
+## 2026-11-08 — a guard during the work, not only after it (after S09)
 
-Source: Franco, session `session_01Cw13LgR83sp5FmkpGUvBWU`, after "les courbes sont-elles animées
-lors du montage ?" (answer: no, a still PNG with a 2 % push-in), then "pas une règle stricte". D14 and D15 stay reserved for S07c's answers.
+Source: Franco, session `session_01Cw13LgvyfSBBRJdw5oChae`: « l'outil est bon
+mais il doit aussi signaler les actions incohérentes s'il y en a. S'il a la
+possibilité, corriger l'agent à temps au lieu d'attendre à la fin de la tâche. »
 
 | # | Decision | Applies to |
 |---|---|---|
-| D16 | **An `icons` chart of people may animate its figures, one by one and quickly, when the story is people arriving or leaving in mass** (mass hiring, layoffs, bankruptcies). **It is an option, not a rule**: by default the grid stays still, shown whole (as today). Not built yet: how a scene asks for it, the effects (appear, go out), the timing and when the value shows are to settle in the session that builds it. Never a counter rolling through numbers no fact holds (D4). **Video 1 is made without it**; Claude reminds Franco when video 2 starts (trial: [`trials/hyperframes_scene061/`](trials/hyperframes_scene061/README.md)). | `charts.py`, `assemble.py`, `step4_scenes.md` |
+| D15 | **Incoherent actions are flagged while the agent works**, and the agent is corrected in time (blocked or warned at the tool call), not only by the end-of-task self-critique. Claude's reading: Claude Code hooks running a rule-based guard, plus the watch tool checking its own run. Built in S10. | every session; `whosedime/watch/` |
+
+## 2026-11-08 — first new channel on the watch list (after S09)
+
+Source: Franco's "Oui, ajoute How They Make Billions à la liste", session
+`session_01Cw13LgvyfSBBRJdw5oChae`, after the first weekly report.
+
+| # | Decision | Applies to |
+|---|---|---|
+| D14 | **How They Make Billions (`@howtheymakebillions`) joins the watch list** (48 channels). Measured 08/11: created 2026-09-02, 1,070 subscribers, 2 long videos, median 199,472 views (fragile: n = 2). | `whosedime/watch/channels.csv` |
 
 ## 2026-11-08 — chart colours by meaning (before S07b)
 
