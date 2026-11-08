@@ -4,6 +4,15 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-08 — animated charts (after S07b)
+
+Source: Franco, session `session_01Cw13LgR83sp5FmkpGUvBWU`, after "les courbes sont-elles animées
+lors du montage ?" (answer: no, a still PNG with a 2 % push-in), then "pas une règle stricte". D14 and D15 stay reserved for S07c's answers.
+
+| # | Decision | Applies to |
+|---|---|---|
+| D16 | **An `icons` chart of people may animate its figures, one by one and quickly, when the story is people arriving or leaving in mass** (mass hiring, layoffs, bankruptcies). **It is an option, not a rule**: by default the grid stays still, shown whole (as today). Not built yet: how a scene asks for it, the effects (appear, go out), the timing and when the value shows are to settle in the session that builds it. Never a counter rolling through numbers no fact holds (D4). **Video 1 is made without it**; Claude reminds Franco when video 2 starts (trial: [`trials/hyperframes_scene061/`](trials/hyperframes_scene061/README.md)). | `charts.py`, `assemble.py`, `step4_scenes.md` |
+
 ## 2026-11-08 — chart colours by meaning (before S07b)
 
 Source: Franco's "oui" to Claude's recommendation on S07's chart self-critique,
