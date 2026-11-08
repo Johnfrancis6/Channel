@@ -20,6 +20,8 @@ Dime. Reprendre ici seulement si Franco relance Zehon.**
   Z1 couper « Toi, tu en manges environ 3 kilos par an » (8,1 g/jour
   jamais vérifié) ; Z2 garder le titre et la miniature « NÉE EN 1959 ?! »
   du verre ; Z3 refaire le rendu du verre avec le bandeau.
+- **Revue du pipeline (08/11)** : [`revue_pipeline_2026-11-08.md`](revue_pipeline_2026-11-08.md),
+  3 points P1 à corriger avant toute relance (dont la branche des lanceurs, sans le bandeau).
 - Lanceurs Drive fixes : `Zehon/montage_zehon.ipynb` et
   `Zehon/voix_zehon.ipynb` (clone du dépôt, puis `zehon/notebooks/lanceur.py`).
 
