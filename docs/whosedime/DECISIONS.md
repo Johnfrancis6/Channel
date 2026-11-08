@@ -4,6 +4,16 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-08 — a guard during the work, not only after it (after S09)
+
+Source: Franco, session `session_01Cw13LgvyfSBBRJdw5oChae`: « l'outil est bon
+mais il doit aussi signaler les actions incohérentes s'il y en a. S'il a la
+possibilité, corriger l'agent à temps au lieu d'attendre à la fin de la tâche. »
+
+| # | Decision | Applies to |
+|---|---|---|
+| D15 | **Incoherent actions are flagged while the agent works**, and the agent is corrected in time (blocked or warned at the tool call), not only by the end-of-task self-critique. Claude's reading: Claude Code hooks running a rule-based guard, plus the watch tool checking its own run. Built in S10. | every session; `whosedime/watch/` |
+
 ## 2026-11-08 — first new channel on the watch list (after S09)
 
 Source: Franco's "Oui, ajoute How They Make Billions à la liste", session

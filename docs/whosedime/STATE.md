@@ -7,7 +7,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 ## Where we are
 
 - **S01 to S07b in `main`** (merged 08/11). S08 and S09 are on the work branch, not in `main` (no Colab code changed).
-- **S09 done: the roadmap's build sessions are finished.** `python3 whosedime/watch/watch.py` once a week writes
+- **S09 done.** Franco: "the tool is good", and asked for a guard during the work (D15 → S10). `python3 whosedime/watch/watch.py` once a week writes
   `docs/whosedime/watch/<date>.md` (new long videos, hits, title changes, new entrants, brands of `marques.md`).
   **Measured**, first run 08/11: **259 units** (budget 300); 90 new long videos on 31 of 47 channels; 11 channels with a
   hit at 10 K views or more; 1 entrant proposed; 11 brands named; nothing on Uber. Report: [`watch/2026-11-08.md`](watch/2026-11-08.md).
@@ -18,9 +18,8 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 
 | Branch | Role |
 |---|---|
-| `claude/affectionate-heisenberg-k7i85k` | **work branch**: S08 docs + S09 (watch), on top of `main` |
+| `claude/affectionate-heisenberg-k7i85k` | **work branch**: S08 docs, S09 (watch), S10 prompt, on top of `main` |
 | `main` | production (Colab launchers); has S01 to S07b |
-| `claude/funny-dijkstra-js9xbz` | S07c prompt (its STATE is older) |
 | `claude/zelan-studio-analysis-rws9f6` | old Zehon Drive launchers; leave it (Zehon frozen) |
 
 ## Tools
@@ -36,11 +35,12 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 | # | Status |
 |---|---|
 | S01 to S07b | **done**, merged 08/11 |
-| S07c Chart follow-ups | prompt ready on `claude/funny-dijkstra-js9xbz`; before video 1's assembly |
+| S07c Chart follow-ups | prompt on branch `claude/funny-dijkstra-js9xbz` (its STATE is older); before video 1's assembly |
 | S08 Drive and pilot | **done** 08/11 |
 | S09 Competitor watch | **done** 08/11; first weekly report written |
-| Video 1, skill session 2 | **next**: Script (Opus 5.5), once Franco has signed the fact check. No build prompt to write. |
-| Incoherence-detection skill | waits for about 30 graded lines in the critique log (35 lines, none graded) |
+| S10 Live guard | **next build** (D15) — prompt ready: [`sessions/S10_live_guard.md`](sessions/S10_live_guard.md) (Opus 5.5) |
+| Video 1, skill session 2 | Script (Opus 5.5), once Franco has signed the fact check; best after S10 |
+| Incoherence skill (meaning half) | waits for about 30 graded lines (35 lines, 1 with a Franco comment, none graded) |
 
 ## Open issues
 
