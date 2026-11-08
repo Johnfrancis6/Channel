@@ -3,7 +3,7 @@
 Short by rule (60 lines at most). Updated at the end of every session.
 Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
-**Last update: 2026-11-07**, end of S07 Charts and assembly
+**Last update: 2026-11-08**, end of S07 Charts and assembly (+ S07b prompt, Franco's request)
 (session `session_01Cw13Lf9vU36VbFFB3o3udA`).
 
 ## Where we are
@@ -40,6 +40,7 @@ Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 |---|---|
 | S01 to S07 | **done** 07/11 (S06 + S07 wait for Franco's merge) |
 | S08 Drive and pilot | **next** — prompt ready: [`sessions/S08_drive_and_pilot.md`](sessions/S08_drive_and_pilot.md); needs the merge first |
+| S07b Chart fixes | prompt ready: [`sessions/S07b_chart_fixes.md`](sessions/S07b_chart_fixes.md) (colour, `icons` layout); after the merge, before video 1's assembly |
 | S09 | planned in `ROADMAP.md` |
 
 ## Open issues
@@ -49,10 +50,9 @@ Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 - **Voice, to check on video 1**: the qwen-tts calls (never run); the 25 dB "still loud" threshold; stitched pauses
   (`stretch_inner_pauses`); the T4 run time. **Not built**: a second voice for quoted lines; a speed lever. Blind test = 7 block pairs.
 - **Assembly, to check on video 1**: render time on Colab (30-45 min assumed); clips slowed x1.35 then frozen; on-screen band size.
-  Years said in pairs ("twenty ten") do not match "2010" in the alignment (scene found at ~90 %, harmless so far).
-- **Assembly, not built** (not in S07's scope): music bed and `.srt` subtitles (Zehon had both).
-- **Charts**: tone by keyword ("only 10 percent earned" in green); `icons` sits high in the frame; a cell phrased
-  outside the patterns is refused (never drawn wrong): step 4 may have to rephrase it.
+  Years said in pairs ("twenty ten") do not match "2010" (scene found at ~90 %). Not built: music bed, `.srt` subtitles.
+- **Charts → S07b**: tone by keyword ("only 10 percent earned" in green; Franco approved green = profit/revenue
+  only, 08/11); `icons` high in the frame, two figure sizes. Not in S07b: a figure said twice; odd cells refused.
 - **D12**: thumbnail A puts Kalanick by "$7.9 BILLION" (deficit to end 2018, F13); he left in June 2017 (F11). Untested.
 - **Checker limits**: `chart-source` checks numbers, not words; `prompt-person` sees only the people block;
   `name-first` noisy; two tokenisers (2,103 vs 2,087 words); numbers match by value.
