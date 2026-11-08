@@ -210,6 +210,8 @@ def tokens(command):
     (S10: splitting on '&&' before reading quotes took a quoted JSON string
     for a `git push`)."""
     text = strip_heredocs(command).replace("\\\n", " ").replace("\n", " ; ")
+    # redirections are not arguments (S10: `2>&1` was read as a branch `2>`)
+    text = re.sub(r"\d*>&\d+|&>>?", " ", text)
     lex = shlex.shlex(text, posix=True, punctuation_chars=";&|")
     lex.whitespace_split = True
     try:
@@ -220,8 +222,17 @@ def tokens(command):
 
 def pipelines(command):
     """Pipelines of a shell line: lists of simple commands joined by '|'."""
-    out, pipe, cmd = [], [], []
+    out, pipe, cmd, skip = [], [], [], False
     for t in tokens(command) + [";"]:
+        if skip and t not in OPERATORS:
+            skip = False
+            continue
+        skip = False
+        if re.match(r"^\d*(<<<|>>?|<)$", t):     # redirection: drop it and its target
+            skip = True
+            continue
+        if re.match(r"^\d*(>>?|<)\S", t):          # redirection glued to its target
+            continue
         if t in OPERATORS:
             if cmd:
                 pipe.append(cmd)

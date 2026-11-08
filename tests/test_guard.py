@@ -112,6 +112,10 @@ class GuardTest(unittest.TestCase):
                                     "{\"command\": \"git commit -m x && git push origin "
                                     "other\"}, \"cwd\": \"/x\"}'"))
         self.assertIsNone(self.bash("git commit -m 'a; b && c' \\\n  && git push origin HEAD"))
+        # false block met live in S10: a redirection read as a branch
+        self.assertIsNone(self.bash(f"git push -u origin {BRANCH} 2>&1 | tail -1"))
+        self.assertIsNone(self.bash(f"git push origin {BRANCH} > /tmp/out 2>/dev/null"))
+        self.assertBlocked(self.bash("git push origin main 2>&1 | tail -1"), "push-main")
 
     def test_push_from_main(self):
         sh(self.repo, "git", "checkout", "-qb", "main")
