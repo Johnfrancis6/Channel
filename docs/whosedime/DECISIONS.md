@@ -4,6 +4,15 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-08 — images by hand for now (after S11)
+
+Source: Franco, session `session_01Cw13LhWRZyGn7FWUAAzMb1`, after S11's price (about $7.13 a video by the Gemini API):
+"I'll generate image by hand until the channel become more wealthy".
+
+| # | Decision | Applies to |
+|---|---|---|
+| D20 | **Images and clips stay made by Franco by hand** (Gemini app, Flow) until the channel earns enough; the paid API route of S11 (`whosedime/generate/`) is kept, tested with a fake API, and parked: S11b does not run. Claude's part: prompts ready to paste, then a check of what Franco uploads (names, count, size) before the assembly. D19's "Franco is told when everything is made" becomes: Claude tells Franco what is still missing, and when the voice and render are done. | `step4_scenes.md`, `whosedime/generate/`, S11b |
+
 ## 2026-11-08 — sessions chain themselves; Claude owns the pipeline (video 1, session 2a)
 
 Source: Franco, session `session_01Cw13LhWRZyGn7FWUAAzMb1`: "for future session the process will

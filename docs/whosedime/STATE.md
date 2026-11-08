@@ -14,7 +14,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 - **S09**: weekly watch, first report [`watch/2026-11-08.md`](watch/2026-11-08.md). **S10 (D15)**: live guard on every
   tool call (`tools/guard/guard.py`), log [`guard_log.jsonl`](guard_log.jsonl); the watch report opens with a Checks line.
 - **S11 (D18)**: `whosedime/generate/` + Drive launcher `generate_launcher.ipynb` (needs `main`). **Measured**: no GPU, voice
-  on CPU x6.1 real time (stays in Colab), $7.13/video by API; no paid call (key declined). [Report](generation_report.md).
+  on CPU x6.1 real time (stays in Colab), $7.13/video by API; parked by Franco (D20: images by hand). [Report](generation_report.md).
 - **S07b**: colour by meaning (D13); charts, assembly measured on a 10-scene stub only (no real voice or images).
 
 ## Branches
@@ -38,7 +38,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 |---|---|
 | S01 to S10, video 1 session 2a | **done** |
 | Video 1, session 2b | **at Pause 4** (`session_01Cw13LeV77hvzZuF2iSsKfA`): `02_script.md` (2,096 words), `02_script_voice.txt`, `02c_listen_20s.txt` in Drive; `checker.py all` exit 0, 1 warning (`name-first`, common words); waits for Franco's ear |
-| S11 Generation pipeline | **done** ([report](generation_report.md)); next **S11b** opened (Sonnet 5.5), [`sessions/S11b_generation_test.md`](sessions/S11b_generation_test.md): needs `main`, video 1's `03_scenes.md`, Franco's test run |
+| S11 Generation pipeline | **done** ([report](generation_report.md)); **S11b parked** (D20: Franco makes images and clips by hand until the channel earns) |
 | Video 1, session 3 | opened by 2b after Pause 4: scenes and publication (Sonnet 5.5) |
 | S07c Chart follow-ups | prompt [`sessions/S07c_chart_followups.md`](sessions/S07c_chart_followups.md); before video 1's assembly |
 | Incoherence skill (meaning half) | waits for about 30 graded lines (42 lines, none graded) |
@@ -48,8 +48,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 - **⏰ Reminder at video 2** (Franco, 08/11): remind him of D16, animated people blocks ([trial](trials/hyperframes_scene061/README.md)).
 - **For Franco, video 1**: F33 (Mamdani) left out. Lexicon proposals: `UK` → U-K, `LeWeb` → Luh-WEB, `Rumayyan` →
   Roo-MY-yan, `Kamel` → Kuh-MEL, `Bhairavi Desai` → BY-ruh-vee Deh-SIGH. S05 choices (title card, palette) assumed.
-- **Generation**: merge the work branch into `main`, Colab secret `GEMINI_API_KEY`, launcher `MODE = "test"` ($0.98), then
-  `full` + `APPROVED_USD`. *Assumed until then*: answer shape, 2752x1536, style steady across calls, time per piece.
+- **Generation by API parked (D20)**: if revived, merge to `main`, Colab secret `GEMINI_API_KEY`, `MODE = "test"` ($0.98) first.
 - **Voice rate (measured, one CPU sample)**: 206 wpm cloned, 171 wpm designed (target 142-154): check the Colab 20 s sample.
 - **Drive editor** re-escapes a `.md` it saves (breaks the hash): never edit video files there; no checker warning built.
 - **Watch, assumed**: 48 channels; hits from 10 K views over 28 days; medians frozen at 5 Nov; no schedule.
