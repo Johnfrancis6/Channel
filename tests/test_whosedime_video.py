@@ -155,6 +155,53 @@ class Charts(unittest.TestCase):
         s = C.build_spec(25, "F07 · compare · invested $3.5 billion; valuation $62.5 billion", self.registry)
         self.assertTrue(C.comparable(s.items, 50))
 
+    def spec(self, n):
+        cell = dict(C.chart_rows(UBER / "03_scenes.md"))[n]
+        return C.build_spec(n, cell, self.registry)
+
+    def test_colour_by_meaning(self):
+        """S07b: gain green only for profit/revenue, loss coral only for money lost (settings.json, charts)."""
+        tones = lambda n: [i.tone for i in self.spec(n).items]
+        self.assertNotIn("gain", tones(50))                       # "only 10 percent earned $90,000": not a gain
+        self.assertEqual(tones(77), ["loss", "gain"])             # 2022 loss coral, 2023 profit green
+        self.assertEqual(tones(11), ["loss", "gain"])             # losses coral, revenue green
+        self.assertEqual(tones(25), ["ink", "ink"])               # invested, valuation: not the company's income
+        self.assertEqual(tones(68), ["ink", "ink"])               # warnings, cut off: not money (draw_scale colours it)
+        self.assertEqual(C.GAIN_RE.pattern, C.word_re(C.SETTINGS["charts"]["gain_words"]).pattern)
+        self.assertTrue(C.LOSS_RE.search("bankruptcy") and not C.LOSS_RE.search("fell"))
+
+    def test_colour_drawn(self):
+        """Scene 50 has no gain-green pixel; scene 25 (bars, no gain or loss) draws its last bar in mustard."""
+        def has(n, role):
+            with Image.open(Path(self.tmp) / "charts" / f"scene_{n:03d}.png") as im:
+                return any(c == C.PAL[role] for _, c in im.convert("RGB").getcolors(1 << 20))
+        self.assertFalse(has(50, "gain"))
+        self.assertTrue(has(25, "highlight") and not has(25, "gain"))
+        self.assertTrue(has(77, "gain") and has(77, "loss"))
+
+    def test_icons_layout(self):
+        """S07b: one figure size per chart, at least icons_min_cell px, the block centred in the free area."""
+        cfg = C.SETTINGS["charts"]
+        for n, items in ((61, 2), (70, 1)):
+            s = self.spec(n)
+            cv = C.Canvas()
+            top, bottom = cv.frame(s)
+            blocks = C.icons_layout(s, top, bottom, cv)
+            self.assertEqual(len(blocks), items)
+            self.assertEqual(len({b.cell for b in blocks}), 1, f"scene {n}: two figure sizes")
+            self.assertGreaterEqual(blocks[0].cell, cfg["icons_min_cell"], f"scene {n}")
+            self.assertEqual(len({b.grid[1] for b in blocks}), 1, f"scene {n}: blocks not on one top line")
+            y0, y1 = min(b.box[1] for b in blocks), max(b.box[3] for b in blocks)
+            self.assertLess(abs((y0 + y1) / 2 - (top + bottom) / 2), 40, f"scene {n}: block not centred")
+            self.assertGreaterEqual(y0, top)
+            self.assertLessEqual(y1, bottom)
+            for b in blocks:
+                self.assertGreaterEqual(b.cols * b.rows, b.n_icons)
+                gw = b.cell * (b.cols + cfg["icons_gap"] * (b.cols - 1))
+                self.assertAlmostEqual(b.grid[2] - b.grid[0], gw, places=3)
+        self.assertEqual([(b.cols, b.rows) for b in C.icons_layout(self.spec(61), *C.Canvas().frame(self.spec(61)))][1],
+                         (5, 3))                                   # 15 days: 5 x 3, no ragged row
+
     def test_source_line_follows_same_as(self):
         self.assertEqual(C.short_source("F08", self.registry), "Fortune, 2016-06-01")
         self.assertEqual(C.short_source("F10", self.registry), "The Register, 2017-01-20")

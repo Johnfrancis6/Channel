@@ -4,6 +4,15 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-08 — chart colours by meaning (before S07b)
+
+Source: Franco's "oui" to Claude's recommendation on S07's chart self-critique,
+session `session_01Cw13Lf9vU36VbFFB3o3udA`; built in S07b.
+
+| # | Decision | Applies to |
+|---|---|---|
+| D13 | **A chart figure is coloured by what it means**: gain green only for the company's money coming in (`profit`, `revenue`); loss coral only for money lost (`loss`, `losses`, `lost`, `deficit`, `bankrupt*`, `crash*`); every other figure navy ink. The word lists live in `whosedime-video/settings.json` (`charts`). | `charts.py` |
+
 ## 2026-11-07 — caricatures on thumbnails (after S05)
 
 Source: Franco, session `session_01Cw13LdhzyiVU46zmJ1Yzvk`, after Claude's
