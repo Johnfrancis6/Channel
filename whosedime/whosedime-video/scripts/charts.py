@@ -180,6 +180,9 @@ class Item:
 
     @property
     def tone(self):
+        """D13 words, on an amount of money only (D14): a count of people or a percentage stays ink."""
+        if self.value is None or self.value.unit != "$":
+            return "ink"
         if LOSS_RE.search(self.text):
             return "loss"
         if GAIN_RE.search(self.text):

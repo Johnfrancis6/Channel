@@ -4,6 +4,15 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-08 — chart follow-ups (S07c)
+
+Source: Franco's answers to Claude's recommendations on S07b's chart self-critique,
+session `session_01Cw13LfEmvF2UXEYu91tfaM`; built in S07c.
+
+| # | Decision | Applies to |
+|---|---|---|
+| D14 | **Gain green and loss coral apply only to an amount of money** (unit `$`). A count of people or a percentage stays navy ink, even next to "bankrupt" or "profit". D13's word lists do not change. On screen, only Uber scene 82 changes ("950" medallion owners: ink, not coral). | `charts.py` (`Item.tone`) |
+
 ## 2026-11-08 — chart colours by meaning (before S07b)
 
 Source: Franco's "oui" to Claude's recommendation on S07's chart self-critique,
