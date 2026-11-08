@@ -5,7 +5,7 @@ Voice built in session S06, assembly in S07. Colab always runs `main` (decision 
 | File | Role |
 |---|---|
 | [`voice_launcher.ipynb`](voice_launcher.ipynb) | the copy Franco keeps in Drive: a form, then it clones `main`, **prints the commit it runs** and runs the notebook below |
-| [`voice_whosedime.ipynb`](voice_whosedime.ipynb) | the voice notebook: thin cells, in order: settings, setup, **narrator (VoiceDesign, D8)**, clone on the Base model, **20 s sample (D6)**, full voice, **blind test (D7)** |
+| [`voice_whosedime.ipynb`](voice_whosedime.ipynb) | the voice notebook: thin cells, in order: settings, setup, **narrator: `reference` from Franco's ElevenLabs clip (D22, [guide](../../docs/whosedime/voice_elevenlabs_guide.md)) or VoiceDesign (D8, fallback)**, clone on the Base model, **20 s sample (D6)**, full voice, **blind test (D7)** |
 | [`voice_whosedime.py`](voice_whosedime.py) | all the logic, importable, tested without a GPU (`tests/test_voice_whosedime.py`, stub model) |
 | [`voice_settings.json`](voice_settings.json) | **every number** of the voice (pauses, detector, rates, seeds, model names, narrator descriptions): the one place (audit C5) |
 | [`launcher.py`](launcher.py) | runs a notebook's code cells; the launcher's form overrides the `settings` cell |
@@ -18,12 +18,17 @@ Voice built in session S06, assembly in S07. Colab always runs `main` (decision 
 
 | Mode | Files |
 |---|---|
-| `sample` | `listen_20s.wav`, `listen_20s.json` (from `02c_listen_20s.txt`) |
+| `reference` | in `WhoseDime/Voice/`: `ref.wav` (24 kHz), `ref.txt`, `ref.json` (rate, similarity) from the one clip in `Voice/elevenlabs/`; old ones to `old/` |
+| `sample` | `listen_20s.wav`, `listen_20s.json` (from `02c_listen_20s.txt`; with `rate_advice` when off target) |
 | `full` | `voice.wav`, `words.json`, `state.json` (rewritten whole), `cache/` (one WAV and one transcription per block, for resuming) |
 | `blind_test` | `blind_test/pair_NN_X.wav`, `pair_NN_Y.wav`, `vote.md`, `key.json` |
 
-The narrator lives in `WhoseDime/Voice/`: `candidates/` (A, B, C), then
+The narrator lives in `WhoseDime/Voice/`: `elevenlabs/` (Franco's clip, D22) or `candidates/` (A, B, C), then
 `ref.wav`, `ref.txt`, `ref.json` once Franco keeps one (older ones in `old/`).
+
+**Rate (S12)**: qwen-tts 0.1.1's Base model has no speed parameter (read in its source); in ICL mode it
+continues the reference, so its pace follows the reference's (*assumed*; S11 measured one 171 wpm
+reference giving a 206 wpm clone). `ref.json` and `listen_20s.json` both give words a minute.
 
 ## How a block is made
 

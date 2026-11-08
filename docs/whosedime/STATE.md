@@ -2,7 +2,7 @@
 
 Short by rule (60 lines at most), updated at the end of every session. Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
-**Last update: 2026-11-08**, S10 live guard, S11 generation pipeline, video 1 session 2b (orchestrator `session_01Cw13LhWRZyGn7FWUAAzMb1`).
+**Last update: 2026-11-08**, S12 ElevenLabs reference, S11, video 1 session 2b (orchestrator `session_01Cw13LhWRZyGn7FWUAAzMb1`).
 
 ## Where we are
 
@@ -11,7 +11,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
   orchestrator; technical choices are Claude's, content stays at Franco's pauses. Hand-off: `ROADMAP.md`, `whosedime-maker`.
 - **Video 1, "Uber Was Cheap. Who Paid?"**: fact check **signed** (`sha256:18adbeeab4a0` = fingerprint, restored after Drive's
   editor re-escaped it); outline validated; **script and voice version done** (2,089 words, `checker all` exit 0; Franco by ear 08/11).
-  **D21**: the narrator will be an ElevenLabs voice Franco picks (not the Qwen3-TTS clone of D8): a voice session must settle it.
+  **D21-D22 / S12 done**: Franco makes one reference clip in ElevenLabs, `MODE = "reference"` makes `Voice/ref.*`, Qwen clones it ([guide](voice_elevenlabs_guide.md)).
 - **S09**: weekly watch, first report [`watch/2026-11-08.md`](watch/2026-11-08.md). **S10 (D15)**: live guard on every
   tool call (`tools/guard/guard.py`), log [`guard_log.jsonl`](guard_log.jsonl); the watch report opens with a Checks line.
 - **S11 (D18)**: `whosedime/generate/` + Drive launcher `generate_launcher.ipynb` (needs `main`). **Measured**: no GPU, voice
@@ -31,7 +31,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 - Checker: `python3 whosedime/common/checker.py all FOLDER` (`scenes`, `voice SCRIPT VOICE`, `fingerprint FILE`). Skill sync:
   `python3 tools/sync_skills.py` (`--check`). Charts and assembly: `whosedime/whosedime-video/scripts/charts.py`, `assemble.py`.
 - Watch: `python3 whosedime/watch/watch.py` (`--force` to rerun a date); commit the report, `channels.csv`, `last_run.json`.
-- Tests: `python3 -m unittest discover -s tests` — **209 pass**, measured 08/11 after S11 (about 47 s). Fresh container: see `CLAUDE.md`.
+- Tests: `python3 -m unittest discover -s tests` — **221 pass**, measured 08/11 after S12 (about 61 s). Fresh container: see `CLAUDE.md`.
 
 ## Sessions (opened by the orchestrator on 08/11, all on the work branch)
 
@@ -39,7 +39,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 |---|---|
 | S01 to S10, video 1 session 2a | **done** |
 | Video 1, session 2b | **done** (`session_01Cw13LeV77hvzZuF2iSsKfA`): script, voice version, 20 s sample; Franco passed E1-E5 on a generic TTS preview |
-| S11 Generation pipeline | **done** ([report](generation_report.md)); **S11b parked** (D20: Franco makes images and clips by hand until the channel earns) |
+| S11 Generation pipeline | **done** ([report](generation_report.md)); **S11b parked** (D20) · **S12** ElevenLabs reference: **done** |
 | Video 1, session 3 | **opened** by 2b: scenes and publication (Sonnet 5.5), [`sessions/V1_S3_scenes.md`](sessions/V1_S3_scenes.md) |
 | S07c Chart follow-ups | prompt [`sessions/S07c_chart_followups.md`](sessions/S07c_chart_followups.md); before video 1's assembly |
 | Incoherence skill (meaning half) | waits for about 30 graded lines (42 lines, none graded) |
@@ -50,7 +50,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 - **For Franco, video 1**: F33 (Mamdani) left out. Lexicon proposals: `UK` → U-K, `LeWeb` → Luh-WEB, `Rumayyan` →
   Roo-MY-yan, `Kamel` → Kuh-MEL, `Bhairavi Desai` → BY-ruh-vee Deh-SIGH. S05 choices (title card, palette) assumed.
 - **Generation by API parked (D20)**: if revived, merge to `main`, Colab secret `GEMINI_API_KEY`, `MODE = "test"` ($0.98) first.
-- **Voice (D21, D22)**: Franco makes a reference clip in the ElevenLabs app; Qwen3-TTS clones it (free); **S12** builds it, [`sessions/S12_elevenlabs_voice.md`](sessions/S12_elevenlabs_voice.md).
+- **Voice (S12)**: PR to `main` needed; free plan non-commercial; use policy § 12 unclear for a cloning reference (guide § 4). *Assumed*: clone pace follows the reference.
 - **Drive editor** re-escapes a `.md` it saves (breaks the hash): never edit video files there; no checker warning built.
 - **Watch, assumed**: 48 channels; hits from 10 K views over 28 days; medians frozen at 5 Nov; no schedule.
 - **Voice / assembly, to check on video 1**: qwen-tts ran on CPU (S11, similarity 1.0), not on a T4; 25 dB threshold; T4 time; Colab render time; clips x1.35;
