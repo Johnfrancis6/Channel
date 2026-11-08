@@ -1,6 +1,6 @@
 # S11 — Generation pipeline (images, clips, voice without Franco's hands)
 
-> Changes from ROADMAP.md: a new build session, asked by Franco on 08/11 (D16-D18): he
+> Changes from ROADMAP.md: a new build session, asked by Franco on 08/11 (D17-D19): he
 > validates, Claude produces. Today Franco makes the images (Gemini), the clips (Flow) and
 > the voice (Colab notebook, T4). This session measures what a cloud session can generate
 > itself and builds it. Runs **in parallel** with video 1's session 2b and S10, on the same branch.
@@ -26,7 +26,7 @@ Other sessions push to this branch: `git fetch` and rebase before every push; re
 
 ## Read (in this order)
 
-1. `docs/whosedime/STATE.md`, `DECISIONS.md` (D12, D16-D18), `ROADMAP.md` (rules, hand-off)
+1. `docs/whosedime/STATE.md`, `DECISIONS.md` (D12, D17-D19), `ROADMAP.md` (rules, hand-off)
 2. `whosedime/whosedime-maker/references/step4_scenes.md` (scene types, Gemini preamble and
    batches, Flow prompts, file names) and `whosedime/whosedime-video/SKILL.md` (what the assembly reads)
 3. `whosedime/notebooks/voice_whosedime.py`, `voice_settings.json`, `README.md` (the voice pipeline, D6-D8)
@@ -43,7 +43,7 @@ Other sessions push to this branch: `git fetch` and rebase before every push; re
    the Gemini API image model with the preamble, writes `images/scene_NNN.png` at the size the
    assembly needs, resumes after a failure, logs cost and model per image. A key is needed: say in
    one line which host and why, then `request_credential` (host `generativelanguage.googleapis.com`).
-   **Money is Franco's** (D17): before any paid call, give him the price per image read on Google's
+   **Money is Franco's** (D18): before any paid call, give him the price per image read on Google's
    pricing page (with its date) and the total for one video; generate only 3 test images from a
    fixture until he agrees. *Check:* tests with a fake API; the 3 images opened and described.
 3. **Clips**: same for image-to-video (Veo through the same API) if the key allows it: price per
@@ -67,6 +67,6 @@ Other sessions push to this branch: `git fetch` and rebase before every push; re
 
 ## Hand-off
 
-`ROADMAP.md` "The hand-off" (D16: open the next session yourself; D18: report to the orchestrator
+`ROADMAP.md` "The hand-off" (D17: open the next session yourself; D19: report to the orchestrator
 `session_01Cw13LhWRZyGn7FWUAAzMb1`). Next: whatever video 1 needs from this pipeline once
 `03_scenes.md` exists. Model: **Opus 5.5**.

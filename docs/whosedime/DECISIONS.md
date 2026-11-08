@@ -15,9 +15,20 @@ precision. When you have finished (image, video and audio generation) make me kn
 
 | # | Decision | Applies to |
 |---|---|---|
-| D16 | **A session opens the next one itself.** When its scope is done and Franco has validated its pause (or, for a build session, its checks pass), it writes the next prompt, then calls `create_session` (claude-code-remote) with the opening message, the model of the session table, the repo and the work branch; it gives Franco the new session's link. The paste-ready code block is only the fallback when `create_session` fails. | every session; `ROADMAP.md` hand-off; `whosedime-maker` |
-| D17 | **Claude decides and builds the technical side** (process, pipeline architecture, tools, checks) without asking; it says what it built and why in one line. **Content stays Franco's** (topic, facts, angle, wording by ear, titles, thumbnails): Claude asks him at the pauses, and may ask for more detail when quality needs it. Money and credentials (paid APIs, keys) are asked, never assumed. | every session |
-| D18 | **Quality is watched across sessions.** Every child session ends by sending a short report (deliverable links, checker result, self-critique, Franco's grade) to the orchestrator session named in its prompt (`send_message`); the orchestrator re-checks the deliverable (checker, a read), writes what it finds into the next prompt, and tells Franco only what needs him. Franco is told when images, clips, voice and render are all made. | child sessions; orchestrator `session_01Cw13LhWRZyGn7FWUAAzMb1` |
+| D17 | **A session opens the next one itself.** When its scope is done and Franco has validated its pause (or, for a build session, its checks pass), it writes the next prompt, then calls `create_session` (claude-code-remote) with the opening message, the model of the session table, the repo and the work branch; it gives Franco the new session's link. The paste-ready code block is only the fallback when `create_session` fails. | every session; `ROADMAP.md` hand-off; `whosedime-maker` |
+| D18 | **Claude decides and builds the technical side** (process, pipeline architecture, tools, checks) without asking; it says what it built and why in one line. **Content stays Franco's** (topic, facts, angle, wording by ear, titles, thumbnails): Claude asks him at the pauses, and may ask for more detail when quality needs it. Money and credentials (paid APIs, keys) are asked, never assumed. | every session |
+| D19 | **Quality is watched across sessions.** Every child session ends by sending a short report (deliverable links, checker result, self-critique, Franco's grade) to the orchestrator session named in its prompt (`send_message`); the orchestrator re-checks the deliverable (checker, a read), writes what it finds into the next prompt, and tells Franco only what needs him. Franco is told when images, clips, voice and render are all made. | child sessions; orchestrator `session_01Cw13LhWRZyGn7FWUAAzMb1` |
+
+## 2026-11-08 — animated charts (after S07b)
+
+Source: Franco, session `session_01Cw13LgR83sp5FmkpGUvBWU`, after "les courbes sont-elles animées
+lors du montage ?" (answer: no, a still PNG with a 2 % push-in), then "pas une règle stricte". D14 and D15 stay reserved for S07c's answers.
+
+| # | Decision | Applies to |
+|---|---|---|
+| D16 | **An `icons` chart of people may animate its figures, one by one and quickly, when the story is people arriving or leaving in mass** (mass hiring, layoffs, bankruptcies). **It is an option, not a rule**: by default the grid stays still, shown whole (as today). Not built yet: how a scene asks for it, the effects (appear, go out), the timing and when the value shows are to settle in the session that builds it. Never a counter rolling through numbers no fact holds (D4). **Video 1 is made without it**; Claude reminds Franco when video 2 starts (trial: [`trials/hyperframes_scene061/`](trials/hyperframes_scene061/README.md)). | `charts.py`, `assemble.py`, `step4_scenes.md` |
+
+(Restored on 2026-11-08 by session `session_01Cw13LhWRZyGn7FWUAAzMb1`: the GitHub merge of pull request #9 had dropped this section. D14 and D15 were meanwhile used by the watch list and the guard; S07c's answers take the next free numbers.)
 
 ## 2026-11-08 — a guard during the work, not only after it (after S09)
 

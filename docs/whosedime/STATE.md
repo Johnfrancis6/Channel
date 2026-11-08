@@ -2,73 +2,59 @@
 
 Short by rule (60 lines at most), updated at the end of every session. Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
-**Last update: 2026-11-08**, end of video 1 skill session 2a, outline (session `session_01Cw13LhWRZyGn7FWUAAzMb1`).
+**Last update: 2026-11-08**, video 1 session 2a + automation (orchestrator `session_01Cw13LhWRZyGn7FWUAAzMb1`).
 
 ## Where we are
 
-- **S01 to S07b in `main`** (merged 08/11). S08 and S09 are on the work branch, not in `main` (no Colab code changed).
-- **S09 done.** Franco: "the tool is good", and asked for a guard during the work (D15 → S10). Weekly watch:
-  `python3 whosedime/watch/watch.py`; first report (259 units, nothing on Uber): [`watch/2026-11-08.md`](watch/2026-11-08.md).
+- **S01 to S09 and video 1's session 2a are in `main`** (Franco merged PR #9, 08/11). The GitHub merge had mixed two
+  STATE.md versions and dropped D16 from DECISIONS.md: both rebuilt here.
+- **Automation (D17-D19, Franco 08/11)**: a session that finishes opens the next one (`create_session`) and reports to the
+  orchestrator session; technical choices are Claude's, content stays at Franco's pauses; Franco is told when images,
+  clips, voice and render are made. Hand-off in `ROADMAP.md` and the `whosedime-maker` skill.
 - **Video 1, "Uber Was Cheap. Who Paid?"**: fact check **signed** (`sha256:18adbeeab4a0` = fingerprint); outline
-  `02a_outline.md` **validated** by Franco 08/11 (Pause 3; 2,060 words planned; payers: investors, drivers, NY medallion owners).
-  **Measured**: Drive's editor had re-escaped the signed file (hash `adbb19fb1ab6`, F43 unparsable); the exact S08 upload,
-  equal once unescaped, hashes `18adbeeab4a0`: restored with Franco's signature line unchanged (old copy in the Drive bin).
-**Last update: 2026-11-08**, S07b, S07c prompt, D16 (session `session_01Cw13LgR83sp5FmkpGUvBWU`).
-
-## Where we are
-
-- **S01 to S07b and the S07c prompt in `main`** (merged 08/11). **S07b done.** Colour by meaning (D13, words in `whosedime-video/settings.json` `charts`); `icons_layout`: one figure
-  size, block centred, 15 % gap. **Measured**: scene 50 has no green; 61 at 54 px (both grids), 70 at 110 px, centre
-  0 px off. **Assumed**: 36 px reads on a phone; grid at most 60 % of the free height.
-- **S07 done.** Palette: one source, [`whosedime/common/palette.json`](../../whosedime/common/palette.json) (charts, cards and
-  `step4_scenes.md` read it; a test fails on any other colour). Charts: `charts.py`, eight kinds, verified facts only.
-  Assembly: skill [`whosedime/whosedime-video/`](../../whosedime/whosedime-video/SKILL.md) (not `video-maker/`: Zehon's name),
-  gate, timing on `words.json`, cards, `chapters.txt`, `verdict_<output>.json`; notebook `whosedime/notebooks/assembly_*.ipynb`.
-  - **Measured**: 25 Uber charts at 1920x1080; unverified facts and hand-typed numbers refused; a 10-scene stub renders
-    and passes the technical check (68 s in 34 s, ultrafast, 2 cores); an extract leaves the verdict and chapters intact.
-  - **Not run**: a real voice, real images, Colab. First real assembly: video 1, the skill's session 4.
+  `02a_outline.md` **validated** 08/11 (2,060 words planned; payers: investors, drivers, NY medallion owners).
+  **Measured**: Drive's editor had re-escaped the signed file (hash `adbb19fb1ab6`); the exact S08 upload, equal once
+  unescaped, hashes `18adbeeab4a0`: restored with Franco's signature line unchanged (old copy in the Drive bin).
+- **S09**: weekly watch `python3 whosedime/watch/watch.py`; first report [`watch/2026-11-08.md`](watch/2026-11-08.md).
+- **S07b**: colour by meaning (D13); charts and assembly measured on a 10-scene stub; not run with real voice or images.
 
 ## Branches
 
 | Branch | Role |
 |---|---|
-| `claude/funny-dijkstra-js9xbz` | **work branch** (D16 note), on top of `main` |
-| `main` | production (Colab launchers); has S01 to S07b |
+| `claude/affectionate-heisenberg-k7i85k` | **work branch** for every session (fetch and rebase before each push: several run at once) |
+| `main` | production (Colab launchers); has everything up to session 2a |
 | `claude/zelan-studio-analysis-rws9f6` | old Zehon Drive launchers; leave it (Zehon frozen) |
 
 ## Tools
 
 - Checker: `python3 whosedime/common/checker.py all FOLDER` (`scenes`, `voice SCRIPT VOICE`, `fingerprint FILE`). Skill sync:
   `python3 tools/sync_skills.py` (`--check`). Charts and assembly: `whosedime/whosedime-video/scripts/charts.py`, `assemble.py`.
-- Watch: `python3 whosedime/watch/watch.py` (`--no-search`: about 60 units; `--refresh-medians`: about 95, no report). Commit the
-  report, `channels.csv` and `last_run.json` after each run: the next run diffs titles against `last_run.json`.
-- Tests: `python3 -m unittest discover -s tests` — **167 pass**, measured 08/11 (about 37 s). Fresh container: see `CLAUDE.md`.
+- Watch: `python3 whosedime/watch/watch.py`; commit the report, `channels.csv` and `last_run.json` after each run.
+- Tests: `python3 -m unittest discover -s tests` — **167 pass**, measured 08/11 (about 35 s). Fresh container: see `CLAUDE.md`.
 
-## Sessions
+## Sessions (opened by the orchestrator on 08/11, all on the work branch)
 
 | # | Status |
 |---|---|
-| S01 to S07b | **done**, merged 08/11 |
-| S07c Chart follow-ups | prompt on branch `claude/funny-dijkstra-js9xbz` (its STATE is older); before video 1's assembly |
-| S08 Drive and pilot | **done** 08/11 |
-| S09 Competitor watch | **done** 08/11; first weekly report written |
-| S10 Live guard | **next build** (D15) — prompt ready: [`sessions/S10_live_guard.md`](sessions/S10_live_guard.md) (Opus 5.5) |
-| Video 1, skill session 2a | **done** 08/11: signature checked, outline validated (Pause 3) |
-| Video 1, skill session 2b | **next** for video 1: script, voice, 20 s sample (Opus 5.5), [`sessions/V1_S2b_script.md`](sessions/V1_S2b_script.md); S10 session advised "best after S10" |
-| Video 1, skill session 3 | after 2b: scenes and publication (Sonnet 5.5); the skill resumes from the files, no prompt |
-| Incoherence skill (meaning half) | waits for about 30 graded lines (36 lines, 1 with a Franco comment, none graded) |
+| S01 to S09, video 1 session 2a | **done** |
+| Video 1, session 2b | **opened**: script, voice version, 20 s sample (Opus 5.5), [`sessions/V1_S2b_script.md`](sessions/V1_S2b_script.md); Pause 4 is Franco's |
+| S10 Live guard | **opened** (D15, Opus 5.5), [`sessions/S10_live_guard.md`](sessions/S10_live_guard.md) |
+| S11 Generation pipeline | **opened** (D17-D19, Opus 5.5), [`sessions/S11_generation_pipeline.md`](sessions/S11_generation_pipeline.md): images, clips, voice, Drive transfer |
+| Video 1, session 3 | opened by 2b after Pause 4: scenes and publication (Sonnet 5.5) |
+| S07c Chart follow-ups | prompt [`sessions/S07c_chart_followups.md`](sessions/S07c_chart_followups.md); before video 1's assembly |
+| Incoherence skill (meaning half) | waits for about 30 graded lines (37 lines, none graded) |
 
 ## Open issues
 
-- **For Franco, video 1**: F33 (Mamdani) left out of the outline (Claude's advice; Franco did not object). Lexicon proposals: `UK` → U-K, `LeWeb` → Luh-WEB, `Rumayyan` → Roo-MY-yan, `Kamel` → Kuh-MEL, `Bhairavi Desai` → BY-ruh-vee Deh-SIGH.
-- **Watch**: 48 channels (D14 added How They Make Billions; Company Man now `@companyman114`). Assumed: hits from 10 K views
-  over 28 days; medians frozen at 5 Nov (`--refresh-medians` never run); 2 fixed entrant queries; no schedule.
-- **For Franco, S05 choices** (assumed): the `title` card ("WHO PAYS?", navy); the palette in `palette.json`.
+- **⏰ Reminder at video 2** (Franco, 08/11): remind him of D16, animated people blocks ([trial](trials/hyperframes_scene061/README.md)).
+- **For Franco, video 1**: F33 (Mamdani) left out. Lexicon proposals: `UK` → U-K, `LeWeb` → Luh-WEB, `Rumayyan` →
+  Roo-MY-yan, `Kamel` → Kuh-MEL, `Bhairavi Desai` → BY-ruh-vee Deh-SIGH. S05 choices (title card, palette) assumed.
+- **Generation needs money**: images and clips by API need a paid Gemini key (S11 asks Franco with the price first).
+- **Decision numbers**: S07c's prompt reserved D14-D15, since used by the watch and the guard: its answers take the next free numbers.
 - **Drive editor** re-escapes a `.md` it saves (breaks the hash): never edit video files there; no checker warning built.
-- **Research tools**: WebFetch's summariser never returns a page word for word; web.archive.org refused; uber.com answers 406.
-- **Voice, to check on video 1**: qwen-tts calls (never run); 25 dB threshold; stitched pauses; T4 run time; narrator design (D7).
-- **Assembly, to check on video 1**: Colab render time; clips x1.35 then frozen; band size; years said in pairs. No music, no `.srt`.
-- **Charts → S07c**: scene 82 colours people coral; scene 61's block floats high; phone sizes unchecked. **D12** thumbnail A untested.
-- **Checker limits**: `chart-source` checks numbers, not words; `prompt-person` sees only the people block; `name-first` noisy.
-- **Out of scope**: the old brief's "externalities" (news calendar, competitors' weaknesses) are planned nowhere. Fixture
-  `factcheck_clean.md`: facts from memory. Stale: ROADMAP rule 2 branch. No setup script.
+- **Watch, assumed**: 48 channels; hits from 10 K views over 28 days; medians frozen at 5 Nov; no schedule.
+- **Voice / assembly, to check on video 1**: qwen-tts never run; 25 dB threshold; T4 time; Colab render time; clips x1.35;
+  years said in pairs; no music, no `.srt`. **Charts → S07c**: scene 82 coral people, 61 block high, phone sizes.
+- **Checker limits**: `chart-source` numbers only; `prompt-person` people block only; `name-first` noisy.
+- Research tools: WebFetch never word for word; web.archive.org refused. Fixture `factcheck_clean.md` from memory. No setup script.

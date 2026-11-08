@@ -189,17 +189,17 @@ starts from the files. Models are a recommendation, not measured.
 
 When the step you were asked for is done and its pause answered, stop,
 even if Franco says "continue". Then **open the next session yourself**
-(decision D16, `docs/whosedime/ROADMAP.md` hand-off): `create_session`
+(decision D17, `docs/whosedime/ROADMAP.md` hand-off): `create_session`
 with the repo, the work branch (`source_revision` and `outcome_branch`),
 the model of the table above, and as prompt the opening message (4 lines
 at most: video folder, step, branch, one line of context that is not in
 the files) plus the orchestrator to report to. Send the orchestrator your
 report (`send_message`: links, checker result, self-critique, grade;
-D18), then end with:
+D19), then end with:
 
 > ⏹️ **End of the session.** Next session opened: *(link)*, model
 > <Model>. Franco: *(what he must do, one line, or "nothing")*.
 
 Only if `create_session` is missing or fails, give the opening message in
 a code block for Franco to paste. Technical choices (tools, process) are
-yours to make and build (D17); content choices stay at the pauses.
+yours to make and build (D18); content choices stay at the pauses.
