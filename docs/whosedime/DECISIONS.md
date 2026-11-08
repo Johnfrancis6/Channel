@@ -12,6 +12,7 @@ session `session_01Cw13LfEmvF2UXEYu91tfaM`; built in S07c.
 | # | Decision | Applies to |
 |---|---|---|
 | D14 | **Gain green and loss coral apply only to an amount of money** (unit `$`). A count of people or a percentage stays navy ink, even next to "bankrupt" or "profit". D13's word lists do not change. On screen, only Uber scene 82 changes ("950" medallion owners: ink, not coral). | `charts.py` (`Item.tone`) |
+| D15 | **Two `icons` grids stand on one value line**: the two values ("950", "15") sit on the same line and each grid stands just above its own value (above its qualifier, "MORE THAN"), like bars on one ground line; the empty space lies above the short grid, where it reads as "fewer". The whole is centred in the free area; the figure size stays shared. Replaces S07b's "same top line" rule. | `charts.py` (`icons_layout`) |
 
 ## 2026-11-08 — chart colours by meaning (before S07b)
 

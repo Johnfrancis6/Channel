@@ -184,7 +184,7 @@ class Charts(unittest.TestCase):
         self.assertFalse(has(82, "loss"))                          # D14: no coral on a count of people
 
     def test_icons_layout(self):
-        """S07b: one figure size per chart, at least icons_min_cell px, the block centred in the free area."""
+        """S07b: one figure size per chart, at least icons_min_cell px, the whole centred; S07c (D15): one value line."""
         cfg = C.SETTINGS["charts"]
         for n, items in ((61, 2), (70, 1)):
             s = self.spec(n)
@@ -194,7 +194,9 @@ class Charts(unittest.TestCase):
             self.assertEqual(len(blocks), items)
             self.assertEqual(len({b.cell for b in blocks}), 1, f"scene {n}: two figure sizes")
             self.assertGreaterEqual(blocks[0].cell, cfg["icons_min_cell"], f"scene {n}")
-            self.assertEqual(len({b.grid[1] for b in blocks}), 1, f"scene {n}: blocks not on one top line")
+            self.assertEqual(len({b.value_y for b in blocks}), 1, f"scene {n}: values not on one line")   # D15
+            for b in blocks:
+                self.assertAlmostEqual(b.caption[1] - b.grid[3], 30, places=3)   # each grid stands on its caption
             y0, y1 = min(b.box[1] for b in blocks), max(b.box[3] for b in blocks)
             self.assertLess(abs((y0 + y1) / 2 - (top + bottom) / 2), 40, f"scene {n}: block not centred")
             self.assertGreaterEqual(y0, top)
