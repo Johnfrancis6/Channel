@@ -26,6 +26,8 @@ Claude writes the content and builds the tools; Franco produces the pieces
   `pip install opencv-python-headless pillow numpy`.
 - After every deliverable: self-critique, Franco's grade, one line in the
   log, per [docs/whosedime/CRITIQUE_PROTOCOL.md](docs/whosedime/CRITIQUE_PROTOCOL.md).
+- At the end, open the next session yourself (`create_session`) and report to the orchestrator
+  session (D16-D18, ROADMAP hand-off). Technical choices are Claude's; content is Franco's.
 - Say what is measured and what is assumed. Recommend; one question at a time.
 - Never print `YOUTUBE_API_KEY` or `SUPADATA_API_KEY`. Always give the
   link to every report written.

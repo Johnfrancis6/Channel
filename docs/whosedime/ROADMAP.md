@@ -46,13 +46,17 @@ Read first: [`STATE.md`](STATE.md) (where we are), [`DECISIONS.md`](DECISIONS.md
    in one line at the top of the prompt.
 4. Commit, `git fetch`, push. Give Franco the GitHub link of every file
    written (`https://github.com/Johnfrancis6/Channel/blob/<branch>/<path>`).
-5. End the reply with:
+5. **Open the next session yourself** (D16): `create_session` (claude-code-remote) with
+   `source_url` `https://github.com/Johnfrancis6/Channel`, `source_revision` and
+   `outcome_branch` the work branch, `model` from the session table, `title`, and as
+   `prompt` the opening message below plus "At the end, report to session
+   `session_01Cw13LhWRZyGn7FWUAAzMb1` with `send_message`" (D18). Then send that report
+   yourself (links, checker result, self-critique, grade). End the reply with:
 
-   > ⏹️ **End of session SNN.** Before the next one: *(what Franco must
-   > do, one line)*. **Next session: model <Model>**, with the Google Drive
-   > connector.
+   > ⏹️ **End of session SNN.** Next session opened: <link>, model <Model>.
+   > Franco: *(what he must do, one line, or "nothing")*.
 
-   followed by the paste-ready opening message in a code block:
+   Only if `create_session` fails, give the paste-ready opening message instead:
 
    ```text
    Whose Dime build, session SNN+1: <name>.

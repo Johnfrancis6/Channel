@@ -50,6 +50,11 @@ do not touch the signature line. (Session 2a found the Drive editor had re-escap
 4. After Franco's answer: grade question, one line in `docs/whosedime/critique_log.jsonl`
    (`3b_script` for the script, `3c_voice` for the voice version), `00_state.md` and the
    `videos.md` row rewritten in Drive (new file, then the old one to the bin), STATE.md, commit, push.
+5. **Hand-off (D16, D18)**: write `docs/whosedime/sessions/V1_S3_scenes.md` (steps 4-5, Sonnet 5.5,
+   with what this session learned), open it with `create_session` (repo, this branch as
+   `source_revision` and `outcome_branch`, model `claude-sonnet-5-5`), give Franco its link, and
+   send the orchestrator `session_01Cw13LhWRZyGn7FWUAAzMb1` your report (`send_message`: links,
+   checker result with warning count, E1-E5, self-critique, grade).
 
 ## Watch out
 
@@ -66,3 +71,5 @@ do not touch the signature line. (Session 2a found the Drive editor had re-escap
 - Write Drive files with `create_file` (`text/markdown`, `disableConversionToGoogleType: true`);
   never ask Franco to edit a `.md` in Drive's editor.
 - Stop at Pause 4. Steps 4 and 5 (scenes, publication) are the next session (Sonnet 5.5).
+- S10 (live guard) and S11 (generation pipeline) run in parallel on this branch: `git fetch`
+  and rebase before every push; keep both sides of `STATE.md` and `critique_log.jsonl`.
