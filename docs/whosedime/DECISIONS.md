@@ -4,6 +4,15 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-08 — first new channel on the watch list (after S09)
+
+Source: Franco's "Oui, ajoute How They Make Billions à la liste", session
+`session_01Cw13LgvyfSBBRJdw5oChae`, after the first weekly report.
+
+| # | Decision | Applies to |
+|---|---|---|
+| D14 | **How They Make Billions (`@howtheymakebillions`) joins the watch list** (48 channels). Measured 08/11: created 2026-09-02, 1,070 subscribers, 2 long videos, median 199,472 views (fragile: n = 2). | `whosedime/watch/channels.csv` |
+
 ## 2026-11-08 — chart colours by meaning (before S07b)
 
 Source: Franco's "oui" to Claude's recommendation on S07's chart self-critique,

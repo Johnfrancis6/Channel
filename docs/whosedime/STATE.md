@@ -46,8 +46,8 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 
 - **For Franco, video 1**: sign `02b_factcheck.md`; F33 (Mamdani, 2021 hunger strike): use it or not (Claude: leave it out).
   Lexicon proposals: `UK` → U-K, `LeWeb` → Luh-WEB, `Rumayyan` → Roo-MY-yan, `Kamel` → Kuh-MEL, `Bhairavi Desai` → BY-ruh-vee Deh-SIGH.
-- **For Franco, watch**: add the entrant **How They Make Billions** (398 K, SpaceX, 1 Nov) to `channels.csv`? Claude: yes
-  (+1 unit a week). `@companyman` is now another channel: the tool moved Company Man to `@companyman114` (same channel id).
+- **Watch list: 48 channels**: How They Make Billions added 08/11 (D14; its median rests on 2 videos). `@companyman` is now
+  another channel: the tool moved Company Man to `@companyman114` (same channel id).
 - **Watch, assumed**: hits from 10 K views, over 28 days; medians frozen at 5 Nov (Claude: `--refresh-medians` quarterly, never
   run); entrants from 2 fixed queries, 4-20 min; brands on titles only. No schedule: someone starts the run each week.
 - **For Franco, S05 choices** (assumed): the `title` card ("WHO PAYS?", navy); the palette in `palette.json`.
