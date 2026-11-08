@@ -180,6 +180,9 @@ class Item:
 
     @property
     def tone(self):
+        """D13 words, on an amount of money only (D14): a count of people or a percentage stays ink."""
+        if self.value is None or self.value.unit != "$":
+            return "ink"
         if LOSS_RE.search(self.text):
             return "loss"
         if GAIN_RE.search(self.text):
@@ -517,6 +520,7 @@ class IconBlock:
     rows: int
     grid: tuple          # (x0, y0, x1, y1) of the figures
     caption: tuple       # (x0, y0, x1, y1) of qualifier + value + caption
+    value_y: float       # top of the value's line: the same for every item of the chart (D15)
     n_icons: int
     n_sub: int           # the first n_sub figures in mustard (a part of the count: "30,000 of them")
     people: bool
@@ -555,8 +559,8 @@ def grid_size(cell, cols, rows, gap):
 
 def icons_layout(spec, top, bottom, cv=None):
     """[IconBlock] of an `icons` chart between top and bottom, without drawing: one cell size for the whole
-    chart (the smaller of the items' best), each block (grid, value, caption) centred as one block, and the
-    blocks of two items on the same top line."""
+    chart (the smaller of the items' best); the values of two items on one line (D15), each grid standing on
+    its own value (above its qualifier) like bars on one ground line; the whole centred between top and bottom."""
     need(1 <= len(spec.items) <= 2, spec, "one or two items expected")
     cv = cv or Canvas()
     c = cv.c
@@ -565,7 +569,7 @@ def icons_layout(spec, top, bottom, cv=None):
     lab, small = font(c["label_size"] - (6 if n > 1 else 0)), font(c["small_size"])
     gap, pad, between = c["icons_gap"], 40, 30
     rw = region - 2 * pad
-    found = []
+    found, qual = [], []        # qual: height of each item's qualifier ("MORE THAN"), drawn above its value
     for k, it in enumerate(spec.items):
         counts = [v for v in it.values if not v.is_date and v.unit == "n"]
         need(counts, spec, f"no count in '{it.text[:40]}'")
@@ -590,21 +594,26 @@ def icons_layout(spec, top, bottom, cv=None):
             caption = it.text if it.text[:main.start].strip() else it.text[main.end:]
             parts.append((wrap(cv.d, cap(tidy(caption)), lab, rw), lab, PAL["ink"], 0))
         ch = cv.block_height(parts)
+        qual.append(cv.block_height(parts[:1]) if main.qualifier else 0)
         gh_max = min(bottom - top - between - ch, (bottom - top) * c["icons_grid_share"])
         cell, cols, rows = best_grid(n_icons, rw, gh_max, gap, c["icons_max_cell"])
         found.append((cv.m + region * k + pad, n_icons, n_sub, bool(PEOPLE_RE.search(it.text)), parts, ch, cell, cols, rows))
     cell = min(f[6] for f in found)        # one figure size for the whole chart: 95 owners and 15 days, same scale
     need(cell >= c["icons_min_cell"], spec, f"figures of {cell:.0f} px, under {c['icons_min_cell']} px: lower icons_max")
     found = [f if f[6] == cell else (*f[:7], *even_grid(f[1], cell, rw, gap)) for f in found]
-    heights = [grid_size(cell, f[7], f[8], gap)[1] + between + f[5] for f in found]
-    y0 = top + max(0, (bottom - top - max(heights)) / 2)
+    above = max(q + between + grid_size(cell, f[7], f[8], gap)[1] for q, f in zip(qual, found))
+    below = max(f[5] - q for q, f in zip(qual, found))
+    need(above + below <= bottom - top + 0.5, spec, f"figures and captions {above + below:.0f} px high, "
+         f"{bottom - top:.0f} px free: lower icons_max")
+    value_y = top + max(0, (bottom - top - above - below) / 2) + above
     blocks = []
-    for x0, n_icons, n_sub, people, parts, ch, _, cols, rows in found:
+    for q, (x0, n_icons, n_sub, people, parts, ch, _, cols, rows) in zip(qual, found):
         gw, gh = grid_size(cell, cols, rows, gap)
         gx = x0 + (rw - gw) / 2
-        cy = y0 + gh + between
-        blocks.append(IconBlock(cell, cols, rows, (gx, y0, gx + gw, y0 + gh), (x0, cy, x0 + rw, cy + ch),
-                                n_icons, n_sub, people, parts))
+        cy = value_y - q
+        gy = cy - between - gh
+        blocks.append(IconBlock(cell, cols, rows, (gx, gy, gx + gw, gy + gh), (x0, cy, x0 + rw, cy + ch),
+                                value_y, n_icons, n_sub, people, parts))
     return blocks
 
 

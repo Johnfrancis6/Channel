@@ -75,18 +75,18 @@
     "margin": 120,
     "title_size": 54,
     "value_size": 150,
-    "label_size": 46,
-    "small_size": 30,
+    "label_size": 58,
+    "small_size": 42,
     "source_size": 26,
     "icons_max": 100,
     "icons_gap": 0.15,
-    "icons_min_cell": 36,
+    "icons_min_cell": 44,
     "icons_max_cell": 110,
     "icons_grid_share": 0.6,
     "bar_ratio_max": 50,
     "gain_words": ["profit", "revenue"],
     "loss_words": ["loss", "losses", "lost", "deficit", "bankrupt*", "crash*"]
   },
-  "_charts_source": "assumed (S07): sizes for 1920x1080 read on a phone; icons_max: a count is drawn as at most 100 figures (one figure = a power of ten, never written); bar_ratio_max: values further apart than 50x are shown as numbers without bars (a bar of $45 next to one of $8.1 billion says nothing)",
-  "_charts_tone_source": "Franco, 2026-11-08 (S07b): a figure is coloured by meaning, not guessed. gain_words: gain green only for the company's money coming in; loss_words: loss coral only for money lost ('*' = any ending: bankrupt, bankruptcy); every other figure in navy ink, and in a compare with bars and neither gain nor loss, the last bar in mustard (the figure to look at). icons_gap: space between figures, as a share of the figure's cell (assumed); icons_min_cell: the smallest figure at 1920x1080, in px (S07b prompt); icons_max_cell: the largest (S07); icons_grid_share: the grid takes at most 60 % of the free height, the rest goes to its value and caption (assumed; S07 used 55 %)"
+  "_charts_source": "checked by Franco, 2026-11-08 (S07c): the PNGs of Uber scenes 61, 70 and 82 opened full screen on his phone in portrait (model not named); after two rounds (label_size 46 -> 52 -> 58, small_size 30 -> 36 -> 42, icons_min_cell 36 -> 44) he said they read; source_size 26 not flagged. The figures of scene 61 stay 54 px (95 people in the grid; icons_max 50 would draw 950 as fewer figures than 15). Before (S07): sizes for 1920x1080 assumed to read on a phone; icons_max: a count is drawn as at most 100 figures (one figure = a power of ten, never written); bar_ratio_max: values further apart than 50x are shown as numbers without bars (a bar of $45 next to one of $8.1 billion says nothing)",
+  "_charts_tone_source": "Franco, 2026-11-08 (S07b): a figure is coloured by meaning, not guessed. gain_words: gain green only for the company's money coming in; loss_words: loss coral only for money lost ('*' = any ending: bankrupt, bankruptcy); every other figure in navy ink, and in a compare with bars and neither gain nor loss, the last bar in mustard (the figure to look at). Franco, 2026-11-08 (D14, S07c): gain green and loss coral apply only to an amount of money (unit $); a count of people or a percentage stays navy ink, even next to 'bankrupt' or 'profit'. icons_gap: space between figures, as a share of the figure's cell (assumed); icons_min_cell: the smallest figure at 1920x1080, in px (S07b prompt); icons_max_cell: the largest (S07); icons_grid_share: the grid takes at most 60 % of the free height, the rest goes to its value and caption (assumed; S07 used 55 %). Franco, 2026-11-08 (D15, S07c): the values of two icons grids sit on one line, each grid standing on its value"
 }
