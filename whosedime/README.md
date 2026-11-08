@@ -7,7 +7,7 @@ Where we are: [`docs/whosedime/STATE.md`](../docs/whosedime/STATE.md).
 
 ## Layout
 
-Each folder was created by the session named (S09 still to come).
+Each folder was created by the session named.
 
 | Folder | What it holds | Session |
 |---|---|---|
@@ -16,7 +16,7 @@ Each folder was created by the session named (S09 still to come).
 | `whosedime-maker/` | the content skill: topic, research, script, scenes, publication | S04, S05 |
 | `notebooks/` | the voice notebook (S06) and the assembly notebook (S07), with their Colab launchers | S06, S07 |
 | `whosedime-video/` | the assembly skill: charts from the registry, cards, render, verdict (not `video-maker/`: that name is Zehon's skill) | S07 |
-| `watch/` | weekly competitor watch and its reports | S09 |
+| `watch/` | weekly competitor watch: tool, channel list, state of the last run (reports in `docs/whosedime/watch/`) | S09 |
 
 ## Rules
 
