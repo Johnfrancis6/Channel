@@ -13,7 +13,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
   a watch report over 100, French in a new file under `whosedime/` or `docs/whosedime/`, a deliverable committed with no critique line
   from the session. Log: [`guard_log.jsonl`](guard_log.jsonl). `python3 tools/guard/guard.py rules` prints the table.
   **Measured**: the 3 live faulty calls stopped or warned, reason read by the agent; under 0.5 s a call; French detector 0 false
-  alerts on 74 English files, 35 of 47 French files caught. It also caught this STATE.md at 64 lines while it was being written.
+  alerts on 74 English files, 35 of 47 French files caught. It caught this STATE.md at 64 lines; 2 false blocks on good commands, fixed.
 - **The watch checks its own run**: a "Checks" line at the top of the report (date already reported, refused without `--force`; a median
   on fewer than 5 videos; a handle that moved, 1 unit a run; no upload for 60 days; units of the day over budget). Not run live (no
   second run this week): it would flag the medians of How They Make Billions (2) and The Quiet Monopoly (4). S09 report: [`watch/2026-11-08.md`](watch/2026-11-08.md).
