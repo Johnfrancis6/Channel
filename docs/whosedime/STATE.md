@@ -44,15 +44,15 @@ Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
 ## Open issues
 
+- **⏰ Reminder at video 2** (Franco, 08/11): before video 2's topic, remind Franco of D16, animated people blocks
+  (HyperFrames, [trial](trials/hyperframes_scene061/README.md): scene 61 rendered, Colab untried). Video 1 without it.
 - **For Franco** (S05 choices, assumed): the `title` card ("WHO PAYS?", navy, as S07 draws it); the palette in
   `palette.json` and its roles (gain green, loss coral, highlight mustard). Lexicon: `UK` → U-K, `LeWeb` → Luh-WEB, `Rumayyan` → Roo-MY-yan?
 - **Voice, to check on video 1**: the qwen-tts calls (never run); the 25 dB "still loud" threshold; stitched pauses
   (`stretch_inner_pauses`); the T4 run time. **Not built**: a second voice for quoted lines; a speed lever. Blind test = 7 block pairs.
 - **Assembly, to check on video 1**: render time on Colab (30-45 min assumed); clips slowed x1.35 then frozen; on-screen band size.
   Years said in pairs ("twenty ten") do not match "2010" (scene found at ~90 %). Not built: music bed, `.srt` subtitles.
-- **Charts → S07c**: scene 82 colours people coral; scene 61's short block floats high; sizes unchecked on a phone;
-  palette not chosen. Not in S07c: a figure said twice; odd cells refused. **D16 not built** (people blocks
-  animated); HyperFrames trial on scene 61: 6 s in 7.4 s (4 cores), matches the Pillow chart; Colab untried, no prompt.
+- **Charts → S07c** (82 coral people, 61 block high, phone sizes, palette). Later: a figure said twice; odd cells refused.
 - **D12**: thumbnail A puts Kalanick by "$7.9 BILLION" (deficit to end 2018, F13); he left in June 2017 (F11). Untested.
 - **Checker limits**: `chart-source` checks numbers, not words; `prompt-person` sees only the people block;
   `name-first` noisy; two tokenisers (2,103 vs 2,087 words); numbers match by value.
