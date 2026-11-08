@@ -51,8 +51,8 @@ Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 - **Assembly, to check on video 1**: render time on Colab (30-45 min assumed); clips slowed x1.35 then frozen; on-screen band size.
   Years said in pairs ("twenty ten") do not match "2010" (scene found at ~90 %). Not built: music bed, `.srt` subtitles.
 - **Charts → S07c**: scene 82 colours people coral; scene 61's short block floats high; sizes unchecked on a phone;
-  palette not chosen. Not in S07c: a figure said twice; odd cells refused. **Not built**: animated charts (D16:
-  `icons` figures one by one, fast; charts are still PNGs pushed in 2 %); needs its own session, no prompt yet.
+  palette not chosen. Not in S07c: a figure said twice; odd cells refused. **Not built**: D16, an option to animate
+  an `icons` block of people one by one (layoffs, mass hiring); charts are still PNGs; own session, no prompt yet.
 - **D12**: thumbnail A puts Kalanick by "$7.9 BILLION" (deficit to end 2018, F13); he left in June 2017 (F11). Untested.
 - **Checker limits**: `chart-source` checks numbers, not words; `prompt-person` sees only the people block;
   `name-first` noisy; two tokenisers (2,103 vs 2,087 words); numbers match by value.
