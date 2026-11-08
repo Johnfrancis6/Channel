@@ -4,6 +4,14 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-08 — Whose Dime paused
+
+Source: Franco, session `session_01Cw13LhWRZyGn7FWUAAzMb1`: "Met la chaîne de Who Dime en pause jusqu'à nouvel ordre."
+
+| # | Decision | Applies to |
+|---|---|---|
+| D24 | **Whose Dime is paused until Franco says otherwise.** No session is opened, no scheduled check-in runs, nothing is merged or generated. Everything stays as it is (repo work branch, Drive, open sessions) so the work resumes from `STATE.md`. Still open at the pause: video 1's Pause 5 (title, thumbnails), the images and clips by hand, the reference voice (D23: free ElevenLabs plan, risk told; Claude recommended the free Qwen voice), the pull request to `main`. | every Whose Dime session |
+
 ## 2026-11-08 — the ElevenLabs reference on the free plan (after S12)
 
 Source: Franco, session `session_01Cw13LhWRZyGn7FWUAAzMb1`: "Pas besoin d'un starter. J'utiliserai l'essai gratuit."

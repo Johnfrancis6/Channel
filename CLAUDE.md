@@ -5,6 +5,9 @@ really paid for it. Franco decides topics and validates at each pause;
 Claude writes the content and builds the tools; Franco produces the pieces
 (images, voice in Colab).
 
+**⏸ Paused since 2026-11-08 (decision D24)**: open no Whose Dime session and change nothing until
+Franco says to resume.
+
 **To resume: read [docs/whosedime/STATE.md](docs/whosedime/STATE.md)**
 (where we are, the work branch, the next session). The build plan is
 [docs/whosedime/ROADMAP.md](docs/whosedime/ROADMAP.md); decisions are in
