@@ -4,6 +4,15 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-08 — the narrator's voice comes from ElevenLabs (video 1, session 2b)
+
+Source: Franco, session `session_01Cw13LeV77hvzZuF2iSsKfA`, after validating the 20 s sample by ear:
+"Oui, ça passe E1 à E5. Mais je choisirai une voix specifique sur eleven lab".
+
+| # | Decision | Applies to |
+|---|---|---|
+| D21 | **Franco will choose a specific ElevenLabs voice for the narrator**, instead of the VoiceDesign-then-clone voice of D8 made by the Qwen3-TTS notebook (S06). Not settled yet: how the voice is made (Franco in the ElevenLabs app, or an API key, which is money: asked, never assumed, D18), whether ElevenLabs reads the respellings of `lexicon.tsv` well (they were written for Qwen3-TTS), and how `voice/voice.wav` and `voice/words.json` (the word timings the assembly needs) are produced from it. To settle in a voice session before video 1's assembly. | D8, `voice_whosedime.ipynb`, `lexicon.tsv`, the assembly |
+
 ## 2026-11-08 — images by hand for now (after S11)
 
 Source: Franco, session `session_01Cw13LhWRZyGn7FWUAAzMb1`, after S11's price (about $7.13 a video by the Gemini API):
