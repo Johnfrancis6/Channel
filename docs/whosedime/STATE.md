@@ -40,7 +40,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 | S01 to S10, video 1 session 2a | **done** |
 | Video 1, session 2b | **done** (`session_01Cw13LeV77hvzZuF2iSsKfA`): script, voice version, 20 s sample; Franco passed E1-E5 on a generic TTS preview |
 | S11 Generation pipeline | **done** ([report](generation_report.md)); **S11b parked** (D20) · **S12** ElevenLabs reference: **done** |
-| Video 1, session 3 | **opened** by 2b: scenes and publication (Sonnet 5.5), [`sessions/V1_S3_scenes.md`](sessions/V1_S3_scenes.md) |
+| Video 1, session 3 | **done up to Pause 5** (`session_01Cw13LhBRZjDKFbLZmN9hSM`): `03_scenes.md` (94 scenes, checker 0/0) and `04_publication.md` in Drive; Franco picks title and thumbnails |
 | S07c Chart follow-ups | prompt [`sessions/S07c_chart_followups.md`](sessions/S07c_chart_followups.md); before video 1's assembly |
 | Incoherence skill (meaning half) | waits for about 30 graded lines (42 lines, none graded) |
 
