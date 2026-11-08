@@ -3,56 +3,58 @@
 Short by rule (60 lines at most). Updated at the end of every session.
 Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
-**Last update: 2026-11-07**, end of S05 Maker, scenes to publication
-(session `session_01Cw13LdhzyiVU46zmJ1Yzvk`).
+**Last update: 2026-11-08**, end of S07 Charts and assembly (+ S07b prompt, Franco's request)
+(session `session_01Cw13Lf9vU36VbFFB3o3udA`).
 
 ## Where we are
 
-- **S01 done and merged** into `main` ([Johnfrancis6/Channel#2](https://github.com/Johnfrancis6/Channel/pull/2)).
-  S02 rules, S03 checker, S04 skill steps 1-3: done (see the READMEs they link).
-- **S05 done**: skill [`whosedime-maker`](../../whosedime/whosedime-maker/SKILL.md) steps 4-5,
-  per-video `00_state.md` and Drive memory ([`memory.md`](../../whosedime/whosedime-maker/references/memory.md)),
-  session table. Checker: new `scenes` target, new `title-source` rule (C2).
-  Uber eval: 91 scenes, `checker.py all` exit 0 (measured). Haiku "where are the videos?" test passed once
-  ([evals README](../../whosedime/whosedime-maker/evals/README.md)).
-- **PR to `main`**: [Johnfrancis6/Channel#3](https://github.com/Johnfrancis6/Channel/pull/3) (S02-S05), Franco merges. No Drive folder yet (S08).
+- **S01 to S05 in `main`**. **S06 and S07 on the work branch**, in one pull request to `main` (Franco merges).
+- **S07 done.** Palette: one source, [`whosedime/common/palette.json`](../../whosedime/common/palette.json) (charts, cards and
+  `step4_scenes.md` read it; a test fails on any other colour). Charts: `charts.py`, eight kinds, verified facts only.
+  Assembly: skill [`whosedime/whosedime-video/`](../../whosedime/whosedime-video/SKILL.md) (not `video-maker/`: Zehon's name),
+  gate (checker + voice ready), timing on `words.json`, cards, `chapters.txt`, `verdict_<output>.json` with `branch@commit`;
+  notebook and launcher `whosedime/notebooks/assembly_*.ipynb`.
+  - **Measured**: the 25 Uber charts render (1920x1080); a `[TO VERIFY]` fact and a number not in its fact are refused;
+    a 10-scene stub (generated images, test clip, tone-burst voice) renders at 1920x1080 and passes the technical
+    check (68 s rendered in 34 s, ultrafast, 2 cores); an extract leaves `verdict_video.json` and `chapters.txt` byte-identical.
+  - **Not run**: a real voice, real images, Colab. First real assembly: video 1, the skill's session 4.
 
 ## Branches
 
 | Branch | Role |
 |---|---|
-| `claude/blissful-tesla-abtjgt` | **work branch** for build sessions (from S02) |
-| `main` | production (Colab launchers); has S01, gets S02-S05 when the PR is merged |
+| `claude/blissful-tesla-abtjgt` | **work branch** for build sessions (S06 + S07 on top of `main`); pull request open |
+| `main` | production (Colab launchers); has S01 to S05; S06 + S07 once Franco merges |
 | `claude/zelan-studio-analysis-rws9f6` | old Zehon Drive launchers; leave it (Zehon frozen) |
 
 ## Tools
 
-- Checker: `python3 whosedime/common/checker.py all FOLDER` (`scenes`, `fingerprint FILE`).
+- Checker: `python3 whosedime/common/checker.py all FOLDER` (`scenes`, `voice SCRIPT VOICE`, `fingerprint FILE`).
+- Charts: `python3 whosedime/whosedime-video/scripts/charts.py FOLDER`. Assembly: `.../assemble.py FOLDER [--plan] [--scenes 1-10]`.
 - Skill sync: `python3 tools/sync_skills.py` (`--check` reports drift).
-- Tests: `python3 -m unittest discover -s tests` — **100 pass**, measured 07/11. Fresh container: see `CLAUDE.md`.
+- Tests: `python3 -m unittest discover -s tests` — **152 pass**, measured 07/11 (about 40 s). Fresh container: see `CLAUDE.md`.
 
 ## Sessions
 
 | # | Status |
 |---|---|
-| S01 to S05 | **done** 07/11 |
-| S06 Voice notebook | **next** — prompt ready: [`sessions/S06_voice_notebook.md`](sessions/S06_voice_notebook.md) |
-| S07 to S09 | planned in `ROADMAP.md` |
+| S01 to S07 | **done** 07/11 (S06 + S07 wait for Franco's merge) |
+| S08 Drive and pilot | **next** — prompt ready: [`sessions/S08_drive_and_pilot.md`](sessions/S08_drive_and_pilot.md); needs the merge first |
+| S07b Chart fixes | prompt ready: [`sessions/S07b_chart_fixes.md`](sessions/S07b_chart_fixes.md) (colour, `icons` layout); after the merge, before video 1's assembly |
+| S09 | planned in `ROADMAP.md` |
 
 ## Open issues
 
-- **For Franco** (S05 choices, assumed): a 5th scene type `title` (the "WHO PAYS?" card) so that
-  `chapter` stays at 6; the channel palette (cream, dollar green, coral, mustard, navy); the
-  thumbnail caricature is not named in its prompt (may not read as the executive).
-- **For Franco**: respellings for `lexicon.tsv`? `UK` → U-K, `LeWeb` → Luh-WEB, `Rumayyan` → Roo-MY-yan (not added).
-- **Checker limits**: `chart-source` checks a chart's numbers, not its words; `prompt-person` sees only
-  the people block (a person named only in a fact, e.g. Mr Aslam, is not caught); `name-first` stays
-  noisy (script 10 words, publication 3, none a name); the scenes summary counts 2,103 words where the
-  script check says 2,087 (two tokenisers); S1, S8, S9 on the whole script; numbers match by value.
-- The palette lives in `step4_scenes.md` and each `03_scenes.md`: S07 should read one source (C5).
-- Uber eval: beat 3 is the 2016 Saudi investment, not the cheap-fare decision; no named taxi owner;
-  F05 (an estimate) is drawn in 3 of 25 charts. No image or thumbnail was generated: prompts untested.
-- The hash covers comments; the skill may write the `Signed:` line on Franco's word (log says so).
-- Step 1 uses `zehon/content-maker/scripts/youtube.py` (French output). Fixture `factcheck_clean.md`:
-  facts from memory. Style rules weak evidence (n = 30). Stale: ROADMAP rule 2 branch name,
-  `whosedime/README.md`. No setup script. No graded critique yet.
+- **For Franco** (S05 choices, assumed): the `title` card ("WHO PAYS?", navy, as S07 draws it); the palette in
+  `palette.json` and its roles (gain green, loss coral, highlight mustard). Lexicon: `UK` → U-K, `LeWeb` → Luh-WEB, `Rumayyan` → Roo-MY-yan?
+- **Voice, to check on video 1**: the qwen-tts calls (never run); the 25 dB "still loud" threshold; stitched pauses
+  (`stretch_inner_pauses`); the T4 run time. **Not built**: a second voice for quoted lines; a speed lever. Blind test = 7 block pairs.
+- **Assembly, to check on video 1**: render time on Colab (30-45 min assumed); clips slowed x1.35 then frozen; on-screen band size.
+  Years said in pairs ("twenty ten") do not match "2010" (scene found at ~90 %). Not built: music bed, `.srt` subtitles.
+- **Charts → S07b**: tone by keyword ("only 10 percent earned" in green; Franco approved green = profit/revenue
+  only, 08/11); `icons` high in the frame, two figure sizes. Not in S07b: a figure said twice; odd cells refused.
+- **D12**: thumbnail A puts Kalanick by "$7.9 BILLION" (deficit to end 2018, F13); he left in June 2017 (F11). Untested.
+- **Checker limits**: `chart-source` checks numbers, not words; `prompt-person` sees only the people block;
+  `name-first` noisy; two tokenisers (2,103 vs 2,087 words); numbers match by value.
+- Uber eval: beat 3 is the 2016 Saudi investment; no named taxi owner; F05 (an estimate) in 3 of 25 charts.
+- Step 1 uses Zehon's `youtube.py` (French output). Fixture `factcheck_clean.md`: facts from memory. Stale: ROADMAP rule 2 branch. No setup script. Critique log: 26 lines, none graded.

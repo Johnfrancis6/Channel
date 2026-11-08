@@ -1,0 +1,85 @@
+{
+  "_about": "Settings of the Whose Dime charts and assembly (S07): the one place for every number they use (audit C5). Colours come from whosedime/common/palette.json, file names of the video folder from whosedime/common/settings.json. Change a value here, by pull request to main; the report of each render records the values it used.",
+  "files": {
+    "words": "voice/words.json",
+    "voice_wav": "voice/voice.wav",
+    "voice_state": "voice/state.json",
+    "voice_text": "02_script_voice.txt",
+    "render_dir": "render",
+    "chapters": "chapters.txt",
+    "full_name": "video",
+    "extract_name": "extract_{a:03d}-{b:03d}",
+    "image_exts": [".png", ".jpg", ".jpeg", ".webp"],
+    "clip_exts": [".mp4", ".mov", ".webm", ".m4v"]
+  },
+  "drive": {
+    "root": "/content/drive/MyDrive/WhoseDime",
+    "videos": "Videos"
+  },
+  "video": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "preset": "medium",
+    "crf": 18,
+    "audio_rate": 48000,
+    "audio_bitrate": "192k"
+  },
+  "timing": {
+    "card_s": 2.5,
+    "cut_lead_s": 0.25,
+    "crossfade_s": 0.5,
+    "fade_in_s": 0.3,
+    "end_hold_s": 1.5,
+    "fade_out_s": 1.0,
+    "image_max_s": 12.0,
+    "coverage_min": 0.6
+  },
+  "_timing_source": "card_s: step4_scenes.md (cards about 2.5 s, not spoken). cut_lead_s: a scene changes 0.25 s before its first word, inside the pause (assumed). crossfade_s, fade_in_s, end_hold_s, fade_out_s: Zehon monter.py (0.6, 0.3, 1.5, 1.0 s), crossfade shortened to 0.5 s (assumed: the Whose Dime scenes are shorter). image_max_s: a still on screen longer is warned (Zehon: 10 s; 9-10 s scenes here, so 12 s, assumed). coverage_min: a scene found at less than 60 % in the voice is warned (Zehon rule, kept)",
+  "motion": {
+    "zoom": 0.05,
+    "pan": 0.06,
+    "source_margin": 1.1,
+    "chart_zoom": 0.02,
+    "clip_slow_max": 1.35
+  },
+  "_motion_source": "Zehon monter.py (5 % zoom, 6 % pan, source 10 % larger, clip slowed to 1.35x then frozen); chart_zoom: a 2 % push-in, charts carry little motion (assumed)",
+  "on_screen": {
+    "appear_s": 0.4,
+    "fade_s": 0.3,
+    "size": 64,
+    "margin": 80,
+    "band_alpha": 0.82
+  },
+  "_on_screen_source": "assumed (S07): keyword lower left on a navy band, 0.4 s after the scene starts, kept to its end",
+  "audio": {
+    "loudness_lufs": -14.0,
+    "true_peak_db": -1.5
+  },
+  "_audio_source": "Zehon monter.py: YouTube reference loudness -14 LUFS, limiter at -1.5 dBTP",
+  "check": {
+    "mean_volume_min_db": -60.0,
+    "peak_max_db": -0.5,
+    "duration_tolerance_s": 0.5
+  },
+  "_check_source": "Zehon monter.py controler(): the idea and thresholds come from preflight.py of the AI YouTube OS plugin (MIT): audio track present, no silence, no clipping, right size, right length",
+  "chapters": {
+    "first_label": "Cold open",
+    "min_count": 3,
+    "min_s": 10
+  },
+  "_chapters_source": "step5_publication.md: 0:00 Cold open first, then one line per title and chapter card; YouTube needs at least 3 chapters of at least 10 s",
+  "verdict_max_bytes": 1000,
+  "preview_width": 640,
+  "charts": {
+    "margin": 120,
+    "title_size": 54,
+    "value_size": 150,
+    "label_size": 46,
+    "small_size": 30,
+    "source_size": 26,
+    "icons_max": 100,
+    "bar_ratio_max": 50
+  },
+  "_charts_source": "assumed (S07): sizes for 1920x1080 read on a phone; icons_max: a count is drawn as at most 100 figures (one figure = a power of ten, never written); bar_ratio_max: values further apart than 50x are shown as numbers without bars (a bar of $45 next to one of $8.1 billion says nothing)"
+}

@@ -1,0 +1,28 @@
+{
+  "_about": "The Whose Dime channel palette: the one source (audit C5) for the image prompts (whosedime-maker step 4 copies prompt_line into 03_scenes.md and the Gemini preamble), the charts and the cards of the assembly (whosedime-video). Change a colour here only, by pull request to main; tests/test_palette.py fails while another file holds a different colour.",
+  "status": "assumed: proposed in S05, not chosen by Franco yet",
+  "colors": {
+    "cream": "#F4ECDD",
+    "green": "#2F7A55",
+    "coral": "#E0634F",
+    "mustard": "#E7B33E",
+    "navy": "#1E2B45"
+  },
+  "names": {
+    "cream": "cream",
+    "green": "dollar green",
+    "coral": "coral red",
+    "mustard": "mustard",
+    "navy": "navy ink"
+  },
+  "prompt_line": "cream #F4ECDD, dollar green #2F7A55, coral red #E0634F, mustard #E7B33E, navy ink #1E2B45",
+  "_prompt_line_source": "the colours above as '<name> <hex>', in this order; a test checks that it matches them",
+  "roles": {
+    "background": "cream",
+    "ink": "navy",
+    "gain": "green",
+    "loss": "coral",
+    "highlight": "mustard"
+  },
+  "_roles_source": "assumed (S07): charts on cream with navy text; money gained in green, money lost in coral, the number to look at in mustard; cards navy on cream"
+}

@@ -4,6 +4,15 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-07 — caricatures on thumbnails (after S05)
+
+Source: Franco, session `session_01Cw13LdhzyiVU46zmJ1Yzvk`, after Claude's
+answer on the legal limits of caricature (not legal advice).
+
+| # | Decision | Applies to |
+|---|---|---|
+| D12 | **A thumbnail prompt names the well-known executive** it caricatures, for a recognisable cartoon. Limits kept: deliberately unrealistic cartoon, a person well known to the public, tied to the decision the video tells, no false fact (no crime, illness or intimate scene), no implied endorsement, no photo given to the tool, never a realistic portrait. **Scene prompts stay anonymous** (the checker's `prompt-person` block is unchanged): Claude's recommendation, Franco did not extend D12 to scenes. Built in S06, task 0 | `step5_publication.md`, thumbnails |
+
 ## 2026-11-07 — answers to the pipeline audit
 
 Source: Franco's reply to [`reports/Audit pipeline de production.md`](../../reports/Audit%20pipeline%20de%20production.md)
