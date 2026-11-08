@@ -13,12 +13,26 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
   `02a_outline.md` **validated** by Franco 08/11 (Pause 3; 2,060 words planned; payers: investors, drivers, NY medallion owners).
   **Measured**: Drive's editor had re-escaped the signed file (hash `adbb19fb1ab6`, F43 unparsable); the exact S08 upload,
   equal once unescaped, hashes `18adbeeab4a0`: restored with Franco's signature line unchanged (old copy in the Drive bin).
+**Last update: 2026-11-08**, S07b, S07c prompt, D16 (session `session_01Cw13LgR83sp5FmkpGUvBWU`).
+
+## Where we are
+
+- **S01 to S07b and the S07c prompt in `main`** (merged 08/11). **S07b done.** Colour by meaning (D13, words in `whosedime-video/settings.json` `charts`); `icons_layout`: one figure
+  size, block centred, 15 % gap. **Measured**: scene 50 has no green; 61 at 54 px (both grids), 70 at 110 px, centre
+  0 px off. **Assumed**: 36 px reads on a phone; grid at most 60 % of the free height.
+- **S07 done.** Palette: one source, [`whosedime/common/palette.json`](../../whosedime/common/palette.json) (charts, cards and
+  `step4_scenes.md` read it; a test fails on any other colour). Charts: `charts.py`, eight kinds, verified facts only.
+  Assembly: skill [`whosedime/whosedime-video/`](../../whosedime/whosedime-video/SKILL.md) (not `video-maker/`: Zehon's name),
+  gate, timing on `words.json`, cards, `chapters.txt`, `verdict_<output>.json`; notebook `whosedime/notebooks/assembly_*.ipynb`.
+  - **Measured**: 25 Uber charts at 1920x1080; unverified facts and hand-typed numbers refused; a 10-scene stub renders
+    and passes the technical check (68 s in 34 s, ultrafast, 2 cores); an extract leaves the verdict and chapters intact.
+  - **Not run**: a real voice, real images, Colab. First real assembly: video 1, the skill's session 4.
 
 ## Branches
 
 | Branch | Role |
 |---|---|
-| `claude/affectionate-heisenberg-k7i85k` | **work branch**: S08 docs, S09 (watch), S10 prompt, video 1 session prompts, on top of `main` |
+| `claude/funny-dijkstra-js9xbz` | **work branch** (D16 note), on top of `main` |
 | `main` | production (Colab launchers); has S01 to S07b |
 | `claude/zelan-studio-analysis-rws9f6` | old Zehon Drive launchers; leave it (Zehon frozen) |
 
