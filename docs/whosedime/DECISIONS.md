@@ -4,6 +4,14 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-08 — language with Franco
+
+Source: Franco, session `session_01Cw13LfEmvF2UXEYu91tfaM` ("désormais exprime-toi en anglais", then "yes record it").
+
+| # | Decision | Applies to |
+|---|---|---|
+| D17 | **Claude talks to Franco in English** from now on, in every session (replies, questions, pauses). Committed files were already English (D2). Zehon files stay French. | `CLAUDE.md`, `ROADMAP.md` rules |
+
 ## 2026-11-08 — chart follow-ups (S07c)
 
 Source: Franco's answers to Claude's recommendations on S07b's chart self-critique,
