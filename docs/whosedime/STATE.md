@@ -42,7 +42,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 | S01 to S07b; S08, S09, S10 | **done**; S01-S07b merged 08/11 |
 | S07c Chart follow-ups | prompt on branch `claude/funny-dijkstra-js9xbz` (its STATE is older); before video 1's assembly |
 | Video 1, skill session 2 | **next**: Script (Opus 5.5), once Franco has signed the fact check; the guard runs during it |
-| Incoherence skill (meaning half) | waits for about 30 graded lines (38 lines, 1 with a Franco comment, none graded) |
+| Incoherence skill (meaning half) | waits for about 30 graded lines (39 lines, 1 with a Franco comment, none graded) |
 
 ## Open issues
 

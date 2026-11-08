@@ -135,8 +135,12 @@ class GuardTest(unittest.TestCase):
         for cmd in (f"git push -u origin {BRANCH}", "git push",
                     f"git fetch origin {BRANCH} && git push -u origin {BRANCH}",
                     "git checkout -B claude/new && git push -u origin claude/new",
-                    "git push origin HEAD"):
+                    "git push origin HEAD",
+                    f"git fetch -q origin && git push -u origin {BRANCH} 2>&1 | tail -2",
+                    f"git push -u origin {BRANCH} > push.log 2> err.log"):
             self.assert_silent(self.bash("pre", cmd))
+        self.assert_blocked(self.bash("pre", "git push origin main 2>&1 | tail -2"),
+                            "push-other-branch")
         git(self.repo, "checkout", "-q", "-b", "main")
         self.assert_blocked(self.bash("pre", "git push"), "push-other-branch")
 
@@ -148,7 +152,7 @@ class GuardTest(unittest.TestCase):
                     "cat <<EOF\n$YOUTUBE_API_KEY\nEOF"):
             self.assert_blocked(self.bash("pre", cmd), "secret-print")
         for cmd in ('[ -n "$YOUTUBE_API_KEY" ] && echo set', "env | cut -d= -f1",
-                    "printenv PATH", "env FOO=1 python3 x.py", "echo ${#YOUTUBE_API_KEY}",
+                    "printenv PATH", "env FOO=1 python3 x.py", "echo ${#YOUTUBE_API_KEY}", 'echo "set: ${YOUTUBE_API_KEY:+yes}"',
                     "env | grep -c PATH", "python3 whosedime/watch/watch.py --help",
                     "cat <<'EOF' > notes.txt\necho $YOUTUBE_API_KEY\nEOF"):
             self.assert_silent(self.bash("pre", cmd))

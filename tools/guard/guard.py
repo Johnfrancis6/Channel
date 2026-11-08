@@ -161,6 +161,8 @@ def segments(cmd):
     before)]. Quotes are honoured; on a parse error, a plain split."""
     cmd, _ = strip_heredocs(cmd)
     cmd = cmd.replace("\\\n", " ")
+    cmd = re.sub(r"\d*>&(?:\d+|-)", " ", cmd)         # 2>&1: no file named
+    cmd = re.sub(r"&(>>?)", r"\1", cmd)                # &> file: a plain redirection
     out = []
     for line in split_lines(cmd):
         try:
@@ -206,7 +208,15 @@ def git_sub(tokens):
             i += 1
     if i >= len(w):
         return None, [], None
-    return w[i], w[i + 1:], gdir
+    args, skip = [], False
+    for a in w[i + 1:]:                  # drop redirections: `2> err.txt`, `>log`
+        if skip:
+            skip = False
+        elif re.match(r"^\d*[<>]>?$", a):
+            skip = True
+        elif not re.match(r"^\d*[<>]", a):
+            args.append(a)
+    return w[i], args, gdir
 
 
 def current_branch(cwd):
@@ -326,7 +336,9 @@ def check_push(ev):
 
 def _mentions_key(token):
     for k in KEYS:
-        if re.search(r"\$\{?" + k + r"\b", token) and "${#" + k not in token:
+        for m in re.finditer(r"\$(\{#?)?" + k + r"\b(:?\+)?", token):
+            if m.group(1) == "{#" or m.group(2):      # ${#KEY} length, ${KEY:+x} flag
+                continue
             return k
     return None
 
