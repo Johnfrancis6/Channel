@@ -24,6 +24,12 @@ here: a weekly watch needs fresh numbers).
     python3 whosedime/watch/watch.py                 # weekly run
     python3 whosedime/watch/watch.py --no-search     # skip new entrants (about 50 units)
     python3 whosedime/watch/watch.py --refresh-medians   # recompute medians, no report
+    python3 whosedime/watch/watch.py --force         # rerun a date already reported
+
+The report opens with a "Checks" line (session S10): the run date already
+reported (refused without --force), medians resting on fewer than 5 videos,
+handles that moved, channels with no upload for 60 days, units over budget
+for the day.
 
 Needs YOUTUBE_API_KEY in the environment (never printed).
 """
@@ -65,7 +71,15 @@ CHANNEL_FIELDS = ["handle", "title", "channel_id", "uploads_playlist_id",
                   "median_long_views", "median_source", "median_date"]
 
 
+MEDIAN_MIN_N = 5            # a median on fewer long videos is flagged
+QUIET_DAYS = 60             # a channel with no upload for this long is flagged
+
+
 class BudgetExceeded(RuntimeError):
+    pass
+
+
+class RunRefused(SystemExit):
     pass
 
 
@@ -294,6 +308,98 @@ def brands_in(title, brands):
     return [b for b in brands if b["regex"].search(t)]
 
 
+# ------------------------------------------------------------------ checks
+
+def median_n(row, scan_counts):
+    """Number of long videos behind a channel's median, or None if unknown."""
+    m = re.search(r"(\d+) long", row.get("median_source", ""))
+    if m:
+        return int(m.group(1))
+    if "full catalogue" in row.get("median_source", ""):
+        return scan_counts.get(row["handle"])
+    return None
+
+
+def scan_long_counts(scan_dir=SCAN_DIR):
+    """handle -> number of long videos in the scan (chaines_C.csv)."""
+    path = pathlib.Path(scan_dir) / "chaines_C.csv"
+    if not path.exists():
+        return {}
+    with open(path, newline="", encoding="utf-8") as f:
+        return {r["handle"]: int(r["videos_longues"]) for r in csv.DictReader(f)
+                if (r.get("videos_longues") or "").isdigit()}
+
+
+def check_handles(api, rows):
+    """One channels.list call per 50 known channels (1 unit): a handle that
+    moved is updated, a channel gone is named. Returns what was found."""
+    moves = []
+    known = [r for r in rows if r.get("channel_id")]
+    for i in range(0, len(known), 50):
+        chunk = {r["channel_id"]: r for r in known[i:i + 50]}
+        res = api.get("channels", part="snippet", id=",".join(chunk), maxResults=50)
+        found = set()
+        for c in res.get("items", []):
+            found.add(c["id"])
+            r = chunk[c["id"]]
+            custom = c["snippet"].get("customUrl", "")
+            if custom and custom.lower() != r["handle"].lower():
+                moves.append(f"{r['handle']} is now {custom}")
+                r["handle"] = custom
+        moves += [f"{r['handle']} not found" for cid, r in chunk.items() if cid not in found]
+    return moves
+
+
+def run_checks(run_date, channels, uploads, moves, units, earlier_units, forced,
+               scan_counts):
+    """The report's Checks line: each item says what was checked and what
+    was found. Returns (items, number flagged)."""
+    items, flags = [], 0
+    if forced:
+        items.append(f"**date {run_date.isoformat()} already reported: rerun forced**")
+        flags += 1
+    else:
+        items.append("run date not reported before")
+    thin = []
+    for c in channels:
+        n = median_n(c, scan_counts)
+        if n is not None and n < MEDIAN_MIN_N:
+            thin.append(f"{c.get('title') or c['handle']}: {n}")
+    if thin:
+        items.append(f"**{len(thin)} median(s) on fewer than {MEDIAN_MIN_N} videos** "
+                     f"({'; '.join(thin)})")
+        flags += 1
+    else:
+        items.append(f"every median on {MEDIAN_MIN_N} videos or more")
+    if moves:
+        items.append(f"**handle moved**: {'; '.join(moves)}")
+        flags += 1
+    else:
+        items.append("no handle moved")
+    limit = (run_date - dt.timedelta(days=QUIET_DAYS)).isoformat()
+    quiet = []
+    for c in channels:
+        if c["handle"] not in uploads:
+            continue
+        dates = [d for _, d in uploads[c["handle"]]]
+        if not dates or max(dates) < limit:
+            quiet.append(f"{c['handle']} (last {max(dates) if dates else 'none'})")
+    if quiet:
+        items.append(f"**{len(quiet)} channel(s) with no upload for {QUIET_DAYS} days** "
+                     f"({', '.join(quiet)})")
+        flags += 1
+    else:
+        items.append(f"every channel uploaded in the last {QUIET_DAYS} days")
+    day = units + earlier_units
+    if day > BUDGET:
+        items.append(f"**units over budget: {day} today** ({earlier_units} by an earlier "
+                     f"run + {units} by this one; budget {BUDGET})")
+        flags += 1
+    else:
+        items.append(f"units within budget ({day} of {BUDGET} today)")
+    return items, flags
+
+
 # ------------------------------------------------------------------- build
 
 def build(run_date, channels, uploads, facts, prev, search=None, brands=(),
@@ -369,8 +475,9 @@ def build(run_date, channels, uploads, facts, prev, search=None, brands=(),
                 brands=brand_rows, tracked=tracked, errors=list(errors))
 
 
-def new_state(result, units):
+def new_state(result, units, day_units=None):
     return dict(run_date=result["run_date"], units=units,
+                day_units=units if day_units is None else day_units,
                 hits=[v["id"] for v in result["hits"]],
                 videos={vid: dict(handle=v["handle"], title=v["title"], views=v["views"],
                                   published=v["published"], dur=v["dur"])
@@ -405,6 +512,8 @@ def render(result, api):
            f"**Measured** (YouTube Data API, on the run date): every number below; views "
            f"are totals on the run date, so a video's age weighs on them. "
            f"**Inferred**: only the lines marked *Inferred*.", "",
+           *([f"**Checks** ({r['checks_flagged']} flagged): " + "; ".join(r["checks"]) + ".",
+              ""] if r.get("checks") else []),
            f"- Channels watched: {r['channels']} (`whosedime/watch/channels.csv`); "
            f"window: published from {r['window_start']} to the run "
            f"(hits: from {r['track_start']}).",
@@ -507,12 +616,24 @@ def render(result, api):
 
 def run(api, run_date, channels_path=CHANNELS_CSV, state_path=STATE_JSON,
         report_dir=REPORT_DIR, brands_path=BRANDS_MD, search=True,
-        queries=SEARCH_QUERIES, scan_dir=SCAN_DIR):
+        queries=SEARCH_QUERIES, scan_dir=SCAN_DIR, force=False):
     channels_path, state_path = pathlib.Path(channels_path), pathlib.Path(state_path)
+    report_dir = pathlib.Path(report_dir)
+    path = report_dir / f"{run_date.isoformat()}.md"
+    forced = path.exists()
+    if forced and not force:
+        raise RunRefused(f"{path.name} already exists: a second run spends the units "
+                         "again. Read it, or rerun with --force if Franco asks.")
     channels = load_channels(channels_path) if channels_path.exists() else channels_from_scan(scan_dir)
     errors = resolve_ids(api, channels, scan_dir)
+    moves = [e.split("handle updated: ", 1)[1].split(" (")[0] for e in errors
+             if e.startswith("handle updated: ")]
+    moves += check_handles(api, channels)
     save_channels(channels, channels_path)
     prev = json.loads(state_path.read_text()) if state_path.exists() else None
+    earlier = 0
+    if prev and prev.get("run_date") == run_date.isoformat():
+        earlier = int(prev.get("day_units", prev.get("units", 0)))
 
     track = (run_date - dt.timedelta(days=TRACK_DAYS)).isoformat()
     uploads = {}
@@ -548,12 +669,13 @@ def run(api, run_date, channels_path=CHANNELS_CSV, state_path=STATE_JSON,
 
     brands = load_brands(brands_path) if pathlib.Path(brands_path).exists() else []
     result = build(run_date, channels, uploads, facts, prev, found, brands, errors)
+    result["checks"], result["checks_flagged"] = run_checks(
+        run_date, channels, uploads, moves, api.units, earlier, forced,
+        scan_long_counts(scan_dir))
     report = render(result, api)
-    report_dir = pathlib.Path(report_dir)
     report_dir.mkdir(parents=True, exist_ok=True)
-    path = report_dir / f"{run_date.isoformat()}.md"
     path.write_text(report, encoding="utf-8")
-    state_path.write_text(json.dumps(new_state(result, api.units), indent=1,
+    state_path.write_text(json.dumps(new_state(result, api.units, api.units + earlier), indent=1,
                                      ensure_ascii=False) + "\n", encoding="utf-8")
     return result, path
 
@@ -562,6 +684,8 @@ def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     p.add_argument("--date", help="run date YYYY-MM-DD (default: today, UTC)")
     p.add_argument("--no-search", action="store_true", help="skip new entrants")
+    p.add_argument("--force", action="store_true",
+                   help="rerun a date that already has a report (spends the units again)")
     p.add_argument("--refresh-medians", action="store_true",
                    help="recompute medians from the latest 50 uploads; no report")
     a = p.parse_args(argv)
@@ -575,9 +699,10 @@ def main(argv=None):
         save_channels(rows)
         print(f"Medians refreshed. Units spent: {api.units}")
         return 0
-    result, path = run(api, run_date, search=not a.no_search)
+    result, path = run(api, run_date, search=not a.no_search, force=a.force)
     print(f"Report: {path.relative_to(ROOT)}")
     print(f"Units spent: {api.units} of {api.budget} ({dict(api.calls)})")
+    print(f"Checks: {result['checks_flagged']} flagged")
     print(f"New long videos: {len(result['new'])}; hits: {len(result['hits'])}; "
           f"title changes: {'first run' if result['first_run'] else len(result['renames'])}; "
           f"entrants proposed: {len(result['entrants'])}; brands: {len(result['brands'])}")

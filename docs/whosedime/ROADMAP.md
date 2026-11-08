@@ -34,6 +34,10 @@ Read first: [`STATE.md`](STATE.md) (where we are), [`DECISIONS.md`](DECISIONS.md
    environment: never print them. Reddit and Social Blade are blocked from
    the cloud: no workaround.
 9. **Stop at the end of the scope**, even if Franco says "continue".
+10. **Live guard** (S10, D15): `tools/guard/guard.py` runs on every tool call and blocks
+    rules 2, 4, 5 and 8 at the call (warns on STATE.md length, report length, French
+    text, missing critique line). A wrong block: fix the guard and its test, never bypass it.
+    Log: [`guard_log.jsonl`](guard_log.jsonl).
 
 ## The hand-off (last 15 minutes of every session)
 
