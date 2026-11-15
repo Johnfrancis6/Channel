@@ -24,6 +24,11 @@ here: a weekly watch needs fresh numbers).
     python3 whosedime/watch/watch.py                 # weekly run
     python3 whosedime/watch/watch.py --no-search     # skip new entrants (about 50 units)
     python3 whosedime/watch/watch.py --refresh-medians   # recompute medians, no report
+    python3 whosedime/watch/watch.py --force         # overwrite today's report (refused otherwise)
+
+The report opens with a "Checks" line: date already reported, units over
+budget for the day, medians on fewer than 5 long videos, moved handles,
+channels with no upload for 60 days (S10).
 
 Needs YOUTUBE_API_KEY in the environment (never printed).
 """
@@ -67,6 +72,47 @@ CHANNEL_FIELDS = ["handle", "title", "channel_id", "uploads_playlist_id",
 
 class BudgetExceeded(RuntimeError):
     pass
+
+
+class AlreadyReported(RuntimeError):
+    """A report already exists for the run date (S09 ran twice in a day:
+    520 units). Refused unless --force."""
+
+
+MEDIAN_MIN_N = 5            # a median on fewer long videos is flagged
+SILENT_DAYS = 60            # a channel with no upload for 60 days is flagged
+
+
+def run_checks(run_date, channels, uploads, prev, units, budget, warnings,
+               forced=False):
+    """The watch's own incoherences (S10, D15), for the "Checks" line at the
+    top of the report. Each item is one sentence; [] means all clear."""
+    out = []
+    if forced:
+        out.append(f"run date {run_date.isoformat()} was already reported: "
+                   "overwritten with --force")
+    day = units
+    if prev and prev.get("run_date") == run_date.isoformat():
+        day += int(prev.get("units", 0))
+    if day > budget:
+        out.append(f"units over budget: {day} spent on {run_date.isoformat()} "
+                   f"(budget {budget} a run)")
+    for c in channels:
+        m = re.search(r"\((\d+) long", c.get("median_source", ""))
+        if m and int(m.group(1)) < MEDIAN_MIN_N:
+            out.append(f"{c['handle']}: median on {m.group(1)} long videos "
+                       f"(under {MEDIAN_MIN_N}, fragile)")
+    out += [w for w in warnings if w.startswith("handle updated")]
+    limit = (run_date - dt.timedelta(days=SILENT_DAYS)).isoformat()
+    for c in channels:
+        L = uploads.get(c["handle"])
+        if L is None:
+            continue
+        last = max((d for _, d in L), default=None)
+        if last is None or last < limit:
+            out.append(f"{c['handle']}: no upload for {SILENT_DAYS} days "
+                       f"(last: {last or 'none'})")
+    return out
 
 
 # --------------------------------------------------------------- API layer
@@ -410,6 +456,9 @@ def render(result, api):
            f"(hits: from {r['track_start']}).",
            f"- **Quota: {api.units} units** of {api.budget} (calls: {calls}).",
            f"- Shorts (3 min or less) left out: {r['shorts_skipped']}.", ""]
+    checks = r.get("checks", [])
+    out[2:2] = [("**Checks**: " + "; ".join(checks) + ".") if checks
+                else "**Checks**: none (date, units, medians, handles, silent channels).", ""]
     if r["errors"]:
         out += ["**Warnings**: " + "; ".join(r["errors"]) + ".", ""]
 
@@ -506,8 +555,14 @@ def render(result, api):
 # --------------------------------------------------------------------- run
 
 def run(api, run_date, channels_path=CHANNELS_CSV, state_path=STATE_JSON,
-        report_dir=REPORT_DIR, brands_path=BRANDS_MD, search=True,
-        queries=SEARCH_QUERIES, scan_dir=SCAN_DIR):
+        report_dir=None, brands_path=BRANDS_MD, search=True,
+        queries=SEARCH_QUERIES, scan_dir=SCAN_DIR, force=False):
+    report_dir = REPORT_DIR if report_dir is None else report_dir
+    report_path = pathlib.Path(report_dir) / f"{run_date.isoformat()}.md"
+    if report_path.exists() and not force:
+        raise AlreadyReported(f"{report_path.name} already exists: one run a day "
+                              "(rerun with --force to overwrite)")
+    forced = report_path.exists()
     channels_path, state_path = pathlib.Path(channels_path), pathlib.Path(state_path)
     channels = load_channels(channels_path) if channels_path.exists() else channels_from_scan(scan_dir)
     errors = resolve_ids(api, channels, scan_dir)
@@ -548,6 +603,8 @@ def run(api, run_date, channels_path=CHANNELS_CSV, state_path=STATE_JSON,
 
     brands = load_brands(brands_path) if pathlib.Path(brands_path).exists() else []
     result = build(run_date, channels, uploads, facts, prev, found, brands, errors)
+    result["checks"] = run_checks(run_date, channels, uploads, prev, api.units,
+                                  api.budget, errors, forced)
     report = render(result, api)
     report_dir = pathlib.Path(report_dir)
     report_dir.mkdir(parents=True, exist_ok=True)
@@ -564,6 +621,8 @@ def main(argv=None):
     p.add_argument("--no-search", action="store_true", help="skip new entrants")
     p.add_argument("--refresh-medians", action="store_true",
                    help="recompute medians from the latest 50 uploads; no report")
+    p.add_argument("--force", action="store_true",
+                   help="overwrite a report already written for the run date")
     a = p.parse_args(argv)
     run_date = (dt.date.fromisoformat(a.date) if a.date
                 else dt.datetime.now(dt.timezone.utc).date())
@@ -575,9 +634,14 @@ def main(argv=None):
         save_channels(rows)
         print(f"Medians refreshed. Units spent: {api.units}")
         return 0
-    result, path = run(api, run_date, search=not a.no_search)
+    try:
+        result, path = run(api, run_date, search=not a.no_search, force=a.force)
+    except AlreadyReported as e:
+        print(f"Refused: {e}", file=sys.stderr)
+        return 1
     print(f"Report: {path.relative_to(ROOT)}")
     print(f"Units spent: {api.units} of {api.budget} ({dict(api.calls)})")
+    print(f"Checks: {'; '.join(result['checks']) or 'none'}")
     print(f"New long videos: {len(result['new'])}; hits: {len(result['hits'])}; "
           f"title changes: {'first run' if result['first_run'] else len(result['renames'])}; "
           f"entrants proposed: {len(result['entrants'])}; brands: {len(result['brands'])}")
