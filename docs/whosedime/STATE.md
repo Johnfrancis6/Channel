@@ -2,59 +2,55 @@
 
 Short by rule (60 lines at most), updated at the end of every session. Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
-**Last update: 2026-11-15**, S10 live guard (session `session_01Cw13LezDKUUKtx6YCZp6ni`).
+**Last update: 2026-11-15**, resync after the D24 pause (session `session_01Cw13Lexea2GUn6fJXKqEuH`). **D25: pause lifted.**
 
 ## Where we are
 
-- **S01 to S09 in `main`** (PRs merged; the old work branch `claude/funny-dijkstra-js9xbz` is gone).
-- **S10 done** (D15), on branch `claude/eloquent-cannon-ljbenz`, not in `main` (no Colab code changed).
-  - Guard: [`tools/guard/guard.py`](../../tools/guard/guard.py), hooks in `.claude/settings.json`, log
-    [`guard_log.jsonl`](guard_log.jsonl). Blocks: skills edits, push to `main`/another branch, printed keys,
-    second watch run a day, commit with code edited and no green test run after. Warns: STATE.md > 60 lines,
-    watch report > 100 lines, new French file, commit of a new deliverable with no critique line today.
-  - **Measured**: live in this session, 3 deliberate faults stopped or warned (3 lines in the log); each call
-    under 0.5 s in tests; French test: 0 false alerts on 61 English files, 14 of 14 Zehon French docs caught.
-  - **Read, not measured**: hooks format from memory of the Claude Code docs (the live check confirms Pre and
-    Post on Bash and Edit). Test memory: the post hook reads `Ran N tests`/`OK`/`FAILED` from unittest output
-    into `.git/whosedime_guard.json`; code edits seen only via Edit/Write, not via shell heredocs.
-  - Watch: report opens with a **Checks** line (date already reported → refused without `--force`; units over
-    budget for the day; medians on < 5 long videos; moved handles; 60 days silent). Full-catalogue medians
-    carry no count, so only How They Make Billions (n = 2) can be flagged today.
-- **Video 1, "Uber Was Cheap. Who Paid?"**: fact check **signed** (`sha256:18adbeeab4a0`); outline `02a_outline.md`
-  **validated** 08/11 (2,060 words; payers: investors, drivers, NY medallion owners).
+- **Two lines of work, not yet joined** (measured 15/11 with `git merge`):
+  - `main` = S01-S09, video 1 session 2a, and **S10 live guard** (PR #11, merged 15/11).
+  - `claude/affectionate-heisenberg-k7i85k` (last commit 08/11) = **S11** generation pipeline (parked, D20), **S12**
+    ElevenLabs reference voice (D21-D23), **video 1 sessions 2b and 3**, **D20-D24**, and its own S10 version.
+    A merge into `main` conflicts in `tools/guard/guard.py`, `whosedime/watch/watch.py`, `tests/test_guard.py`,
+    `STATE.md`, `ROADMAP.md`, `CLAUDE.md`, logs. Its STATE.md is the fuller record of 08/11.
+- **Video 1, "Uber Was Cheap. Who Paid?"** (Drive `WhoseDime/Videos/01_uber/`, its `00_state.md` rewritten 15/11):
+  - Steps 1-5 written (fact check signed `sha256:18adbeeab4a0`; script 2,089 words; 94 scenes; publication).
+  - **Measured 15/11**: `checker.py all` exit 0 on the raw Drive files; fingerprint = Signed line.
+  - **Waiting for Franco: Pause 5** (title, thumbnail trio), shown again 15/11.
+  - `images/` and `clips/` created by Franco 15/11, empty. Then: images and clips by hand (D20), reference voice (D23), S07c, assembly.
 
 ## Branches
 
 | Branch | Role |
 |---|---|
-| `claude/eloquent-cannon-ljbenz` | **work branch** (S10), on top of `main` |
-| `main` | production (Colab launchers); has S01 to S09 |
+| `claude/v1-s2b-script-uber` | **work branch** (this resync), from `main` |
+| `claude/affectionate-heisenberg-k7i85k` | 08/11 work (S11, S12, video 1 2b and 3, D20-D24); to reconcile with `main` |
+| `main` | production (Colab launchers): S01-S10 |
 | `claude/zelan-studio-analysis-rws9f6` | old Zehon Drive launchers; leave it (Zehon frozen) |
 
 ## Tools
 
 - Checker: `python3 whosedime/common/checker.py all FOLDER`. Skill sync: `python3 tools/sync_skills.py` (`--check`).
 - Charts and assembly: `whosedime/whosedime-video/scripts/charts.py`, `assemble.py`.
-- Watch: `python3 whosedime/watch/watch.py` (`--no-search`, `--refresh-medians`, `--force`). Commit the report,
-  `channels.csv` and `last_run.json` after each run.
-- Tests: `python3 -m unittest discover -s tests` — **190 pass**, measured 15/11. Fresh container: see `CLAUDE.md`.
+- Watch: `python3 whosedime/watch/watch.py` (`--no-search`, `--refresh-medians`, `--force`).
+- Tests: `python3 -m unittest discover -s tests` (190 on `main`, 15/11; 221 on the 08/11 branch). Fresh container: see `CLAUDE.md`.
 
 ## Sessions
 
 | # | Status |
 |---|---|
-| S01 to S09 | **done**, merged |
-| S10 Live guard | **done** 15/11; pull request to `main` when Franco wants the guard there |
-| S07c Chart follow-ups | prompt ready ([`sessions/S07c_chart_followups.md`](sessions/S07c_chart_followups.md)); before video 1's assembly |
-| Video 1, skill session 2b | **next**: script, voice, 20 s sample (Opus 5.5), [`sessions/V1_S2b_script.md`](sessions/V1_S2b_script.md) |
-| Video 1, skill session 3 | after 2b: scenes and publication (Sonnet 5.5) |
+| S01 to S10, video 1 session 2a | **done**, in `main` |
+| S11, S12, video 1 sessions 2b and 3 | **done** 08/11, on `affectionate-heisenberg` only |
+| Video 1, Pause 5 | **next**: Franco picks title and thumbnails (answer in this session or the next) |
+| Reconcile branches | **needed** before the voice session: merge `affectionate-heisenberg` into `main`, keep `main`'s S10 (no prompt written yet) |
+| S07c Chart follow-ups | prompt [`sessions/S07c_chart_followups.md`](sessions/S07c_chart_followups.md); before video 1's assembly |
 | Incoherence skill (meaning half) | waits for about 30 graded lines |
 
 ## Open issues
 
-- **For Franco, video 1**: F33 (Mamdani) left out of the outline. Lexicon proposals: `UK` → U-K, `LeWeb` → Luh-WEB,
-  `Rumayyan` → Roo-MY-yan, `Kamel` → Kuh-MEL, `Bhairavi Desai` → BY-ruh-vee Deh-SIGH.
-- **Guard**: hooks reach only clones that have `.claude/settings.json`, so other branches get it once merged to `main`.
-  The critique reminder checks a dated line today, not one per file.
-- **Watch**: medians frozen at 5 Nov; no schedule. **Drive editor** re-escapes `.md`. **Video 1**: check qwen-tts, T4/Colab times, S07c, D12.
+- **Stale session prompt**: [`sessions/V1_S2b_script.md`](sessions/V1_S2b_script.md) was opened on 15/11 though 2b was done on 08/11
+  (the S10 STATE.md was written from a base without the 08/11 work). Read the folder before any video prompt.
+- **For Franco, video 1**: F33 (Mamdani) left out. Lexicon proposals: `UK` → U-K, `LeWeb` → Luh-WEB,
+  `Rumayyan` → Roo-MY-yan, `Kamel` → Kuh-MEL, `Bhairavi Desai` → BY-ruh-vee Deh-SIGH. E1-E5 passed on a generic TTS, not the channel voice.
+- **Guard**: hooks reach only clones that have `.claude/settings.json`. The critique reminder checks a dated line today.
+- **Watch**: medians frozen at 5 Nov; no schedule. **Drive editor** re-escapes `.md` (breaks the hash): never edit video files there.
 - **Out of scope**: the old brief's "externalities"; ROADMAP rule 2 names a stale branch; no setup script.

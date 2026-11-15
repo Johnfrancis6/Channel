@@ -4,6 +4,14 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-15 — Whose Dime resumes (ends D24)
+
+Source: Franco, session `session_01Cw13Lexea2GUn6fJXKqEuH`: « la pause D24 est levée ».
+
+| # | Decision | Applies to |
+|---|---|---|
+| D25 | **The D24 pause is lifted.** D24 itself (2026-11-08) lives only on branch `claude/affectionate-heisenberg-k7i85k`, with S11, S12, video 1 sessions 2b and 3, D20-D23; that branch is not in `main` and conflicts with `main`'s S10 (`guard.py`, `watch.py`, tests). Work resumes at video 1's Pause 5. | every Whose Dime session |
+
 ## 2026-11-08 — a guard during the work, not only after it (after S09)
 
 Source: Franco, session `session_01Cw13LgvyfSBBRJdw5oChae`: « l'outil est bon
