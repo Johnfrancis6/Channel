@@ -9,7 +9,7 @@ Usage :
   python3 verifier.py 02_script_voix.txt
   python3 verifier.py 03_scenes.md [--script 02_script.md]
                     (types de scène : image, video, photo, titre)
-  Option --debit 3.36 : le débit de la voix en mots/s, pauses comprises
+  Option --debit 3.21 : le débit de la voix en mots/s, pauses comprises
                     (« Réglages mesurés » de Memoire/lecons.md), pour la durée.
 
 Sortie : une ligne par problème, préfixée ERREUR (à corriger) ou
@@ -27,16 +27,21 @@ PHRASE_MAX_VOIX = 22
 PHRASE_MIN_VOIX = 4
 SCENES_CIBLE = (60, 80)
 TYPES = {"image", "video", "photo", "preuve", "titre"}  # « preuve » : ancien nom de « photo »
-DEBIT_MOTS_S = 3.36  # voix de la chaîne, pauses comprises (mesuré le 30/09/2026 sur le sel)
+# Voix de la chaîne, pauses comprises. Calculé, pas mesuré : le sel, 1 551 mots en 461,8 s mesurés avec
+# 300 ms de pause, plus 21 s pour la pause passée à 450 ms (140 phrases) = 482,8 s. À remesurer sur la
+# prochaine voix.
+DEBIT_MOTS_S = 3.21
 SAUF_QUE_MAX = 5     # au-delà, la charnière devient un tic (9 fins de bloc sur 10 dans l'aluminium)
 NOMBRES_MAX = 40     # nombres en chiffres dans le script : une histoire, pas un exposé (verre 20, alu 48, sel 53)
 NOMBRES_HOOK_MAX = 2
+HOOK_MOTS_MAX = 15   # mots de « texte dit » par scène du hook (avant le premier titre) : 4 à 5 s à l'écran
 VIDEOS_MAX = 12  # plans animés : quelques-uns par vidéo, pas plus (quota de génération)
 MOUVEMENTS = {"zoom_avant", "zoom_arriere", "pan_gauche", "pan_droite"}
 RE_CTA = re.compile(r"abonne|pouce bleu|\blike\b|la cloche|partage[sz]? (la|cette) vid", re.I)
 RE_LICENCE = re.compile(r"CC0|CC[ -]BY|domaine public|public domain", re.I)
 
 problemes = []
+
 debit = DEBIT_MOTS_S
 
 
@@ -178,6 +183,8 @@ def verifier_scenes(chemin, chemin_script=None):
     images_vues = set()  # numéros des scènes image ou video déjà passées : leur image peut resservir
     precedent, serie, n_texte = None, 0, 0
     textes = []
+    # le hook : les scènes placées avant la première scène « titre » (aucun titre : pas de hook repéré)
+    fin_hook = next((i for i, c in enumerate(rangees, 1) if len(c) == 7 and c[1] == "titre"), 0)
     for attendu, c in enumerate(rangees, 1):
         if len(c) != 7:
             erreur(f"scène {c[0]} : {len(c)} colonnes au lieu de 7")
@@ -189,7 +196,10 @@ def verifier_scenes(chemin, chemin_script=None):
         if typ not in TYPES:
             erreur(f"scène {num} : type « {typ} » inconnu ({', '.join(sorted(TYPES))})")
         n_mots = len(mots(dit))
-        if typ != "titre" and not 10 <= n_mots <= 35:
+        if attendu < fin_hook:
+            if n_mots > HOOK_MOTS_MAX:
+                avertir(f"scène {num} : {n_mots} mots dans le hook (au plus {HOOK_MOTS_MAX}, soit 4 à 5 s)")
+        elif typ != "titre" and not 10 <= n_mots <= 35:
             avertir(f"scène {num} : {n_mots} mots de texte dit (cible 18-25, soit 6 à 8 s)")
         if typ == "image":
             reprise = re.fullmatch(r"scene_(\d{3})\.png", image)
@@ -280,7 +290,7 @@ def main(argv):
         try:
             debit = float(argv[i + 1].replace(",", "."))
         except (IndexError, ValueError):
-            print("ERREUR : --debit attend un nombre de mots par seconde, par exemple --debit 3.36")
+            print("ERREUR : --debit attend un nombre de mots par seconde, par exemple --debit 3.21")
             return 2
         if not 1.5 <= debit <= 6:
             print(f"ERREUR : débit {debit:g} mots/s invraisemblable (entre 1,5 et 6)")

@@ -130,8 +130,8 @@ chaîne, clonée par Qwen3-TTS). Ce fichier remplace l'ancien « filtre TTS » :
 
 Lance `python3 scripts/verifier.py 02_script.md` puis
 `python3 scripts/verifier.py 02_script_voix.txt`, et corrige ce qui est
-signalé. Le vérificateur compte la durée au débit mesuré de la voix (3,36
-mots/s) ; si `Memoire/lecons.md` en donne un autre, passe-le :
+signalé. Le vérificateur compte la durée au débit de la voix (3,21 mots/s,
+calculé pour 450 ms de pause, à remesurer sur la prochaine voix) ; si `Memoire/lecons.md` en donne un autre, passe-le :
 `--debit 3.5`. Sans exécution de code, vérifie à la main : le total de mots, la
 question du hook avant la 9e phrase, au moins un « Sauf que », aucun appel
 à s'abonner, et pour la version voix aucun chiffre ni phrase de plus de 22

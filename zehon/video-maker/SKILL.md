@@ -17,14 +17,15 @@ cette page.
 |---|---|
 | Lire | le tableau de `03_scenes.md` (types `image`, `video`, `titre`) ; une erreur nomme la ligne |
 | Valider | une image par scène `image` et `video` (`images/scene_NNN.png` ou `.jpg`) ; le plan animé (`clips/anim_NNN.mp4` ou `scene_NNN.mp4`) peut manquer : l'image le remplace |
-| Caler | chaque scène est retrouvée mot à mot dans `mots.json` (nombres compris : « 8 000 » = « huit mille ») ; les coupes tombent dans les pauses de la voix ; un **titre** ajoute 3 s de silence, le temps de lire la question |
+| Caler | chaque scène est retrouvée mot à mot dans `mots.json` (nombres compris : « 8 000 » = « huit mille ») ; les coupes tombent dans les pauses de la voix ; un **titre** ajoute 2 s de silence, le temps de lire la question |
 | Rendre | 1920×1080, 30 i/s ; zoom lent de 5 % ou panoramique, fondu enchaîné de 0,6 s, plans animés recadrés (ralentis puis figés s'ils sont trop courts), texte animé en bas à gauche, sur un bandeau sombre transparent (lisible sur une image blanche), quand la voix prononce le mot (au moins 2,5 s à l'écran), titres sur l'image suivante floutée ; son normalisé à −14 LUFS, crêtes à −1,5 dB |
 | Contrôler | image 1920×1080, piste audio, pas de silence (volume moyen > −60 dB), pas de saturation (crête ≤ −0,5 dB), durée attendue. **Un rendu n'est fini que si ce contrôle passe** |
 
 Sorties : `rendu/video.mp4` (ou `rendu/extrait_AAA-BBB.mp4`),
 `rendu/rapport.json` (début et durée de chaque scène, avertissements,
 contrôle), `rendu/verdict.json` et `rendu/apercu/` (le verdict court et
-6 images, ce qu'on lit ici) et `rendu/sous_titres.srt` (vidéo entière et
+6 images, ce qu'on lit ici ; pour un extrait : `verdict_extrait_AAA-BBB.json`
+et `apercu_extrait_AAA-BBB/`) et `rendu/sous_titres.srt` (vidéo entière et
 `--plan`), à déposer sur YouTube avec la vidéo.
 
 ## La musique
@@ -73,14 +74,19 @@ compris, se fait dans Colab ; ici, on fait le plan et on lit ce que Colab a
    60 %). Le plan écrit aussi `<travail>/rendu/sous_titres.srt`.
 2. **Un essai** : Franco met `1-10` dans `EXTRAIT` du lanceur et lance
    (5 min environ). Puis lecture comme ci-dessous.
-3. **Après un rendu** (extrait ou vidéo entière), lis dans `rendu/` :
-   - `verdict.json` (moins de 1 Ko : `pret`, `controle`, `avertissements`,
+3. **Après un rendu**, lis dans `rendu/` les fichiers de ce rendu : pour la
+   vidéo entière `verdict.json` et `apercu/` ; pour un extrait
+   `verdict_extrait_AAA-BBB.json` et `apercu_extrait_AAA-BBB/` (même suffixe
+   que `rapport_extrait_AAA-BBB.json`). Un extrait n'écrase jamais le
+   verdict de la vidéo entière : vérifie que le champ `sortie` est bien le
+   rendu attendu.
+   - le verdict (moins de 1 Ko : `pret`, `controle`, `avertissements`,
      `duree_s`, `rendu_s`, `code`, le nom du rapport) ;
-   - les 6 images de `apercu/` (JPEG de 640 px : `1_debut`, `2_titre`,
+   - les 6 images de l'aperçu (JPEG de 640 px : `1_debut`, `2_titre`,
      `3_plan_anime`, `4_sous_titres`, `5_texte_anime`, `6_fin` ; `N_milieu`
      quand le passage rendu n'a pas l'élément). **Regarde-les toi-même** :
      titre lisible, plan animé bien cadré, sous-titres, texte animé ;
-   - **plus le rapport en entier** (`rapport.json`, des dizaines de Ko) :
+   - **plus le rapport en entier** (`rapport.json` ou `rapport_extrait_AAA-BBB.json`, des dizaines de Ko) :
      s'il faut un détail (une scène), télécharge-le sur disque et n'en
      affiche que la partie utile (`python3 -c` ou `jq`).
 
@@ -100,8 +106,8 @@ réglage ajouté au notebook garde sa valeur par défaut (cellule marquée
 
 Le montage tourne sans GPU (le sel, 7 min 55 s : **42 min de rendu**, mesuré
 le 30/09) : plan (arrêt net si une pièce manque), rendu sur le disque de
-Colab, puis copie dans `rendu/` de la vidéo, du rapport, de `verdict.json` et
-de `apercu/` (le `.srt` y est écrit directement). Le rapport et le verdict
+Colab, puis copie dans `rendu/` de la vidéo, du rapport, du verdict et
+de l'aperçu (suffixés `_extrait_AAA-BBB` pour un extrait ; le `.srt` y est écrit directement). Le rapport et le verdict
 gardent la branche, le commit et la durée du rendu (`rendu_s`).
 
 ## Les sessions du montage : où t'arrêter

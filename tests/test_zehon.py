@@ -99,6 +99,14 @@ class VerificateurDeScenes(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout)
         self.assertIn("1 images reprises", r.stdout)
 
+    def test_scene_trop_longue_dans_le_hook(self):
+        r = self.lancer(SCENES)  # la scène 1 (19 mots) précède le premier titre
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIn("scène 1 : 19 mots dans le hook (au plus 15, soit 4 à 5 s)", r.stdout)
+        self.assertNotIn("scène 3 :", r.stdout)  # après le titre : la règle ne s'applique plus
+        court = SCENES.replace("Regarde la salière sur ta table, c'est", "C'est")
+        self.assertNotIn("dans le hook", self.lancer(court).stdout)
+
     def test_image_reprise_d_une_scene_a_venir(self):
         r = self.lancer(SCENES.replace("| scene_001.png | zoom_avant |", "| scene_004.png | zoom_avant |"))
         self.assertEqual(r.returncode, 1)
@@ -133,7 +141,7 @@ class VerificateurDeScript(unittest.TestCase):
 
     def test_duree_au_debit_de_la_voix(self):
         voix = "\n".join(["Le potier chauffe son four pendant des jours entiers sans rien obtenir."] * 100)
-        self.assertIn("~6.0 min à 3.36 mots/s", self.lancer(voix, "02_script_voix.txt").stdout)
+        self.assertIn("~6.2 min à 3.21 mots/s", self.lancer(voix, "02_script_voix.txt").stdout)
         self.assertIn("~6.7 min à 3 mots/s", self.lancer(voix, "02_script_voix.txt", "--debit", "3").stdout)
         self.assertEqual(self.lancer(voix, "02_script_voix.txt", "--debit", "vite").returncode, 2)
 

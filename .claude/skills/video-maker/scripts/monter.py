@@ -10,7 +10,8 @@ Le dossier contient 03_scenes.md, images/scene_NNN.(png|jpg), clips/(anim|scene)
 voix/voix.wav et voix/mots.json (écrits par le notebook voix_zehon.ipynb). Sortie : la vidéo,
 rendu/rapport.json (durée de chaque scène, avertissements, contrôle avant publication), un
 verdict court rendu/verdict.json (moins de 1 Ko) et rendu/apercu/ (6 images réduites : début,
-titre, plan animé, sous-titres, texte animé, fin) et, pour la vidéo entière comme pour --plan,
+titre, plan animé, sous-titres, texte animé, fin ; un extrait écrit verdict_extrait_AAA-BBB.json
+et apercu_extrait_AAA-BBB/, sans toucher à ceux de la vidéo entière) et, pour la vidéo entière comme pour --plan,
 rendu/sous_titres.srt (à déposer sur YouTube).
 
 Les durées ne s'écrivent pas à la main : chaque scène est calée sur les mots horodatés de la
@@ -45,7 +46,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 # ── La charte (nouveau_systeme.md §2), en chiffres ─────────────────────────────
 LARGEUR, HAUTEUR, IPS = 1920, 1080, 30
 FONDU_S = 0.6          # fondu enchaîné entre deux scènes (charte : 0,5 à 1 s)
-TITRE_S = 3.0          # pause ajoutée dans la voix pour une scène « titre »
+TITRE_S = 2.0          # pause ajoutée dans la voix pour une scène « titre »
 DEBUT_NOIR_S = 0.3     # la vidéo sort du noir
 FIN_S = 1.5            # dernière image tenue après la voix, puis fondu au noir
 ZOOM = 0.05            # zoom lent sur une scène (charte : 3 à 5 %)
@@ -1177,8 +1178,11 @@ def main(argv=None):
     }
     nom_rapport = "rapport.json" if suffixe == "video" else f"rapport_{suffixe}.json"
     (sortie.parent / nom_rapport).write_text(json.dumps(rapport, ensure_ascii=False, indent=2), encoding="utf-8")
-    apercu = ecrire_apercu(sortie, moments_apercu(scenes, groupes, t0, t1), sortie.parent / "apercu")
-    ecrire_verdict(sortie.parent / "verdict.json", {
+    # un extrait garde son verdict et son aperçu à part : ceux de la vidéo entière ne sont pas écrasés
+    nom_verdict = "verdict.json" if suffixe == "video" else f"verdict_{suffixe}.json"
+    nom_apercu = "apercu" if suffixe == "video" else f"apercu_{suffixe}"
+    apercu = ecrire_apercu(sortie, moments_apercu(scenes, groupes, t0, t1), sortie.parent / nom_apercu)
+    ecrire_verdict(sortie.parent / nom_verdict, {
         "video": rapport["video"], "sortie": sortie.name, "rapport": nom_rapport, "pret": rapport["pret"],
         "controle": [f"{'✓' if ok else '✗'} {v} : {d}" for v, ok, d in controle],
         "avertissements": avert, "duree_s": round(sonder_duree(sortie), 1), "rendu_s": rendu_s,

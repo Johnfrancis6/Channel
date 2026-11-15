@@ -220,6 +220,30 @@ class Rendu(unittest.TestCase):
         rapport = json.loads((d.d / "rendu" / "rapport.json").read_text(encoding="utf-8"))
         self.assertTrue(rapport["pret"], rapport["controle"])
 
+    def test_un_extrait_n_ecrase_pas_le_verdict_de_la_video(self):
+        d = Dossier()
+        voix = voix_de_test()
+        t = np.arange(int(voix["duree_s"] * 24000)) / 24000
+        signal = (0.3 * np.sin(2 * np.pi * 220 * t)).astype(np.float32)
+        subprocess.run(["ffmpeg", "-v", "error", "-f", "f32le", "-ar", "24000", "-ac", "1", "-i", "-",
+                        str(d.d / "voix" / "voix.wav")], input=signal.tobytes(), check=True)
+        rendu = d.d / "rendu"
+        self.assertEqual(m.main([str(d.d), "--taille", "320x180", "--preset", "ultrafast"]), 0)
+        avant = (rendu / "verdict.json").read_bytes()
+        images = {p.name: p.read_bytes() for p in (rendu / "apercu").glob("*.jpg")}
+        m.main([str(d.d), "--taille", "320x180", "--preset", "ultrafast", "--scenes", "1-2"])
+        # la vidéo entière garde son verdict et son aperçu
+        self.assertEqual((rendu / "verdict.json").read_bytes(), avant)
+        self.assertEqual({p.name: p.read_bytes() for p in (rendu / "apercu").glob("*.jpg")}, images)
+        # l'extrait a les siens, au même suffixe que son rapport
+        verdict = json.loads((rendu / "verdict_extrait_001-002.json").read_text(encoding="utf-8"))
+        self.assertEqual(verdict["sortie"], "extrait_001-002.mp4")
+        self.assertEqual(verdict["rapport"], "rapport_extrait_001-002.json")
+        self.assertTrue((rendu / "rapport_extrait_001-002.json").is_file())
+        apercu = sorted(p.name for p in (rendu / "apercu_extrait_001-002").glob("*.jpg"))
+        self.assertEqual(apercu, verdict["apercu"])
+        self.assertTrue(apercu)
+
     def test_rendu_avec_sous_titres(self):
         d = Dossier()
         voix = voix_de_test()

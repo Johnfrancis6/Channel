@@ -10,6 +10,9 @@ l'étape 5 une fois le fichier vérifié.
 
 - **Une scène = une image à l'écran pendant 6 à 8 s**, soit environ **18 à
   25 mots de texte dit**. Pour environ 1 480 mots : **60 à 80 scènes**.
+- **Dans le hook (les scènes avant le premier `titre`), au plus 15 mots par
+  scène**, soit 4 à 5 s à l'écran : le vérificateur avertit au-delà. Pourquoi :
+  dans le verre, la scène 3 restait 10,7 s à l'écran en plein hook.
 - **Le « texte dit » est un extrait exact et continu de `02_script.md`**,
   sans les titres de blocs. Mises bout à bout, les scènes redonnent tout le
   script, dans l'ordre, sans trou ni répétition. C'est ce qui permet à
@@ -43,7 +46,7 @@ l'étape 5 une fois le fichier vérifié.
 | `image` | la plupart des scènes | générée par Gemini : `scene_001.png`… ; ou l'image d'une scène précédente, reprise (voir plus haut) |
 | `video` | **6 à 10 par vidéo** : un plan légèrement animé pour casser la monotonie (voir « Plans animés ») | `clips/scene_NNN.mp4`, généré dans Gemini à partir de `scene_NNN.png` ; mouvement `—` |
 | `photo` | **facultatif** : seulement si la recherche a trouvé une vraie photo libre qui colle au texte | `photos/<nom>.jpg` ; colonne « crédit » remplie (auteur, licence) |
-| `titre` | l'ouverture de chaque question d'enquête (Q1 à Q4), 2 à 3 s sans voix | aucune : `video-maker` affiche la question (colonne « texte animé ») sur un fond sobre ; « texte dit » vaut `—` |
+| `titre` | l'ouverture de chaque question d'enquête (Q1 à Q4), 2 s sans voix | aucune : `video-maker` affiche la question (colonne « texte animé ») sur un fond sobre ; « texte dit » vaut `—` |
 
 Les scènes `titre` n'ont **ni image ni prompt** : dis-le à Franco quand
 tu lui donnes les lots, sinon il croit à un trou dans la numérotation
