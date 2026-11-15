@@ -75,7 +75,7 @@ CHANNELS = [
 ]
 
 
-class WatchTest(unittest.TestCase):
+class _Base(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp())
         self.channels = self.tmp / "channels.csv"
@@ -90,6 +90,8 @@ class WatchTest(unittest.TestCase):
                              search=search, scan_dir=self.tmp)
         return api, result, path.read_text()
 
+
+class WatchTest(_Base):
     def test_first_run_then_hit_rename_and_no_short(self):
         api, result, report = self.run_watch(FakeApi())
         self.assertIn("First run", report.split("## Title changes")[1].split("##")[0])
@@ -222,3 +224,60 @@ class WatchTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class WatchChecksTest(_Base):
+    """S10: the watch flags its own incoherences in a "Checks" line."""
+
+    def test_clean_run_says_none(self):
+        api, result, report = self.run_watch(FakeApi(), search=False)
+        self.assertIn("**Checks**: none", report.splitlines()[2])
+
+    def test_second_run_same_date_refused_then_forced(self):
+        self.run_watch(FakeApi())
+        with self.assertRaises(W.AlreadyReported):
+            self.run_watch(FakeApi())
+        api = W.Api(fetch=FakeApi())
+        result, path = W.run(api, RUN, channels_path=self.channels, state_path=self.state,
+                             report_dir=self.reports, brands_path=W.BRANDS_MD,
+                             scan_dir=self.tmp, force=True)
+        line = path.read_text().splitlines()[2]
+        self.assertIn("already reported", line)
+        self.assertIn("units over budget: 408", line)      # 204 + 204 in one day
+
+    def test_fragile_median_and_silent_channel(self):
+        rows = [dict(c) for c in CHANNELS]
+        rows[1]["median_source"] = "all uploads (2 long; fragile)"
+        W.save_channels(rows, self.channels)
+        global PLAYLISTS
+        old = PLAYLISTS["UUb"]
+        VIDEOS["b0"] = dict(ch="UCb", t="Ancient", d="2026-07-01", v=1, s="PT10M")
+        PLAYLISTS["UUb"] = ["b0"]
+        try:
+            api, result, report = self.run_watch(FakeApi(), search=False)
+        finally:
+            PLAYLISTS["UUb"] = old
+            del VIDEOS["b0"]
+        line = report.splitlines()[2]
+        self.assertIn("@chanB: median on 2 long videos", line)
+        self.assertIn("@chanB: no upload for 60 days (last: 2026-07-01)", line)
+        self.assertNotIn("@chanA", line)
+
+    def test_moved_handle_flagged(self):
+        checks = W.run_checks(RUN, [], {}, None, 10, 300,
+                              ["handle updated: @a is now @b (same channel)", "other"])
+        self.assertEqual(checks, ["handle updated: @a is now @b (same channel)"])
+
+    def test_main_refuses_without_force(self):
+        import contextlib, io
+        self.run_watch(FakeApi())
+        orig = W.REPORT_DIR
+        try:
+            W.REPORT_DIR = self.reports
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                code = W.main(["--date", RUN.isoformat()])
+        finally:
+            W.REPORT_DIR = orig
+        self.assertEqual(code, 1)
+        self.assertIn("--force", err.getvalue())
