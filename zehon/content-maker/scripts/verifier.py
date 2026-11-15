@@ -9,6 +9,8 @@ Usage :
   python3 verifier.py 02_script_voix.txt
   python3 verifier.py 03_scenes.md [--script 02_script.md]
                     (types de scène : image, video, photo, titre)
+  Option --debit 3.36 : le débit de la voix en mots/s, pauses comprises
+                    (« Réglages mesurés » de Memoire/lecons.md), pour la durée.
 
 Sortie : une ligne par problème, préfixée ERREUR (à corriger) ou
 AVERTISSEMENT (à regarder), puis un bilan. Code 1 s'il reste une erreur.
@@ -25,12 +27,17 @@ PHRASE_MAX_VOIX = 22
 PHRASE_MIN_VOIX = 4
 SCENES_CIBLE = (60, 80)
 TYPES = {"image", "video", "photo", "preuve", "titre"}  # « preuve » : ancien nom de « photo »
+DEBIT_MOTS_S = 3.36  # voix de la chaîne, pauses comprises (mesuré le 30/09/2026 sur le sel)
+SAUF_QUE_MAX = 5     # au-delà, la charnière devient un tic (9 fins de bloc sur 10 dans l'aluminium)
+NOMBRES_MAX = 40     # nombres en chiffres dans le script : une histoire, pas un exposé (verre 20, alu 48, sel 53)
+NOMBRES_HOOK_MAX = 2
 VIDEOS_MAX = 12  # plans animés : quelques-uns par vidéo, pas plus (quota de génération)
 MOUVEMENTS = {"zoom_avant", "zoom_arriere", "pan_gauche", "pan_droite"}
 RE_CTA = re.compile(r"abonne|pouce bleu|\blike\b|la cloche|partage[sz]? (la|cette) vid", re.I)
 RE_LICENCE = re.compile(r"CC0|CC[ -]BY|domaine public|public domain", re.I)
 
 problemes = []
+debit = DEBIT_MOTS_S
 
 
 def erreur(msg):
@@ -48,6 +55,11 @@ def mots(texte):
 def phrases(texte):
     texte = " ".join(texte.split())
     return [p for p in re.split(r"(?<=[.!?…])\s+", texte) if p.strip()]
+
+
+def nombres(texte):
+    """Les nombres écrits en chiffres : « 1344 », « 2 834 », « 3,6 », « 8 % » comptent chacun pour un."""
+    return re.findall(r"\d+(?:[   .,]\d+)*", texte)
 
 
 def texte_du_script(contenu):
@@ -94,16 +106,26 @@ def verifier_script(chemin):
             erreur("le hook ne pose aucune question")
         elif rang > 9:
             erreur(f"la question du hook tombe à la phrase {rang} (au plus tard la 9e)")
+        n_hook = len(nombres(texte_du_script(hook)))
+        if n_hook > NOMBRES_HOOK_MAX:
+            avertir(f"{n_hook} nombres dans le hook (au plus {NOMBRES_HOOK_MAX}) : garder le plus frappant")
 
-    if not re.search(r"\bsauf que\b", texte, re.I):
+    n_sauf = len(re.findall(r"\bsauf qu(?:e\b|['’])", texte, re.I))
+    if not n_sauf:
         avertir("aucun « Sauf que » : les obstacles entre les temps sont-ils là ?")
+    elif n_sauf > SAUF_QUE_MAX:
+        avertir(f"{n_sauf} « Sauf que » (au plus {SAUF_QUE_MAX}) : varier les charnières (« Mais », « Reste un problème », une question)")
+    n_nombres = len(nombres(texte))
+    if n_nombres > NOMBRES_MAX:
+        avertir(f"{n_nombres} nombres en chiffres (au plus {NOMBRES_MAX}) : ne garder que ceux qui frappent")
     if RE_CTA.search(texte):
         erreur(f"appel à s'abonner ou à liker repéré : « {RE_CTA.search(texte).group(0)} »")
     if ps and not ps[-1].rstrip().endswith("?"):
         avertir("la dernière phrase n'est pas une question ouverte")
 
     med = statistics.median(longueurs) if longueurs else 0
-    return f"{n} mots, {len(ps)} phrases, médiane {med} mots, ~{n / 3.0 / 60:.1f} min à 3 mots/s"
+    return (f"{n} mots, {len(ps)} phrases, médiane {med} mots, {n_sauf} « Sauf que », {n_nombres} nombres, "
+            f"~{n / debit / 60:.1f} min à {debit:g} mots/s (la durée se juge sur la version voix)")
 
 
 def verifier_voix(chemin):
@@ -125,12 +147,13 @@ def verifier_voix(chemin):
             avertir(f"ligne {i} : sigle « {sigle.group(0)} », à dire en toutes lettres ?")
         if ligne.startswith("#"):
             erreur(f"ligne {i} : titre ou commentaire, rien que du texte prononcé")
-    minutes = total / 3.0 / 60
+    minutes = total / debit / 60
     if minutes > 9:
-        avertir(f"durée estimée {minutes:.1f} min à 3 mots/s : au-delà de 9 min, resserrer le script")
-    elif minutes < 7 and total > 400:
-        avertir(f"durée estimée {minutes:.1f} min à 3 mots/s : en dessous de 7 min")
-    return f"{len(lignes)} lignes, {total} mots, ~{minutes:.1f} min à 3 mots/s"
+        avertir(f"durée estimée {minutes:.1f} min à {debit:g} mots/s : au-delà de 9 min, resserrer le script")
+    elif minutes < 7.5 and total > 400:
+        avertir(f"durée estimée {minutes:.1f} min à {debit:g} mots/s : en dessous de 7 min 30, la vidéo "
+                "finit sous les 8 min, titres compris")
+    return f"{len(lignes)} lignes, {total} mots, ~{minutes:.1f} min à {debit:g} mots/s (sans les titres)"
 
 
 def normaliser(texte):
@@ -151,7 +174,8 @@ def verifier_scenes(chemin, chemin_script=None):
 
     prompts = set(int(n) for n in re.findall(r"\*\*scene_(\d{3})\*\*", contenu))
     anims = set(int(n) for n in re.findall(r"\*\*anim_(\d{3})\*\*", contenu))
-    n_video = 0
+    n_video, n_reprises = 0, 0
+    images_vues = set()  # numéros des scènes image ou video déjà passées : leur image peut resservir
     precedent, serie, n_texte = None, 0, 0
     textes = []
     for attendu, c in enumerate(rangees, 1):
@@ -168,12 +192,25 @@ def verifier_scenes(chemin, chemin_script=None):
         if typ != "titre" and not 10 <= n_mots <= 35:
             avertir(f"scène {num} : {n_mots} mots de texte dit (cible 18-25, soit 6 à 8 s)")
         if typ == "image":
-            if image != f"scene_{int(num):03d}.png":
-                erreur(f"scène {num} : image « {image} », attendu scene_{int(num):03d}.png")
-            if int(num) not in prompts:
-                erreur(f"scène {num} : aucun prompt **scene_{int(num):03d}**")
+            reprise = re.fullmatch(r"scene_(\d{3})\.png", image)
+            if reprise and int(reprise.group(1)) != int(num) and int(reprise.group(1)) in images_vues:
+                # l'image d'une scène précédente, reprise avec un autre mouvement : pas de prompt
+                n_reprises += 1
+                if int(num) in prompts:
+                    avertir(f"scène {num} : prompt **scene_{int(num):03d}** inutile, la scène reprend {image}")
+                if textes[:-1] and len(rangees[attendu - 2]) == 7 and rangees[attendu - 2][3] == image \
+                        and rangees[attendu - 2][4] == mouvement:
+                    avertir(f"scène {num} : même image et même mouvement que la scène d'avant, changer le mouvement")
+            else:
+                if image != f"scene_{int(num):03d}.png":
+                    erreur(f"scène {num} : image « {image} », attendu scene_{int(num):03d}.png "
+                           "(ou l'image d'une scène précédente, pour la reprendre)")
+                if int(num) not in prompts:
+                    erreur(f"scène {num} : aucun prompt **scene_{int(num):03d}**")
+                images_vues.add(int(num))
         elif typ == "video":
             n_video += 1
+            images_vues.add(int(num))
             if image != f"clips/scene_{int(num):03d}.mp4":
                 erreur(f"scène {num} : clip « {image} », attendu clips/scene_{int(num):03d}.mp4")
             if int(num) not in prompts:
@@ -229,10 +266,26 @@ def verifier_scenes(chemin, chemin_script=None):
             erreur("le texte dit ne redonne pas le script mot pour mot. Premier écart :\n"
                    f"    script : …{script[max(0, i - 40):i + 40]}…\n"
                    f"    scènes : …{scenes[max(0, i - 40):i + 40]}…")
-    return f"{total} scènes dont {n_video} animées, {len(prompts)} prompts d'image, {len(anims)} d'animation, texte animé sur {n_texte}"
+    if n_reprises > total / 4:
+        avertir(f"{n_reprises} images reprises sur {total} scènes (au plus une sur quatre) : la vidéo va sembler figée")
+    return (f"{total} scènes dont {n_video} animées et {n_reprises} images reprises, {len(prompts)} prompts d'image, "
+            f"{len(anims)} d'animation, texte animé sur {n_texte}")
 
 
 def main(argv):
+    global debit
+    argv = list(argv)
+    if "--debit" in argv:
+        i = argv.index("--debit")
+        try:
+            debit = float(argv[i + 1].replace(",", "."))
+        except (IndexError, ValueError):
+            print("ERREUR : --debit attend un nombre de mots par seconde, par exemple --debit 3.36")
+            return 2
+        if not 1.5 <= debit <= 6:
+            print(f"ERREUR : débit {debit:g} mots/s invraisemblable (entre 1,5 et 6)")
+            return 2
+        del argv[i:i + 2]
     if not argv:
         print(__doc__)
         return 2

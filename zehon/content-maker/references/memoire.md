@@ -27,9 +27,14 @@ anciennes au lieu de les empiler.
 | Sujet | Chaîne | Angle / paradoxe | Vues | Date du relevé |
 ```
 
-**Quand le mettre à jour** : à l'étape 1 (les sujets proposés et la
-concurrence relevée), à chaque étape finie (colonne « Étape atteinte »),
-et quand Franco dit que la vidéo est publiée (elle passe dans *Faits*).
+**Quand le mettre à jour** : une fois par session, juste avant l'arrêt,
+avec tout ce que la session a changé (les sujets proposés et la concurrence
+relevée, la colonne « Étape atteinte »), et quand Franco dit que la vidéo
+est publiée (elle passe dans *Faits*). Pas à chaque étape : chaque mise à
+jour réécrit le fichier en entier, et l'étape atteinte se déduit de toute
+façon des fichiers du dossier de la vidéo. Quand le tableau *Déjà traités
+ailleurs* dépasse 15 lignes, ne garde que les sujets encore candidats et
+les 5 meilleurs scores.
 
 ## `lexique.md`
 
