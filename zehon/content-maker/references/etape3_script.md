@@ -74,6 +74,16 @@ blocs en commentaire (`## Hook`, `## Q1 — T1`…). Règles :
   aucune phrase au-delà de 25 mots.
 - **Calme** : pas de superlatifs criés ni de « incroyable ». Le suspense
   vient des obstacles.
+- **Varie les charnières** : chaque temps finit sur un obstacle, mais **au
+  plus 5 « Sauf que »** dans la vidéo. Les autres obstacles arrivent par un
+  « Mais », un « Reste un problème », une question (« Et sans sodium ? »).
+  Pourquoi : dans l'aluminium, 9 temps sur 10 finissaient par « Sauf
+  que » ; à l'oreille, la formule s'entend dès le quatrième.
+- **Peu de nombres** : **au plus 2 dans le hook** et **40 dans la vidéo**
+  (dates comprises). Garde celui qui frappe, arrondis ou supprime les
+  autres (« en 1884, 3,6 tonnes contre 2 834 tonnes d'argent » → « presque
+  rien »). Pourquoi : la voix les lit tous en toutes lettres ; une suite de
+  nombres fait un exposé, pas une histoire (le verre en a 20, le sel 53).
 - **Raconte, n'expose pas** : des personnages (« un potier », « les
   mineurs »), des lieux, des gestes, des problèmes à résoudre. Le
   spectateur doit se demander « et ensuite ? ».
@@ -120,15 +130,19 @@ chaîne, clonée par Qwen3-TTS). Ce fichier remplace l'ancien « filtre TTS » :
 
 Lance `python3 scripts/verifier.py 02_script.md` puis
 `python3 scripts/verifier.py 02_script_voix.txt`, et corrige ce qui est
-signalé. Sans exécution de code, vérifie à la main : le total de mots, la
+signalé. Le vérificateur compte la durée au débit mesuré de la voix (3,36
+mots/s) ; si `Memoire/lecons.md` en donne un autre, passe-le :
+`--debit 3.5`. Sans exécution de code, vérifie à la main : le total de mots, la
 question du hook avant la 9e phrase, au moins un « Sauf que », aucun appel
 à s'abonner, et pour la version voix aucun chiffre ni phrase de plus de 22
 mots.
 
 **La durée se calcule sur la version voix**, pas sur le script lisible :
 les nombres écrits en lettres ajoutent des mots (sur le sel : 1 585 mots
-dits pour 1 513 écrits). Le vérificateur donne l'estimation ; si elle
-dépasse 9 min, resserre le script plutôt que de laisser filer.
+dits pour 1 513 écrits). Le vérificateur donne l'estimation, sans les titres (3 s
+chacun) ; si elle dépasse 9 min, resserre le script plutôt que de laisser
+filer ; sous 7 min 30, la vidéo finit sous les 8 min : ajoute un moment
+fort plutôt que du remplissage.
 
 **Pause 4** : résume en 3 lignes (le total de mots, la durée estimée sur
 la version voix, les 2 passages dont tu es le moins sûr), puis « Tu

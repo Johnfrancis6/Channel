@@ -19,6 +19,17 @@ l'étape 5 une fois le fichier vérifié.
   virgule forte. Une scène ne coupe jamais un nom ou une date en deux.
 - **Une idée visuelle par scène.** Si une phrase porte deux images
   (« le feu, puis le pot »), fais deux scènes.
+- **Reprends une image quand le plan ne change pas** : si une scène montre
+  le même lieu, le même cadrage et la même action qu'une scène précédente
+  (un retour à la cuisine du début, la suite d'une phrase sur le même
+  geste), mets dans sa colonne « image » le fichier de cette scène
+  (`scene_001.png` à la scène 5), avec **un autre mouvement de caméra**, et
+  n'écris pas de prompt. Vise 8 à 15 reprises par vidéo, jamais plus d'une
+  scène sur quatre, jamais trois fois de suite la même image. Pourquoi :
+  chaque image coûte à Franco un prompt à coller, une image à vérifier et
+  à ranger (environ 1 h 30 pour 76 images, mesuré sur le sel) ; dans
+  l'aluminium, 15 prompts demandaient déjà « Same setting and lighting as
+  scene_0NN ». Une scène `video` ne reprend pas d'image.
 - **Écris le découpage avec un petit script** (une liste Python de scènes
   qui génère le fichier) plutôt qu'à la main : les renvois de continuité
   (« Same kitchen as scene_001 ») et la numérotation se recalculent quand
@@ -29,7 +40,7 @@ l'étape 5 une fois le fichier vérifié.
 
 | type | Quand | Image |
 |---|---|---|
-| `image` | la plupart des scènes | générée par Gemini : `scene_001.png`… |
+| `image` | la plupart des scènes | générée par Gemini : `scene_001.png`… ; ou l'image d'une scène précédente, reprise (voir plus haut) |
 | `video` | **6 à 10 par vidéo** : un plan légèrement animé pour casser la monotonie (voir « Plans animés ») | `clips/scene_NNN.mp4`, généré dans Gemini à partir de `scene_NNN.png` ; mouvement `—` |
 | `photo` | **facultatif** : seulement si la recherche a trouvé une vraie photo libre qui colle au texte | `photos/<nom>.jpg` ; colonne « crédit » remplie (auteur, licence) |
 | `titre` | l'ouverture de chaque question d'enquête (Q1 à Q4), 2 à 3 s sans voix | aucune : `video-maker` affiche la question (colonne « texte animé ») sur un fond sobre ; « texte dit » vaut `—` |
@@ -163,7 +174,8 @@ Règles des prompts :
 - **Mise en scène plutôt que reconstitution d'objet réel** : préfère
   « un atelier de potiers au bord d'une source salée » à la copie d'un
   objet de musée précis.
-- **Pas de prompt pour les scènes `photo` et `titre`.** Une scène `video`
+- **Pas de prompt pour les scènes `photo` et `titre`, ni pour une scène
+  qui reprend une image.** Une scène `video`
   a **deux** prompts : `scene_NNN` (son image de départ, dans son lot) et
   `anim_NNN` (l'animation).
 

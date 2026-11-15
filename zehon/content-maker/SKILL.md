@@ -79,8 +79,9 @@ compris (« J'ai la recherche et le plan du sel : j'écris le script. »)
 puis avance.
 
 **Mémoire** : lis `Memoire/` avant l'étape 1 et l'étape 3, et mets-la à
-jour quand quelque chose change. Format et moments de mise à
-jour : [`references/memoire.md`](references/memoire.md).
+jour **une seule fois par session, juste avant de t'arrêter** (chaque mise
+à jour réécrit le fichier en entier). Format et contenu :
+[`references/memoire.md`](references/memoire.md).
 
 ## Les 5 étapes et les 4 pauses
 
@@ -129,7 +130,9 @@ que lancer des scripts et lire un verdict court.
 **À chaque arrêt**, termine ta réponse par ce bloc, et rien après :
 
 > ⏹️ **Fin de la session N.** Avant la suivante : *(ce que Franco doit
-> faire, en une ligne : « rien », « génère les images dans Gemini »…)*
+> faire, en une ligne : « rien », « génère les images dans Gemini »… ; à la
+> fin de la session 2 : « lance la voix dans Colab », elle ne dépend que
+> de `02_script_voix.txt` et tourne pendant la session 3)*
 > **Prochaine session : modèle <Modèle>**, avec le connecteur Google Drive.
 
 puis le prompt de relance dans un bloc de code, 4 lignes au plus :
@@ -237,8 +240,7 @@ l'écran, mais aucun fait inventé.
 
 ## Exemple
 
-Le dossier [`assets/exemple_sel/`](assets/exemple_sel/) contient la
-recherche et le plan de la première vidéo (le sel). **Ils datent d'avant
-la simplification** : ils sont plus lourds que ce qu'on attend désormais
-(statuts, pièces à conviction). Sers-t'en pour le contenu et le ton du
-plan, pas pour la forme de la recherche : suis `etape2_recherche.md`.
+[`assets/exemple_sel/02_plan.md`](assets/exemple_sel/02_plan.md) est le
+plan de la première vidéo (le sel). Il date d'avant la simplification
+(statuts, pièces à conviction) : sers-t'en pour le ton et le niveau de
+détail d'un plan, pas pour sa forme. Ne le lis qu'à l'étape 3a.
