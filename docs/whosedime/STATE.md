@@ -51,6 +51,6 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
   (the S10 STATE.md was written from a base without the 08/11 work). Read the folder before any video prompt.
 - **For Franco, video 1**: F33 (Mamdani) left out. Lexicon proposals: `UK` → U-K, `LeWeb` → Luh-WEB,
   `Rumayyan` → Roo-MY-yan, `Kamel` → Kuh-MEL, `Bhairavi Desai` → BY-ruh-vee Deh-SIGH. E1-E5 passed on a generic TTS, not the channel voice.
-- **Guard**: hooks reach only clones that have `.claude/settings.json`. The critique reminder checks a dated line today.
+- **Guard**: hooks reach only clones with `.claude/settings.json`. False block 15/11: `git push -u origin BRANCH 2>&1` read `2>&1` as a ref (push-branch); push without redirection.
 - **Watch**: medians frozen at 5 Nov; no schedule. **Drive editor** re-escapes `.md` (breaks the hash): never edit video files there.
 - **Out of scope**: the old brief's "externalities"; ROADMAP rule 2 names a stale branch; no setup script.
