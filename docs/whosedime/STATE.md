@@ -47,7 +47,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 | S13 Reconcile branches | **done** 16/11, PR 12 merged |
 | S14, S14b Voice upload (D32), Whisper CPU fallback | S14 merged; Colab 16/11: upload OK, Whisper crashed (no `libcublas.so.12`): S14b PR waits |
 | Video 1 voice (Franco's, not a session) | once PR 13 is merged: launcher `MODE = "reference"` (upload clip + text), `"sample"`, listen (D6), `"full"` |
-| S15 Voice check (next build) | opens **when Franco says upload + 20 s sample are done**: `Voice/ref.json`, `listen_20s.json`, his notes; prompt then (scope depends on what he heard) |
+| S15 Voice pace advice, launcher output | **open** 16/11: [`sessions/S15_voice_rate_advice.md`](sessions/S15_voice_rate_advice.md); Franco remakes the reference slower |
 | Incoherence skill (meaning half) | waits for about 30 graded lines |
 
 ## Open issues
