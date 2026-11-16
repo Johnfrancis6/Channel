@@ -2,7 +2,7 @@
 
 Short by rule (60 lines at most), updated at the end of every session. Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
-**Last update: 2026-11-15**, resync after the D24 pause (session `session_01Cw13Lexea2GUn6fJXKqEuH`). **D25: pause lifted.**
+**Last update: 2026-11-16**, resync and Pause 5 (session `session_01Cw13Lexea2GUn6fJXKqEuH`). **D25: pause lifted.**
 
 ## Where we are
 
@@ -15,8 +15,9 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 - **Video 1, "Uber Was Cheap. Who Paid?"** (Drive `WhoseDime/Videos/01_uber/`, its `00_state.md` rewritten 15/11):
   - Steps 1-5 written (fact check signed `sha256:18adbeeab4a0`; script 2,089 words; 94 scenes; publication).
   - **Measured 15/11**: `checker.py all` exit 0 on the raw Drive files; fingerprint = Signed line.
-  - **Waiting for Franco: Pause 5** (title, thumbnail trio), shown again 15/11.
-  - `images/` and `clips/` created by Franco 15/11, empty. Then: images and clips by hand (D20), reference voice (D23), S07c, assembly.
+  - **Pause 5 answered 16/11**: title "Uber Lost $7.9 Billion. Uber's history" (F26; Franco's, Claude had recommended
+    "Uber Was Cheap. Who Paid?"), thumbnails A, B, C made by Franco, checked, A first. Content done.
+  - Pieces: `miniatures/` 3 of 3 (+ 1280x720 copies), `images/` 0 of 55, `clips/` 0 of 5. Then voice (D23), S07c, assembly.
 
 ## Branches
 
@@ -40,8 +41,9 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 |---|---|
 | S01 to S10, video 1 session 2a | **done**, in `main` |
 | S11, S12, video 1 sessions 2b and 3 | **done** 08/11, on `affectionate-heisenberg` only |
-| Video 1, Pause 5 | **next**: Franco picks title and thumbnails (answer in this session or the next) |
-| Reconcile branches | **needed** before the voice session: merge `affectionate-heisenberg` into `main`, keep `main`'s S10 (no prompt written yet) |
+| Video 1, Pause 5 | **done** 16/11 |
+| S13 Reconcile branches | **next** (Opus 5.5): [`sessions/S13_reconcile_branches.md`](sessions/S13_reconcile_branches.md); before the voice session |
+| Video 1 pieces | Franco: 55 images, 5 clips, reference voice |
 | S07c Chart follow-ups | prompt [`sessions/S07c_chart_followups.md`](sessions/S07c_chart_followups.md); before video 1's assembly |
 | Incoherence skill (meaning half) | waits for about 30 graded lines |
 
