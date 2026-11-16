@@ -45,8 +45,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 |---|---|
 | S01 to S12, S07c, video 1 sessions 2a, 2b, 3 and Pause 5 | **done**, in `main` |
 | S13 Reconcile branches | **done** 16/11, PR 12 merged |
-| S14 Voice reference by upload (D32) | **done**, merged. First Colab run 16/11: upload OK, then Whisper crashed (no `libcublas.so.12`) |
-| S14b Whisper CPU fallback | **done** 16/11, pull request waits for Franco; then `MODE = "reference"` again |
+| S14, S14b Voice upload (D32), Whisper CPU fallback | S14 merged; Colab 16/11: upload OK, Whisper crashed (no `libcublas.so.12`): S14b PR waits |
 | Video 1 voice (Franco's, not a session) | once PR 13 is merged: launcher `MODE = "reference"` (upload clip + text), `"sample"`, listen (D6), `"full"` |
 | S15 Voice check (next build) | opens **when Franco says upload + 20 s sample are done**: `Voice/ref.json`, `listen_20s.json`, his notes; prompt then (scope depends on what he heard) |
 | Incoherence skill (meaning half) | waits for about 30 graded lines |
