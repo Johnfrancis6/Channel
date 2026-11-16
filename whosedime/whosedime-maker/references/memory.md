@@ -70,7 +70,10 @@ Pending proposals: lexicon `Rumayyan` -> `Roo-MY-yan` (not agreed yet)
   voice, `voice/listen_20s.json` once the 20 s sample is made, then
   `voice/state.json`, `status` `running`, `ready` or `failed`, with its
   flagged dry endings; for the render, `render/verdict_video.json` and its
-  `ready`: an extract's `verdict_extract_*.json` never makes the render done). The
+  `ready`: an extract's `verdict_extract_*.json` never makes the render done). When
+  `generate/status.json` exists (written by `whosedime/generate/run.py`, S11),
+  copy the pieces counts and its `next` from it, and the money from its
+  `spent_usd`. The
   **publication** row is done when Franco gives the YouTube link and the
   date.
 - A step redone (a new script) puts every later step back to `redo`, with

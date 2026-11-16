@@ -121,9 +121,57 @@ def _rel(cwd, path):
         return p.as_posix()
 
 
+# Ported from the 08/11 S10 (session S13): heredoc bodies are data, quotes
+# are read before operators, redirections are not arguments.
+HEREDOC = re.compile(r"<<-?\s*(['\"]?)(\w+)\1[^\n]*\n.*?(?:\n\s*\2\s*(?:\n|$)|\Z)", re.S)
+OPERATORS = {"&&", "||", ";", "&", "|", ";;", "|&"}
+
+
+def _strip_heredocs(cmd):
+    """Keep the line that opens a heredoc, drop its body (a Python heredoc
+    naming watch.py was blocked as a watch run)."""
+    return HEREDOC.sub(lambda m: m.group(0).split("\n", 1)[0] + "\n", cmd or "")
+
+
+def _pipelines(cmd):
+    """Pipelines of a shell line, each a list of simple commands (strings),
+    split on operators outside quotes; redirections such as `2>&1` and
+    `> file` are dropped (15/11: `git push -u origin BRANCH 2>&1` read `2>&1`
+    as a branch; splitting on '&&' before quotes read a quoted JSON string as
+    a `git push`)."""
+    text = _strip_heredocs(cmd).replace("\\\n", " ").replace("\n", " ; ")
+    text = re.sub(r"\d*>&\d+|&>>?", " ", text)
+    text = re.sub(r"(?<![\w$])\d+(?=[<>])", " ", text)   # `2> f`: the 2 is no argument
+    lex = shlex.shlex(text, posix=True, punctuation_chars=";&|<>")
+    lex.whitespace_split = True
+    try:
+        toks = list(lex)
+    except ValueError:                       # unbalanced quote: plain split
+        toks = text.split()
+    out, pipe, words, skip = [], [], [], False
+    for t in toks + [";"]:
+        if skip and t not in OPERATORS:
+            skip = False
+            continue
+        skip = False
+        if re.fullmatch(r"\d*(<<<|<<|>>|>|<)", t) or re.fullmatch(r"[<>]+", t):
+            skip = True                      # a redirection and its target
+            continue
+        if t in OPERATORS or re.fullmatch(r"[;&|]+", t):
+            if words:
+                pipe.append(shlex.join(words))
+            words = []
+            if t not in ("|", "|&") and pipe:
+                out.append(pipe)
+                pipe = []
+        else:
+            words.append(t)
+    return out
+
+
 def _segments(cmd):
-    """Split a shell line on ; && || | and newlines (good enough for rules)."""
-    return [s.strip() for s in re.split(r"&&|\|\||[;|\n]", cmd) if s.strip()]
+    """Simple commands of a shell line, operators outside quotes."""
+    return [c for pipe in _pipelines(cmd) for c in pipe]
 
 
 def _words(seg):
@@ -148,6 +196,10 @@ def pre_skills(call):
     if tool == "Bash":
         cmd = inp.get("command", "")
         # a write by the shell: redirection, sed -i, cp/mv/rm/tee with the path as target
+        for line in _strip_heredocs(cmd).splitlines():
+            if "sync_skills.py" not in line and \
+                    re.search(r">>?\s*\S*(\.claude/skills/|\.skill\b)", line):
+                return True
         for seg in _segments(cmd):
             if "sync_skills.py" in seg:
                 continue
@@ -189,8 +241,12 @@ def pre_push(call):
                 return True
             continue
         current = _git(call["cwd"], "rev-parse", "--abbrev-ref", "HEAD")
+        if "--tags" in w:                    # tags are not branches (08/11 S10)
+            continue
         for ref in refs:
             dest = ref.lstrip("+").split(":")[-1].removeprefix("refs/heads/")
+            if dest.startswith("refs/tags/"):
+                continue
             if dest in ("main", "master") or (current and dest not in (current, "HEAD")):
                 return True
     return False
@@ -199,19 +255,27 @@ def pre_push(call):
 def pre_secret(call):
     if call["tool_name"] != "Bash":
         return False
-    for seg in _segments(call["tool_input"].get("command", "")):
-        w = _words(seg)
-        if not w:
-            continue
-        if w[0] in ("env", "printenv", "export", "set", "declare") and \
-                all(x.startswith("-") for x in w[1:]):
-            return True                      # dumps every variable, keys included
-        if w[0] == "printenv" and any(re.fullmatch(SECRETS, x) for x in w[1:]):
-            return True
-        if w[0] in ("echo", "printf", "print") and re.search(r"\$\{?" + SECRETS, seg):
-            return True
-        if re.search(r"(os\.environ|getenv)\W+" + SECRETS, seg) and "print" in seg:
-            return True
+    for pipe in _pipelines(call["tool_input"].get("command", "")):
+        for k, seg in enumerate(pipe):
+            w = _words(seg)
+            if not w:
+                continue
+            if w[0] == "cat" and any(re.search(r"/proc/\S*/environ", x) for x in w[1:]):
+                return True                      # every variable (08/11 S10)
+            if w[0] in ("env", "printenv", "export", "set", "declare") and \
+                    all(x.startswith("-") for x in w[1:]):
+                # piped into a counter or a name-only filter, no value is shown (08/11 S10)
+                rest = " ".join(pipe[k + 1:])
+                if re.search(r"^wc\b|\bgrep\s+-\w*[cqlL]|\bcut\b.*-f\s*1\b|"
+                             r"sed\s+'?s/=\.\*//", rest):
+                    continue
+                return True                      # dumps every variable, keys included
+            if w[0] == "printenv" and any(re.fullmatch(SECRETS, x) for x in w[1:]):
+                return True
+            if w[0] in ("echo", "printf", "print") and re.search(r"\$\{?" + SECRETS, seg):
+                return True
+            if re.search(r"(os\.environ|getenv)\W+" + SECRETS, seg) and "print" in seg:
+                return True
     return False
 
 
@@ -220,8 +284,15 @@ def pre_watch(call):
         return False
     cmd = call["tool_input"].get("command", "")
     for seg in _segments(cmd):
-        if "watch/watch.py" not in seg or "--force" in seg or "--refresh-medians" in seg \
-                or "--help" in seg or "-h" in _words(seg):
+        w = _words(seg)
+        # only a segment that runs watch.py (08/11 S10: an assignment or a
+        # patch script naming the file was blocked)
+        args = [x for x in w if not x.startswith("-")]
+        runs = bool(w) and (os.path.basename(w[0]) == "watch.py" or (
+            os.path.basename(w[0]).startswith("python") and len(args) > 1
+            and args[1].endswith("watch/watch.py")))
+        if not runs or "--force" in w or "--refresh-medians" in w \
+                or "--help" in w or "-h" in w:
             continue
         m = re.search(r"--date[ =](\d{4}-\d{2}-\d{2})", seg)
         day = m.group(1) if m else dt.datetime.now(dt.timezone.utc).date().isoformat()

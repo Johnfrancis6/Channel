@@ -4,6 +4,83 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-15 — Whose Dime resumes (ends D24)
+
+Source: Franco, session `session_01Cw13Lexea2GUn6fJXKqEuH`: « la pause D24 est levée ».
+
+| # | Decision | Applies to |
+|---|---|---|
+| D25 | **The D24 pause is lifted.** D24 itself (2026-11-08) lives only on branch `claude/affectionate-heisenberg-k7i85k`, with S11, S12, video 1 sessions 2b and 3, D20-D23; that branch is not in `main` and conflicts with `main`'s S10 (`guard.py`, `watch.py`, tests). Work resumes at video 1's Pause 5. | every Whose Dime session |
+
+## 2026-11-08 — Whose Dime paused
+
+Source: Franco, session `session_01Cw13LhWRZyGn7FWUAAzMb1`: "Met la chaîne de Who Dime en pause jusqu'à nouvel ordre."
+
+| # | Decision | Applies to |
+|---|---|---|
+| D24 | **Whose Dime is paused until Franco says otherwise.** No session is opened, no scheduled check-in runs, nothing is merged or generated. Everything stays as it is (repo work branch, Drive, open sessions) so the work resumes from `STATE.md`. Still open at the pause: video 1's Pause 5 (title, thumbnails), the images and clips by hand, the reference voice (D23: free ElevenLabs plan, risk told; Claude recommended the free Qwen voice), the pull request to `main`. | every Whose Dime session |
+
+## 2026-11-08 — the ElevenLabs reference on the free plan (after S12)
+
+Source: Franco, session `session_01Cw13LhWRZyGn7FWUAAzMb1`: "Pas besoin d'un starter. J'utiliserai l'essai gratuit."
+
+| # | Decision | Applies to |
+|---|---|---|
+| D23 | **The narrator's reference clip is made on ElevenLabs' free plan**, not Starter. Known risk, told to Franco: the terms S12 read on 2026-11-08 make free-plan output non-commercial with attribution, and output made on the free plan stays non-commercial after subscribing; a monetised channel is commercial use. The free Qwen VoiceDesign voice (D8) remains the no-condition fallback. | voice, D22 |
+
+## 2026-11-08 — ElevenLabs designs the narrator, Qwen3-TTS clones it (clarifies D21)
+
+Source: Franco, session `session_01Cw13LhWRZyGn7FWUAAzMb1`: "ElevenLabs sert à générer la voix et Qwen TTS à la
+cloner pour un usage gratuit, pas besoin de son API."
+
+| # | Decision | Applies to |
+|---|---|---|
+| D22 | **ElevenLabs only makes the narrator's reference clip** (Franco, in the app, once); **Qwen3-TTS clones it** on the Base model in Colab for every sample and full voice, free. It replaces D8's VoiceDesign step, not the clone; no ElevenLabs API. Open: what ElevenLabs' terms allow for a monetised channel and for using an output as a cloning reference (S12 reads and reports; Franco decides). | voice notebook, S12 |
+
+## 2026-11-08 — the narrator's voice comes from ElevenLabs (video 1, session 2b)
+
+Source: Franco, session `session_01Cw13LeV77hvzZuF2iSsKfA`, after validating the 20 s sample by ear:
+"Oui, ça passe E1 à E5. Mais je choisirai une voix specifique sur eleven lab".
+
+| # | Decision | Applies to |
+|---|---|---|
+| D21 | **Franco will choose a specific ElevenLabs voice for the narrator**, instead of the VoiceDesign-then-clone voice of D8 made by the Qwen3-TTS notebook (S06). Not settled yet: how the voice is made (Franco in the ElevenLabs app, or an API key, which is money: asked, never assumed, D18), whether ElevenLabs reads the respellings of `lexicon.tsv` well (they were written for Qwen3-TTS), and how `voice/voice.wav` and `voice/words.json` (the word timings the assembly needs) are produced from it. To settle in a voice session before video 1's assembly. | D8, `voice_whosedime.ipynb`, `lexicon.tsv`, the assembly |
+
+## 2026-11-08 — images by hand for now (after S11)
+
+Source: Franco, session `session_01Cw13LhWRZyGn7FWUAAzMb1`, after S11's price (about $7.13 a video by the Gemini API):
+"I'll generate image by hand until the channel become more wealthy".
+
+| # | Decision | Applies to |
+|---|---|---|
+| D20 | **Images and clips stay made by Franco by hand** (Gemini app, Flow) until the channel earns enough; the paid API route of S11 (`whosedime/generate/`) is kept, tested with a fake API, and parked: S11b does not run. Claude's part: prompts ready to paste, then a check of what Franco uploads (names, count, size) before the assembly. D19's "Franco is told when everything is made" becomes: Claude tells Franco what is still missing, and when the voice and render are done. | `step4_scenes.md`, `whosedime/generate/`, S11b |
+
+## 2026-11-08 — sessions chain themselves; Claude owns the pipeline (video 1, session 2a)
+
+Source: Franco, session `session_01Cw13LhWRZyGn7FWUAAzMb1`: "for future session the process will
+[be] automatic. I validate and you open automatically a new session with the adapted prompt. But
+keep seeing continuously the quality of work. For something that required the content quality you
+can ask me for more detail. But for technical things like the process and the pipeline architecture
+you can build necessary things and adapted tools to make faster the production, with more
+precision. When you have finished (image, video and audio generation) make me know."
+
+| # | Decision | Applies to |
+|---|---|---|
+| D17 | **A session opens the next one itself.** When its scope is done and Franco has validated its pause (or, for a build session, its checks pass), it writes the next prompt, then calls `create_session` (claude-code-remote) with the opening message, the model of the session table, the repo and the work branch; it gives Franco the new session's link. The paste-ready code block is only the fallback when `create_session` fails. | every session; `ROADMAP.md` hand-off; `whosedime-maker` |
+| D18 | **Claude decides and builds the technical side** (process, pipeline architecture, tools, checks) without asking; it says what it built and why in one line. **Content stays Franco's** (topic, facts, angle, wording by ear, titles, thumbnails): Claude asks him at the pauses, and may ask for more detail when quality needs it. Money and credentials (paid APIs, keys) are asked, never assumed. | every session |
+| D19 | **Quality is watched across sessions.** Every child session ends by sending a short report (deliverable links, checker result, self-critique, Franco's grade) to the orchestrator session named in its prompt (`send_message`); the orchestrator re-checks the deliverable (checker, a read), writes what it finds into the next prompt, and tells Franco only what needs him. Franco is told when images, clips, voice and render are all made. | child sessions; orchestrator `session_01Cw13LhWRZyGn7FWUAAzMb1` |
+
+## 2026-11-08 — animated charts (after S07b)
+
+Source: Franco, session `session_01Cw13LgR83sp5FmkpGUvBWU`, after "les courbes sont-elles animées
+lors du montage ?" (answer: no, a still PNG with a 2 % push-in), then "pas une règle stricte". D14 and D15 stay reserved for S07c's answers.
+
+| # | Decision | Applies to |
+|---|---|---|
+| D16 | **An `icons` chart of people may animate its figures, one by one and quickly, when the story is people arriving or leaving in mass** (mass hiring, layoffs, bankruptcies). **It is an option, not a rule**: by default the grid stays still, shown whole (as today). Not built yet: how a scene asks for it, the effects (appear, go out), the timing and when the value shows are to settle in the session that builds it. Never a counter rolling through numbers no fact holds (D4). **Video 1 is made without it**; Claude reminds Franco when video 2 starts (trial: [`trials/hyperframes_scene061/`](trials/hyperframes_scene061/README.md)). | `charts.py`, `assemble.py`, `step4_scenes.md` |
+
+(Restored on 2026-11-08 by session `session_01Cw13LhWRZyGn7FWUAAzMb1`: the GitHub merge of pull request #9 had dropped this section. D14 and D15 were meanwhile used by the watch list and the guard; S07c's answers take the next free numbers.)
+
 ## 2026-11-08 — a guard during the work, not only after it (after S09)
 
 Source: Franco, session `session_01Cw13LgvyfSBBRJdw5oChae`: « l'outil est bon

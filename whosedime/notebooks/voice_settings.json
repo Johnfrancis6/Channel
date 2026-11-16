@@ -71,6 +71,15 @@
     "_reference_text_source": "written in S06 for the reference only (never published): about 70 words, 20-30 s, with a statement, two questions, a number, a surprise and a wry aside, so the clone hears several intonations (audit C6, 'hypothesis to test next'; voice_direction.md V5)",
     "reference_seconds": [20, 30]
   },
+  "reference_import": {
+    "dir": "elevenlabs",
+    "audio_ext": [".mp3", ".wav", ".m4a", ".flac", ".ogg", ".opus"],
+    "sample_rate": 24000,
+    "seconds_aim": [20, 30],
+    "seconds_refuse_outside": [5, 60],
+    "rate_wpm": [135, 155]
+  },
+  "_reference_import_source": "S12 (D22): Franco's ElevenLabs clip in WhoseDime/Voice/elevenlabs/ becomes ref.wav. 24 kHz: the rate at which qwen-tts 0.1.1 extracts the speaker embedding (create_voice_clone_prompt, read in its source). Aim 20-30 s: design.reference_seconds of S06 (assumed; Qwen3-TTS's README only says '3-second rapid voice clone'). Refuse under 5 s or over 60 s: assumed. rate_wpm 135-155, assumed from one measure: in S11 a 171 wpm reference gave a 206 wpm clone (x1.2, CPU, one seed); aiming the clone's speech at 165-180 wpm (voice_direction.md, so that the whole track with the added pauses lands at 142-154) gives a reference of about 140-150. To correct on the first ElevenLabs sample (listen_20s.json against ref.json)",
   "blind_test": {
     "sentences": 20,
     "anchors": [0.0, 0.25, 0.5],
