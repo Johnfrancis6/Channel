@@ -39,13 +39,20 @@ VIDEOS = {
 PLAYLISTS = {"UUa": ["hit1", "ren1", "short1", "old1"], "UUb": ["b1"]}
 
 
+HANDLES = {"UCa": "@chanA", "UCb": "@chanB"}
+
+
 class FakeApi:
-    def __init__(self, renamed=None):
+    def __init__(self, renamed=None, handles=None):
         self.renamed = renamed or {}
+        self.handles = dict(HANDLES, **(handles or {}))
         self.log = []
 
     def __call__(self, endpoint, params):
         self.log.append(endpoint)
+        if endpoint == "channels":
+            return {"items": [{"id": c, "snippet": {"customUrl": self.handles[c].lower()}}
+                              for c in params["id"].split(",") if self.handles.get(c)]}
         if endpoint == "playlistItems":
             return {"items": [{"contentDetails": {
                 "videoId": i, "videoPublishedAt": VIDEOS[i]["d"] + "T12:00:00Z"}}
@@ -117,8 +124,9 @@ class WatchTest(_Base):
     def test_units_counted_and_written(self):
         fake = FakeApi()
         api, result, report = self.run_watch(fake)
-        # 2 playlistItems + 1 videos (tracked) + 2 search + 1 videos (search)
-        self.assertEqual(api.units, 2 + 1 + 200 + 1)
+        # 1 channels (handles) + 2 playlistItems + 1 videos (tracked)
+        # + 2 search + 1 videos (search)
+        self.assertEqual(api.units, 1 + 2 + 1 + 200 + 1)
         self.assertEqual(fake.log.count("search"), 2)
         self.assertIn(f"**Quota: {api.units} units** of 300", report)
         self.assertEqual(json.loads(self.state.read_text())["units"], api.units)
@@ -243,7 +251,8 @@ class WatchChecksTest(_Base):
                              scan_dir=self.tmp, force=True)
         line = path.read_text().splitlines()[2]
         self.assertIn("already reported", line)
-        self.assertIn("units over budget: 408", line)      # 204 + 204 in one day
+        self.assertIn("units over budget: 410", line)      # 205 + 205 in one day
+        self.assertEqual(json.loads(self.state.read_text())["day_units"], 410)
 
     def test_fragile_median_and_silent_channel(self):
         rows = [dict(c) for c in CHANNELS]
@@ -262,6 +271,28 @@ class WatchChecksTest(_Base):
         self.assertIn("@chanB: median on 2 long videos", line)
         self.assertIn("@chanB: no upload for 60 days (last: 2026-07-01)", line)
         self.assertNotIn("@chanA", line)
+
+    # ported from the 08/11 S10 (session S13)
+
+    def test_full_catalogue_median_counted_from_scan(self):
+        rows = [dict(c) for c in CHANNELS]
+        rows[1]["median_source"] = "full catalogue (chaines_C.csv)"
+        W.save_channels(rows, self.channels)
+        (self.tmp / "chaines_C.csv").write_text("handle,videos_longues\n@chanB,4\n")
+        api, result, report = self.run_watch(FakeApi(), search=False)
+        self.assertIn("@chanB: median on 4 long videos", report.splitlines()[2])
+
+    def test_moved_handle_checked_every_run(self):
+        api, result, report = self.run_watch(FakeApi(handles={"UCb": "@chanB_new"}),
+                                             search=False)
+        line = report.splitlines()[2]
+        self.assertIn("handle updated: @chanB is now @chanb_new", line)
+        self.assertIn("@chanb_new", self.channels.read_text())
+        self.assertEqual(api.calls["channels"], 1)
+
+    def test_gone_channel_named(self):
+        api, result, report = self.run_watch(FakeApi(handles={"UCb": ""}), search=False)
+        self.assertIn("@chanB not found", report.splitlines()[2])
 
     def test_moved_handle_flagged(self):
         checks = W.run_checks(RUN, [], {}, None, 10, 300,

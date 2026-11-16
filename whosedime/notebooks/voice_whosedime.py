@@ -650,9 +650,33 @@ def run_sample(folder, synth, aligner, settings, *, vid, commit=None, log=print,
               "commit": commit, "voice": vid, "text_sha256": sha12(text), "duration_s": round(len(audio) / track.sr, 2),
               "words": n_words, "rate_speech_wpm": speech, "rate_total_wpm": total, "rate_verdict": verdict,
               "dry_endings": _dry_summary(blocks, clips), "settings": settings_used(settings)}
+    record["rate_advice"] = sample_rate_advice(total, verdict, Path(folder).parent.parent / settings["drive"]["voice"],
+                                               settings)
     write_json(p["sample_record"], record)
-    log(f"✓ {p['sample_wav'].name}: {record['duration_s']} s, {total} words a minute ({verdict})")
+    t = settings["rate_wpm"]["target"]
+    log(f"✓ {p['sample_wav'].name}: {record['duration_s']} s, {total} words a minute on the whole sample, "
+        f"pauses included ({verdict}; target {t[0]}-{t[1]}); {speech} in speech only")
+    if record["rate_advice"]:
+        log("⚠ " + record["rate_advice"])
     return record
+
+
+def sample_rate_advice(total, verdict, voice_dir, settings):
+    """What to do when the sample's whole-track rate is off target (the clone has no speed setting)."""
+    if verdict == "in target" or total is None:
+        return ""
+    try:
+        ref = json.loads((Path(voice_dir) / "ref.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        ref = {}
+    said = f" (the reference: {ref['rate_wpm']} words a minute)" if ref.get("rate_wpm") else ""
+    slower = total > settings["rate_wpm"]["aim"]
+    if ref.get("source") == "elevenlabs":
+        return (f"The clone follows the reference's pace{said}: in ElevenLabs, "
+                f"{'lower' if slower else 'raise'} Speed by about 0.1, make the reference again, "
+                "then MODE = 'reference' and 'sample' again.")
+    return (f"{'Too fast' if slower else 'Too slow'}{said}: tell Claude; the pauses of voice_settings.json "
+            "can change, or a reference at another pace can be made.")
 
 
 def run_full(folder, synth, aligner, settings, *, vid, listened=False, redo="", commit=None,
@@ -847,12 +871,9 @@ def design_candidates(designer, voice_dir, settings, *, log=print):
     return made
 
 
-def keep_candidate(voice_dir, label, settings, *, log=print):
-    """Make candidate <label> the reference voice; the old one is archived with its date."""
+def _archive_reference(voice_dir):
+    """Move ref.wav, ref.txt, ref.json to old/ with the date (never deleted)."""
     voice_dir = Path(voice_dir)
-    src = voice_dir / "candidates" / f"{label}.wav"
-    if not src.is_file():
-        raise GateError(f"No candidate {label} in {voice_dir / 'candidates'}: run MODE = 'design' first.")
     if (voice_dir / "ref.wav").exists():
         old = voice_dir / "old"
         old.mkdir(exist_ok=True)
@@ -860,6 +881,15 @@ def keep_candidate(voice_dir, label, settings, *, log=print):
         for name in ("ref.wav", "ref.txt", "ref.json"):
             if (voice_dir / name).exists():
                 shutil.move(str(voice_dir / name), old / f"{stamp}_{name}")
+
+
+def keep_candidate(voice_dir, label, settings, *, log=print):
+    """Make candidate <label> the reference voice; the old one is archived with its date."""
+    voice_dir = Path(voice_dir)
+    src = voice_dir / "candidates" / f"{label}.wav"
+    if not src.is_file():
+        raise GateError(f"No candidate {label} in {voice_dir / 'candidates'}: run MODE = 'design' first.")
+    _archive_reference(voice_dir)
     shutil.copyfile(src, voice_dir / "ref.wav")
     (voice_dir / "ref.txt").write_text(settings["design"]["reference_text"], encoding="utf-8")
     meta = json.loads((voice_dir / "candidates" / f"{label}.json").read_text(encoding="utf-8"))
@@ -867,6 +897,109 @@ def keep_candidate(voice_dir, label, settings, *, log=print):
     vid = voice_id(voice_dir)
     log(f"✓ Reference voice: candidate {label} ({vid})")
     return vid
+
+
+# ------------------------------------------------------------------ the narrator from ElevenLabs (D21, D22)
+# Franco makes one reference clip in the ElevenLabs app and drops it in WhoseDime/Voice/elevenlabs/;
+# MODE = "reference" turns it into the ref.wav / ref.txt / ref.json that the Base model clones (free,
+# in Colab). Everything after (sample, full, blind test) runs unchanged.
+def decode_audio(path, sr):
+    """Any audio file (mp3, wav, m4a...) to mono float32 at `sr` through ffmpeg; a 16-bit WAV without it."""
+    path = Path(path)
+    try:
+        r = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-ac", "1", "-ar", str(sr),
+                            "-f", "s16le", "-"], capture_output=True)
+    except FileNotFoundError:
+        audio, file_sr = read_wav(path)
+        return resample(audio, file_sr, sr), sr
+    if r.returncode or not r.stdout:
+        raise GateError(f"Cannot read {path.name} as audio: {r.stderr.decode(errors='replace')[-300:]}")
+    return np.frombuffer(r.stdout, dtype="<i2").astype(np.float32) / 32767, sr
+
+
+def find_reference_clip(voice_dir, settings):
+    """The one audio file in Voice/elevenlabs/ (and the .txt of the same name, if Franco saved his text)."""
+    r = settings["reference_import"]
+    src = Path(voice_dir) / r["dir"]
+    exts = {x.lower() for x in r["audio_ext"]}
+    clips = sorted(f for f in src.iterdir() if f.is_file() and f.suffix.lower() in exts) if src.is_dir() else []
+    if not clips:
+        raise GateError(f"No audio file in {src}: make the reference in ElevenLabs, download it, put it there "
+                        f"(guide: docs/whosedime/voice_elevenlabs_guide.md).")
+    if len(clips) > 1:
+        raise GateError(f"{len(clips)} audio files in {src} ({', '.join(f.name for f in clips)}): keep only the "
+                        "reference you want (move the others to Voice/old/).")
+    clip = clips[0]
+    txt = clip.with_suffix(".txt")
+    return clip, (txt if txt.is_file() else None)
+
+
+def reference_rate(n_words, seconds, settings):
+    """Words a minute of the reference, and advice: the clone continues the reference (ICL), so its pace
+    follows the reference's (assumed, S12: qwen-tts 0.1.1 has no speed parameter for the Base model)."""
+    r = settings["reference_import"]
+    wpm = round(n_words / seconds * 60, 1) if seconds else None
+    lo, hi = r["rate_wpm"]
+    if wpm is None:
+        return wpm, "unknown", ""
+    if wpm > hi:
+        return wpm, "too fast", (f"In ElevenLabs, lower Speed (now 1.0 -> about {max(0.7, round(hi / wpm, 2))}) "
+                                 "and make the reference again.")
+    if wpm < lo:
+        return wpm, "too slow", (f"In ElevenLabs, raise Speed (about {min(1.2, round(lo / wpm, 2))}) "
+                                 "and make the reference again.")
+    return wpm, "in range", ""
+
+
+def import_reference(voice_dir, aligner, settings, *, log=print):
+    """MODE = 'reference': Franco's ElevenLabs clip -> Voice/ref.wav, ref.txt, ref.json (old ones to old/).
+
+    ref.txt must be what the clip says, word for word (the Base model's ICL mode reads the reference
+    text with the reference audio). It is Franco's text when Whisper hears it (his .txt beside the clip,
+    else the reference text of the guide); otherwise Whisper's own transcription, with a warning."""
+    r = settings["reference_import"]
+    voice_dir = Path(voice_dir)
+    clip, txt = find_reference_clip(voice_dir, settings)
+    audio, sr = decode_audio(clip, r["sample_rate"])
+    audio, _ = trim(audio, sr, settings)
+    seconds = len(audio) / sr
+    lo, hi = r["seconds_refuse_outside"]
+    if not lo <= seconds <= hi:
+        raise GateError(f"{clip.name} lasts {seconds:.1f} s after trimming: a reference must last {lo}-{hi} s "
+                        f"(aim {r['seconds_aim'][0]}-{r['seconds_aim'][1]} s).")
+    heard = aligner(audio, sr, "")
+    heard_text = " ".join(h["word"] for h in heard)
+    lexicon = load_lexicon()
+    expected = txt.read_text(encoding="utf-8").strip() if txt else settings["design"]["reference_text"]
+    sim = similarity(expected, heard_text, lexicon)
+    if sim >= settings["similarity_min"]:
+        text, text_from = expected, (txt.name if txt else "the guide's reference text")
+    elif txt:
+        raise GateError(f"{clip.name} does not say the text of {txt.name} (similarity {sim}). Heard: "
+                        f"\"{heard_text[:200]}\". Fix the .txt or make the clip again.")
+    else:
+        text, text_from = heard_text, "Whisper (not the guide's text)"
+        log(f"⚠ The clip is not the guide's reference text (similarity {sim}): ref.txt = what Whisper heard. "
+            "Read it in Voice/ref.txt; a wrong word there spoils the clone.")
+    audio, loudness = normalise(audio, sr, settings)
+    n_words = len(spoken_words(text))
+    wpm, verdict, advice = reference_rate(n_words, seconds, settings)
+    _archive_reference(voice_dir)
+    write_wav(voice_dir / "ref.wav", audio, sr)
+    (voice_dir / "ref.txt").write_text(text, encoding="utf-8")
+    meta = {"source": "elevenlabs", "file": clip.name, "file_sha256": sha12(clip.read_bytes()),
+            "text_from": text_from, "similarity": sim, "heard": heard_text, "seconds": round(seconds, 1),
+            "words": n_words, "rate_wpm": wpm, "rate_verdict": verdict, "rate_range_wpm": r["rate_wpm"],
+            "sample_rate": sr, "loudness": loudness, "kept": now()}
+    write_json(voice_dir / "ref.json", meta)
+    vid = voice_id(voice_dir)
+    a0, a1 = r["seconds_aim"]
+    log(f"✓ Reference voice from {clip.name}: {seconds:.1f} s"
+        + ("" if a0 <= seconds <= a1 else f" (aim {a0}-{a1} s)") + f", {wpm} words a minute ({verdict}), "
+        f"text from {text_from}, similarity {sim} ({vid})")
+    if advice:
+        log(f"⚠ {advice}")
+    return meta
 
 
 # ------------------------------------------------------------------ the real models (Colab only)

@@ -83,8 +83,54 @@ MEDIAN_MIN_N = 5            # a median on fewer long videos is flagged
 SILENT_DAYS = 60            # a channel with no upload for 60 days is flagged
 
 
+def median_n(row, scan_counts=None):
+    """Number of long videos behind a channel's median, or None if unknown.
+    A "full catalogue" median takes its count from the scan (ported from the
+    08/11 S10, session S13)."""
+    m = re.search(r"\((\d+) long", row.get("median_source", ""))
+    if m:
+        return int(m.group(1))
+    if "full catalogue" in row.get("median_source", ""):
+        return (scan_counts or {}).get(row["handle"])
+    return None
+
+
+def scan_long_counts(scan_dir=SCAN_DIR):
+    """handle -> number of long videos in the scan (chaines_C.csv)."""
+    path = pathlib.Path(scan_dir) / "chaines_C.csv"
+    if not path.exists():
+        return {}
+    with open(path, newline="", encoding="utf-8") as f:
+        return {r["handle"]: int(r["videos_longues"]) for r in csv.DictReader(f)
+                if (r.get("videos_longues") or "").isdigit()}
+
+
+def check_handles(api, rows):
+    """One channels.list call per 50 known channels (1 unit) on every run: a
+    handle that moved is updated, a channel gone is named (ported from the
+    08/11 S10, session S13; resolve_ids only sees channels it resolves).
+    Returns warnings in resolve_ids' "handle updated:" form."""
+    out = []
+    known = [r for r in rows if r.get("channel_id")]
+    for i in range(0, len(known), 50):
+        chunk = {r["channel_id"]: r for r in known[i:i + 50]}
+        res = api.get("channels", part="snippet", id=",".join(chunk), maxResults=50)
+        found = set()
+        for c in res.get("items", []):
+            found.add(c["id"])
+            r = chunk[c["id"]]
+            custom = c["snippet"].get("customUrl", "")
+            if custom and custom.lower() != r["handle"].lower():
+                out.append(f"handle updated: {r['handle']} is now {custom} "
+                           f"(same channel id, checked this run)")
+                r["handle"] = custom
+        out += [f"handle updated: {r['handle']} not found (channel gone?)"
+                for cid, r in chunk.items() if cid not in found]
+    return out
+
+
 def run_checks(run_date, channels, uploads, prev, units, budget, warnings,
-               forced=False):
+               forced=False, scan_counts=None):
     """The watch's own incoherences (S10, D15), for the "Checks" line at the
     top of the report. Each item is one sentence; [] means all clear."""
     out = []
@@ -93,14 +139,14 @@ def run_checks(run_date, channels, uploads, prev, units, budget, warnings,
                    "overwritten with --force")
     day = units
     if prev and prev.get("run_date") == run_date.isoformat():
-        day += int(prev.get("units", 0))
+        day += int(prev.get("day_units", prev.get("units", 0)))
     if day > budget:
         out.append(f"units over budget: {day} spent on {run_date.isoformat()} "
                    f"(budget {budget} a run)")
     for c in channels:
-        m = re.search(r"\((\d+) long", c.get("median_source", ""))
-        if m and int(m.group(1)) < MEDIAN_MIN_N:
-            out.append(f"{c['handle']}: median on {m.group(1)} long videos "
+        n = median_n(c, scan_counts)
+        if n is not None and n < MEDIAN_MIN_N:
+            out.append(f"{c['handle']}: median on {n} long videos "
                        f"(under {MEDIAN_MIN_N}, fragile)")
     out += [w for w in warnings if w.startswith("handle updated")]
     limit = (run_date - dt.timedelta(days=SILENT_DAYS)).isoformat()
@@ -415,8 +461,9 @@ def build(run_date, channels, uploads, facts, prev, search=None, brands=(),
                 brands=brand_rows, tracked=tracked, errors=list(errors))
 
 
-def new_state(result, units):
+def new_state(result, units, day_units=None):
     return dict(run_date=result["run_date"], units=units,
+                day_units=units if day_units is None else day_units,
                 hits=[v["id"] for v in result["hits"]],
                 videos={vid: dict(handle=v["handle"], title=v["title"], views=v["views"],
                                   published=v["published"], dur=v["dur"])
@@ -566,6 +613,7 @@ def run(api, run_date, channels_path=CHANNELS_CSV, state_path=STATE_JSON,
     channels_path, state_path = pathlib.Path(channels_path), pathlib.Path(state_path)
     channels = load_channels(channels_path) if channels_path.exists() else channels_from_scan(scan_dir)
     errors = resolve_ids(api, channels, scan_dir)
+    errors += check_handles(api, channels)
     save_channels(channels, channels_path)
     prev = json.loads(state_path.read_text()) if state_path.exists() else None
 
@@ -604,13 +652,17 @@ def run(api, run_date, channels_path=CHANNELS_CSV, state_path=STATE_JSON,
     brands = load_brands(brands_path) if pathlib.Path(brands_path).exists() else []
     result = build(run_date, channels, uploads, facts, prev, found, brands, errors)
     result["checks"] = run_checks(run_date, channels, uploads, prev, api.units,
-                                  api.budget, errors, forced)
+                                  api.budget, errors, forced,
+                                  scan_long_counts(scan_dir))
     report = render(result, api)
     report_dir = pathlib.Path(report_dir)
     report_dir.mkdir(parents=True, exist_ok=True)
     path = report_dir / f"{run_date.isoformat()}.md"
     path.write_text(report, encoding="utf-8")
-    state_path.write_text(json.dumps(new_state(result, api.units), indent=1,
+    day = api.units
+    if prev and prev.get("run_date") == run_date.isoformat():
+        day += int(prev.get("day_units", prev.get("units", 0)))
+    state_path.write_text(json.dumps(new_state(result, api.units, day), indent=1,
                                      ensure_ascii=False) + "\n", encoding="utf-8")
     return result, path
 

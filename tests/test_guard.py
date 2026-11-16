@@ -71,6 +71,46 @@ class GuardTest(unittest.TestCase):
         self.assertFlags(self.call("pre", "Bash", command="git fetch && git push origin HEAD:main"), "push-branch")
         self.assertSilent(self.call("pre", "Bash", command="git push -u origin claude/work"))
         self.assertSilent(self.call("pre", "Bash", command="git push"))
+
+    # ported from the 08/11 S10 (session S13)
+
+    def test_push_redirection_and_quotes_not_targets(self):
+        for cmd in ("git push -u origin claude/work 2>&1",
+                    "git push -u origin claude/work 2>&1 | tail -3",
+                    "git push -u origin claude/work > /tmp/out 2> /tmp/err",
+                    "echo 'a && git push origin main' && git status",
+                    "git push origin --tags", "git push origin refs/tags/v1"):
+            self.assertSilent(self.call("pre", "Bash", command=cmd))
+        self.assertFlags(self.call("pre", "Bash", command="git push origin main 2>&1"),
+                         "push-branch")
+
+    def test_heredoc_body_is_data(self):
+        cmd = ("python3 - <<'EOF'\nprint('python3 whosedime/watch/watch.py; "
+               "git push origin main')\nEOF")
+        self.assertSilent(self.call("pre", "Bash", command=cmd))
+        self.assertFlags(self.call("pre", "Bash", command=cmd + "\ngit push origin main"),
+                         "push-branch")
+
+    def test_secret_environ_and_counters(self):
+        self.assertFlags(self.call("pre", "Bash", command="cat /proc/self/environ"),
+                         "secret-print")
+        self.assertFlags(self.call("pre", "Bash", command="env | sort"), "secret-print")
+        for cmd in ("env | wc -l", "env | grep -c KEY", "env | cut -d= -f1",
+                    "printenv | sed 's/=.*//'"):
+            self.assertSilent(self.call("pre", "Bash", command=cmd))
+
+    def test_watch_named_but_not_run(self):
+        (self.repo / "docs/whosedime/watch" / f"{guard.dt.datetime.now(guard.dt.timezone.utc).date()}.md").write_text("# r\n")
+        for cmd in ("python3 -c \"p='whosedime/watch/watch.py'; print(p)\"",
+                    "python3 /tmp/patch_watch.py whosedime/watch/watch.py",
+                    "cat whosedime/watch/watch.py"):
+            self.assertSilent(self.call("pre", "Bash", command=cmd))
+        self.assertFlags(self.call("pre", "Bash", command="cd x && python3 whosedime/watch/watch.py"),
+                         "watch-rerun")
+
+    def test_skills_redirection_still_blocked(self):
+        self.assertFlags(self.call("pre", "Bash", command="echo x > .claude/skills/a/SKILL.md"),
+                         "skills-edit")
         self.assertSilent(self.call("pre", "Bash", command="git log main --oneline"))
 
     def test_secret(self):
