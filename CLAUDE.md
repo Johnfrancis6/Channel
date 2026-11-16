@@ -5,9 +5,6 @@ really paid for it. Franco decides topics and validates at each pause;
 Claude writes the content and builds the tools; Franco produces the pieces
 (images, voice in Colab).
 
-**⏸ Paused since 2026-11-08 (decision D24)**: open no Whose Dime session and change nothing until
-Franco says to resume.
-
 **To resume: read [docs/whosedime/STATE.md](docs/whosedime/STATE.md)**
 (where we are, the work branch, the next session). The build plan is
 [docs/whosedime/ROADMAP.md](docs/whosedime/ROADMAP.md); decisions are in
@@ -16,7 +13,7 @@ Franco says to resume.
 ## Rules (short form of ROADMAP.md, "Rules for every session")
 
 - Everything committed for Whose Dime is in English. Talk to Franco in
-  his language (French so far).
+  the language he writes in (D17: English from 08/11; French on 15-16/11).
 - Work on the branch named in `STATE.md`; `git fetch` before every push.
   Colab runs `main`; it changes only through a pull request Franco merges.
 - Do only what the session prompt lists; anything else goes to "Open
@@ -30,7 +27,7 @@ Franco says to resume.
 - After every deliverable: self-critique, Franco's grade, one line in the
   log, per [docs/whosedime/CRITIQUE_PROTOCOL.md](docs/whosedime/CRITIQUE_PROTOCOL.md).
 - At the end, open the next session yourself (`create_session`) and report to the orchestrator
-  session (D17-D19, ROADMAP hand-off). Technical choices are Claude's; content is Franco's.
+  session (D17-D19 "sessions chain themselves", ROADMAP hand-off). Technical choices are Claude's; content is Franco's.
 - Say what is measured and what is assumed. Recommend; one question at a time.
 - Never print `YOUTUBE_API_KEY` or `SUPADATA_API_KEY`. Always give the
   link to every report written.

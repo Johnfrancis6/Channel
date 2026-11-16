@@ -13,7 +13,8 @@ Read first: [`STATE.md`](STATE.md) (where we are), [`DECISIONS.md`](DECISIONS.md
 ## Rules for every session
 
 1. **Language.** Everything committed for Whose Dime is in English (D2).
-   Talk to Franco in the language he writes in (French so far).
+   Talk to Franco in the language he writes in (D17 asked English on
+   2026-11-08; he wrote French on 15-16/11 and was answered in French).
 2. **Branches.** Build sessions work on the branch named in `STATE.md`
    (today: `claude/admiring-ramanujan-k2uiqe`). `git fetch` before every
    push. Production code that Colab runs lives on `main` (D5): sessions
