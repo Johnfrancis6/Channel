@@ -7,7 +7,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 ## Where we are
 
 - **One line of work again** on `claude/s13-reconcile` ([report](reconcile_report.md)): `main` (S01-S10, S07c, D17 language,
-  French market report) + the 08/11 branch (S11, S12, video 1 sessions 2b and 3, D16-D24) + the 15-16/11 STATE. Pull request
+  French market report) + the 08/11 branch (S11, S12, video 1 sessions 2b and 3, D16-D24) + the 15-16/11 STATE. [PR 12](https://github.com/Johnfrancis6/Channel/pull/12)
   to `main` open; **Franco merges it** (the S12 voice notebook and the S11 launcher need `main`).
 - **Guard (S10, D15)** and **watch**: `main`'s versions kept, 08/11 fixes ported (`2>&1` no longer a push target; list in the report).
 - **S11 (D18)** `whosedime/generate/` + `generate_launcher.ipynb`: $7.13/video by API, **parked** (D20: images by hand).
