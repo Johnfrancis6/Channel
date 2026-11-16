@@ -650,8 +650,12 @@ def run_sample(folder, synth, aligner, settings, *, vid, commit=None, log=print,
               "commit": commit, "voice": vid, "text_sha256": sha12(text), "duration_s": round(len(audio) / track.sr, 2),
               "words": n_words, "rate_speech_wpm": speech, "rate_total_wpm": total, "rate_verdict": verdict,
               "dry_endings": _dry_summary(blocks, clips), "settings": settings_used(settings)}
-    record["rate_advice"] = sample_rate_advice(total, verdict, Path(folder).parent.parent / settings["drive"]["voice"],
-                                               settings)
+    ref = read_reference(Path(folder).parent.parent / settings["drive"]["voice"])
+    if ref.get("rate_wpm") and speech:
+        record["reference_rate_wpm"] = ref["rate_wpm"]
+        record["clone_reference_ratio"] = round(speech / ref["rate_wpm"], 2)
+        record["clone_reference_ratio_is"] = "rate_speech_wpm / the reference's rate_wpm (ref.json)"
+    record["rate_advice"] = sample_rate_advice(total, verdict, ref, settings)
     write_json(p["sample_record"], record)
     t = settings["rate_wpm"]["target"]
     log(f"✓ {p['sample_wav'].name}: {record['duration_s']} s, {total} words a minute on the whole sample, "
@@ -661,19 +665,38 @@ def run_sample(folder, synth, aligner, settings, *, vid, commit=None, log=print,
     return record
 
 
-def sample_rate_advice(total, verdict, voice_dir, settings):
-    """What to do when the sample's whole-track rate is off target (the clone has no speed setting)."""
-    if verdict == "in target" or total is None:
-        return ""
+def speed_advice(wpm, aim, settings):
+    """One pace advice for the reference and the sample (S15): proportional, said as a factor on Franco's
+    ElevenLabs Speed (the notebook does not know his Speed), with ElevenLabs' Speed range."""
+    lo, hi = settings["reference_import"]["elevenlabs_speed"]
+    f = round(aim / wpm, 2)
+    say = f"in ElevenLabs, multiply your Speed by {f} (to aim at {aim} words a minute)"
+    if f < 1 and f < lo:
+        return f, say + f": under ElevenLabs' lowest Speed {lo} even from 1.0, so set {lo} and pick a slower voice"
+    if f > 1 and f > hi:
+        return f, say + f": over ElevenLabs' highest Speed {hi} even from 1.0, so set {hi} and pick a faster voice"
+    if f < 1:
+        return f, say + f"; if your Speed x {f} is under {lo} (ElevenLabs' lowest), set {lo} and pick a slower voice"
+    return f, say + f"; if your Speed x {f} is over {hi} (ElevenLabs' highest), set {hi} and pick a faster voice"
+
+
+def read_reference(voice_dir):
     try:
-        ref = json.loads((Path(voice_dir) / "ref.json").read_text(encoding="utf-8"))
+        return json.loads((Path(voice_dir) / "ref.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
-        ref = {}
+        return {}
+
+
+def sample_rate_advice(total, verdict, ref, settings):
+    """What to do when the sample's whole-track rate is off target (the clone has no speed setting):
+    aim the whole sample at rate_wpm.aim, F = aim / rate_total_wpm (S15)."""
+    if verdict == "in target" or not total:
+        return ""
     said = f" (the reference: {ref['rate_wpm']} words a minute)" if ref.get("rate_wpm") else ""
     slower = total > settings["rate_wpm"]["aim"]
     if ref.get("source") == "elevenlabs":
-        return (f"The clone follows the reference's pace{said}: in ElevenLabs, "
-                f"{'lower' if slower else 'raise'} Speed by about 0.1, make the reference again, "
+        _, say = speed_advice(total, settings["rate_wpm"]["aim"], settings)
+        return (f"The clone follows the reference's pace{said}: {say}. Make the reference again, "
                 "then MODE = 'reference' and 'sample' again.")
     return (f"{'Too fast' if slower else 'Too slow'}{said}: tell Claude; the pauses of voice_settings.json "
             "can change, or a reference at another pace can be made.")
@@ -1002,12 +1025,10 @@ def reference_rate(n_words, seconds, settings):
     lo, hi = r["rate_wpm"]
     if wpm is None:
         return wpm, "unknown", ""
-    if wpm > hi:
-        return wpm, "too fast", (f"In ElevenLabs, lower Speed (now 1.0 -> about {max(0.7, round(hi / wpm, 2))}) "
-                                 "and make the reference again.")
-    if wpm < lo:
-        return wpm, "too slow", (f"In ElevenLabs, raise Speed (about {min(1.2, round(lo / wpm, 2))}) "
-                                 "and make the reference again.")
+    if wpm > hi or wpm < lo:
+        verdict, aim = ("too fast", hi) if wpm > hi else ("too slow", lo)
+        _, say = speed_advice(wpm, aim, settings)
+        return wpm, verdict, say[0].upper() + say[1:] + ". Make the reference again."
     return wpm, "in range", ""
 
 
