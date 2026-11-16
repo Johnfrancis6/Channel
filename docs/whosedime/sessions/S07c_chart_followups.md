@@ -31,20 +31,20 @@ python3 -m unittest discover -s tests                  # green (155 tests) befor
 
 ## First: Franco's answers
 
-Look in `DECISIONS.md` for D14 (task 1), D15 (task 2) and a palette line (task 4).
+Look in `DECISIONS.md` for D26 (task 1), D27 (task 2) and a palette line (task 4).
 For each one missing, ask Franco **one question at a time**, recommendation first, in
 French, before touching the code of that task. Write each answer as a new line in
 `DECISIONS.md` (never edit an old one). If he says no to tasks 1 or 2, skip them and say so.
 
 ## Do
 
-1. **Colour only on a money figure** (defect `nuance`, scene 82). *Recommended (D14):*
+1. **Colour only on a money figure** (defect `nuance`, scene 82). *Recommended (D26):*
    gain green and loss coral apply only when the figure is an amount of money (unit `$`).
    A count of people or a percentage stays navy ink, even next to "bankrupt" or
    "profit". D13's word lists do not change.
    - In `Item.tone`: return `"ink"` unless `self.value is not None and self.value.unit == "$"`,
      then apply `LOSS_RE`, `GAIN_RE` as today.
-   - Add one sentence to `_charts_tone_source` in `settings.json` (D14, the date).
+   - Add one sentence to `_charts_tone_source` in `settings.json` (D26, the date).
    - *Measured in S07b:* the tone changes on scenes 61, 82 and 87. Only **82** changes on
      screen: `draw_icons` (61) and `draw_timeline` (87) do not use `tone`.
    *Check:* `tones(82) == ["ink", "gain", "ink", "ink"]`; scene 82's PNG has no loss-coral
@@ -52,7 +52,7 @@ French, before touching the code of that task. Write each answer as a new line i
    with 82 added).
 
 2. **Two `icons` grids aligned on their value line** (defect `formal`, scene 61: the
-   15-day block floats high with an empty band under it). *Recommended (D15):* the two
+   15-day block floats high with an empty band under it). *Recommended (D27):* the two
    values ("950", "15") sit on the same line, and the grids stand on it like bars on one
    ground line. The empty space then lies above the short grid, where it reads as
    "fewer". This replaces S07b's "same top line" rule.
@@ -110,7 +110,7 @@ French, before touching the code of that task. Write each answer as a new line i
 
 - `charts.py`, `settings.json` (`charts`), tests; `palette.json` (task 4); synced mirror
   and `.skill`
-- `DECISIONS.md` (D14, D15, palette), `STATE.md` updated, one line in
+- `DECISIONS.md` (D26, D27, D28 palette), `STATE.md` updated, one line in
   `critique_log.jsonl`; the pull request
 
 ## Hand-off

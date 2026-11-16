@@ -12,8 +12,8 @@ Claude writes the content and builds the tools; Franco produces the pieces
 
 ## Rules (short form of ROADMAP.md, "Rules for every session")
 
-- Everything committed for Whose Dime is in English. Talk to Franco in
-  the language he writes in (D17: English from 08/11; French on 15-16/11).
+- Everything committed for Whose Dime is in English. Franco writes in
+  French or English: answer in the language he writes in (D31).
 - Work on the branch named in `STATE.md`; `git fetch` before every push.
   Colab runs `main`; it changes only through a pull request Franco merges.
 - Do only what the session prompt lists; anything else goes to "Open

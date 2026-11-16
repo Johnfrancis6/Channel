@@ -160,15 +160,15 @@ class Charts(unittest.TestCase):
         return C.build_spec(n, cell, self.registry)
 
     def test_colour_by_meaning(self):
-        """S07b: gain green only for profit/revenue, loss coral only for money lost (settings.json, charts); S07c (D14): on money only."""
+        """S07b: gain green only for profit/revenue, loss coral only for money lost (settings.json, charts); S07c (D26): on money only."""
         tones = lambda n: [i.tone for i in self.spec(n).items]
         self.assertNotIn("gain", tones(50))                       # "only 10 percent earned $90,000": not a gain
         self.assertEqual(tones(77), ["loss", "gain"])             # 2022 loss coral, 2023 profit green
         self.assertEqual(tones(11), ["loss", "gain"])             # losses coral, revenue green
         self.assertEqual(tones(25), ["ink", "ink"])               # invested, valuation: not the company's income
         self.assertEqual(tones(68), ["ink", "ink"])               # warnings, cut off: not money (draw_scale colours it)
-        self.assertEqual(tones(82), ["ink", "gain", "ink", "ink"])  # D14: 950 owners bankrupt are people, not money
-        self.assertEqual(tones(35), ["loss"])                     # D14: a loss in $ keeps its coral
+        self.assertEqual(tones(82), ["ink", "gain", "ink", "ink"])  # D26: 950 owners bankrupt are people, not money
+        self.assertEqual(tones(35), ["loss"])                     # D26: a loss in $ keeps its coral
         self.assertEqual(tones(76), ["loss", "loss"])
         self.assertEqual(C.GAIN_RE.pattern, C.word_re(C.SETTINGS["charts"]["gain_words"]).pattern)
         self.assertTrue(C.LOSS_RE.search("bankruptcy") and not C.LOSS_RE.search("fell"))
@@ -181,10 +181,10 @@ class Charts(unittest.TestCase):
         self.assertFalse(has(50, "gain"))
         self.assertTrue(has(25, "highlight") and not has(25, "gain"))
         self.assertTrue(has(77, "gain") and has(77, "loss"))
-        self.assertFalse(has(82, "loss"))                          # D14: no coral on a count of people
+        self.assertFalse(has(82, "loss"))                          # D26: no coral on a count of people
 
     def test_icons_layout(self):
-        """S07b: one figure size per chart, at least icons_min_cell px, the whole centred; S07c (D15): one value line."""
+        """S07b: one figure size per chart, at least icons_min_cell px, the whole centred; S07c (D27): one value line."""
         cfg = C.SETTINGS["charts"]
         for n, items in ((61, 2), (70, 1)):
             s = self.spec(n)
@@ -194,7 +194,7 @@ class Charts(unittest.TestCase):
             self.assertEqual(len(blocks), items)
             self.assertEqual(len({b.cell for b in blocks}), 1, f"scene {n}: two figure sizes")
             self.assertGreaterEqual(blocks[0].cell, cfg["icons_min_cell"], f"scene {n}")
-            self.assertEqual(len({b.value_y for b in blocks}), 1, f"scene {n}: values not on one line")   # D15
+            self.assertEqual(len({b.value_y for b in blocks}), 1, f"scene {n}: values not on one line")   # D27
             for b in blocks:
                 self.assertAlmostEqual(b.caption[1] - b.grid[3], 30, places=3)   # each grid stands on its caption
             y0, y1 = min(b.box[1] for b in blocks), max(b.box[3] for b in blocks)

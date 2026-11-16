@@ -180,7 +180,7 @@ class Item:
 
     @property
     def tone(self):
-        """D13 words, on an amount of money only (D14): a count of people or a percentage stays ink."""
+        """D13 words, on an amount of money only (D26): a count of people or a percentage stays ink."""
         if self.value is None or self.value.unit != "$":
             return "ink"
         if LOSS_RE.search(self.text):
@@ -534,7 +534,7 @@ class IconBlock:
     rows: int
     grid: tuple          # (x0, y0, x1, y1) of the figures
     caption: tuple       # (x0, y0, x1, y1) of qualifier + value + caption
-    value_y: float       # top of the value's line: the same for every item of the chart (D15)
+    value_y: float       # top of the value's line: the same for every item of the chart (D27)
     n_icons: int
     n_sub: int           # the first n_sub figures in mustard (a part of the count: "30,000 of them")
     people: bool
@@ -573,7 +573,7 @@ def grid_size(cell, cols, rows, gap):
 
 def icons_layout(spec, top, bottom, cv=None):
     """[IconBlock] of an `icons` chart between top and bottom, without drawing: one cell size for the whole
-    chart (the smaller of the items' best); the values of two items on one line (D15), each grid standing on
+    chart (the smaller of the items' best); the values of two items on one line (D27), each grid standing on
     its own value (above its qualifier) like bars on one ground line; the whole centred between top and bottom."""
     need(1 <= len(spec.items) <= 2, spec, "one or two items expected")
     cv = cv or Canvas()
@@ -615,7 +615,7 @@ def icons_layout(spec, top, bottom, cv=None):
     cell = min(f[6] for f in found)        # one figure size for the whole chart: 95 owners and 15 days, same scale
     found = [f if f[6] == cell else (*f[:7], *even_grid(f[1], cell, rw, gap)) for f in found]
     below = max(f[5] - q for q, f in zip(qual, found))
-    for q, f in zip(qual, found):          # values on one line (D15): shrink the figures until the whole fits
+    for q, f in zip(qual, found):          # values on one line (D27): shrink the figures until the whole fits
         rows = f[8] + gap * (f[8] - 1)
         cell = min(cell, (bottom - top - below - between - q) / rows)
     need(cell >= c["icons_min_cell"], spec, f"figures of {cell:.0f} px, under {c['icons_min_cell']} px: lower icons_max")

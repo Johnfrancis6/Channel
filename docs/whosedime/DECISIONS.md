@@ -4,6 +4,20 @@ Franco decides; Claude recommends. Newest first. Each line: date, decision,
 where it came from. A session that changes a decision adds a new line; it
 never edits an old one.
 
+## 2026-11-16 — unique numbers, language, voice upload (after S13)
+
+Source: Franco, session `session_01Cw13LeFBwzXQBL4SqwTyRi`: "règle les Numéros de décision en double. j'écris en français
+ou anglais mais tout le pipeline est en anglais. Pour le choix de la voix + voice texte pour le clonage je le fais sur
+colab en upload. Suis les étapes, je ne serai là que pour valider les permissions ou demandes. N'oublie pas d'ouvrir de
+nouvelles sessions pour une meilleure gestion du contexte."
+
+| # | Decision | Applies to |
+|---|---|---|
+| D30 | **Every decision number is unique.** S07c's answers, numbered D14-D16 on `main`, become **D26** (colour only on money), **D27** (two `icons` grids on one value line), **D28** (palette kept); "Claude talks to Franco in English", D17 on `main`, becomes **D29**. The 08/11 numbers stand: D14 watch list, D15 live guard, D16 animated people, D17 sessions chain themselves. Code, tests and docs cite the new numbers. | `DECISIONS.md`, `charts.py`, `settings.json`, tests, docs |
+| D31 | **Franco writes in French or English; Claude answers in the language he writes in.** The whole pipeline stays in English (files, code, prompts, docs, D2). Replaces D29. | every session; `CLAUDE.md`, ROADMAP rule 1 |
+| D32 | **Franco chooses the narrator's voice and its reference text himself, and uploads the clip and its text in Colab** (voice notebook), instead of dropping them in Drive `Voice/elevenlabs/`. Claude builds the upload; the rest of `MODE = "reference"` (trim, Whisper check, `ref.wav`/`ref.txt`/`ref.json`) stays. Refines D21-D23. | `voice_whosedime.ipynb`, launcher, `voice_elevenlabs_guide.md` |
+| D33 | **Franco steps in only to grant permissions, answer pauses and requests.** Each step runs in its own new session, opened by the one before (D17), to keep the context small. | every session |
+
 ## 2026-11-15 — Whose Dime resumes (ends D24)
 
 Source: Franco, session `session_01Cw13Lexea2GUn6fJXKqEuH`: « la pause D24 est levée ».
@@ -100,24 +114,24 @@ Source: Franco's "Oui, ajoute How They Make Billions à la liste", session
 |---|---|---|
 | D14 | **How They Make Billions (`@howtheymakebillions`) joins the watch list** (48 channels). Measured 08/11: created 2026-09-02, 1,070 subscribers, 2 long videos, median 199,472 views (fragile: n = 2). | `whosedime/watch/channels.csv` |
 
-## 2026-11-08 — language with Franco
+## 2026-11-08 — language with Franco (numbered D17 until D30; replaced by D31)
 
 Source: Franco, session `session_01Cw13LfEmvF2UXEYu91tfaM` ("désormais exprime-toi en anglais", then "yes record it").
 
 | # | Decision | Applies to |
 |---|---|---|
-| D17 | **Claude talks to Franco in English** from now on, in every session (replies, questions, pauses). Committed files were already English (D2). Zehon files stay French. | `CLAUDE.md`, `ROADMAP.md` rules |
+| D29 | **Claude talks to Franco in English** from now on, in every session (replies, questions, pauses). Committed files were already English (D2). Zehon files stay French. | `CLAUDE.md`, `ROADMAP.md` rules |
 
-## 2026-11-08 — chart follow-ups (S07c)
+## 2026-11-08 — chart follow-ups (S07c; numbered D14-D16 until D30)
 
 Source: Franco's answers to Claude's recommendations on S07b's chart self-critique,
 session `session_01Cw13LfEmvF2UXEYu91tfaM`; built in S07c.
 
 | # | Decision | Applies to |
 |---|---|---|
-| D14 | **Gain green and loss coral apply only to an amount of money** (unit `$`). A count of people or a percentage stays navy ink, even next to "bankrupt" or "profit". D13's word lists do not change. On screen, only Uber scene 82 changes ("950" medallion owners: ink, not coral). | `charts.py` (`Item.tone`) |
-| D15 | **Two `icons` grids stand on one value line**: the two values ("950", "15") sit on the same line and each grid stands just above its own value (above its qualifier, "MORE THAN"), like bars on one ground line; the empty space lies above the short grid, where it reads as "fewer". The whole is centred in the free area; the figure size stays shared. Replaces S07b's "same top line" rule. | `charts.py` (`icons_layout`) |
-| D16 | **The channel palette is kept as proposed**: cream #F4ECDD, dollar green #2F7A55, coral red #E0634F, mustard #E7B33E, navy ink #1E2B45, with its roles (background cream, ink navy, gain green, loss coral, highlight mustard). Seen in use on Uber charts 61, 70, 77 and 82. | `whosedime/common/palette.json` |
+| D26 | **Gain green and loss coral apply only to an amount of money** (unit `$`). A count of people or a percentage stays navy ink, even next to "bankrupt" or "profit". D13's word lists do not change. On screen, only Uber scene 82 changes ("950" medallion owners: ink, not coral). | `charts.py` (`Item.tone`) |
+| D27 | **Two `icons` grids stand on one value line**: the two values ("950", "15") sit on the same line and each grid stands just above its own value (above its qualifier, "MORE THAN"), like bars on one ground line; the empty space lies above the short grid, where it reads as "fewer". The whole is centred in the free area; the figure size stays shared. Replaces S07b's "same top line" rule. | `charts.py` (`icons_layout`) |
+| D28 | **The channel palette is kept as proposed**: cream #F4ECDD, dollar green #2F7A55, coral red #E0634F, mustard #E7B33E, navy ink #1E2B45, with its roles (background cream, ink navy, gain green, loss coral, highlight mustard). Seen in use on Uber charts 61, 70, 77 and 82. | `whosedime/common/palette.json` |
 
 ## 2026-11-08 — chart colours by meaning (before S07b)
 
