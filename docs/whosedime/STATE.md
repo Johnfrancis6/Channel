@@ -2,7 +2,7 @@
 
 Short by rule (60 lines at most), updated at the end of every session. Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
-**Last update: 2026-11-16**, S13 + D30-D33. **Orchestrator**: `session_01Cw13LeFBwzXQBL4SqwTyRi` (sessions report to it, D19).
+**Last update: 2026-11-16**, S14 (upload, D32) after S13 + D30-D33. **Orchestrator**: `session_01Cw13LeFBwzXQBL4SqwTyRi` (sessions report to it, D19).
 
 ## Where we are
 
@@ -12,6 +12,8 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 - **Guard (S10, D15)** and **watch**: `main`'s versions kept, 08/11 fixes ported (`2>&1` no longer a push target; list in the report).
 - **16/11, Franco**: decision numbers unique (D30: S07c's are D26-D28, old language D29); answer in his language, pipeline in
   English (D31); **he uploads the voice clip and its text in Colab** (D32, built by S14); he only grants permissions and answers (D33).
+- **S14 (D32)**: `MODE = "reference"` asks for the upload (clip + `.txt` or `REFERENCE_TEXT`; old clip to `Voice/old/`; nothing
+  uploaded = Drive clip), then the S12 import ([guide](voice_elevenlabs_guide.md) § 2-3). Not run in Colab (Cancel = empty, assumed).
 - **S11 (D18)** `whosedime/generate/` + `generate_launcher.ipynb`: $7.13/video by API, **parked** (D20: images by hand).
   [Report](generation_report.md). **S12 (D21-D23)**: Franco makes one ElevenLabs reference clip (free plan, risk told);
   `MODE = "reference"` turns it into `Voice/ref.*`, Qwen3-TTS clones it ([guide](voice_elevenlabs_guide.md)).
@@ -25,10 +27,9 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 
 | Branch | Role |
 |---|---|
-| `claude/s13-reconcile` | S13 + D30-D33, [PR 12](https://github.com/Johnfrancis6/Channel/pull/12) to `main` |
-| `claude/s14-voice-upload` | **work branch** of S14 (from `claude/s13-reconcile`) |
+| `claude/s13-reconcile` | S13 + D30-D33, [PR 12](https://github.com/Johnfrancis6/Channel/pull/12) to `main`; holds `claude/affectionate-heisenberg-k7i85k` and `claude/v1-s2b-script-uber` (keep both until it merges) |
+| `claude/s14-voice-upload` | S14, pull request to `main` (merge after PR 12) |
 | `main` | production (Colab launchers): S01-S10, S07c; gets S11, S12 with the S13 pull request |
-| `claude/affectionate-heisenberg-k7i85k`, `claude/v1-s2b-script-uber` | merged into the work branch; keep until the PR merges |
 | `claude/zelan-studio-analysis-rws9f6` | old Zehon Drive launchers; leave it (Zehon frozen) |
 
 ## Tools
@@ -36,7 +37,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 - Checker: `python3 whosedime/common/checker.py all FOLDER`. Skill sync: `python3 tools/sync_skills.py` (`--check`).
 - Charts and assembly: `whosedime/whosedime-video/scripts/charts.py`, `assemble.py`. Generation (parked): `whosedime/generate/run.py`.
 - Watch: `python3 whosedime/watch/watch.py` (`--no-search`, `--refresh-medians`, `--force`).
-- Tests: `python3 -m unittest discover -s tests` — **measured 16/11 after S13** (see the report). Fresh container: see `CLAUDE.md`.
+- Tests: `python3 -m unittest discover -s tests` — **244 pass, measured 16/11 after S14** (233 after S13). Fresh container: see `CLAUDE.md`.
 
 ## Sessions
 
@@ -44,8 +45,9 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 |---|---|
 | S01 to S12, S07c, video 1 sessions 2a, 2b, 3 and Pause 5 | **done**; in `main` once the S13 pull request is merged |
 | S13 Reconcile branches | **done** 16/11, pull request waits for Franco |
-| S14 Voice reference by upload (D32) | **next**, opened by S13: [`sessions/S14_voice_upload.md`](sessions/S14_voice_upload.md) |
-| Video 1 pieces | Franco: 55 images, 5 clips; then voice in Colab (upload, `sample`, `full`) once PRs 12 and S14's are merged |
+| S14 Voice reference by upload (D32) | **done** 16/11, pull request waits for Franco (after PR 12) |
+| Video 1 voice (Franco's, not a session) | once PRs 12 and S14's are merged: launcher `MODE = "reference"` (upload clip + text), `"sample"`, listen (D6), `"full"` |
+| S15 Voice check (next build) | opens **when Franco says upload + 20 s sample are done**: `Voice/ref.json`, `listen_20s.json`, his notes; prompt then (scope depends on what he heard) |
 | Incoherence skill (meaning half) | waits for about 30 graded lines |
 
 ## Open issues

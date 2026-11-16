@@ -900,7 +900,8 @@ def keep_candidate(voice_dir, label, settings, *, log=print):
 
 
 # ------------------------------------------------------------------ the narrator from ElevenLabs (D21, D22)
-# Franco makes one reference clip in the ElevenLabs app and drops it in WhoseDime/Voice/elevenlabs/;
+# Franco makes one reference clip in the ElevenLabs app and uploads it with its text in Colab (D32,
+# receive_upload saves both in WhoseDime/Voice/elevenlabs/; a clip already there is the fallback);
 # MODE = "reference" turns it into the ref.wav / ref.txt / ref.json that the Base model clones (free,
 # in Colab). Everything after (sample, full, blind test) runs unchanged.
 def decode_audio(path, sr):
@@ -932,6 +933,65 @@ def find_reference_clip(voice_dir, settings):
     clip = clips[0]
     txt = clip.with_suffix(".txt")
     return clip, (txt if txt.is_file() else None)
+
+
+def receive_upload(voice_dir, settings, uploader, reference_text="", *, log=print):
+    """MODE = 'reference', step 1 (D32): Franco uploads his clip and its text in Colab.
+
+    `uploader()` returns {file name: bytes}, like google.colab.files.upload (tests pass a fake one).
+    The upload holds one audio file and its text: a .txt uploaded with it, or `reference_text` (the
+    form's REFERENCE_TEXT). Everything is checked before anything moves; then what was in
+    Voice/elevenlabs/ goes to Voice/old/ with the date (never deleted) and the clip and
+    <clip name>.txt are saved there, for import_reference. Nothing uploaded: the clip already in
+    Voice/elevenlabs/ is used (the S12 route, D22). Returns the saved clip's path."""
+    r = settings["reference_import"]
+    src = Path(voice_dir) / r["dir"]
+    exts = {x.lower() for x in r["audio_ext"]}
+    files = {Path(name).name: data for name, data in (uploader() or {}).items()}
+    form_text = (reference_text or "").strip()
+    if not files:
+        clip, txt = find_reference_clip(voice_dir, settings)  # refuses if Drive holds no clip either
+        log(f"· Nothing uploaded: using {clip.name} already in Voice/{r['dir']}/"
+            + (f" with {txt.name}." if txt else "."))
+        return clip
+    audio = sorted(n for n in files if Path(n).suffix.lower() in exts)
+    texts = sorted(n for n in files if Path(n).suffix.lower() == ".txt")
+    other = sorted(set(files) - set(audio) - set(texts))
+    if other:
+        raise GateError(f"Not an audio file or a .txt: {', '.join(other)}. Upload one clip "
+                        f"({', '.join(sorted(exts))}) and its text.")
+    if not audio:
+        raise GateError(f"No audio file in the upload: upload the clip ({', '.join(sorted(exts))}) with its text.")
+    if len(audio) > 1:
+        raise GateError(f"{len(audio)} audio files uploaded ({', '.join(audio)}): upload only the reference you want.")
+    if len(texts) > 1:
+        raise GateError(f"{len(texts)} .txt files uploaded ({', '.join(texts)}): upload only the clip's text.")
+    if texts:
+        text = files[texts[0]].decode("utf-8-sig", errors="replace").strip()
+        if not text:
+            raise GateError(f"{texts[0]} is empty: it must hold the words the clip says.")
+        if form_text and norm_tokens(form_text) != norm_tokens(text):
+            raise GateError(f"Two different texts: {texts[0]} and REFERENCE_TEXT. Keep one (empty the form field "
+                            "or upload without the .txt).")
+        text_from = texts[0]
+    elif form_text:
+        text, text_from = form_text, "REFERENCE_TEXT"
+    else:
+        raise GateError("No text: upload a .txt with the clip, or paste in REFERENCE_TEXT the words the clip says.")
+    if src.is_dir() and any(src.iterdir()):
+        old = Path(voice_dir) / "old"
+        old.mkdir(exist_ok=True)
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        for f in sorted(src.iterdir()):
+            shutil.move(str(f), old / f"{stamp}_{r['dir']}_{f.name}")
+        log(f"· The previous clip of Voice/{r['dir']}/ is in Voice/old/ ({stamp}).")
+    src.mkdir(parents=True, exist_ok=True)
+    clip = src / audio[0]
+    clip.write_bytes(files[audio[0]])
+    clip.with_suffix(".txt").write_text(text + "\n", encoding="utf-8")
+    log(f"✓ Uploaded {clip.name} ({len(files[audio[0]]) // 1024} KB), text from {text_from} "
+        f"({len(spoken_words(text))} words), saved in Voice/{r['dir']}/")
+    return clip
 
 
 def reference_rate(n_words, seconds, settings):

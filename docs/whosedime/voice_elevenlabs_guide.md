@@ -1,36 +1,42 @@
 # The narrator from ElevenLabs — Franco's guide (one page)
 
-Decisions D21, D22: ElevenLabs makes **one reference clip** of the narrator; Qwen3-TTS (free, in
-Colab) clones it for the 20 s sample and the full voice. Once per channel, not once per video.
+Decisions D21, D22, D32: ElevenLabs makes **one reference clip** of the narrator, you upload it with
+its text in Colab, and Qwen3-TTS (free, in Colab) clones it for the 20 s sample and the full voice.
+Once per channel, not once per video.
 
 ## 1. In the ElevenLabs app (Text to Speech)
 
 1. **Pick the voice** you want for "Who Pays?": a warm, relaxed American narrator, not a trailer
    voice. Prefer a voice made with ElevenLabs' **Voice Design** over a Voice Library voice of a
    real person (see § 4).
-2. **Paste this text, exactly** (about 70 words, 20-30 s; a statement, two questions, a number,
-   an aside: the clone learns several intonations from it):
+2. **Paste your text.** You choose it (D32); about 70 words, 20-30 s, with a statement, a
+   question, a number and an aside, so the clone learns several intonations. A suggestion:
 
    > So here's a question nobody asks at the checkout. If the thing is free, who's paying for it? Usually, it's not who you think. Picture an app that loses a million dollars a day. A million! And the people covering it have never even opened the app. Strange, right? Stick around. We're going to follow the money, one dollar at a time, and see where it lands.
 
-   Another text is fine: then save it as a `.txt` with the same name as the audio file.
+   Keep the exact text you pasted: Colab asks for it with the clip (§ 2).
 3. **Settings**: Multilingual v2 (or Eleven v4), Stability about 50 %, Similarity about 75 %,
    Style 0, **Speed 0.9** to start (the clone tends to speak faster than its reference: S11
    measured x1.2). Generate two or three takes and keep the one that sounds most like a story
    told over coffee: no clipped ending, no breath noise, no music.
 4. **Download** it (MP3 is fine; WAV if your plan offers it).
 
-## 2. In Drive
+## 2. Upload in Colab (voice launcher; needs pull requests 12 and S14's merged into `main`)
 
-Put the file **alone** in `WhoseDime/Voice/elevenlabs/` (any name, e.g. `brian.mp3`; and
-`brian.txt` only if you pasted another text). Other takes go to `WhoseDime/Voice/old/`.
+1. In the form: `MODE = "reference"`, and **either** paste the clip's text in `REFERENCE_TEXT`,
+   **or** leave it empty and have a `.txt` holding the text ready. Run all.
+2. When the **Choose files** button appears, pick the clip (mp3, wav, m4a, flac, ogg or opus), and
+   the `.txt` too if you did not fill `REFERENCE_TEXT`. One clip, one text: the notebook refuses
+   with one line if there is no clip, two clips, no text or an empty text.
+3. It saves them in Drive `WhoseDime/Voice/elevenlabs/` (what was there goes to `Voice/old/` with
+   the date, never deleted). Cancel the upload instead to use a clip already in that folder.
 
-## 3. In Colab (voice launcher; needs the pull request merged into `main` first)
+## 3. In Colab: the reference, the sample, the full voice
 
-1. `MODE = "reference"`, Run all. It trims the clip, converts it to 24 kHz, checks with Whisper that
-   it says the text, writes `Voice/ref.wav`, `ref.txt`, `ref.json` (the old ones go to `Voice/old/`)
-   and prints the reference's **words a minute**. Aim: 135-155. If it says *too fast*, lower Speed by
-   0.1 in ElevenLabs and redo steps 1-3.
+1. The same run then trims the clip, converts it to 24 kHz, checks with Whisper that it says your
+   text (it refuses if not: fix the text or the clip), writes `Voice/ref.wav`, `ref.txt`, `ref.json`
+   (the old ones go to `Voice/old/`) and prints the reference's **words a minute**. Aim: 135-155.
+   If it says *too fast*, lower Speed by 0.1 in ElevenLabs and redo §§ 1-2.
 2. `MODE = "sample"` (decision D6): listen to `voice/listen_20s.wav`. The run prints the sample's
    rate on the whole sample (target 142-154) and what to change if it is off.
 3. `MODE = "full"`, tick `I_LISTENED`. T4 GPU as before.
