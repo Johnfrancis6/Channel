@@ -2,18 +2,17 @@
 
 Short by rule (60 lines at most), updated at the end of every session. Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
-**Last update: 2026-11-16**, S14b Whisper CPU fallback after S14 (upload, D32). **Orchestrator**: `session_01Cw13LeFBwzXQBL4SqwTyRi` (sessions report to it, D19).
+**Last update: 2026-11-16**, S15 voice pace advice and quiet launchers (after Franco's first ElevenLabs sample). **Orchestrator**: `session_01Cw13LeFBwzXQBL4SqwTyRi` (sessions report to it, D19).
 
 ## Where we are
 
-- **One line of work again** on `claude/s13-reconcile` ([report](reconcile_report.md)): `main` (S01-S10, S07c, D29 language,
-  French market report) + the 08/11 branch (S11, S12, video 1 sessions 2b and 3, D16-D24) + the 15-16/11 STATE. [PR 12](https://github.com/Johnfrancis6/Channel/pull/12)
-  **merged into `main` 16/11** (S11, S12 now in `main`); D30-D33 (`9cf657f`) came after it and ride in [PR 13](https://github.com/Johnfrancis6/Channel/pull/13).
+- **One line of work again** ([S13 report](reconcile_report.md)): S11, S12, video 1 sessions 2b and 3, D16-D33 all in `main`
+  ([PR 12](https://github.com/Johnfrancis6/Channel/pull/12), [PR 13](https://github.com/Johnfrancis6/Channel/pull/13), [PR 14](https://github.com/Johnfrancis6/Channel/pull/14), merged 16/11).
 - **Guard (S10, D15)** and **watch**: `main`'s versions kept, 08/11 fixes ported (`2>&1` no longer a push target; list in the report).
 - **16/11, Franco**: decision numbers unique (D30: S07c's are D26-D28, old language D29); answer in his language, pipeline in
   English (D31); **he uploads the voice clip and its text in Colab** (D32, built by S14); he only grants permissions and answers (D33).
-- **S14 (D32)**: `MODE = "reference"` asks for the upload (clip + `.txt` or `REFERENCE_TEXT`; old clip to `Voice/old/`; nothing
-  uploaded = Drive clip), then the S12 import ([guide](voice_elevenlabs_guide.md) § 2-3). [PR 13](https://github.com/Johnfrancis6/Channel/pull/13). Not run in Colab (Cancel = empty, assumed).
+- **S14 (D32)**: `MODE = "reference"` asks for the upload (clip + `.txt`), then the S12 import ([guide](voice_elevenlabs_guide.md) § 2-3); run in Colab 16/11, works.
+- **S15**: both steps say "multiply your ElevenLabs Speed by F" (F = aim / measured); `listen_20s.json` keeps the clone/reference ratio (x1.12 on 16/11).
 - **S11 (D18)** `whosedime/generate/` + `generate_launcher.ipynb`: $7.13/video by API, **parked** (D20: images by hand).
   [Report](generation_report.md). **S12 (D21-D23)**: Franco makes one ElevenLabs reference clip (free plan, risk told);
   `MODE = "reference"` turns it into `Voice/ref.*`, Qwen3-TTS clones it ([guide](voice_elevenlabs_guide.md)).
@@ -28,8 +27,8 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 | Branch | Role |
 |---|---|
 | `claude/s13-reconcile` | S13 + D30-D33, [PR 12](https://github.com/Johnfrancis6/Channel/pull/12) to `main`; holds `claude/affectionate-heisenberg-k7i85k` and `claude/v1-s2b-script-uber` (keep both until it merges) |
-| `claude/s14b-whisper-cpu-fallback` | **work branch**: Whisper falls back to the CPU when Colab lacks CUDA 12's `libcublas.so.12` |
-| `main` | production (Colab launchers): S01-S14 and D30-D33 (PRs 12, 13 merged 16/11) |
+| `claude/s15-voice-rate-advice` | **work branch**: S15, one proportional pace advice, launchers print nothing after the run; PR to `main` |
+| `main` | production (Colab launchers): S01-S14b and D30-D33 (PRs 12, 13, 14 merged 16/11) |
 | `claude/zelan-studio-analysis-rws9f6` | old Zehon Drive launchers; leave it (Zehon frozen) |
 
 ## Tools
@@ -37,7 +36,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 - Checker: `python3 whosedime/common/checker.py all FOLDER`. Skill sync: `python3 tools/sync_skills.py` (`--check`).
 - Charts and assembly: `whosedime/whosedime-video/scripts/charts.py`, `assemble.py`. Generation (parked): `whosedime/generate/run.py`.
 - Watch: `python3 whosedime/watch/watch.py` (`--no-search`, `--refresh-medians`, `--force`).
-- Tests: `python3 -m unittest discover -s tests` — **246 pass, measured 16/11 after S14b** (244 after S14). Fresh container: see `CLAUDE.md`.
+- Tests: `python3 -m unittest discover -s tests` — **250 pass, measured 16/11 after S15** (246 after S14b). Fresh container: see `CLAUDE.md`.
 
 ## Sessions
 
@@ -45,16 +44,17 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 |---|---|
 | S01 to S12, S07c, video 1 sessions 2a, 2b, 3 and Pause 5 | **done**, in `main` |
 | S13 Reconcile branches | **done** 16/11, PR 12 merged |
-| S14, S14b Voice upload (D32), Whisper CPU fallback | S14 merged; Colab 16/11: upload OK, Whisper crashed (no `libcublas.so.12`): S14b PR waits |
-| Video 1 voice (Franco's, not a session) | once PR 13 is merged: launcher `MODE = "reference"` (upload clip + text), `"sample"`, listen (D6), `"full"` |
-| S15 Voice pace advice, launcher output | **open** 16/11: [`sessions/S15_voice_rate_advice.md`](sessions/S15_voice_rate_advice.md); Franco remakes the reference slower |
+| S14, S14b Voice upload (D32), Whisper CPU fallback | **done**, merged; Colab 16/11: reference 197.6 wpm, sample 189.3 (too fast) |
+| Video 1 voice (Franco's, not a session) | once the S15 PR is merged: new reference at Speed x 0.79, `MODE = "reference"`, `"sample"`, listen (D6), `"full"` |
+| S15 Voice pace advice, launcher output | **done** 16/11, PR to `main` waits: advice = "multiply your Speed by aim / measured" (0.79 on 16/11), floor 0.7 |
 | Incoherence skill (meaning half) | waits for about 30 graded lines |
 
 ## Open issues
 
 - **For Franco, video 1**: F33 (Mamdani) left out. Lexicon: `UK` → U-K, `LeWeb` → Luh-WEB, `Rumayyan` → Roo-MY-yan,
   `Kamel` → Kuh-MEL, `Bhairavi Desai` → BY-ruh-vee Deh-SIGH. E1-E5 passed on a generic TTS, not the channel voice.
-- **Guard**: not ported from 08/11: French check of files made by shell, per-file critique match. Hooks reach only clones
-  with `.claude/settings.json`. **Voice (D23)**: free-plan terms non-commercial; § 12 unclear for a cloning reference.
+- **Guard**: false block on `git checkout -b NEW && git push -u origin NEW` (reads HEAD first); S15's fix was denied by
+  the permission classifier (guard = oversight): Franco decides. Not ported from 08/11: French check of shell-made files,
+  per-file critique match. Hooks reach only clones with `.claude/settings.json`. **Voice (D23)**: free plan non-commercial; § 12 unclear.
 - **Watch**: medians frozen at 5 Nov; no schedule. **Drive editor** re-escapes `.md` (breaks the hash). **Out of scope**:
   the old brief's "externalities"; ROADMAP rule 2 names a stale branch; no setup script.

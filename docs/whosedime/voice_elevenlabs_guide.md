@@ -36,7 +36,8 @@ Once per channel, not once per video.
 1. The same run then trims the clip, converts it to 24 kHz, checks with Whisper that it says your
    text (it refuses if not: fix the text or the clip), writes `Voice/ref.wav`, `ref.txt`, `ref.json`
    (the old ones go to `Voice/old/`) and prints the reference's **words a minute**. Aim: 135-155.
-   If it says *too fast*, lower Speed by 0.1 in ElevenLabs and redo §§ 1-2.
+   If it says *too fast* or *too slow*, it prints a factor: multiply your ElevenLabs Speed by it
+   (Speed goes from 0.7 to 1.2; under 0.7, pick a slower voice) and redo §§ 1-2.
 2. `MODE = "sample"` (decision D6): listen to `voice/listen_20s.wav`. The run prints the sample's
    rate on the whole sample (target 142-154) and what to change if it is off.
 3. `MODE = "full"`, tick `I_LISTENED`. T4 GPU as before.

@@ -107,6 +107,11 @@ class Reference(unittest.TestCase):
         rec = V.run_sample(self.video, T.StubSynth(), T.stub_aligner, self.S, vid=self.vid, log=lambda m: None)
         self.assertEqual(rec["voice"], self.vid)
         self.assertIn("rate_advice", rec)
+        ref = json.loads((self.voice_dir / "ref.json").read_text(encoding="utf-8"))
+        self.assertEqual(rec["reference_rate_wpm"], ref["rate_wpm"])
+        self.assertEqual(rec["clone_reference_ratio"], round(rec["rate_speech_wpm"] / ref["rate_wpm"], 2))
+        saved = json.loads((self.video / "voice" / "listen_20s.json").read_text(encoding="utf-8"))
+        self.assertEqual(saved["clone_reference_ratio"], rec["clone_reference_ratio"])
         state = V.run_full(self.video, T.StubSynth(), T.stub_aligner, self.S, vid=self.vid, listened=True,
                            log=lambda m: None)
         self.assertEqual(state["status"], "ready")
@@ -310,17 +315,51 @@ class RateAdvice(unittest.TestCase):
         self.assertEqual(V.reference_rate(70, 70 / ((lo + hi) / 2) * 60, self.S)[1], "in range")
         wpm, verdict, advice = V.reference_rate(70, 20, self.S)  # 210 wpm, the S11 clone's pace
         self.assertEqual((wpm, verdict), (210.0, "too fast"))
-        self.assertIn("lower Speed", advice)
-        self.assertIn("raise Speed", V.reference_rate(70, 40, self.S)[2])
+        self.assertIn(f"multiply your Speed by {round(hi / 210, 2)}", advice)
+        self.assertIn(f"multiply your Speed by {round(lo / 105, 2)}", V.reference_rate(70, 40, self.S)[2])
 
-    def test_sample_advice_points_to_the_reference(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            V.write_json(Path(tmp) / "ref.json", {"source": "elevenlabs", "rate_wpm": 171})
-            fast = V.sample_rate_advice(206.0, "outside the range: too fast", tmp, self.S)
-            self.assertIn("lower Speed", fast)
-            self.assertIn("171", fast)
-            self.assertIn("raise Speed", V.sample_rate_advice(139.0, "near target", tmp, self.S))
-            self.assertEqual(V.sample_rate_advice(149.0, "in target", tmp, self.S), "")
+    def test_reference_16_11(self):
+        """Franco's first reference, measured 16/11: 67 words in 20.3 s = 198 wpm."""
+        wpm, verdict, advice = V.reference_rate(67, 20.3, self.S)
+        self.assertEqual(verdict, "too fast")
+        self.assertIn("multiply your Speed by 0.78", advice)
+        self.assertIn("under 0.7", advice)
+        self.assertIn("slower voice", advice)
+        self.assertNotIn("1.0 ->", advice)  # the notebook does not know his Speed
+
+    def test_sample_advice_is_proportional(self):
+        """S15: F = aim / rate_total_wpm, the same wording as the reference step."""
+        ref = {"source": "elevenlabs", "rate_wpm": 197.6}
+        aim = self.S["rate_wpm"]["aim"]
+        fast = V.sample_rate_advice(189.3, "outside the range: too fast", ref, self.S)  # 16/11
+        self.assertIn(f"multiply your Speed by {round(aim / 189.3, 2)}", fast)
+        self.assertIn("0.79", fast)
+        self.assertIn("197.6", fast)
+        self.assertNotIn("about 0.1", fast)
+        self.assertIn(f"multiply your Speed by {round(aim / 139, 2)}", V.sample_rate_advice(139.0, "near target",
+                                                                                           ref, self.S))
+        self.assertEqual(V.sample_rate_advice(149.0, "in target", ref, self.S), "")
+        other = V.sample_rate_advice(189.3, "outside the range: too fast", {}, self.S)
+        self.assertIn("tell Claude", other)
+
+    def test_speed_floor_and_ceiling(self):
+        lo, hi = self.S["reference_import"]["elevenlabs_speed"]
+        f, say = V.speed_advice(260.0, 149, self.S)
+        self.assertLess(f, lo)
+        self.assertIn(f"set {lo} and pick a slower voice", say)
+        self.assertIn("even from 1.0", say)
+        f, say = V.speed_advice(100.0, 149, self.S)
+        self.assertGreater(f, hi)
+        self.assertIn(f"set {hi} and pick a faster voice", say)
+        f, say = V.speed_advice(160.0, 149, self.S)
+        self.assertNotIn("even from 1.0", say)
+        self.assertIn(f"under {lo}", say)
+
+    def test_reference_and_sample_agree(self):
+        """Both steps give the same kind of advice: a factor on the Speed, near each other on 16/11."""
+        ref_f = V.speed_advice(197.6, self.S["reference_import"]["rate_wpm"][1], self.S)[0]
+        sample_f = V.speed_advice(189.3, self.S["rate_wpm"]["aim"], self.S)[0]
+        self.assertLess(abs(ref_f - sample_f), 0.05)
 
 
 class NotebookReference(unittest.TestCase):

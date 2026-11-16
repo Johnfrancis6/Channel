@@ -5,6 +5,7 @@ short harmonic tone, sentences end with a longer gap, and a "dry" seed cuts
 the clip in the middle of its last word. A stub aligner finds the tones by
 their energy and labels them with the text's words, as Whisper would.
 """
+import ast
 import importlib.util
 import json
 import random
@@ -377,6 +378,18 @@ class Notebooks(unittest.TestCase):
         cells = L.code_cells("voice_whosedime.ipynb")
         self.assertEqual(sum(1 for _, _, s in cells if s), 1)
         self.assertTrue(cells[0][2], "the settings cell is the first code cell")
+
+    def test_launchers_print_nothing_after_the_run(self):
+        """S15: launcher.run returns the namespace; as the cell's last expression Colab displayed it whole."""
+        launchers = sorted(NB.glob("*_launcher.ipynb"))
+        self.assertGreaterEqual(len(launchers), 3)
+        for nb in launchers:
+            cells = [c for c in self.cells(nb.name) if c["cell_type"] == "code"]
+            calls = [line for c in cells for line in "".join(c["source"]).splitlines() if "launcher.run(" in line]
+            self.assertEqual(len(calls), 1, nb.name)
+            self.assertTrue(calls[0].startswith("_ = launcher.run("), nb.name)
+            last = ast.parse("".join(cells[-1]["source"])).body[-1]
+            self.assertNotIsInstance(last, ast.Expr, f"{nb.name}: the last statement would be displayed")
 
 
 if __name__ == "__main__":
