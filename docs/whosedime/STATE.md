@@ -8,12 +8,12 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 
 - **One line of work again** on `claude/s13-reconcile` ([report](reconcile_report.md)): `main` (S01-S10, S07c, D29 language,
   French market report) + the 08/11 branch (S11, S12, video 1 sessions 2b and 3, D16-D24) + the 15-16/11 STATE. [PR 12](https://github.com/Johnfrancis6/Channel/pull/12)
-  to `main` open; **Franco merges it** (the S12 voice notebook and the S11 launcher need `main`).
+  **merged into `main` 16/11** (S11, S12 now in `main`); D30-D33 (`9cf657f`) came after it and ride in [PR 13](https://github.com/Johnfrancis6/Channel/pull/13).
 - **Guard (S10, D15)** and **watch**: `main`'s versions kept, 08/11 fixes ported (`2>&1` no longer a push target; list in the report).
 - **16/11, Franco**: decision numbers unique (D30: S07c's are D26-D28, old language D29); answer in his language, pipeline in
   English (D31); **he uploads the voice clip and its text in Colab** (D32, built by S14); he only grants permissions and answers (D33).
 - **S14 (D32)**: `MODE = "reference"` asks for the upload (clip + `.txt` or `REFERENCE_TEXT`; old clip to `Voice/old/`; nothing
-  uploaded = Drive clip), then the S12 import ([guide](voice_elevenlabs_guide.md) § 2-3). Not run in Colab (Cancel = empty, assumed).
+  uploaded = Drive clip), then the S12 import ([guide](voice_elevenlabs_guide.md) § 2-3). [PR 13](https://github.com/Johnfrancis6/Channel/pull/13). Not run in Colab (Cancel = empty, assumed).
 - **S11 (D18)** `whosedime/generate/` + `generate_launcher.ipynb`: $7.13/video by API, **parked** (D20: images by hand).
   [Report](generation_report.md). **S12 (D21-D23)**: Franco makes one ElevenLabs reference clip (free plan, risk told);
   `MODE = "reference"` turns it into `Voice/ref.*`, Qwen3-TTS clones it ([guide](voice_elevenlabs_guide.md)).
@@ -28,8 +28,8 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 | Branch | Role |
 |---|---|
 | `claude/s13-reconcile` | S13 + D30-D33, [PR 12](https://github.com/Johnfrancis6/Channel/pull/12) to `main`; holds `claude/affectionate-heisenberg-k7i85k` and `claude/v1-s2b-script-uber` (keep both until it merges) |
-| `claude/s14-voice-upload` | S14, pull request to `main` (merge after PR 12) |
-| `main` | production (Colab launchers): S01-S10, S07c; gets S11, S12 with the S13 pull request |
+| `claude/s14-voice-upload` | S14 + D30-D33, [PR 13](https://github.com/Johnfrancis6/Channel/pull/13) to `main` |
+| `main` | production (Colab launchers): S01-S13 with PR 12; gets S14 and D30-D33 with PR 13 |
 | `claude/zelan-studio-analysis-rws9f6` | old Zehon Drive launchers; leave it (Zehon frozen) |
 
 ## Tools
@@ -43,10 +43,10 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 
 | # | Status |
 |---|---|
-| S01 to S12, S07c, video 1 sessions 2a, 2b, 3 and Pause 5 | **done**; in `main` once the S13 pull request is merged |
-| S13 Reconcile branches | **done** 16/11, pull request waits for Franco |
-| S14 Voice reference by upload (D32) | **done** 16/11, pull request waits for Franco (after PR 12) |
-| Video 1 voice (Franco's, not a session) | once PRs 12 and S14's are merged: launcher `MODE = "reference"` (upload clip + text), `"sample"`, listen (D6), `"full"` |
+| S01 to S12, S07c, video 1 sessions 2a, 2b, 3 and Pause 5 | **done**, in `main` |
+| S13 Reconcile branches | **done** 16/11, PR 12 merged |
+| S14 Voice reference by upload (D32) | **done** 16/11, [PR 13](https://github.com/Johnfrancis6/Channel/pull/13) waits for Franco |
+| Video 1 voice (Franco's, not a session) | once PR 13 is merged: launcher `MODE = "reference"` (upload clip + text), `"sample"`, listen (D6), `"full"` |
 | S15 Voice check (next build) | opens **when Franco says upload + 20 s sample are done**: `Voice/ref.json`, `listen_20s.json`, his notes; prompt then (scope depends on what he heard) |
 | Incoherence skill (meaning half) | waits for about 30 graded lines |
 

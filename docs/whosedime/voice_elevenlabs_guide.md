@@ -21,7 +21,7 @@ Once per channel, not once per video.
    told over coffee: no clipped ending, no breath noise, no music.
 4. **Download** it (MP3 is fine; WAV if your plan offers it).
 
-## 2. Upload in Colab (voice launcher; needs pull requests 12 and S14's merged into `main`)
+## 2. Upload in Colab (voice launcher; needs pull request 13 merged into `main`)
 
 1. In the form: `MODE = "reference"`, and **either** paste the clip's text in `REFERENCE_TEXT`,
    **or** leave it empty and have a `.txt` holding the text ready. Run all.
