@@ -155,6 +155,152 @@ class Reference(unittest.TestCase):
                 V.import_reference(d, SaidAligner(""), self.S, log=lambda m: None)
 
 
+class FakeUploader:
+    """Plays google.colab.files.upload: returns {file name: bytes}, counts its calls."""
+
+    def __init__(self, files):
+        self.files, self.calls = files, 0
+
+    def __call__(self):
+        self.calls += 1
+        return None if self.files is None else dict(self.files)
+
+
+@unittest.skipUnless(HAS_FFMPEG, "ffmpeg is needed (apt-get install -y ffmpeg)")
+class Upload(unittest.TestCase):
+    """MODE = "reference" by upload in Colab (S14, D32): receive_upload, then the S12 import."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.S = V.load_settings()
+        cls.tmp = tempfile.mkdtemp()
+        cls.mp3 = make_clip(Path(cls.tmp) / "src" / "narrator", OTHER).read_bytes()
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.tmp)
+
+    def voice_dir(self, tmp):
+        d = Path(tmp) / "Voice"
+        d.mkdir()
+        return d
+
+    def receive(self, d, files, text=""):
+        log = []
+        clip = V.receive_upload(d, self.S, FakeUploader(files), text, log=log.append)
+        return clip, log
+
+    def test_ok_with_txt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = self.voice_dir(tmp)
+            clip, log = self.receive(d, {"narrator.mp3": self.mp3, "my text.txt": ("﻿" + OTHER + "\n").encode()})
+            self.assertEqual(clip, d / "elevenlabs" / "narrator.mp3")
+            self.assertEqual(clip.read_bytes(), self.mp3)
+            self.assertEqual((d / "elevenlabs" / "narrator.txt").read_text(encoding="utf-8").strip(), OTHER)
+            self.assertTrue(any("text from my text.txt" in line for line in log))
+            meta = V.import_reference(d, SaidAligner(OTHER), self.S, log=lambda m: None)
+            self.assertEqual(meta["text_from"], "narrator.txt")
+            self.assertEqual((d / "ref.txt").read_text(encoding="utf-8"), OTHER)
+
+    def test_ok_with_form_text(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = self.voice_dir(tmp)
+            clip, log = self.receive(d, {"narrator.mp3": self.mp3}, "  " + OTHER + "  ")
+            self.assertEqual((d / "elevenlabs" / "narrator.txt").read_text(encoding="utf-8").strip(), OTHER)
+            self.assertTrue(any("text from REFERENCE_TEXT" in line for line in log))
+            meta = V.import_reference(d, SaidAligner(OTHER), self.S, log=lambda m: None)
+            self.assertEqual(meta["file"], "narrator.mp3")
+            self.assertGreaterEqual(meta["similarity"], self.S["similarity_min"])
+
+    def test_same_text_twice_accepted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = self.voice_dir(tmp)
+            self.receive(d, {"narrator.mp3": self.mp3, "t.txt": OTHER.encode()}, OTHER.upper())
+            self.assertTrue((d / "elevenlabs" / "narrator.txt").is_file())
+
+    def test_form_text_not_said_refused_by_import(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = self.voice_dir(tmp)
+            guide = self.S["design"]["reference_text"]
+            self.receive(d, {"narrator.mp3": self.mp3}, guide)
+            with self.assertRaisesRegex(V.GateError, "does not say the text of narrator.txt"):
+                V.import_reference(d, SaidAligner(OTHER), self.S, log=lambda m: None)
+
+    def test_refusals_leave_drive_untouched(self):
+        cases = [
+            ({"t.txt": OTHER.encode()}, "", "No audio file in the upload"),
+            ({"a.mp3": self.mp3, "b.wav": self.mp3, "t.txt": OTHER.encode()}, "", r"2 audio files uploaded \(a\.mp3, b\.wav\)"),
+            ({"a.mp3": self.mp3}, "", "No text: upload a .txt"),
+            ({"a.mp3": self.mp3}, "   ", "No text: upload a .txt"),
+            ({"a.mp3": self.mp3, "t.txt": b" \n\n"}, "", "t.txt is empty"),
+            ({"a.mp3": self.mp3, "t.txt": b"\xef\xbb\xbf\n"}, "", "t.txt is empty"),
+            ({"a.mp3": self.mp3, "t.txt": OTHER.encode(), "u.txt": OTHER.encode()}, "", "2 .txt files"),
+            ({"a.mp3": self.mp3, "t.txt": OTHER.encode()}, "Something else entirely.", "Two different texts"),
+            ({"a.mp3": self.mp3, "t.txt": OTHER.encode(), "cover.png": b"x"}, "", "Not an audio file or a .txt: cover.png"),
+        ]
+        for files, text, error in cases:
+            with self.subTest(error=error, files=sorted(files)), tempfile.TemporaryDirectory() as tmp:
+                d = self.voice_dir(tmp)
+                make_clip(d / "elevenlabs" / "kept", OTHER, fmt="wav")
+                before = sorted(p.name for p in (d / "elevenlabs").iterdir())
+                with self.assertRaisesRegex(V.GateError, error) as e:
+                    self.receive(d, files, text)
+                self.assertNotIn("\n", str(e.exception))  # one clear line
+                self.assertEqual(sorted(p.name for p in (d / "elevenlabs").iterdir()), before)
+                self.assertFalse((d / "old").exists())
+
+    def test_old_clip_archived_never_deleted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = self.voice_dir(tmp)
+            old_clip = make_clip(d / "elevenlabs" / "brian", self.S["design"]["reference_text"])
+            (d / "elevenlabs" / "brian.txt").write_text("old text", encoding="utf-8")
+            old_bytes = old_clip.read_bytes()
+            clip, log = self.receive(d, {"narrator.mp3": self.mp3}, OTHER)
+            self.assertEqual(sorted(p.name for p in (d / "elevenlabs").iterdir()), ["narrator.mp3", "narrator.txt"])
+            archived = sorted((d / "old").iterdir())
+            self.assertEqual([p.name.split("_", 2)[-1] for p in archived],
+                             ["elevenlabs_brian.mp3", "elevenlabs_brian.txt"])
+            self.assertEqual(archived[0].read_bytes(), old_bytes)
+            self.assertTrue(any("Voice/old/" in line for line in log))
+            V.import_reference(d, SaidAligner(OTHER), self.S, log=lambda m: None)  # one clip left: no refusal
+
+    def test_same_name_replaced_after_archive(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = self.voice_dir(tmp)
+            self.receive(d, {"narrator.mp3": b"first take"}, "First text.")
+            self.receive(d, {"narrator.mp3": self.mp3}, OTHER)
+            self.assertEqual((d / "elevenlabs" / "narrator.mp3").read_bytes(), self.mp3)
+            self.assertEqual(len(list((d / "old").iterdir())), 2)
+
+    def test_drive_fallback_when_nothing_uploaded(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = self.voice_dir(tmp)
+            kept = make_clip(d / "elevenlabs" / "brian", OTHER)
+            (d / "elevenlabs" / "brian.txt").write_text(OTHER, encoding="utf-8")
+            for empty in ({}, None):
+                up = FakeUploader(empty or {})
+                up.files = empty
+                log = []
+                clip = V.receive_upload(d, self.S, up, "", log=log.append)
+                self.assertEqual((clip, up.calls), (kept, 1))
+                self.assertTrue(log[0].startswith("· Nothing uploaded: using brian.mp3"))
+            self.assertFalse((d / "old").exists())
+            meta = V.import_reference(d, SaidAligner(OTHER), self.S, log=lambda m: None)
+            self.assertEqual(meta["text_from"], "brian.txt")
+
+    def test_nothing_uploaded_nothing_in_drive_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = self.voice_dir(tmp)
+            with self.assertRaisesRegex(V.GateError, "No audio file in .*elevenlabs"):
+                self.receive(d, {})
+
+    def test_path_in_name_is_dropped(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = self.voice_dir(tmp)
+            clip, _ = self.receive(d, {"../../evil.mp3": self.mp3}, OTHER)
+            self.assertEqual(clip, d / "elevenlabs" / "evil.mp3")
+
+
 class RateAdvice(unittest.TestCase):
     def setUp(self):
         self.S = V.load_settings()
@@ -190,6 +336,15 @@ class NotebookReference(unittest.TestCase):
         self.assertIn('"reference"', sources[0])
         at = next(i for i, s in enumerate(sources) if "import_reference" in s)
         self.assertLess(at, next(i for i, s in enumerate(sources) if "qwen_clone_synth" in s))
+
+    def test_upload_before_import_with_the_form_text(self):
+        """D32: the reference cell asks for the upload, with REFERENCE_TEXT, before the import."""
+        cells = json.loads((T.NB / "voice_whosedime.ipynb").read_text(encoding="utf-8"))["cells"]
+        cell = next("".join(c["source"]) for c in cells if "import_reference" in "".join(c["source"]))
+        self.assertIn("vw.receive_upload(VOICE_DIR, S, files.upload, REFERENCE_TEXT)", cell)
+        self.assertLess(cell.index("receive_upload"), cell.index("import_reference"))
+        settings = next("".join(c["source"]) for c in cells if "settings" in c["metadata"].get("tags", []))
+        self.assertIn('REFERENCE_TEXT = ""  # @param {type:"string"}', settings)
 
 
 if __name__ == "__main__":

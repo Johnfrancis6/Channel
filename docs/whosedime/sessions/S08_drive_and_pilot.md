@@ -5,7 +5,7 @@
 > Drive gets two launchers, voice and assembly. S08 starts only once Franco has
 > merged the S06+S07 pull request into `main` (the launchers run `main`).
 >
-> After S07c (2026-11-08): the palette is chosen by Franco (D16), so task 3 no longer
+> After S07c (2026-11-08): the palette is chosen by Franco (D28), so task 3 no longer
 > asks about it; chart text is larger (labels 58 px, small capitals 42 px, checked on
 > his phone).
 
@@ -53,7 +53,7 @@ the pull request yet; tell him, one line.
    ready for his signature; `00_state.md` and `Memory/videos.md` say so.
 3. **Carried over for Franco** (one question at a time, only when the step needs it):
    - the S05 choice, assumed until he decides: the `title` card ("WHO PAYS?",
-     drawn by the assembly). The palette is chosen (D16, S07c): do not ask again;
+     drawn by the assembly). The palette is chosen (D28, S07c): do not ask again;
    - the lexicon proposals: `UK` → U-K, `LeWeb` → Luh-WEB, `Rumayyan` → Roo-MY-yan;
    - S06's checks for video 1, when the voice comes (not this session): the narrator
      design in `WhoseDime/Voice/`, the 20 s sample, the blind test (D7), the

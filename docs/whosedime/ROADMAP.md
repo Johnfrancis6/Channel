@@ -13,8 +13,7 @@ Read first: [`STATE.md`](STATE.md) (where we are), [`DECISIONS.md`](DECISIONS.md
 ## Rules for every session
 
 1. **Language.** Everything committed for Whose Dime is in English (D2).
-   Talk to Franco in the language he writes in (D17 asked English on
-   2026-11-08; he wrote French on 15-16/11 and was answered in French).
+   Franco writes in French or English: answer in the language he writes in (D31).
 2. **Branches.** Build sessions work on the branch named in `STATE.md`
    (today: `claude/admiring-ramanujan-k2uiqe`). `git fetch` before every
    push. Production code that Colab runs lives on `main` (D5): sessions
@@ -56,8 +55,8 @@ Read first: [`STATE.md`](STATE.md) (where we are), [`DECISIONS.md`](DECISIONS.md
 5. **Open the next session yourself** (D17): `create_session` (claude-code-remote) with
    `source_url` `https://github.com/Johnfrancis6/Channel`, `source_revision` and
    `outcome_branch` the work branch, `model` from the session table, `title`, and as
-   `prompt` the opening message below plus "At the end, report to session
-   `session_01Cw13LhWRZyGn7FWUAAzMb1` with `send_message`" (D19). Then send that report
+   `prompt` the opening message below plus "At the end, report to the orchestrator
+   session named in `STATE.md` with `send_message`" (D19). Then send that report
    yourself (links, checker result, self-critique, grade). End the reply with:
 
    > ⏹️ **End of session SNN.** Next session opened: <link>, model <Model>.
@@ -105,6 +104,10 @@ C6 voice, C7 non-robotic writing, C8 names, versions, tests.
 | S08 | **Drive and pilot launch** | Create the `WhoseDime/` Drive tree, place the launchers, then start video 1 ("Uber Was Cheap. Who Paid?") with the skill's own session 1. The blind voice test (D7) happens during this first video | Drive tree, first video folder | Franco has validated topic and angle; production then follows the skill's session table | — | Sonnet 5.5 |
 | S09 | **Weekly competitor watch** | The weekly tool from the old session-2 brief: new videos, hits (≥ 5× channel median), new entrants, title changes, for about 300 quota units | `whosedime/watch/`, first weekly report | one run under 300 units, report written | — | Sonnet 5.5 |
 | S10 | **Live guard** (added after S09, D15) | Flag incoherent actions while the agent works: hooks that block or warn at the tool call, a guard log; the watch checks its own run | `tools/guard/`, `.claude/settings.json`, `guard_log.jsonl` | each rule caught on a faulty call in tests and live | C4 | Opus 5.5 |
+| S11 | **Generation pipeline** (D18) | Images and clips by the Gemini API, measured | `whosedime/generate/`, `generate_launcher.ipynb`, [report](generation_report.md) | fake-API tests pass | parked by D20 (images by hand) | Opus 5.5 |
+| S12 | **ElevenLabs reference voice** (D21-D23) | Franco's ElevenLabs clip becomes the Qwen clone's reference | `MODE = "reference"`, [guide](voice_elevenlabs_guide.md) | tests pass | — | Opus 5.5 |
+| S13 | **Reconcile branches** | 08/11 work and `main` in one line, pull request 12 | [report](reconcile_report.md) | 233 tests pass | D30 numbers | Opus 5.5 |
+| S14 | **Voice reference by upload** (D32) | Franco uploads the clip and its text in Colab; `MODE = "reference"` takes them | voice notebook, launcher, guide, tests, pull request | tests pass, PR open | — | Opus 5.5 |
 
 **After S09**: the incoherence-detection skill is designed once
 `critique_log.jsonl` holds about 30 graded lines (plan in § 5 of the audit).
