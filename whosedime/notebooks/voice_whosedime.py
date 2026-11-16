@@ -1096,18 +1096,41 @@ def qwen_clone_synth(voice_dir, settings, device="cuda:0"):
     return synth
 
 
-def whisper_aligner(settings):
+GPU_LIB_ERRORS = ("libcublas", "libcudnn", "cuda", "cublas", "cudnn")
+
+
+def whisper_aligner(settings, *, model_class=None, cuda=None, log=print):
     """aligner(audio, sr, text) -> [{"word", "start", "end"}]. The text is not given to Whisper,
-    so the similarity measures what is heard, not what is expected."""
-    import torch
-    from faster_whisper import WhisperModel
-    cuda = torch.cuda.is_available()
-    model = WhisperModel(settings["models"]["whisper"], device="cuda" if cuda else "cpu",
-                         compute_type="float16" if cuda else "int8")
+    so the similarity measures what is heard, not what is expected.
+
+    GPU first; if the GPU libraries CTranslate2 needs are missing (16/11: Colab's image had no
+    libcublas.so.12, faster-whisper is built for CUDA 12), Whisper moves to the CPU (int8) once,
+    with one warning line, and the call is retried. Qwen3-TTS keeps the GPU."""
+    if model_class is None:
+        from faster_whisper import WhisperModel as model_class
+    if cuda is None:
+        import torch
+        cuda = torch.cuda.is_available()
+    name = settings["models"]["whisper"]
+    state = {"model": model_class(name, device="cuda" if cuda else "cpu",
+                                  compute_type="float16" if cuda else "int8"),
+             "cpu": not cuda}
+
+    def transcribe(a16):
+        segments, _ = state["model"].transcribe(a16, language="en", word_timestamps=True, vad_filter=False)
+        return [{"word": w.word.strip(), "start": round(w.start, 3), "end": round(w.end, 3)}
+                for s in segments for w in (s.words or []) if w.word.strip()]
 
     def aligner(audio, sr, text):
         a16 = resample(np.asarray(audio, dtype=np.float32), sr, 16000)
-        segments, _ = model.transcribe(a16, language="en", word_timestamps=True, vad_filter=False)
-        return [{"word": w.word.strip(), "start": round(w.start, 3), "end": round(w.end, 3)}
-                for s in segments for w in (s.words or []) if w.word.strip()]
+        try:
+            return transcribe(a16)
+        except RuntimeError as e:
+            if state["cpu"] or not any(k in str(e).lower() for k in GPU_LIB_ERRORS):
+                raise
+            log(f"⚠ Whisper cannot use the GPU here ({str(e).strip()[:80]}): it runs on the CPU "
+                "instead (slower; the voice model keeps the GPU).")
+            state["model"] = model_class(name, device="cpu", compute_type="int8")
+            state["cpu"] = True
+            return transcribe(a16)
     return aligner

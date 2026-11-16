@@ -349,3 +349,44 @@ class NotebookReference(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class WhisperGpuFallback(unittest.TestCase):
+    """16/11 in Colab: faster-whisper on the GPU failed with "Library libcublas.so.12 is not found";
+    the aligner moves Whisper to the CPU once and retries."""
+
+    class FakeWhisper:
+        made = []
+
+        def __init__(self, name, device, compute_type):
+            self.device = device
+            self.made.append((device, compute_type))
+
+        def transcribe(self, audio, **kw):
+            if self.device == "cuda":
+                raise RuntimeError("Library libcublas.so.12 is not found or cannot be loaded")
+            word = type("W", (), dict(word=" hello", start=0.0, end=0.5))
+            return [type("S", (), dict(words=[word]))], None
+
+    def setUp(self):
+        self.FakeWhisper.made = []
+        self.logs = []
+        self.settings = {"models": {"whisper": "tiny"}}
+
+    def test_gpu_library_missing_falls_back_to_cpu(self):
+        aligner = V.whisper_aligner(self.settings, model_class=self.FakeWhisper, cuda=True,
+                                    log=self.logs.append)
+        audio = np.zeros(16000, dtype=np.float32)
+        self.assertEqual(aligner(audio, 16000, ""), [{"word": "hello", "start": 0.0, "end": 0.5}])
+        self.assertEqual(aligner(audio, 16000, "")[0]["word"], "hello")
+        self.assertEqual(self.FakeWhisper.made, [("cuda", "float16"), ("cpu", "int8")])
+        self.assertEqual(len(self.logs), 1)
+        self.assertIn("CPU", self.logs[0])
+
+    def test_other_errors_not_hidden(self):
+        class Broken(self.FakeWhisper):
+            def transcribe(self, audio, **kw):
+                raise RuntimeError("out of memory in the decoder")
+        aligner = V.whisper_aligner(self.settings, model_class=Broken, cuda=True, log=self.logs.append)
+        with self.assertRaises(RuntimeError):
+            aligner(np.zeros(16000, dtype=np.float32), 16000, "")

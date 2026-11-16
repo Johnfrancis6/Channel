@@ -2,7 +2,7 @@
 
 Short by rule (60 lines at most), updated at the end of every session. Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
-**Last update: 2026-11-16**, S14 (upload, D32) after S13 + D30-D33. **Orchestrator**: `session_01Cw13LeFBwzXQBL4SqwTyRi` (sessions report to it, D19).
+**Last update: 2026-11-16**, S14b Whisper CPU fallback after S14 (upload, D32). **Orchestrator**: `session_01Cw13LeFBwzXQBL4SqwTyRi` (sessions report to it, D19).
 
 ## Where we are
 
@@ -28,8 +28,8 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 | Branch | Role |
 |---|---|
 | `claude/s13-reconcile` | S13 + D30-D33, [PR 12](https://github.com/Johnfrancis6/Channel/pull/12) to `main`; holds `claude/affectionate-heisenberg-k7i85k` and `claude/v1-s2b-script-uber` (keep both until it merges) |
-| `claude/s14-voice-upload` | S14 + D30-D33, [PR 13](https://github.com/Johnfrancis6/Channel/pull/13) to `main` |
-| `main` | production (Colab launchers): S01-S13 with PR 12; gets S14 and D30-D33 with PR 13 |
+| `claude/s14b-whisper-cpu-fallback` | **work branch**: Whisper falls back to the CPU when Colab lacks CUDA 12's `libcublas.so.12` |
+| `main` | production (Colab launchers): S01-S14 and D30-D33 (PRs 12, 13 merged 16/11) |
 | `claude/zelan-studio-analysis-rws9f6` | old Zehon Drive launchers; leave it (Zehon frozen) |
 
 ## Tools
@@ -37,7 +37,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 - Checker: `python3 whosedime/common/checker.py all FOLDER`. Skill sync: `python3 tools/sync_skills.py` (`--check`).
 - Charts and assembly: `whosedime/whosedime-video/scripts/charts.py`, `assemble.py`. Generation (parked): `whosedime/generate/run.py`.
 - Watch: `python3 whosedime/watch/watch.py` (`--no-search`, `--refresh-medians`, `--force`).
-- Tests: `python3 -m unittest discover -s tests` — **244 pass, measured 16/11 after S14** (233 after S13). Fresh container: see `CLAUDE.md`.
+- Tests: `python3 -m unittest discover -s tests` — **246 pass, measured 16/11 after S14b** (244 after S14). Fresh container: see `CLAUDE.md`.
 
 ## Sessions
 
@@ -45,7 +45,8 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 |---|---|
 | S01 to S12, S07c, video 1 sessions 2a, 2b, 3 and Pause 5 | **done**, in `main` |
 | S13 Reconcile branches | **done** 16/11, PR 12 merged |
-| S14 Voice reference by upload (D32) | **done** 16/11, [PR 13](https://github.com/Johnfrancis6/Channel/pull/13) waits for Franco |
+| S14 Voice reference by upload (D32) | **done**, merged. First Colab run 16/11: upload OK, then Whisper crashed (no `libcublas.so.12`) |
+| S14b Whisper CPU fallback | **done** 16/11, pull request waits for Franco; then `MODE = "reference"` again |
 | Video 1 voice (Franco's, not a session) | once PR 13 is merged: launcher `MODE = "reference"` (upload clip + text), `"sample"`, listen (D6), `"full"` |
 | S15 Voice check (next build) | opens **when Franco says upload + 20 s sample are done**: `Voice/ref.json`, `listen_20s.json`, his notes; prompt then (scope depends on what he heard) |
 | Incoherence skill (meaning half) | waits for about 30 graded lines |
