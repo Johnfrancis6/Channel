@@ -1120,6 +1120,24 @@ def qwen_clone_synth(voice_dir, settings, device="cuda:0"):
 GPU_LIB_ERRORS = ("libcublas", "libcudnn", "cuda", "cublas", "cudnn")
 
 
+def free_models(namespace, names=("synth", "aligner", "designer")):
+    """Drop the models a previous run left in the notebook's namespace, then empty the GPU cache.
+    17/11: a second run in the same Colab session loaded a new Qwen model while the old one was still
+    referenced, and Whisper hit "CUDA failed with error out of memory". Returns the names dropped."""
+    import gc
+    dropped = [n for n in names if namespace.get(n) is not None]
+    for n in names:
+        namespace.pop(n, None)
+    gc.collect()
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except ImportError:
+        pass
+    return dropped
+
+
 def whisper_aligner(settings, *, model_class=None, cuda=None, log=print):
     """aligner(audio, sr, text) -> [{"word", "start", "end"}]. The text is not given to Whisper,
     so the similarity measures what is heard, not what is expected.
@@ -1133,9 +1151,18 @@ def whisper_aligner(settings, *, model_class=None, cuda=None, log=print):
         import torch
         cuda = torch.cuda.is_available()
     name = settings["models"]["whisper"]
-    state = {"model": model_class(name, device="cuda" if cuda else "cpu",
-                                  compute_type="float16" if cuda else "int8"),
-             "cpu": not cuda}
+    state = {"model": None, "cpu": not cuda}
+    if cuda:
+        try:
+            state["model"] = model_class(name, device="cuda", compute_type="float16")
+        except RuntimeError as e:      # 17/11: "CUDA failed with error out of memory" at creation
+            if not any(k in str(e).lower() for k in GPU_LIB_ERRORS):
+                raise
+            log(f"⚠ Whisper cannot start on the GPU ({str(e).strip()[:80]}): it runs on the CPU "
+                "instead (slower; the voice model keeps the GPU).")
+            state["cpu"] = True
+    if state["model"] is None:
+        state["model"] = model_class(name, device="cpu", compute_type="int8")
 
     def transcribe(a16):
         segments, _ = state["model"].transcribe(a16, language="en", word_timestamps=True, vad_filter=False)

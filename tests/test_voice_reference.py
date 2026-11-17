@@ -429,3 +429,31 @@ class WhisperGpuFallback(unittest.TestCase):
         aligner = V.whisper_aligner(self.settings, model_class=Broken, cuda=True, log=self.logs.append)
         with self.assertRaises(RuntimeError):
             aligner(np.zeros(16000, dtype=np.float32), 16000, "")
+
+
+class GpuMemory(unittest.TestCase):
+    """17/11 in Colab: MODE = "full" after "sample" in the same session; Whisper's creation on the
+    GPU failed with "CUDA failed with error out of memory"."""
+
+    def test_whisper_creation_out_of_memory_falls_back_to_cpu(self):
+        made, logs = [], []
+
+        class OomOnGpu(WhisperGpuFallback.FakeWhisper):
+            def __init__(self, name, device, compute_type):
+                if device == "cuda":
+                    raise RuntimeError("CUDA failed with error out of memory")
+                made.append(device)
+                self.device = device
+        aligner = V.whisper_aligner({"models": {"whisper": "tiny"}}, model_class=OomOnGpu, cuda=True,
+                                    log=logs.append)
+        self.assertEqual(aligner(np.zeros(16000, dtype=np.float32), 16000, "")[0]["word"], "hello")
+        self.assertEqual(made, ["cpu"])
+        self.assertEqual(len(logs), 1)
+
+    def test_free_models_drops_old_ones(self):
+        ns = {"synth": object(), "aligner": object(), "designer": None, "S": {}}
+        self.assertEqual(V.free_models(ns), ["synth", "aligner"])
+        self.assertNotIn("synth", ns)
+        self.assertNotIn("aligner", ns)
+        self.assertIn("S", ns)
+        self.assertEqual(V.free_models({}), [])
