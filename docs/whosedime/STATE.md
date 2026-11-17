@@ -2,7 +2,7 @@
 
 Short by rule (60 lines at most), updated at the end of every session. Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
-**Last update: 2026-11-16**, S15 voice pace advice and quiet launchers (after Franco's first ElevenLabs sample). **Orchestrator**: `session_01Cw13LeFBwzXQBL4SqwTyRi` (sessions report to it, D19).
+**Last update: 2026-11-17**, S15b GPU memory (Franco's `full` run: Whisper out of memory). **Orchestrator**: `session_01Cw13LeFBwzXQBL4SqwTyRi` (sessions report to it, D19).
 
 ## Where we are
 
@@ -27,7 +27,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 | Branch | Role |
 |---|---|
 | `claude/s13-reconcile` | S13 + D30-D33, [PR 12](https://github.com/Johnfrancis6/Channel/pull/12) to `main`; holds `claude/affectionate-heisenberg-k7i85k` and `claude/v1-s2b-script-uber` (keep both until it merges) |
-| `claude/s15-voice-rate-advice` | **work branch**: S15, one proportional pace advice, launchers print nothing after the run; PR to `main` |
+| `claude/s15b-gpu-memory` | **work branch**: old models freed before a new run; Whisper on the CPU if the GPU is full; PR to `main` |
 | `main` | production (Colab launchers): S01-S14b and D30-D33 (PRs 12, 13, 14 merged 16/11) |
 | `claude/zelan-studio-analysis-rws9f6` | old Zehon Drive launchers; leave it (Zehon frozen) |
 
@@ -36,7 +36,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 - Checker: `python3 whosedime/common/checker.py all FOLDER`. Skill sync: `python3 tools/sync_skills.py` (`--check`).
 - Charts and assembly: `whosedime/whosedime-video/scripts/charts.py`, `assemble.py`. Generation (parked): `whosedime/generate/run.py`.
 - Watch: `python3 whosedime/watch/watch.py` (`--no-search`, `--refresh-medians`, `--force`).
-- Tests: `python3 -m unittest discover -s tests` — **250 pass, measured 16/11 after S15** (246 after S14b). Fresh container: see `CLAUDE.md`.
+- Tests: `python3 -m unittest discover -s tests` — **252 pass, measured 17/11 after S15b** (250 after S15). Fresh container: see `CLAUDE.md`.
 
 ## Sessions
 
@@ -46,7 +46,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 | S13 Reconcile branches | **done** 16/11, PR 12 merged |
 | S14, S14b Voice upload (D32), Whisper CPU fallback | **done**, merged; Colab 16/11: reference 197.6 wpm, sample 189.3 (too fast) |
 | Video 1 voice (Franco's, not a session) | once the S15 PR is merged: new reference at Speed x 0.79, `MODE = "reference"`, `"sample"`, listen (D6), `"full"` |
-| S15 Voice pace advice, launcher output | **done** 16/11, PR to `main` waits: advice = "multiply your Speed by aim / measured" (0.79 on 16/11), floor 0.7 |
+| S15, S15b Pace advice, GPU memory | S15 merged; new narrator `d5211b92cf2b`; 17/11 `full` crashed (Whisper OOM: two Qwen copies after `sample`): S15b PR waits |
 | Incoherence skill (meaning half) | waits for about 30 graded lines |
 
 ## Open issues
