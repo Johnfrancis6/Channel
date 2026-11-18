@@ -45,7 +45,7 @@ the cell in `03_scenes.md` (and run the checker again), never the drawing.
 |---|---|
 | Gate (D4) | `checker.py scenes` and `voice` must pass: no `[TO VERIFY]` fact used, the registry unchanged since Franco signed it, the scenes equal to the script word for word; `voice/state.json` says `ready` |
 | Charts | all redrawn from the registry (never a stale chart) |
-| Files | an image for every `image` and `video` scene (stops if one is missing); a missing clip is replaced by its image (warning) |
+| Files | an image for every `image` and `video` scene (stops if one is missing); a clip is `clips/scene_NNN.*` or `clips/anim_NNN.*`, a missing one is replaced by its image (warning) |
 | Timing | each spoken scene is found in `voice/words.json` (numbers said in words and respellings matched back); it starts 0.25 s before its first word, in the pause. A `title` or `chapter` card adds 2.5 s of silence |
 | Render | 1920x1080, 30 fps; images zoom or pan slowly (`zoom_in`, `zoom_out`, `pan_left`, `pan_right`), charts and cards push in 2 %, clips slowed (x1.35 at most) then frozen if short; on-screen keyword lower left on a navy band; 0.5 s crossfades; sound at -14 LUFS, peaks at -1.5 dBTP |
 | Check | size, an audio track, no silence (mean > -60 dB), no clipping (peak <= -0.5 dB), duration within 0.5 s. **A render is finished only if this check passes** |
