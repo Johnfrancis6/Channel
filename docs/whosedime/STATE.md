@@ -28,7 +28,7 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 | Branch | Role |
 |---|---|
 | `claude/s13-reconcile` | S13 + D30-D33, [PR 12](https://github.com/Johnfrancis6/Channel/pull/12) to `main`; holds `claude/affectionate-heisenberg-k7i85k` and `claude/v1-s2b-script-uber` (keep both until it merges) |
-| `claude/v1-voice-done` | STATE only, video 1 voice done; PR to `main` |
+| `claude/v1-s4-assembly` | **work branch** of video 1's assembly (V1 S4) |
 | `main` | production (Colab launchers): S01-S14b and D30-D33 (PRs 12, 13, 14 merged 16/11) |
 | `claude/zelan-studio-analysis-rws9f6` | old Zehon Drive launchers; leave it (Zehon frozen) |
 
@@ -43,9 +43,9 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 
 | # | Status |
 |---|---|
-| S01 to S13, S07c, video 1 sessions 2a, 2b, 3 and Pause 5 | **done**, in `main` (S13: PR 12) |
-| Video 1 voice | **done** 17/11, validated 18/11 · next: Franco's 55 images, 5 clips (prompts in `03_scenes.md`), then the assembly session |
-| S14-S15b Voice upload, CPU fallback, pace advice, GPU memory | **done**, merged (PRs 13-16); `full` ran 18 min on a T4 (17/11) |
+| S01 to S15b, S07c, video 1 sessions 2a, 2b, 3, Pause 5 | **done**, in `main` (S13-S15b: PRs 12-16) |
+| Video 1 voice | **done** 17/11, validated 18/11 · pieces 18/11: 59 images (093 missing), 5 clips named `anim_NNN` |
+| V1 S4 Assembly | **open** 18/11: [`sessions/V1_S4_assembly.md`](sessions/V1_S4_assembly.md) (accept `anim_NNN`, then Colab plan/extract/full) |
 | Incoherence skill (meaning half) | waits for about 30 graded lines |
 
 ## Open issues
