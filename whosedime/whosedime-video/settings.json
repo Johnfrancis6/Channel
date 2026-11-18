@@ -10,8 +10,10 @@
     "full_name": "video",
     "extract_name": "extract_{a:03d}-{b:03d}",
     "image_exts": [".png", ".jpg", ".jpeg", ".webp"],
-    "clip_exts": [".mp4", ".mov", ".webm", ".m4v"]
+    "clip_exts": [".mp4", ".mov", ".webm", ".m4v"],
+    "clip_prefixes": ["scene", "anim"]
   },
+  "_clip_prefixes_source": "V1 S4 (18/11): Franco saved video 1's clips as clips/anim_NNN.mp4, the label of their Flow prompt; scene_NNN is looked for first",
   "drive": {
     "root": "/content/drive/MyDrive/WhoseDime",
     "videos": "Videos"

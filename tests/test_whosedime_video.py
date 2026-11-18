@@ -331,6 +331,17 @@ class Assembly(unittest.TestCase):
         with self.assertRaisesRegex(A.AssemblyError, "images/scene_002.png"):
             A.plan(folder, log=self.quiet)
 
+    def test_a_clip_named_after_its_flow_prompt_is_used(self):
+        folder = self.copy()
+        clip = folder / "clips" / "scene_001.mp4"
+        anim = clip.with_name("anim_001.mp4")
+        clip.rename(anim)
+        p = A.plan(folder, log=self.quiet)
+        self.assertNotIn("scene 1: no clip, its image is used (zoom_in)", p["warnings"])
+        self.assertEqual(A.find_file(folder, "clips", 1, [".mp4"], ["scene", "anim"]), anim)
+        shutil.copy(anim, clip)     # both present: scene_NNN wins
+        self.assertEqual(A.find_file(folder, "clips", 1, [".mp4"], ["scene", "anim"]), clip)
+
     def test_find_video(self):
         root = self.folder.parent.parent
         self.assertEqual(A.find_video(root, "99_test"), self.folder)

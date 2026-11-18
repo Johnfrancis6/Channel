@@ -164,13 +164,14 @@ rain, traffic, a car on a road, a crowd walking. Avoid faces and hands in
 close-up (the animation deforms them). Each clip starts from its scene's
 image: Franco makes `scene_NNN.png` in its batch, then in **Google Flow**
 (image to video) or the Gemini video tool he attaches it and pastes
-`anim_NNN`. He saves `clips/scene_NNN.mp4` and keeps the image: if the clip
+`anim_NNN`. He saves `clips/scene_NNN.mp4` (the heading names it; `clips/anim_NNN.mp4` is
+accepted too) and keeps the image: if the clip
 fails, the assembly uses the image. The clip's sound is not used.
 
 ```markdown
 ## Flow clips
 
-**anim_001** — *A snowy Paris street at night ...* (from scene_001.png)
+**anim_001** → `clips/scene_001.mp4` — *A snowy Paris street at night ...* (from scene_001.png)
 > Animate this illustration with a slow, subtle motion: <one sentence: snow falls, the car rolls forward>. Keep exactly the same drawing style, colours, people and composition as the image; every person keeps exactly two arms. No new objects or people, no cuts, no text, no talking, no music.
 ```
 
@@ -200,7 +201,7 @@ the chat):
 2. each batch under its own heading, then for each scene
    `**scene_009** — *summary*` and the prompt **in its own code block**,
    so it copies in one click;
-3. the clip prompts the same way (`**anim_001**`);
+3. the clip prompts the same way (`**anim_001** → clips/scene_001.mp4`);
 4. one line naming the chart and card scenes, which have no prompt.
 
 Then the self-critique of the scenes (5 lines at most, with scene

@@ -149,17 +149,19 @@ def gate(folder):
     return warnings
 
 
-def find_file(folder, sub, n, exts):
-    for ext in exts:
-        p = Path(folder) / sub / f"scene_{n:03d}{ext}"
-        if p.is_file():
-            return p
+def find_file(folder, sub, n, exts, prefixes=("scene",)):
+    """First file <sub>/<prefix>_NNN<ext> found, prefixes in order (then extensions)."""
+    for prefix in prefixes:
+        for ext in exts:
+            p = Path(folder) / sub / f"{prefix}_{n:03d}{ext}"
+            if p.is_file():
+                return p
     return None
 
 
 def attach_files(scenes, folder, only=None, need=True):
-    """Image of every image and video scene, clip of video scenes (optional: the image replaces it),
-    chart of chart scenes. Returns (missing, warnings)."""
+    """Image of every image and video scene, clip of video scenes (optional: the image replaces it;
+    clips/scene_NNN.* first, then clips/anim_NNN.*, the name of its Flow prompt), chart of chart scenes. Returns (missing, warnings)."""
     f = SETTINGS["files"]
     missing, warnings = [], []
     for s in scenes:
@@ -170,7 +172,7 @@ def attach_files(scenes, folder, only=None, need=True):
             if s.image is None:
                 missing.append(f"images/scene_{s.n:03d}.png")
         if s.type == "video":
-            s.clip = find_file(folder, "clips", s.n, f["clip_exts"])
+            s.clip = find_file(folder, "clips", s.n, f["clip_exts"], f["clip_prefixes"])
             if s.clip is None and s.image is not None:
                 warnings.append(f"scene {s.n}: no clip, its image is used (zoom_in)")
         if s.type == "chart":
