@@ -2,7 +2,7 @@
 
 Short by rule (60 lines at most), updated at the end of every session. Plan: [`ROADMAP.md`](ROADMAP.md). Decisions: [`DECISIONS.md`](DECISIONS.md).
 
-**Last update: 2026-11-17**, S15b GPU memory (Franco's `full` run: Whisper out of memory). **Orchestrator**: `session_01Cw13LeFBwzXQBL4SqwTyRi` (sessions report to it, D19).
+**Last update: 2026-11-18**, video 1 voice done and validated by Franco. **Orchestrator**: `session_01Cw13LeFBwzXQBL4SqwTyRi` (sessions report to it, D19).
 
 ## Where we are
 
@@ -20,14 +20,15 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
   - Steps 1-5 written (fact check signed `sha256:18adbeeab4a0`; script 2,089 words; 94 scenes; publication).
   - **Measured 15/11**: `checker.py all` exit 0 on the raw Drive files; fingerprint = Signed line.
   - **Pause 5 answered 16/11**: title "Uber Lost $7.9 Billion. Uber's history" (F26; Franco's), thumbnails A, B, C, A first.
-  - Pieces: `miniatures/` 3 of 3, `images/` 0 of 55, `clips/` 0 of 5. Then voice (D23), assembly. Stale prompt: `V1_S2b_script.md`.
+  - **Voice done 17/11** (narrator `d5211b92cf2b`): 13 min 47 s, 157.0 wpm total (near target), 0 low similarity; blocks 29, 43
+    flagged, **Franco listened: OK** (18/11). Pieces: `miniatures/` 3 of 3, `images/` 0 of 55, `clips/` 0 of 5. Then assembly.
 
 ## Branches
 
 | Branch | Role |
 |---|---|
 | `claude/s13-reconcile` | S13 + D30-D33, [PR 12](https://github.com/Johnfrancis6/Channel/pull/12) to `main`; holds `claude/affectionate-heisenberg-k7i85k` and `claude/v1-s2b-script-uber` (keep both until it merges) |
-| `claude/s15b-gpu-memory` | **work branch**: old models freed before a new run; Whisper on the CPU if the GPU is full; PR to `main` |
+| `claude/v1-voice-done` | STATE only, video 1 voice done; PR to `main` |
 | `main` | production (Colab launchers): S01-S14b and D30-D33 (PRs 12, 13, 14 merged 16/11) |
 | `claude/zelan-studio-analysis-rws9f6` | old Zehon Drive launchers; leave it (Zehon frozen) |
 
@@ -42,11 +43,9 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 
 | # | Status |
 |---|---|
-| S01 to S12, S07c, video 1 sessions 2a, 2b, 3 and Pause 5 | **done**, in `main` |
-| S13 Reconcile branches | **done** 16/11, PR 12 merged |
-| S14, S14b Voice upload (D32), Whisper CPU fallback | **done**, merged; Colab 16/11: reference 197.6 wpm, sample 189.3 (too fast) |
-| Video 1 voice (Franco's, not a session) | once the S15 PR is merged: new reference at Speed x 0.79, `MODE = "reference"`, `"sample"`, listen (D6), `"full"` |
-| S15, S15b Pace advice, GPU memory | S15 merged; new narrator `d5211b92cf2b`; 17/11 `full` crashed (Whisper OOM: two Qwen copies after `sample`): S15b PR waits |
+| S01 to S13, S07c, video 1 sessions 2a, 2b, 3 and Pause 5 | **done**, in `main` (S13: PR 12) |
+| Video 1 voice | **done** 17/11, validated 18/11 · next: Franco's 55 images, 5 clips (prompts in `03_scenes.md`), then the assembly session |
+| S14-S15b Voice upload, CPU fallback, pace advice, GPU memory | **done**, merged (PRs 13-16); `full` ran 18 min on a T4 (17/11) |
 | Incoherence skill (meaning half) | waits for about 30 graded lines |
 
 ## Open issues
@@ -56,5 +55,6 @@ Short by rule (60 lines at most), updated at the end of every session. Plan: [`R
 - **Guard**: false block on `git checkout -b NEW && git push -u origin NEW` (reads HEAD first); S15's fix was denied by
   the permission classifier (guard = oversight): Franco decides. Not ported from 08/11: French check of shell-made files,
   per-file critique match. Hooks reach only clones with `.claude/settings.json`. **Voice (D23)**: free plan non-commercial; § 12 unclear.
-- **Watch**: medians frozen at 5 Nov; no schedule. **Drive editor** re-escapes `.md` (breaks the hash). **Out of scope**:
+- **Voice notebook**: a ready voice gives "No video waiting for its voice" plus an IPython traceback (confusing). **Watch**: medians
+  frozen at 5 Nov; no schedule. **Drive editor** re-escapes `.md` (breaks the hash). **Out of scope**:
   the old brief's "externalities"; ROADMAP rule 2 names a stale branch; no setup script.
