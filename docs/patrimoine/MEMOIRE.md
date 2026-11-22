@@ -43,8 +43,9 @@ Brainstorming de faisabilité, idée par idée. Une idée n'entre dans
 - Périmètre : indices mondiaux, crypto, matières premières (or, pétrole,
   cacao, café), devises ; franc CFA calculé par la parité fixe
   1 EUR = 655,957 XOF/XAF.
-- BRVM : chercher une source gratuite à l'idée 11 ; si aucune, la BRVM
-  n'apparaît pas dans le prototype (ni simulée, ni saisie).
+- BRVM : **exclue du prototype** (idée 11 : aucune API officielle
+  gratuite ; FluxBourse API payante, Apify payante et suspendue,
+  brvmr = miroir non officiel).
 
 ### Idée 3 — Suivi du patrimoine multi-actifs (validée le 2026-11-22)
 
@@ -118,7 +119,9 @@ Brainstorming de faisabilité, idée par idée. Une idée n'entre dans
 
 ### Idée 9 — Détection de fraude sur schémas officiels (validée le 2026-11-22)
 
-- Moteur : Tazama (open source, Apache-2.0, Linux Foundation, lien
+- **Mise à jour idée 11 : Tazama abandonné, remplacé par des règles
+  codées** (trop lourd pour un hébergement gratuit).
+- (Choix initial) Moteur : Tazama (open source, Apache-2.0, Linux Foundation, lien
   rapporté avec la BCEAO). Il lit des messages ISO 20022, cohérent avec
   l'idée 1. Réserve : architecture lourde (plusieurs services) — coût
   d'hébergement gratuit à vérifier à l'idée 11 ; repli : règles codées.
@@ -139,6 +142,33 @@ Brainstorming de faisabilité, idée par idée. Une idée n'entre dans
 - L'application ne bloque jamais un paiement elle-même : la banque décide.
 - Plus tard, avec un vrai partenaire : remplacer le tableau de bord par
   l'API de la banque.
+
+### Idée 11 — Solutions gratuites par bloc (validée le 2026-11-22, provisoire)
+
+Choix provisoires, à confirmer par la session « outils » :
+- Mobile : React Native + Expo ; graphes : Victory Native.
+- Base de données + authentification : Supabase (gratuit, pause après
+  inactivité).
+- Calculs (VaR, bêta, Isolation Forest, score) : Python FastAPI +
+  scikit-learn, hébergement gratuit (ex. Render, s'endort).
+- Marchés : Finnhub (~60 appels/min) + Twelve Data (~800/jour), cours
+  différés ; serveur cache obligatoire. Crypto : CoinGecko (clé demo).
+  Devises : Frankfurter (taux BCE, quotidien) ; F CFA par parité fixe.
+- IA de catégorisation : Groq (~30 req/min, ~1 000/jour ; 429 au-delà).
+- Fraude : règles codées (Tazama abandonné).
+- Tableau de bord « banque » : Next.js sur Vercel.
+- Mobile money réel plus tard : bac à sable MTN MoMo ; pas de bac à
+  sable officiel trouvé pour Orange Money ni Wave (agrégateur Payfonte).
+- Toutes les limites viennent de sources secondaires (novembre 2026),
+  à reconfirmer sur les pages officielles.
+
+## Suite : trois sessions de raffinement
+
+1. Analyse technique + choix des outils : [BRIEF_01_TECH_ANALYSIS.md](BRIEF_01_TECH_ANALYSIS.md)
+2. Architecture (brief écrit par la session 1)
+3. Système de design
+
+Chaque agent peut remettre en cause une décision ; Franco tranche.
 
 ## Points ambigus et réponses
 
