@@ -82,6 +82,10 @@ only. Prototype for a client.
 - 40-70 prompt unanswered: one reminder, then the alert stays open in
   the app; **never auto-sent to the bank**.
 - Amounts **hidden** in notifications by default.
+- **Adaptive device security:** each device uses its own level (strong
+  biometric, weak biometric, phone PIN/pattern/password, or app PIN when
+  the phone has none) — matrix in TECH_ANALYSIS §1.2b; the level is a
+  score context factor.
 - Reference device: **Tecno Spark 50**, Android only.
 - Code in a **new public repository** (Franco creates it): GitHub
   Actions minutes are free, but scheduled workflows stop after 60 days
@@ -132,7 +136,8 @@ sent ≤ 5 s p95. Free-tier quotas in TOOLS.md must hold with a margin of
    builds), keep-alive, GitHub Actions minutes budget (public vs private
    repo).
 11. **Observability:** what is logged and alerted, with free limits.
-12. **Risks:** each free-tier catch in TOOLS.md with its mitigation.
+12. **Aspects G1-G15** of TECH_ANALYSIS §9 (distribution and updates, emails, money arithmetic, time zones, corporate actions, FX history, detection evaluation, tests, device integrity, sensitive input, rate limiting, account lifecycle, legal texts, analytics, battery): a decision for each.
+13. **Risks:** each free-tier catch in TOOLS.md with its mitigation.
 
 ## Open questions you must carry
 
@@ -168,7 +173,7 @@ Record challenges and answers in `CHALLENGES.md` (new section
 
 In `docs/patrimoine/` on the work branch, committed and pushed:
 
-1. `ARCHITECTURE.md` — items 1-12 above.
+1. `ARCHITECTURE.md` — items 1-13 above.
 2. `DATA_MODEL.md` — tables, fields, RLS, size estimate.
 3. `API.md` — RPC/view contracts per screen and event flows.
 4. `BUILD_PLAN.md` — the build sessions, their order, scope and the

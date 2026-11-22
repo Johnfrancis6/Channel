@@ -61,11 +61,52 @@ schema [decision, idea 1].
 |---|---|
 | Sign-up | Email + password (≥ 10 characters, breached-password check off-device not available free → length + common-list check) ; email confirmation by code (Supabase Auth). |
 | Demo accounts | 3 pre-seeded profiles (salaried in Dakar, trader in Abidjan, diaspora investor) with months of history, so the anomaly engine is already "learned" [decision, idea 8]. |
-| Login | Email + password once per device; then **biometric unlock** (`expo-local-authentication`) or 6-digit app PIN. |
+| Login | Email + password once per device; then unlock with **the strongest method the device offers** (§1.2b). |
 | MFA | Optional TOTP (Supabase MFA). Required for the analyst dashboard. |
 | Bank-card scan (C10) | After email confirmation: "Ajouter ma carte bancaire" → camera (permission asked here, in context) → **on-device OCR** (Vision Camera + ML Kit) fills number, expiry, holder name → Luhn check → user confirms/corrects; "Saisir à la main" always available. CVV never asked, scanned or stored. Purpose: **only to identify the user's bank** from the first 6 digits (Franco). Server receives only first 6 + last 4, brand, expiry, holder name; the image is never saved or sent. Timeout 20 s → manual entry. |
 | Device registration | On first login, a random device id is created and stored in secure storage; a `security_event` "new_device" is written (used by fraud rules). |
 | Session | Access token 1 h, refresh token rotated; app locks after 5 min in background (setting: 1/5/15 min); 5 failed PINs → full re-login. |
+
+### 1.2b Adaptive device security (Franco, 2026-11-22)
+
+Each device uses **its own security level**: the app detects what the
+phone offers and builds on it, instead of imposing one method.
+
+Detection at first login and at every app start (`expo-local-authentication`:
+`hasHardwareAsync`, `supportedAuthenticationTypesAsync` → fingerprint /
+facial recognition / iris, `isEnrolledAsync`, `getEnrolledLevelAsync` →
+NONE / SECRET / BIOMETRIC_WEAK / BIOMETRIC_STRONG) [API names from the
+Expo docs as known; to re-check on SDK 58].
+
+| Device level | Examples | Unlock the app | Sensitive actions (see list) |
+|---|---|---|---|
+| **Strong biometric** (Android class 3, Face ID, Touch ID) | fingerprint sensor, Face ID | biometric | biometric |
+| **Weak biometric** (Android class 2) | 2D camera face unlock on many low/mid-range Android phones [assumed; check the Tecno Spark 50] | biometric | **phone PIN/pattern/password or app PIN** (weak face unlock can be fooled by a photo) |
+| **Device secret only** | phone PIN, pattern, password, no biometrics | phone secret (system prompt) | phone secret |
+| **Nothing set on the phone** | no lock screen | **app PIN (6 digits) required** + warning "Votre téléphone n'est pas verrouillé" | app PIN + email code for the most sensitive ones |
+
+Rules:
+- Sensitive actions: reveal hidden amounts, change security settings,
+  add/remove a device, export data, change email/password, delete the
+  account, answer a 40-70 "C'est vous ?" prompt.
+- The user may choose a **weaker method than the device offers only
+  down to the device secret**, never "no protection".
+- When the device's security changes (a fingerprint added or removed,
+  lock screen disabled), the stored unlock key is invalidated → full
+  re-login with email + password, and a `security_event`
+  "device_security_changed" (fed to the fraud rules: classic SIM-swap
+  takeover step). [assumed mechanism: Android Keystore key created with
+  user authentication required and invalidated on new enrolment; to
+  confirm with `expo-secure-store` `requireAuthentication` on SDK 58.]
+- The device's security level is sent with each session
+  (`device_security_level`) and is a **context factor of the risk score**
+  (idea 10): no lock screen or weak biometric raises the score of risky
+  operations a little.
+- App PIN: 6 digits, no trivial codes (000000, 123456, birth year), 5
+  failures → wait 1 min, 10 → full re-login; stored only as a salted
+  hash derived on device (never sent).
+- iOS later (C3): Face ID needs the `NSFaceIDUsageDescription` string;
+  same matrix.
 
 ### 1.3 Consent screens (once, revisitable in Settings)
 
@@ -347,7 +388,8 @@ protocol in [SETUP.md](SETUP.md)) before creating the project.
 | Transport | HTTPS only; certificate pinning not in the prototype (documented as a later step). |
 | Screens | hide content in the app switcher and block screenshots on sensitive screens (`expo-screen-capture`). |
 | Session | auto-lock, device list with remote sign-out, re-auth (biometric) before changing security settings. |
-| Rooted devices | warning only (no free reliable detection) [assumed]. |
+| Device security level | adaptive, per device (§1.2b). |
+| Rooted devices | Play Integrity verdict as a score factor (G9); never blocks. |
 | Audit | `security_events` table: login, failed PIN, new device, sign-out, settings change (also used by fraud rules). |
 | Bank card (C10) | OCR on the device; image never saved or sent; only first 6 + last 4, brand, expiry, holder name stored; CVV never collected; card fields excluded from logs and Sentry; test card numbers in the demo. |
 | Leaving the device | Supabase (EU) holds all user data; Groq receives **pseudonymised** labels only (C6); Sentry receives crash data with PII scrubbing on; nothing else. |
@@ -384,13 +426,36 @@ Challenge to the memo: "VaR, beta, IF, scoring on server" is kept, but
 
 ---
 
-## 9. What is measured vs assumed (summary)
+## 9. Aspects added after review (2026-11-22)
+
+Points not covered in the first pass. Each is a requirement for the
+architecture agent; [assumed] marks unverified limits.
+
+| # | Aspect | Requirement / recommendation |
+|---|---|---|
+| G1 | **Distribution and updates** (no Play Store: the client installs himself) | APK distributed through **Firebase App Distribution** (free, invites by email, update notices) [assumed free] or a download link; onboarding explains "installer une app hors Play Store" and Play Protect warnings. JS-only fixes via **Expo Updates** (OTA, 1,000 MAU free); native changes = new APK. Server returns a **minimum app version**; below it, the app asks to update. Play Console costs a one-time fee [assumed ~25 USD] → not in the prototype. |
+| G2 | **Sign-up emails** | Supabase's built-in email sender is heavily rate-limited (a few emails/hour) [assumed, to verify] → plug a free SMTP provider (e.g. Resend or Brevo free tiers) [assumed limits] for confirmation codes and alerts by email. |
+| G3 | **Money arithmetic** | Amounts stored as integers in minor units with currency code (XOF/XAF: 0 decimals; EUR/USD: 2); `numeric` in Postgres, never floats; conversion and rounding rules written once (banker's rounding or half-up, to fix) and shared by app, SQL and Python. |
+| G4 | **Time zones and clocks** | All countries are offered → store timestamps in UTC + the user's IANA time zone; rules such as "transfer at 3 a.m." use local time. Fraud and scoring use **server time**, never the phone clock (can be changed). |
+| G5 | **Corporate actions** | Stock splits and dividends change average cost, TWR and IRR. Prototype: dividends entered manually as cash flows; splits applied from the data vendor if its free plan has them [unverified], otherwise manual. |
+| G6 | **Historical FX for performance** | Currency effect and multi-currency TWR need the rate at each date → store daily FX history (Frankfurter) and never recompute history with today's rate. |
+| G7 | **Evaluating detection quality** | The fake-data generator labels injected anomalies/fraud → measure precision, recall and alert rate per user per month for thresholds, Isolation Forest and the combined score; target to set (e.g. ≤ 2 false alerts/user/month [assumed]). Without this, the 40/70 thresholds are guesses. |
+| G8 | **Testing strategy** | Unit tests for finance math (VaR, CVaR, beta, TWR, IRR, attribution) against hand-checked cases; parity test for Isolation Forest (Python vs TS); contract tests for the provider adapter; end-to-end on the Tecno Spark 50 with **Maestro** (free) [assumed]; card-OCR tests on test cards. |
+| G9 | **Device integrity** | **Play Integrity API** (free quota) [assumed] to flag rooted/modified devices and repackaged APKs; result is a score context factor, never a block. |
+| G10 | **Sensitive input** | Card, PIN and password fields: no autocorrect/suggestions, keyboard "incognito" flag on Android, no copy of the card number, masked in the app switcher. |
+| G11 | **Abuse and rate limiting** | Per-user and per-IP limits on Edge Functions (sign-up, OCR-linked bank lookup, categorisation, alert answers); Supabase Auth limits reviewed; CAPTCHA (Cloudflare Turnstile, free) on sign-up if abuse appears. |
+| G12 | **Account lifecycle** | Account deletion in the app (and later required by Play policy), data export, device change (re-login, old device revoked), "sign out everywhere". |
+| G13 | **Legal texts** | Terms of use, privacy policy, "not financial advice" and "fictitious data" notices, market-data attributions (CoinGecko required; others to check), available in French and English before the client installs. |
+| G14 | **Product analytics** | Not decided. If needed, privacy-friendly and opt-in (e.g. PostHog free tier or Expo Observe) [assumed]; otherwise none in the prototype. |
+| G15 | **Battery and background** | No background polling; data refreshes on open, pull-to-refresh and push; widgets (phase 2) read local data only. |
+
+## 10. What is measured vs assumed (summary)
 
 Measured (official pages, 2026-11-22): all vendor limits in TOOLS.md
 marked [official]; Expo SDK 58 minimum OS; Android widget 30-min floor;
 Play target API 36; Supabase regions and 1-week pause; Render cold start.
 
-Assumed (to measure in the first build): every performance budget in §6,
+Assumed (to measure in the first build): the device-security mechanism of §1.2b, the limits tagged in §9, every performance budget in §6,
 reference device, push latency, Supabase region choice, SQLCipher in
 `expo-sqlite`, French TTS availability, SIM-change unavailability, the
 law details in §7.

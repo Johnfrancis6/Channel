@@ -177,6 +177,7 @@ Sources and dates are in [TOOLS.md](TOOLS.md) (all checked 2026-11-22).
 | 18 | Reference device | **Tecno Spark 50**. |
 | 19 | Existing accounts | None yet (checklist in [SETUP.md](SETUP.md)). |
 | — | Countries at first launch | **All countries** are offered (Franco). |
+| — | Device security | **Each device uses its own security level** (Face ID, fingerprint, phone code, etc.) (Franco). |
 | — | Card use (C10) | **Only to identify the bank** (Franco). |
 | — | Division of work | Session 1 handles the technical part; the architecture agent writes the design agent's brief. |
 
