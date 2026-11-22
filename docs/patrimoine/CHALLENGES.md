@@ -1,20 +1,20 @@
 # Challenges — decisions questioned by Session 1
 
 Format: decision → problem → alternative → trade-off → recommendation →
-**Franco's answer**. Nothing here is applied until Franco answers.
+**Franco's answer**. C1-C9 validated by Franco on 2026-11-22.
 Sources and dates are in [TOOLS.md](TOOLS.md) (all checked 2026-11-22).
 
 | # | Decision challenged | Recommendation | Franco's answer |
 |---|---|---|---|
-| C1 | Compute on FastAPI/Render | Batch Python on GitHub Actions + live scoring in Supabase Edge Function | _pending_ |
-| C2 | Bank dashboard Next.js on Vercel | React SPA on Cloudflare Pages | _pending_ |
-| C3 | Android + iOS for the prototype | Android-only demo; iOS later | _pending_ |
-| C4 | Finnhub + Twelve Data cover markets | Add FRED; ETF proxies; cocoa/coffee monthly | _pending_ |
-| C5 | Historical VaR at 1 month | Show 1-month VaR scaled from 1-day, overlapping as a check | _pending_ |
-| C6 | Groq "open models" | `gpt-oss-20b`, labels pseudonymised | _pending_ |
-| C7 | Login method (not decided) | Email + password + biometrics; no SMS | _pending_ |
-| C8 | App detects SIM change | Simulated only; real source = operator API later | _pending_ |
-| C9 | Widgets in the first version | Phase 2, Android first | _pending_ |
+| C1 | Compute on FastAPI/Render | Batch Python on GitHub Actions + live scoring in Supabase Edge Function | validated 2026-11-22 |
+| C2 | Bank dashboard Next.js on Vercel | React SPA on Cloudflare Pages | validated 2026-11-22 |
+| C3 | Android + iOS for the prototype | Android-only demo; iOS later | validated 2026-11-22 |
+| C4 | Finnhub + Twelve Data cover markets | Add FRED; ETF proxies; cocoa/coffee monthly | validated 2026-11-22 |
+| C5 | Historical VaR at 1 month | Show 1-month VaR scaled from 1-day, overlapping as a check | validated 2026-11-22 |
+| C6 | Groq "open models" | `gpt-oss-20b`, labels pseudonymised | validated 2026-11-22 |
+| C7 | Login method (not decided) | Email + password + biometrics; no SMS | validated 2026-11-22 |
+| C8 | App detects SIM change | Simulated only; real source = operator API later | validated 2026-11-22 |
+| C9 | Widgets in the first version | Phase 2, Android first | validated 2026-11-22 |
 
 ---
 
@@ -155,3 +155,50 @@ Sources and dates are in [TOOLS.md](TOOLS.md) (all checked 2026-11-22).
   left, alerts count) in phase 2, Android first. Market tickers in a
   widget would be ≥ 30 min stale on top of the 15-min delay.
 - **Recommendation:** phase 2, without a market-ticker widget.
+
+---
+
+## Franco's answers to the Session 1 questions (2026-11-22)
+
+| # | Question | Answer |
+|---|---|---|
+| 7 | Who is the client? | An ordinary person (a lay end user), not an institution. |
+| 8 | Priority country / currency | The user lives in Africa; **chooses their country at first launch**; reference currency **XOF by default, changeable manually**. |
+| 9 | Demo date | None. The architecture agent sets the deadline. |
+| 10 | Who installs | The client installs the app himself; a **guided demo (tour) at first launch**. |
+| — | New feature | **OCR of the bank card at sign-up** to fill the card fields automatically (see C10). |
+| 11 | Demo console in the bank dashboard | **No.** |
+| 12 | Languages | **French and English only.** |
+| 13 | Read-aloud (TTS) | **No.** |
+| 14 | Unanswered 40-70 prompt → bank after 1 h? | **No**: the alert stays open in the app (reminder only). |
+| 15 | Amount in notifications | **Hidden** by default. Wording and look: design agent. |
+| 16 | Repository | **New public repository** (created by Franco). |
+| 17 | Region RTT test from his phone | Yes (protocol in [SETUP.md](SETUP.md)). |
+| 18 | Reference device | **Tecno Spark 50**. |
+| 19 | Existing accounts | None yet (checklist in [SETUP.md](SETUP.md)). |
+| — | Division of work | Session 1 handles the technical part; the architecture agent writes the design agent's brief. |
+
+## C10 — Bank-card OCR at sign-up (new feature, Session 1 recommendation)
+
+- **Need (Franco):** at sign-up, scan the bank card with the camera to
+  fill number, expiry and holder name automatically.
+- **Problem:** a full card number (PAN) is payment-card data. Storing or
+  sending it brings the app into PCI DSS scope; storing the CVV is
+  forbidden by PCI DSS in all cases (PCI SSC FAQ). A cloud OCR would send
+  the card image to a third party.
+- **Technical choice (Claude's):** OCR **on the device only** —
+  `react-native-vision-camera` v4 + ML Kit text recognition frame
+  processor (free, offline, Android) — then a parser (regex for 13-19
+  digits, `MM/YY`, name line) and a **Luhn check**. The user always
+  confirms or corrects the fields. The CVV is **never** scanned or
+  stored. The server stores only **first 6 + last 4 digits** (truncated,
+  not reversible), brand, expiry, holder name. The image is never saved.
+  The BIN (first 6) links the card to a simulated bank in the fake data.
+  The demo uses test card numbers.
+- **Trade-off:** + free, private, works offline; − OCR accuracy on
+  embossed/worn cards is imperfect [assumed] → manual entry always
+  available; adds the camera permission and ~a few MB of ML Kit model
+  [assumed, to measure against the 30 MB APK budget].
+- **Open question for Franco:** what is the card used for after
+  sign-up (only to identify the user's bank and show the card in the
+  accounts list, or more)?

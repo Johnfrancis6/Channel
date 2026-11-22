@@ -4,9 +4,9 @@ Input: [MEMOIRE.md](MEMOIRE.md) (11 validated ideas, 2026-11-22) and
 [BRIEF_01_TECH_ANALYSIS.md](BRIEF_01_TECH_ANALYSIS.md).
 Tools: [TOOLS.md](TOOLS.md). Questioned decisions: [CHALLENGES.md](CHALLENGES.md).
 
-This document assumes the recommendations of CHALLENGES.md (C1-C9). Where
-a screen depends on one, the tag (Cn) says so; if Franco rejects it, the
-architecture agent follows the memo instead.
+Franco validated C1-C9 of CHALLENGES.md and answered the Session 1
+questions on 2026-11-22 (see the end of CHALLENGES.md); this document
+includes those answers. The tag (Cn) marks a screen that depends on one.
 
 **Tags:** **[measured]** = read on an official page (date 2026-11-22);
 **[assumed]** = my estimate, to measure on a device; **[decision]** =
@@ -51,7 +51,9 @@ schema [decision, idea 1].
 | Splash | Native splash (`expo-splash-screen`), held until the local cache is open and the session token is read; never held for network. |
 | First paint | From the local cache (last snapshot), with "Mis à jour il y a X min". Network refresh starts after first paint. |
 | Budget | Cold start to interactive home ≤ **3 s** on the reference device (§6) [assumed target]; warm start ≤ 1 s. |
-| First ever launch | No cache → language choice → welcome screen; nothing loads from the network before sign-in except a 1-request health check. |
+| First ever launch | No cache → language (French / English) → **country of residence** (required; list of African countries, UEMOA and CEMAC first, then others) → **guided demo tour** (skippable, replayable from Settings) → sign-up. Nothing loads from the network before sign-in except a 1-request health check. |
+| Country | Sets phone-number format, the mobile-money operators offered, the law shown in the privacy notice and the fake-data profile. It does **not** set the currency: reference currency is **XOF by default** for everyone, changeable manually (Franco, 2026-11-22). |
+| Guided demo tour | 5-7 steps over the real home screen of a demo account (net worth, accounts, spending, portfolio/risk, alerts with a "C'est vous ?" example), then "Créer mon compte" or "Continuer en démo". Works offline from bundled demo data. Content and look: design agent. |
 
 ### 1.2 Sign-up and login (C7)
 
@@ -61,6 +63,7 @@ schema [decision, idea 1].
 | Demo accounts | 3 pre-seeded profiles (salaried in Dakar, trader in Abidjan, diaspora investor) with months of history, so the anomaly engine is already "learned" [decision, idea 8]. |
 | Login | Email + password once per device; then **biometric unlock** (`expo-local-authentication`) or 6-digit app PIN. |
 | MFA | Optional TOTP (Supabase MFA). Required for the analyst dashboard. |
+| Bank-card scan (C10) | After email confirmation: "Ajouter ma carte bancaire" → camera (permission asked here, in context) → **on-device OCR** (Vision Camera + ML Kit) fills number, expiry, holder name → Luhn check → user confirms/corrects; "Saisir à la main" always available. CVV never asked, scanned or stored. Server receives only first 6 + last 4, brand, expiry, holder name; the image is never saved or sent. Timeout 20 s → manual entry. |
 | Device registration | On first login, a random device id is created and stored in secure storage; a `security_event` "new_device" is written (used by fraud rules). |
 | Session | Access token 1 h, refresh token rotated; app locks after 5 min in background (setting: 1/5/15 min); 5 failed PINs → full re-login. |
 
@@ -231,10 +234,10 @@ questionnaire, export my data (CSV/JSON), delete my account, about
   reasons, user history, device/security events), decision
   **fraude / légitime** with comment → feedback table used to tune
   thresholds (bounded change per decision, logged).
-- **Demo console** (recommended): buttons to inject a scenario for a demo
-  account (SIM swap + withdrawal, mule pattern, unusual merchant,
-  large transfer at 3 a.m.), so the presenter can show the full chain
-  live. (Question for Franco.)
+- **No demo console** (Franco, 2026-11-22). Anomaly and fraud scenarios
+  come from the fake-data generator's scenario files, replayed on a
+  schedule into the demo accounts so that the client, testing alone,
+  meets realistic alerts (frequency to set in architecture).
 
 ---
 
@@ -267,10 +270,11 @@ option to hide amounts on widgets ("•••").
 - Delivery: Expo Push Service → FCM (Android). Push delivery is not
   guaranteed: when the app is open, alerts also arrive by Realtime; on
   open, the app always fetches open alerts.
-- Notification text never shows the full account number; amount shown
-  by default with an option to hide it.
-- Unanswered 40-70 question: reminder after 15 min, then the alert stays
-  open in the app (escalation rule: question for Franco).
+- Notification text never shows the account number; **amounts hidden by
+  default** (Franco), revealed in the app after unlock; a setting can
+  show them. Wording: design agent.
+- Unanswered 40-70 question: one reminder after 15 min, then the alert
+  **stays open in the app**; it is **not** sent to the bank (Franco).
 - Android channels: "Sécurité" (high importance), "Budgets", "Marchés".
 
 ---
@@ -288,8 +292,8 @@ option to hide amounts on widgets ("•••").
 | Motion | respect "reduce motion" (Reanimated `useReducedMotion`); no auto-playing animation > 5 s. |
 | Focus/order | logical reading order; modal focus trapped; errors announced. |
 | Authentication | no cognitive test; biometrics or PIN; paste allowed in password fields (3.3.8). |
-| Language | **French first**, English second (all strings in i18n files from day one). Wolof, Bambara, Dioula, Lingala: not in the prototype; architecture must allow it (question for Franco). |
-| Low literacy | icons + short words; numbers big and formatted the local way; "Écouter" button reading key screens aloud (`expo-speech`, French TTS on device, no network) [assumed available on most Android devices]; one action per screen in onboarding; no jargon without a "?" explanation. |
+| Language | **French and English only** (Franco); all strings in i18n files; French is the default. |
+| Low literacy | icons + short words; numbers big and formatted the local way; one action per screen in onboarding; no jargon without a "?" explanation. No read-aloud feature (Franco). |
 
 Testing: Android Accessibility Scanner + manual TalkBack pass per
 screen; contrast checked with a script on the design tokens (design
@@ -299,10 +303,11 @@ session).
 
 ## 6. Performance on real devices
 
-Reference device for all budgets [assumed]: **Android 12-14, 3 GB RAM,
-4-core 2.0 GHz class (e.g. Samsung Galaxy A0x/A1x, Tecno Spark, Infinix
-Hot)**, 3G/4G unstable. Nothing here is measured yet: each budget comes
-with its measurement method; the first dev build must be measured.
+Reference device for all budgets: **Tecno Spark 50** (Franco's phone,
+2026-11-22) on 3G/4G mobile data. Its exact RAM/CPU/Android version are
+to be read on the phone (Settings → About) and written in SETUP.md;
+nothing here is measured yet. Each budget comes with its measurement
+method; the first dev build must be measured on this phone.
 
 | Budget | Target | How to measure |
 |---|---|---|
@@ -326,8 +331,8 @@ refresh on mobile data).
 
 Server side: Supabase region **eu-west-3 (Paris)** or **eu-west-2
 (London)** — no Africa region [measured]; which is faster from Dakar,
-Abidjan and Douala must be **measured** (RTT test from a phone) before
-creating the project.
+Abidjan and Douala must be **measured** (RTT test from Franco's phone,
+protocol in [SETUP.md](SETUP.md)) before creating the project.
 
 ---
 
@@ -344,6 +349,7 @@ creating the project.
 | Session | auto-lock, device list with remote sign-out, re-auth (biometric) before changing security settings. |
 | Rooted devices | warning only (no free reliable detection) [assumed]. |
 | Audit | `security_events` table: login, failed PIN, new device, sign-out, settings change (also used by fraud rules). |
+| Bank card (C10) | OCR on the device; image never saved or sent; only first 6 + last 4, brand, expiry, holder name stored; CVV never collected; card fields excluded from logs and Sentry; test card numbers in the demo. |
 | Leaving the device | Supabase (EU) holds all user data; Groq receives **pseudonymised** labels only (C6); Sentry receives crash data with PII scrubbing on; nothing else. |
 
 **Data-protection law (what applies if real users join).** The prototype

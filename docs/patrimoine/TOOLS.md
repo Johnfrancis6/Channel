@@ -29,18 +29,19 @@ path, and the fewest moving parts.
 | Mobile framework | React Native + Expo | **React Native + Expo SDK 58** (dev builds, not Expo Go) | confirmed |
 | Charts | Victory Native (+ Sankey) | **Victory Native XL** + custom Skia candlestick + `d3-sankey` layout drawn in Skia | confirmed, extended |
 | Database + auth | Supabase | **Supabase Free** (Postgres, Auth, Realtime, Edge Functions, pg_cron) | confirmed, keep-alive needed |
-| Compute (VaR, beta, ML, score) | FastAPI + scikit-learn on Render | **Split:** batch analytics in Python on **GitHub Actions** (scheduled) → results in Supabase; live scoring in a **Supabase Edge Function** | **challenged (C1)** |
-| Market data | Finnhub + Twelve Data | **Twelve Data** (daily history, FX, US stocks/ETFs) + **Finnhub** (intraday quotes, US) + **FRED** (oil daily, cocoa/coffee monthly) ; commodities via ETF proxies | **changed (C4)** |
+| Compute (VaR, beta, ML, score) | FastAPI + scikit-learn on Render | **Split:** batch analytics in Python on **GitHub Actions** (scheduled) → results in Supabase; live scoring in a **Supabase Edge Function** | changed (C1, validated) |
+| Market data | Finnhub + Twelve Data | **Twelve Data** (daily history, FX, US stocks/ETFs) + **Finnhub** (intraday quotes, US) + **FRED** (oil daily, cocoa/coffee monthly) ; commodities via ETF proxies | changed (C4, validated) |
 | Crypto | CoinGecko demo | **CoinGecko Demo** (attribution required) | confirmed |
 | FX | Frankfurter + CFA peg | **Frankfurter** + fixed peg | confirmed |
-| LLM categorisation | Groq (open models) | **Groq Free, `openai/gpt-oss-20b`**, batched, labels pseudonymised; fallback rules only | confirmed, model changed (C6) |
+| LLM categorisation | Groq (open models) | **Groq Free, `openai/gpt-oss-20b`**, batched, labels pseudonymised; fallback rules only | model changed (C6, validated) |
+| Bank-card OCR (new, C10) | — | **`react-native-vision-camera` v4 + ML Kit text recognition** (on-device) + regex + Luhn | new |
 | Fraud rules | coded rules | **Coded rules** (TypeScript, in the scoring Edge Function), each citing its source | confirmed |
-| Simulated bank dashboard | Next.js on Vercel | **React (Vite) SPA on Cloudflare Pages**, reading Supabase Realtime | **challenged (C2)** |
+| Simulated bank dashboard | Next.js on Vercel | **React (Vite) SPA on Cloudflare Pages**, reading Supabase Realtime | changed (C2, validated) |
 | Push notifications | — | **Expo Push Service** + FCM v1 (Android) | new |
 | Widgets | — | **`expo-widgets`** (Android opt-in), phase 2 | new |
 | Fake-data generation | — | **Own Python generator** (Faker + African-French lists), deterministic seed, run in GitHub Actions | new |
 | Monitoring | — | **Sentry Developer** (app + Edge Functions) + **UptimeRobot Free** + Supabase logs | new |
-| App build/distribution | — | **Expo free plan**: 15 Android builds/month, APK sideload for the demo | new; iOS see C3 |
+| App build/distribution | — | **Expo free plan**: 15 Android builds/month, APK sideload for the demo | new; Android only (C3, validated) |
 
 ---
 
@@ -86,7 +87,9 @@ Mitigations: the daily GitHub Actions job writes to the DB → never 7 days idle
 | **GitHub Actions (scheduled Python)** | Public repo: standard runners free; private: $12/month of compute included ≈ 2,000 Linux minutes [official, GitHub billing docs]; schedule min every 5 min, may be delayed [official via summary] | Not real-time; schedules can run late; in a **public** repo, scheduled workflows are disabled after 60 days without activity [official via summary] | **Yes, batch analytics** |
 | **Supabase Edge Functions** (Deno/TS) | 500,000 invocations/month [official] | No scikit-learn: Isolation Forest must be exported (trees as JSON) and scored in TS; two languages to keep in sync (parity test) | **Yes, live scoring** |
 
-Expected usage [assumed]: batch every 15 min during market hours + nightly full run ≈ 40 runs/day × 1-2 min ≈ 1,500-2,500 min/month → fits only in a **public** repo, or in a private repo if the intraday batch is light (only market snapshot, ~30 s) and the heavy run is nightly. Decision for the architecture agent, with this constraint.
+Repository: **new public repository** (Franco, 2026-11-22) → standard runners are free with no minute cap [official]. Catch: in a public repo, *scheduled* workflows are disabled after 60 days without repository activity → trigger the jobs with `workflow_dispatch` from Supabase `pg_cron` (GitHub token in Supabase secrets) and keep `schedule` only as a backup. Never commit secrets or real data to the public repo.
+
+Expected usage [assumed, now non-binding]: batch every 15 min during market hours + nightly full run ≈ 40 runs/day × 1-2 min ≈ 1,500-2,500 min/month → fits only in a **public** repo, or in a private repo if the intraday batch is light (only market snapshot, ~30 s) and the heavy run is nightly. Decision for the architecture agent, with this constraint.
 
 ## 5. Market data — see CHALLENGES C4
 
@@ -185,7 +188,20 @@ Deterministic seed → the same demo every time; a "scenario" file injects anoma
 | **UptimeRobot Free** | 50 monitors, 5-min interval [official] | **Yes** (Supabase REST, Edge Functions, dashboard) |
 | Supabase logs | 1-day retention [official] | Built-in |
 
-## 15. Real mobile money later
+## 15. Bank-card OCR at sign-up (C10)
+
+| Option | What it is | Catch | Pick |
+|---|---|---|---|
+| **Vision Camera v4 + ML Kit text recognition** (`react-native-vision-camera-mlkit` or `react-native-vision-camera-text-recognition` frame processor) | Free, on-device, offline OCR; needs Vision Camera ≥ 4 and `react-native-worklets-core` [secondary: package READMEs] | Dev build only; we write the card parser (regex + Luhn) ourselves; package versions to confirm for RN 0.88 | **Yes** |
+| `rn-executorch-card-scanner` | On-device EasyOCR via ExecuTorch, extracts number, expiry, name, bank [secondary: npm] | Young package, larger model [assumed] | Fallback |
+| Scanbot SDK | Turnkey card scanner | **Commercial** (trial licence) | No |
+| Cloud OCR (Google Vision, etc.) | Accurate | Sends the card image to a third party → PCI and privacy risk | No |
+
+Rules (PCI DSS, PCI SSC FAQ via search): never store the CVV; display at
+most first 6 + last 4; store only the truncated number. Check the
+current PCI DSS v4.0.1 text before any real card.
+
+## 16. Real mobile money later
 
 MTN MoMo developer portal is a "Test environment" with Collections, Disbursements… [official]; free status and sandbox currency not confirmed on the pages read (the common knowledge that the sandbox uses EUR is **unverified**). Orange Money and Wave: no official sandbox found (memo).
 

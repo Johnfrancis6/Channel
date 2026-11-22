@@ -9,9 +9,11 @@ wealth-management app prototype. You start cold. Read, in this order:
    security, computation placement.
 3. [TOOLS.md](TOOLS.md): the chosen tool per block, free limits with
    sources and dates.
-4. [CHALLENGES.md](CHALLENGES.md): decisions questioned by Session 1 and
-   **Franco's answers**. Where an answer is "rejected", follow the memo;
-   where it is "pending", ask Franco before designing that part.
+4. [CHALLENGES.md](CHALLENGES.md): decisions questioned by Session 1
+   (C1-C9 **validated** by Franco on 2026-11-22), C10 (bank-card OCR) and
+   **Franco's answers to the Session 1 questions** (end of the file).
+5. [SETUP.md](SETUP.md): what Franco measures and creates by hand
+   (region RTT test, reference phone specs, free accounts).
 
 ## Pipeline
 
@@ -63,6 +65,32 @@ only. Prototype for a client.
 - Auth (C7): email + password, biometric/PIN unlock, optional TOTP,
   demo accounts.
 - Monitoring: Sentry Developer, UptimeRobot, Supabase logs.
+- Bank-card OCR at sign-up (C10): on-device Vision Camera + ML Kit,
+  parser + Luhn, user confirms; store first 6 + last 4, brand, expiry,
+  name only; never the CVV or the image.
+
+## Franco's product answers (2026-11-22) — binding
+
+- The client is an **ordinary person** who **installs the app himself**;
+  first launch = language → **country of residence (required)** →
+  **guided demo tour** → sign-up (or continue in demo).
+- Reference currency **XOF by default for every country**, changeable
+  manually (EUR, USD, XAF).
+- **French and English only.** No read-aloud. No demo console in the
+  bank dashboard: alerts in demo accounts come from scheduled
+  fake-data scenarios.
+- 40-70 prompt unanswered: one reminder, then the alert stays open in
+  the app; **never auto-sent to the bank**.
+- Amounts **hidden** in notifications by default.
+- Reference device: **Tecno Spark 50**, Android only.
+- Code in a **new public repository** (Franco creates it): GitHub
+  Actions minutes are free, but scheduled workflows stop after 60 days
+  without activity → trigger jobs by `workflow_dispatch` from `pg_cron`.
+  No secrets or real data in the repo.
+- No accounts exist yet; SETUP.md lists them. Design the order in which
+  build sessions need them.
+- **You set the deadline and the build plan** (sessions, scope of each,
+  order), since Franco gave no demo date.
 - Fake data: own Python generator, deterministic seed, scenario files to
   inject anomalies/fraud.
 
@@ -93,24 +121,29 @@ sent ≤ 5 s p95. Free-tier quotas in TOOLS.md must hold with a margin of
 5. **Event flows** (sequence diagrams): new transaction → categorise →
    score → alert/push → user answer → bank decision → threshold tuning;
    market refresh; nightly batch; first sync; offline queue replay.
-6. **Scoring design:** feature list, threshold method, IF export format
+6. **Card OCR:** packages, permission flow, parser, storage fields, tests on real cards vs test numbers.
+7. **Scoring design:** feature list, threshold method, IF export format
    and parity test, combination formula to 0-100, how analyst feedback
    changes thresholds (bounded, logged), learning phase.
-7. **Offline and sync:** local DB schema, conflict rules, cache expiry.
-8. **Security:** RLS policies per table, secrets map, key rotation,
+8. **Offline and sync:** local DB schema, conflict rules, cache expiry.
+9. **Security:** RLS policies per table, secrets map, key rotation,
    pseudonymisation before Groq, audit log.
-9. **Environments and repos:** dev/demo, migrations, seed, CI (tests,
+10. **Environments and repos:** dev/demo, migrations, seed, CI (tests,
    builds), keep-alive, GitHub Actions minutes budget (public vs private
    repo).
-10. **Observability:** what is logged and alerted, with free limits.
-11. **Risks:** each free-tier catch in TOOLS.md with its mitigation.
+11. **Observability:** what is logged and alerted, with free limits.
+12. **Risks:** each free-tier catch in TOOLS.md with its mitigation.
 
-## Open questions you must carry (ask Franco if still open)
+## Open questions you must carry
 
-See the "Open questions" list at the end of CHALLENGES.md answers and
-TECH_ANALYSIS (escalation of unanswered 40-70 prompts, demo console,
-local languages, custom performance period computation, minimum data
-thresholds for risk figures).
+- C10: what the scanned card is used for after sign-up (Franco).
+- Countries offered at first launch (Session 1 proposes UEMOA + CEMAC
+  first, then other African countries) and what each country changes.
+- Supabase region: from the RTT results in SETUP.md.
+- Reference phone specs: from SETUP.md.
+- Technical (yours): custom-period performance computation; minimum data
+  thresholds for risk figures; frequency of replayed fraud scenarios in
+  demo accounts; analyst-feedback bounds on thresholds.
 
 ## Authority to challenge
 
@@ -133,12 +166,15 @@ Record challenges and answers in `CHALLENGES.md` (new section
 
 In `docs/patrimoine/` on the work branch, committed and pushed:
 
-1. `ARCHITECTURE.md` — items 1-11 above.
+1. `ARCHITECTURE.md` — items 1-12 above.
 2. `DATA_MODEL.md` — tables, fields, RLS, size estimate.
 3. `API.md` — RPC/view contracts per screen and event flows.
-4. `BRIEF_03_DESIGN.md` — brief for the design agent: every screen,
+4. `BUILD_PLAN.md` — the build sessions, their order, scope and the
+   deadline you propose.
+5. `BRIEF_03_DESIGN.md` — brief for the design agent (Franco asked that
+   you write it): every screen,
    state (loading, empty, error, offline, learning phase), data field,
    accessibility and performance constraint, the same right to
    challenge.
 
-Done when Franco has validated the four files.
+Done when Franco has validated the five files.
