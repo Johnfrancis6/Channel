@@ -128,6 +128,18 @@ Brainstorming de faisabilité, idée par idée. Une idée n'entre dans
 - La base factice simule aussi les événements de sécurité (connexions,
   nouvel appareil, changement de SIM).
 
+### Idée 10 — Scoring de risque et alerte combinée (validée le 2026-11-22)
+
+- Score combiné 0-100 = score d'anomalie (idée 8) + règles de fraude
+  déclenchées (idée 9) + contexte (appareil, montant, profil).
+- Seuils : < 40 rien ; 40-70 confirmation demandée à l'utilisateur ;
+  > 70 alerte à la banque. Chaque alerte affiche ses raisons.
+- « Banque » simulée : tableau de bord web d'analyste dans le prototype ;
+  l'analyste répond « fraude » / « légitime », ce qui ajuste les seuils.
+- L'application ne bloque jamais un paiement elle-même : la banque décide.
+- Plus tard, avec un vrai partenaire : remplacer le tableau de bord par
+  l'API de la banque.
+
 ## Points ambigus et réponses
 
 _(à remplir)_
