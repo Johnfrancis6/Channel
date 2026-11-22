@@ -61,6 +61,16 @@ Brainstorming de faisabilité, idée par idée. Une idée n'entre dans
 - Toutes les transactions sont enregistrées (historique nécessaire aux
   idées 4, 6 et 7).
 
+### Idée 4 — Graphes et schémas (validée le 2026-11-22, détails à venir)
+
+- Graphes retenus : évolution du patrimoine + allocation ; dépenses en
+  barres ; flux (Sankey) ; risque (VaR, drawdown) + chandeliers de cours.
+- Priorité : fluidité native (Victory Native) ; le Sankey en composant
+  dédié ou plus tard.
+- Interactifs : info-bulle au toucher + sélecteur de période.
+- Calculs côté serveur, le téléphone ne fait que dessiner.
+- **Détails dans une session dédiée au système de design** (Franco).
+
 ## Points ambigus et réponses
 
 _(à remplir)_
