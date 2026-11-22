@@ -71,6 +71,21 @@ Brainstorming de faisabilité, idée par idée. Une idée n'entre dans
 - Calculs côté serveur, le téléphone ne fait que dessiner.
 - **Détails dans une session dédiée au système de design** (Franco).
 
+### Idée 5 — Analyse des dépenses (validée le 2026-11-22)
+
+- Catégorisation : règles et mots-clés d'abord ; opérations non reconnues
+  envoyées à un modèle open source via Groq (ou hébergé ailleurs) ;
+  plan de secours : règles seules.
+- Chaque correction de l'utilisateur devient une règle ; catégories
+  modifiables avec sous-catégories.
+- Questionnaire unique à l'inscription (modifiable) : revenus et charges
+  fixes, objectifs, tolérance au risque, habitudes de dépenses.
+- Budgets mensuels par catégorie, alertes à 80 % et 100 %.
+- Indicateurs : taux d'épargne, reste à vivre, part des dépenses
+  contraintes, évolution d'un mois sur l'autre.
+- Réserve : avec Groq, les libellés partent chez un tiers ; sans
+  problème sur base factice, à revoir pour de vrais clients.
+
 ## Points ambigus et réponses
 
 _(à remplir)_
