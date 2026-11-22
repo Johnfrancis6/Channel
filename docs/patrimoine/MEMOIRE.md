@@ -116,6 +116,18 @@ Brainstorming de faisabilité, idée par idée. Une idée n'entre dans
 - Démo client : la base factice contient déjà des mois d'historique
   appris ; on injecte ensuite des anomalies.
 
+### Idée 9 — Détection de fraude sur schémas officiels (validée le 2026-11-22)
+
+- Moteur : Tazama (open source, Apache-2.0, Linux Foundation, lien
+  rapporté avec la BCEAO). Il lit des messages ISO 20022, cohérent avec
+  l'idée 1. Réserve : architecture lourde (plusieurs services) — coût
+  d'hébergement gratuit à vérifier à l'idée 11 ; repli : règles codées.
+- Schémas couverts : SIM swap + prise de contrôle du compte ; vol d'OTP
+  + faux dépôt ; comptes mules ; faux placements.
+- Chaque règle cite sa source officielle ; catalogue mis à jour.
+- La base factice simule aussi les événements de sécurité (connexions,
+  nouvel appareil, changement de SIM).
+
 ## Points ambigus et réponses
 
 _(à remplir)_
