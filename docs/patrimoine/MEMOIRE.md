@@ -86,6 +86,16 @@ Brainstorming de faisabilité, idée par idée. Une idée n'entre dans
 - Réserve : avec Groq, les libellés partent chez un tiers ; sans
   problème sur base factice, à revoir pour de vrais clients.
 
+### Idée 6 — Analyse de risque des investissements (validée le 2026-11-22)
+
+- Volatilité annualisée, bêta, VaR historique + CVaR, expositions
+  (classe d'actifs, devise, pays, secteur).
+- VaR à 95 % sur 1 jour et sur 1 mois.
+- Bêta calculé contre l'indice du marché de chaque actif (S&P 500,
+  BRVM Composite si une source existe, Bitcoin pour la crypto).
+- Alertes de concentration, seuil réglable, lié au profil de risque.
+- Immobilier (sans historique de cours) exclu de la VaR, montré à part.
+
 ## Points ambigus et réponses
 
 _(à remplir)_
