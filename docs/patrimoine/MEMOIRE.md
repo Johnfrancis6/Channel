@@ -96,6 +96,15 @@ Brainstorming de faisabilité, idée par idée. Une idée n'entre dans
 - Alertes de concentration, seuil réglable, lié au profil de risque.
 - Immobilier (sans historique de cours) exclu de la VaR, montré à part.
 
+### Idée 7 — Attribution de performance (validée le 2026-11-22)
+
+- Option A seule : contribution par actif et par classe
+  (poids × rendement) + effet devise. Pas de Brinson ni de portefeuille
+  modèle.
+- Rendements affichés : TWR (qualité des placements) et TRI (gain réel),
+  avec une explication.
+- Périodes : mois, année, depuis le début (+ période libre).
+
 ## Points ambigus et réponses
 
 _(à remplir)_
