@@ -105,6 +105,17 @@ Brainstorming de faisabilité, idée par idée. Une idée n'entre dans
   avec une explication.
 - Périodes : mois, année, depuis le début (+ période libre).
 
+### Idée 8 — Détection d'anomalies (validée le 2026-11-22)
+
+- Méthode : seuils statistiques par catégorie et bénéficiaire (qui
+  expliquent l'alerte) + Isolation Forest (cas que les seuils ratent).
+- Phase d'apprentissage sans alerte ; activation après 30 jours ET
+  30 opérations ; profil recalculé sur fenêtre glissante.
+- Chaque alerte donne sa raison en clair.
+- Réponse « c'est moi » : le profil s'adapte.
+- Démo client : la base factice contient déjà des mois d'historique
+  appris ; on injecte ensuite des anomalies.
+
 ## Points ambigus et réponses
 
 _(à remplir)_
