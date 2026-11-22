@@ -26,7 +26,15 @@ Brainstorming de faisabilité, idée par idée. Une idée n'entre dans
 
 ## Idées validées
 
-_(aucune pour l'instant)_
+### Idée 1 — Source des données bancaires (validée le 2026-11-22)
+
+- Base factice = « banque simulée » : comptes bancaires + portefeuilles
+  mobile money (Orange Money, Wave, MTN MoMo), en francs CFA (XOF/XAF).
+- Formats réels : IBAN de la zone UEMOA, mouvements au format ISO 20022,
+  opérations mobile money (dépôt, retrait, transfert, paiement marchand).
+- L'application lit la base via une API qui imite un vrai fournisseur.
+- Plus tard : remplacer par un bac à sable réel (ex. API MTN MoMo) sans
+  réécrire l'application. Bacs à sable Orange et Wave : à vérifier.
 
 ## Points ambigus et réponses
 
