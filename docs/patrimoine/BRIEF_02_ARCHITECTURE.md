@@ -136,9 +136,11 @@ sent ≤ 5 s p95. Free-tier quotas in TOOLS.md must hold with a margin of
 
 ## Open questions you must carry
 
-- C10: what the scanned card is used for after sign-up (Franco).
-- Countries offered at first launch (Session 1 proposes UEMOA + CEMAC
-  first, then other African countries) and what each country changes.
+- Answered by Franco: the scanned card serves **only to identify the
+  user's bank** (first 6 digits → bank); **all countries** are offered
+  at first launch. Yours to design: what each country changes (phone
+  format, operators, privacy-law notice, fake-data profile) and the
+  generic fallback for countries without a dedicated profile.
 - Supabase region: from the RTT results in SETUP.md.
 - Reference phone specs: from SETUP.md.
 - Technical (yours): custom-period performance computation; minimum data

@@ -176,6 +176,8 @@ Sources and dates are in [TOOLS.md](TOOLS.md) (all checked 2026-11-22).
 | 17 | Region RTT test from his phone | Yes (protocol in [SETUP.md](SETUP.md)). |
 | 18 | Reference device | **Tecno Spark 50**. |
 | 19 | Existing accounts | None yet (checklist in [SETUP.md](SETUP.md)). |
+| — | Countries at first launch | **All countries** are offered (Franco). |
+| — | Card use (C10) | **Only to identify the bank** (Franco). |
 | — | Division of work | Session 1 handles the technical part; the architecture agent writes the design agent's brief. |
 
 ## C10 — Bank-card OCR at sign-up (new feature, Session 1 recommendation)
@@ -199,6 +201,5 @@ Sources and dates are in [TOOLS.md](TOOLS.md) (all checked 2026-11-22).
   embossed/worn cards is imperfect [assumed] → manual entry always
   available; adds the camera permission and ~a few MB of ML Kit model
   [assumed, to measure against the 30 MB APK budget].
-- **Open question for Franco:** what is the card used for after
-  sign-up (only to identify the user's bank and show the card in the
-  accounts list, or more)?
+- **Franco's answer (2026-11-22):** the card is used **only to identify
+  the user's bank** (from its first 6 digits). No payment, no other use.

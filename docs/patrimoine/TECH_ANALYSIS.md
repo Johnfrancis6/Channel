@@ -51,7 +51,7 @@ schema [decision, idea 1].
 | Splash | Native splash (`expo-splash-screen`), held until the local cache is open and the session token is read; never held for network. |
 | First paint | From the local cache (last snapshot), with "Mis à jour il y a X min". Network refresh starts after first paint. |
 | Budget | Cold start to interactive home ≤ **3 s** on the reference device (§6) [assumed target]; warm start ≤ 1 s. |
-| First ever launch | No cache → language (French / English) → **country of residence** (required; list of African countries, UEMOA and CEMAC first, then others) → **guided demo tour** (skippable, replayable from Settings) → sign-up. Nothing loads from the network before sign-in except a 1-request health check. |
+| First ever launch | No cache → language (French / English) → **country of residence** (required; **all countries** — full ISO 3166-1 list, searchable, names in French/English; Franco 2026-11-22) → **guided demo tour** (skippable, replayable from Settings) → sign-up. Nothing loads from the network before sign-in except a 1-request health check. |
 | Country | Sets phone-number format, the mobile-money operators offered, the law shown in the privacy notice and the fake-data profile. It does **not** set the currency: reference currency is **XOF by default** for everyone, changeable manually (Franco, 2026-11-22). |
 | Guided demo tour | 5-7 steps over the real home screen of a demo account (net worth, accounts, spending, portfolio/risk, alerts with a "C'est vous ?" example), then "Créer mon compte" or "Continuer en démo". Works offline from bundled demo data. Content and look: design agent. |
 
@@ -63,7 +63,7 @@ schema [decision, idea 1].
 | Demo accounts | 3 pre-seeded profiles (salaried in Dakar, trader in Abidjan, diaspora investor) with months of history, so the anomaly engine is already "learned" [decision, idea 8]. |
 | Login | Email + password once per device; then **biometric unlock** (`expo-local-authentication`) or 6-digit app PIN. |
 | MFA | Optional TOTP (Supabase MFA). Required for the analyst dashboard. |
-| Bank-card scan (C10) | After email confirmation: "Ajouter ma carte bancaire" → camera (permission asked here, in context) → **on-device OCR** (Vision Camera + ML Kit) fills number, expiry, holder name → Luhn check → user confirms/corrects; "Saisir à la main" always available. CVV never asked, scanned or stored. Server receives only first 6 + last 4, brand, expiry, holder name; the image is never saved or sent. Timeout 20 s → manual entry. |
+| Bank-card scan (C10) | After email confirmation: "Ajouter ma carte bancaire" → camera (permission asked here, in context) → **on-device OCR** (Vision Camera + ML Kit) fills number, expiry, holder name → Luhn check → user confirms/corrects; "Saisir à la main" always available. CVV never asked, scanned or stored. Purpose: **only to identify the user's bank** from the first 6 digits (Franco). Server receives only first 6 + last 4, brand, expiry, holder name; the image is never saved or sent. Timeout 20 s → manual entry. |
 | Device registration | On first login, a random device id is created and stored in secure storage; a `security_event` "new_device" is written (used by fraud rules). |
 | Session | Access token 1 h, refresh token rotated; app locks after 5 min in background (setting: 1/5/15 min); 5 failed PINs → full re-login. |
 
