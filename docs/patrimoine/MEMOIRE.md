@@ -17,6 +17,13 @@ Brainstorming de faisabilité, idée par idée. Une idée n'entre dans
 10. Scoring de risque et moteur d'alerte combiné vers la banque
 11. Choix des solutions gratuites par bloc (mobile, backend, données)
 
+## Contexte (réponses de Franco)
+
+- But : prototype pour un client
+- Zone : Afrique francophone
+- Mobile : React Native
+- Source de données préférée : base factice (A), puis bac à sable réel (B)
+
 ## Idées validées
 
 _(aucune pour l'instant)_
