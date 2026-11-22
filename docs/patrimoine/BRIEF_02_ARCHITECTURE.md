@@ -1,7 +1,25 @@
 # Brief — Session 2: System architecture
 
 You are the **architecture agent** of a project to build a mobile
-wealth-management app prototype. You start cold. Read, in this order:
+wealth-management app prototype. You start cold.
+
+## Repository
+
+- You work in the new public repository **`Johnfrancis6/GOLDENPIECE`**
+  (created by Franco). All project documents live in its `docs/` folder.
+- **First step, if `docs/` does not yet hold the Session 1 files:** copy
+  them from `Johnfrancis6/Channel`, branch `claude/funny-volta-y8xamm`,
+  folder `docs/patrimoine/` (attach that repo read-only with `add_repo`):
+  `MEMOIRE.md`, `BRIEF_01_TECH_ANALYSIS.md`, `TECH_ANALYSIS.md`,
+  `TOOLS.md`, `CHALLENGES.md`, `SETUP.md`, `BRIEF_02_ARCHITECTURE.md`
+  → `GOLDENPIECE/docs/` unchanged, one commit "Import Session 1
+  documents". Links between them are relative and keep working.
+- Work on a branch, never directly on `main`; `git fetch` before every
+  push; `main` changes only through a pull request Franco merges.
+- Public repository: **no secrets, no real personal data**, ever. Add a
+  `.gitignore` covering `.env*` in your first commit.
+
+## Read, in this order
 
 1. [MEMOIRE.md](MEMOIRE.md) (in French): the 11 ideas Franco (project
    owner) validated on 2026-11-22.
@@ -87,7 +105,7 @@ only. Prototype for a client.
   the phone has none) — matrix in TECH_ANALYSIS §1.2b; the level is a
   score context factor.
 - Reference device: **Tecno Spark 50**, Android only.
-- Code in a **new public repository** (Franco creates it): GitHub
+- Code in the **new public repository `GOLDENPIECE`**: GitHub
   Actions minutes are free, but scheduled workflows stop after 60 days
   without activity → trigger jobs by `workflow_dispatch` from `pg_cron`.
   No secrets or real data in the repo.
@@ -157,7 +175,7 @@ sent ≤ 5 s p95. Free-tier quotas in TOOLS.md must hold with a margin of
 You may challenge any decision, including Franco's and Session 1's, if
 you judge it underperforming. Format: decision → problem → alternative →
 trade-off → recommendation. Do not apply it yourself: Franco decides.
-Record challenges and answers in `CHALLENGES.md` (new section
+Record challenges and answers in `docs/CHALLENGES.md` (new section
 "Session 2").
 
 ## How to work with Franco
@@ -171,7 +189,7 @@ Record challenges and answers in `CHALLENGES.md` (new section
 
 ## Deliverables
 
-In `docs/patrimoine/` on the work branch, committed and pushed:
+In `docs/` of `GOLDENPIECE`, on your work branch, committed and pushed, then a pull request to `main` for Franco:
 
 1. `ARCHITECTURE.md` — items 1-13 above.
 2. `DATA_MODEL.md` — tables, fields, RLS, size estimate.
