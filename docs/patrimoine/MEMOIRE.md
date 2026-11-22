@@ -36,6 +36,16 @@ Brainstorming de faisabilité, idée par idée. Une idée n'entre dans
 - Plus tard : remplacer par un bac à sable réel (ex. API MTN MoMo) sans
   réécrire l'application. Bacs à sable Orange et Wave : à vérifier.
 
+### Idée 2 — Données de marché (validée le 2026-11-22)
+
+- Uniquement des API gratuites, cours différés (~15 min), mention
+  « cours différés » à l'écran.
+- Périmètre : indices mondiaux, crypto, matières premières (or, pétrole,
+  cacao, café), devises ; franc CFA calculé par la parité fixe
+  1 EUR = 655,957 XOF/XAF.
+- BRVM : chercher une source gratuite à l'idée 11 ; si aucune, la BRVM
+  n'apparaît pas dans le prototype (ni simulée, ni saisie).
+
 ## Points ambigus et réponses
 
 _(à remplir)_
