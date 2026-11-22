@@ -46,6 +46,21 @@ Brainstorming de faisabilité, idée par idée. Une idée n'entre dans
 - BRVM : chercher une source gratuite à l'idée 11 ; si aucune, la BRVM
   n'apparaît pas dans le prototype (ni simulée, ni saisie).
 
+### Idée 3 — Suivi du patrimoine multi-actifs (validée le 2026-11-22)
+
+- Patrimoine net = actifs (comptes, mobile money, actions, crypto,
+  matières premières, immobilier) − dettes (crédits, prêts).
+- Valorisation au dernier cours connu ; PRU, plus-values latentes et
+  réalisées ; allocation par classe d'actifs, devise et pays.
+- Devise de référence au choix de l'utilisateur (XOF par défaut ;
+  EUR, USD, XAF possibles).
+- Positions : portefeuilles factices pour la démo + saisie manuelle des
+  achats/ventes (immobilier et actifs absents de la base).
+- Immobilier : valeur saisie et mise à jour par l'utilisateur, date de
+  mise à jour affichée.
+- Toutes les transactions sont enregistrées (historique nécessaire aux
+  idées 4, 6 et 7).
+
 ## Points ambigus et réponses
 
 _(à remplir)_
